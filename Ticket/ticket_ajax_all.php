@@ -725,6 +725,7 @@ if($_GET['action'] == 'update_fields') {
 		}
 		if($table_name == 'ticket_attached') {
 			mysqli_query($dbc, "UPDATE `$table_name` SET `date_stamp`='".date('Y-m-d')."' WHERE `$id_field`='$id'");
+			mysqli_query($dbc, "UPDATE `$table_name` SET `created_by`='{$_SESSION['contactid']}' WHERE `$id_field`='$id'");
 		} else {
 			mysqli_query($dbc, "UPDATE `$table_name` SET `created_by`='{$_SESSION['contactid']}' WHERE `$id_field`='$id'");
 			mysqli_query($dbc, "UPDATE `$table_name` SET `created_date`=CURRENT_TIMESTAMP WHERE `$id_field`='$id'");
@@ -756,12 +757,12 @@ if($_GET['action'] == 'update_fields') {
 		$append = filter_var(htmlentities($_POST['append_note']),FILTER_SANITIZE_STRING);
 		$dbc->query("UPDATE `ticket_attached` SET `notes`=CONCAT(IFNULL(`notes`,''),'$append') WHERE `id`='$id' AND `notes` NOT LIKE '%$append'");
 	}
-	if($table_name == 'ticket_attached' && $field_name == 'item_id' && $type == 'material') {
+	if($table_name == 'ticket_attached' && ($field_name == 'item_id' || $field_name == 'description') && $type == 'material') {
 		if($_POST['auto_checkin'] == 1) {
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `arrived` = 1 WHERE `id`='$id'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `arrived` = 1, `checked_in`=DATE_FORMAT(NOW(),'%H:%i:%s') WHERE `id`='$id'");
 		}
 		if($_POST['auto_checkout'] == 1) {
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `completed` = 1 WHERE `id`='$id'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `completed` = 1, `checked_out`=DATE_FORMAT(NOW(),'%H:%i:%s') WHERE `id`='$id'");
 		}
 	}
 	if($table_name == 'ticket_attached' && ($field_name == 'arrived' || $field_name == 'completed')) {

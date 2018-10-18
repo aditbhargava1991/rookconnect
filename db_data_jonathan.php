@@ -444,6 +444,12 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9744
+
+        // October 18, 2018 - Ticket 9389
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `created_by` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `date_stamp`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9389
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }

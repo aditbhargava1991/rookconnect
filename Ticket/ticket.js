@@ -1871,7 +1871,7 @@ function reload_summary() {
 	if(!finishing_ticket) {
 		destroyInputs($('#collapse_summary,#tab_section_ticket_summary'));
 		$.ajax({
-			url: '../Ticket/add_ticket_summary.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+			url: '../Ticket/add_ticket_summary.php?folder='+folder_name+'&ticketid='+ticketid+'&date='+$('[name=load_for_date]').val()+'&action_mode='+$('#action_mode').val(),
 			dataType: 'html',
 			success: function(response) {
 				$('#collapse_summary .panel-body,#tab_section_ticket_summary').html(response);
