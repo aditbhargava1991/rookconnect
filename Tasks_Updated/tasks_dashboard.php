@@ -613,7 +613,10 @@ function addIntakeForm(btn) {
             if ( !empty($taskboardid) ) {
                 $task_path = get_task_board($dbc, $taskboardid, 'task_path');
             }
-            $path_name = empty($task_board['task_path_name']) ? ($task_path > 0 ? get_project_path_milestone($dbc, $task_path, 'project_path') : 'New Path') : $task_board['task_path_name'];
+            //$path_name = empty($task_board['task_path_name']) ? ($task_path > 0 ? get_project_path_milestone($dbc, $task_path, 'project_path') : 'New Path') : $task_board['task_path_name'];
+
+            $path_name = get_project_path_milestone($dbc, $task_path, 'project_path');
+
             $businessid = get_sales($dbc, $_GET['category'], 'businessid');
             if($_GET['tab'] != 'sales') {
                 $board_name = $board_name['board_name'];
@@ -631,8 +634,13 @@ function addIntakeForm(btn) {
                       <img class="no-toggle cursor-hand" title="<?= TASK_NOUN ?> Board History" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png" width="25" />
                       <a href=""><img src="../img/clear-checklist.png" class="no-toggle cursor-hand offset-left-5" alt="Clear Completed Tasks" title="Clear Completed Tasks" onclick="clearCompleted(this);" width="25" /></a>
                     <?php
-                    if ( !empty($_GET['category']) && !empty($_GET['tab']) && $_GET['tab'] != 'sales') { ?>
+                    if ( !empty($_GET['category']) && !empty($_GET['tab']) && $_GET['tab'] != 'sales') {
+                        if($_GET['tab'] != 'Company') {
+                        ?>
                         <span class="no-toggle cursor-hand offset-left-5" title="Edit <?= TASK_NOUN ?> Board" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?taskboardid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-edit-icon.png" width="25" /></span>
+                        <?php } else { ?>
+                        <span class="no-toggle cursor-hand offset-left-5" title="Share <?= TASK_NOUN ?> Board" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?taskboardid=<?=$_GET['category']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/ROOK-share-icon.png" width="25" /></span>
+                        <?php } ?>
                     <?php }
                         if ( !empty($_GET['category']) && !empty($_GET['tab']) && in_array('archive', $quick_actions) && $_GET['tab'] != 'sales') { ?>
                             <span class="no-toggle cursor-hand offset-left-5" title="Archive <?= TASK_NOUN ?> Board" onclick="task_archive(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/trash-icon-red.png" width="25" /></span><?php
