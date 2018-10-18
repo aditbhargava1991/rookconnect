@@ -111,6 +111,25 @@ $(document).ready(function() {
 if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 	$default_services = $dbc->query("SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$businessid' AND '$businessid' > 0")->fetch_assoc()['serviceid']; ?>
 	<input type="hidden" name="default_services" value="<?= $default_services ?>">
+<?php }
+
+//New tickets should not show deleted Services but old tickets with deleted Services should
+$query_services = '';
+if(strpos($value_config, ',Service Rate Card,') !== FALSE) {
+	$services = explode('**',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services` FROM `rate_card` WHERE `clientid` IN ('$rate_contact', '$businessid') AND `clientid` != '' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') ORDER BY `clientid`='$rate_contact' DESC"))['services']);
+	$service_list = [];
+	$service_price = [];
+	foreach($services as $service) {
+		$service = explode('#',$service);
+		if($service[0] > 0) {
+			$service_list[] = $service[0];
+			$service_price[] = $service[1];
+		}
+	}
+	$query_services = "`serviceid` IN (".implode(',',$service_list).") AND "; ?>
+    <script>
+    reload_services = true;
+    </script>
 <?php } ?>
 <?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Delivery Details</h3>') ?>
 <?php if($access_all > 0) {

@@ -7,6 +7,7 @@ use_google_suggest = false;
 suggest_from_google = true;
 ticket_reloading_service_checklist = '';
 finishing_ticket = false;
+var reload_services = false;
 $(document).ready(function() {
 	// Mark fields manually set as manual
 	$('input').keyup(function() {
@@ -964,7 +965,9 @@ function saveFieldMethod(field) {
                             action: 'business_services',
                             business: $('select[name=businessid]').val()
                         }, function(response) {
-                            $('[name=serviceid]').empty().html(response);
+                            if(reload_services) {
+                                $('[name=serviceid]').empty().html(response);
+                            }
                             $.get('../Ticket/ticket_ajax_all.php', {
                                 contactid: $('select[name=businessid]').val(),
                                 action: 'list_customer_service_templates'
