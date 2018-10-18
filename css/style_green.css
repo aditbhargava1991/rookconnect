@@ -1081,7 +1081,7 @@ pre code {
 	}
 	
 	.col-sm-4 {
-		width: 22% !important;
+		width: 33.3333333333%;
 	}
 	.col-sm-5 {
 		width: 41.6666666667%;
@@ -6894,7 +6894,16 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .calendar .calendar-screen {
   background-color: #e3f8ba;
 }
-.overview-block, .main-screen-white, .connectedSortable { border-color:#a3c553 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border { border-color:#a3c553 !important; }
 footer { color:#fff; }
 .theme-color-icon {
   filter: invert(80%) sepia(11%) saturate(1932%) hue-rotate(34deg) brightness(92%) contrast(86%) !important;

@@ -290,8 +290,7 @@ a {
   color: #1b1b1b;
   text-decoration: none; }
   a:hover, a:focus {
-    color: #951584;
-    text-decoration: underline; }
+    color: #951584; }
   a:focus {
     outline: thin dotted;
     outline: 5px auto -webkit-focus-ring-color;
@@ -4688,7 +4687,7 @@ background: rgba(209, 251, 255, 0.48); /* Old browsers */
     .brand-nav a:hover {
       color: #9A16DA   !important; }
 
-a.newsboard-button, a.calendar-button, .social-icon, .home-button { filter: brightness(0%); }
+a.newsboard-button, a.calendar-button, .social-icon { filter: brightness(0%); }
 
 .logo {
   display: block;
@@ -5216,6 +5215,20 @@ a.newsboard-button, a.calendar-button, .social-icon, .home-button { filter: brig
 .calendar .calendar-screen {
   background-color: #ebccff;
 }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border {
+    border-color:#c466ff !important; 
+    }
+.info-block-header { background-color:#ecd7fa !important; }
 .theme-color-icon {
   filter: invert(71%) sepia(61%) saturate(6422%) hue-rotate(238deg) brightness(99%) contrast(105%) !important;
 }
@@ -5224,6 +5237,7 @@ a.newsboard-button, a.calendar-button, .social-icon, .home-button { filter: brig
 }
 .sidebar-higher-level a.cursor-hand.active {
   background-color: #c466ff !important;
+  color:#fff !important;
 }
 .sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
   color:#c466ff !important;
@@ -5240,6 +5254,17 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .block-panels .panel-heading.active a {
   color: #fff !important;
 }
-.blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#c466ff !important; }
+.blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#c466ff !important; color:#fff !important; }
 .calendar .main-screen .panel .panel-title > a:hover { color:#c466ff !important; }
 .theme-color-border-bottom { border-bottom:2px solid #c466ff !important; }
+
+.default-color,
+ul.sidebar .active,
+.main-screen .active,
+.tile-sidebar li a:hover, a:hover,
+.dashboard-item label,
+.main-item label,
+.text-blue {
+    color:#c466ff !important; }
+    
+.copyright, .posh-tag { color:#000; }

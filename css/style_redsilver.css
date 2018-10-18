@@ -121,8 +121,20 @@ ul.sidebar .active.blue, .tile-sidebar ul li.active, div.calendar-screen .block-
 .blue { background-color:#bf1e2e !important; color:#fff !important; }
 .blue span { background-color:transparent !important; }
 .blue-border, div.calendar-screen .block-item { border-color:#777 !important; }
-.summary-block, .main-screen-white { border:1px solid #bf1e2e !important; }
-.info-block-header {background-color:#ddd !important; border-bottom:4px solid #777 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.block-button,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border {
+    border-color:#bf1e2e !important; }
+.info-block-header {background-color:#ddd !important; }
 .tile-sidebar ul a { color:#000 !important; }
 .tile-sidebar ul li.active a, .filter_div a:hover { color:#fff !important; }
 .tile-sidebar ul li.sidebar-higher-level ul li.active a { color:#bf1e2e !important; }
