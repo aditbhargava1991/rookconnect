@@ -48,19 +48,10 @@ var businessFilter = function() {
 			url: 'ticket_ajax_all.php?action=business_services&agentid='+$('[name=agentid]').val()+'&carrierid='+$('[id$=transport_details] [name=carrier]').val()+'&originvendor='+$('[id$=transport_origin] [name=vendor]').val()+'&destvendor='+$('[id$=transport_destination] [name=vendor]').val()+'&business='+option.val(),
 			dataType: 'html',
 			success: function(response) {
-                var price = 0;
-                var i = 0;
-                response.split('#*#').forEach(function(service) {
-                    service = service.split('FFM');
-                    if(service[0] > 0) {
-                        i++;
-                        if(i > $('.serviceid').length) {
-                            addMulti($('.serviceid').last());
-                        }
-                        $('.serviceid').last().val(service[0]).change();
-                        price += service[1];
-                    }
-                });
+				$('.serviceid').each(function() {
+					var service = this.value;
+					$(this).html(response).val(service).trigger('change.select2');
+				});
 			}
 		});
 	<?php  } ?>
@@ -69,9 +60,19 @@ var businessFilter = function() {
         url: 'ticket_ajax_all.php?action=business_services_fetch&business='+option.val(),
         dataType: 'html',
         success: function(response) {
-            var arr = response.split('FFM');
-            $('.serviceid').val(arr[0]).trigger('change.select2');
-            $('[name=services_cost]').val(arr[1]);
+            var price = 0;
+            var i = 0;
+            response.split('#*#').forEach(function(service) {
+                service = service.split('FFM');
+                if(service[0] > 0) {
+                    i++;
+                    if(i > $('.serviceid').length) {
+                        addMulti($('.serviceid').last());
+                    }
+                    $('.serviceid').last().val(service[0]).change();
+                    price += service[1];
+                }
+            });
         }
     });
 
