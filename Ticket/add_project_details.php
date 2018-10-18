@@ -39,18 +39,29 @@ var businessFilter = function() {
 			}
 		});
 	<?php } ?>
+
 	<?php if(strpos($value_config, ',Service Rate Card,') !== FALSE) { ?>
 		$.ajax({
 			url: 'ticket_ajax_all.php?action=business_services&agentid='+$('[name=agentid]').val()+'&carrierid='+$('[id$=transport_details] [name=carrier]').val()+'&originvendor='+$('[id$=transport_origin] [name=vendor]').val()+'&destvendor='+$('[id$=transport_destination] [name=vendor]').val()+'&business='+option.val(),
 			dataType: 'html',
 			success: function(response) {
-				$('.serviceid').each(function() {
-					var service = this.value;
-					$(this).html(response).val(service).trigger('change.select2');
-				});
+                var price = 0;
+                var i = 0;
+                response.split('#*#').forEach(function(service) {
+                    service = service.split('FFM');
+                    if(service[0] > 0) {
+                        i++;
+                        if(i > $('.serviceid').length) {
+                            addMulti($('.serviceid').last());
+                        }
+                        $('.serviceid').last().val(service[0]).change();
+                        price += service[1];
+                    }
+                });
 			}
 		});
-	<?php } ?>
+	<?php  } ?>
+    
 	if(typeof filterRegLocClass == 'function') {
 		filterRegLocClass(1);
 	}
