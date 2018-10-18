@@ -219,10 +219,12 @@ function send_email(task) {
 
 function send_task_reminder(task) {
        task_id = $(task).parents('span').data('task');
+       var type = 'task';
        if(task_id.toString().substring(0,5) == 'BOARD') {
+                var type = 'task board';
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, false);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id+'&type='+type, 'auto', false, false);
 }
 
 function send_task_alert(task) {
@@ -305,14 +307,21 @@ function attach_file(task) {
 
 function flag_item_manual(task) {
        task_id = $(task).parents('span').data('task');
+       var type = 'task';
        if(task_id.toString().substring(0,5) == 'BOARD') {
-               task_id = task_id.substring(5);
+            var type = 'task_board';
+            task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id, 'auto', false, false);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id+'&type='+type, 'auto', false, false);
 }
 
 function highlight_item(sel) {
     var task_id = $(sel).parents('span').data('task');
+    var type = 'task';
+    if(task_id.toString().substring(0,5) == 'BOARD') {
+        var type = 'task_board';
+        task_id = task_id.substring(5);
+    }
     $('#color_'+task_id).click();
 }
 
@@ -321,9 +330,15 @@ function choose_color(sel) {
     var taskcolor = sel.value;
 	var taskcolor = taskcolor.replace("#", "");
 
+    var type = 'task';
+    if(task_id.toString().substring(0,5) == 'BOARD') {
+        var type = 'task_board';
+        task_id = task_id.substring(5);
+    }
+
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
-		url: "task_ajax_all.php?fill=task_highlight&tasklistid="+task_id+'&taskcolor='+taskcolor,
+		url: "task_ajax_all.php?fill=task_highlight&tasklistid="+task_id+'&taskcolor='+taskcolor+'&type='+type,
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			location.reload();
@@ -608,9 +623,9 @@ function addIntakeForm(btn) {
             //echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
 
 
-            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name` , `company_staff_sharing` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
-            $task_flag = $task_board['flag_colour'];
-            if ( !empty($taskboardid) ) {
+            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name` , `company_staff_sharing`, `flag_label`, `flag_colour` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
+            //$task_flag = $task_board['flag_colour'];
+            if (!empty($taskboardid)) {
                 $task_path = get_task_board($dbc, $taskboardid, 'task_path');
             }
             //$path_name = empty($task_board['task_path_name']) ? ($task_path > 0 ? get_project_path_milestone($dbc, $task_path, 'project_path') : 'New Path') : $task_board['task_path_name'];
@@ -642,16 +657,30 @@ function addIntakeForm(btn) {
                     }
                 }
             }
-            ?>
+            if($task_board['flag_label'] != '') { ?>
+            <span class="block-label flag-label-block" style="font-weight: bold; background-color: <?php echo '#'.$task_board['flag_colour']; ?>">Flagged: <?= $task_board['flag_label'] ?></span>
+            <?php } ?>
             </h3>
             </div>
 
-            <div class="col-sm-6 text-right"><span class="pull-right text-right" data-task="BOARD<?php echo $_GET['category']; ?>">
+            <div class="col-sm-6 text-right">
+            <span class="pull-right text-right" data-task="BOARD<?php echo $_GET['category']; ?>">
             <?php
                 if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
                     echo '<div class="gap-top gap-right">'; ?>
                       <img class="no-toggle cursor-hand" title="<?= TASK_NOUN ?> Board History" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png" width="25" />
                       <a href=""><img src="../img/clear-checklist.png" class="no-toggle cursor-hand offset-left-5" alt="Clear Completed Tasks" title="Clear Completed Tasks" onclick="clearCompleted(this);" width="25" /></a>
+
+                    <span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>
+
+                    <span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>
+
+                    <input type="color" class="color_picker" onchange="choose_color(this); return false;" id="color_<?=$taskboardid?>" data-taskid="<?=$taskboardid?>" name="color_<?=$taskboardid?>" style="display:none;" />
+
+                    <span title="Send Email" onclick="send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" title="Send Email" class="inline-img no-toggle" onclick="return false;"></span>
+
+                    <span title="Schedule Reminder" onclick="send_task_reminder(this); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" onclick="return false;"></span>
+
                     <?php
                     if ( !empty($_GET['category']) && !empty($_GET['tab']) && $_GET['tab'] != 'sales') {
                         if($_GET['tab'] != 'Company') {
@@ -744,8 +773,10 @@ function addIntakeForm(btn) {
 		}
 
         //if($_GET['category'] !== 'All') {
-            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
-            $task_flag = $task_board['flag_colour'];
+            $task_board = mysqli_fetch_array(mysqli_query($dbc, "SELECT `taskboardid`, `flag_colour`, `task_path_name`, `flag_label` FROM `task_board` WHERE `taskboardid`='{$_GET['category']}'"));
+            if($task_board['flag_label'] == '') {
+                $task_flag = $task_board['flag_colour'];
+            }
 			if ( !empty($taskboardid) ) {
 				$task_path = get_task_board($dbc, $taskboardid, 'task_path');
 			}

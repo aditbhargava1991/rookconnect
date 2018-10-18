@@ -88,10 +88,10 @@ if(isset($_POST['submit'])) {
             $body = htmlentities("This is a reminder about Intake #".$intake['intakeid'].": ".html_entity_decode($intake_form['form_name']).".<br />\n<br />");
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`, `sender`) VALUES ('$staff','$date','Intake Reminder','$subject','$body','intake','$id', '$sender')");
             break;
-        
+
         case 'email':
             $communication_id = $id;
-            
+
             $sender = get_email($dbc, $_SESSION['contactid']);
             $body = htmlentities("This is a reminder about an Email Communication.<br />\n<br />
             <a href=\"".WEBSITE_URL."/Email Communication/view_email.php?email_communicationid=$communication_id\">Click here</a> to see the Email Communication.<br />\n<br />");
@@ -122,7 +122,7 @@ if(isset($_POST['submit'])) {
             $salesid = $id;
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`,`src_table`,`src_tableid`) VALUES ('$staff','$date','Intake Form Reminder','$subject','".htmlentities("This is a reminder about an Intake Form. Please log into the software to review the form <a href=\"".WEBSITE_URL."/Intake/add_intake.php?edit=$id\">here</a>.")."','add_intake','$id')");
             break;
-        
+
         default:
             $dbc->query("INSERT INTO `reminders` (`contactid`,`reminder_date`,`reminder_type`,`subject`,`body`, `sender`) VALUES ('$staff','$date','Planner Reminder','$subject','$body', '$sender')");
             break;
@@ -144,7 +144,8 @@ switch($tile) {
         $subject = "Invoice Reminder".($id > 0 ? " for Invoice #".$id : '');
         break;
     case 'tasks':
-        $subject = "A reminder about the $title task";
+        $type = $_GET['type'];
+        $subject = "A reminder about the $type";
         break;
     case 'equipment':
         $equipment_label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '".$_GET['id']."'"))['label'];
