@@ -267,7 +267,7 @@ if(isset($_POST['custom_form'])) {
 													$length_line = [];
 													$width_line = [];
 													$height_line = [];
-													$general_rows = mysqli_query($dbc, "SELECT COUNT(`ticket_attached`.`id`) `num_rows`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY CONCAT(IFNULL(`ticket_attached`.`dimensions`,''),IFNULL(`ticket_attached`.`dimension_units`,''))");
+													$general_rows = mysqli_query($dbc, "SELECT SUM(`qty`) `qty`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY CONCAT(IFNULL(`ticket_attached`.`dimensions`,''),IFNULL(`ticket_attached`.`dimension_units`,''))");
 													while($general_line = $general_rows->fetch_assoc()) {
 														$length_inch = 0;
 														$width_inch = 0;
@@ -284,7 +284,7 @@ if(isset($_POST['custom_form'])) {
 														$length_line[] = round($length_inch,2);
 														$width_line[] = round($width_inch,2);
 														$height_line[] = round($height_inch,2);
-														$quantity_line[] = $general_line['num_rows'];
+														$quantity_line[] = $general_line['qty'];
 													}
 													if($size_details[1] == 'length_inch') {
 														$value .= implode("\n",$length_line);
@@ -296,10 +296,30 @@ if(isset($_POST['custom_form'])) {
 														$value .= implode("\n",$quantity_line);
 													}
 												} else if($field_detail[0] == 'piece_types_count') {
-													$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`piece_type`, SUM(`qty`) `qty` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0 AND IFNULL(`piece_type`,'') != ''".$query_daily." GROUP BY `ticket_attached`.`piece_type`");
+													$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`piece_type`, SUM(`qty`) `qty` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY `ticket_attached`.`piece_type`");
 													$piece_types = [];
 													while($general_line = $general_rows->fetch_assoc()) {
-														$piece_types[] = $general_line['qty'].'x'.$general_line['piece_type'];
+														$piece_types[] = $general_line['qty'].' x '.$general_line['piece_type'];
+													}
+													$piece_types = implode(', ', $piece_types);
+													$value .= $piece_types;
+												} else if($field_detail[0] == 'piece_types_count_dim') {
+													$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`piece_type`, SUM(`qty`) `qty`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY CONCAT(IFNULL(`ticket_attached`.`piece_type`,''),IFNULL(`ticket_attached`.`dimensions`,''),IFNULL(`ticket_attached`.`dimension_units`,''))");
+													$piece_types = [];
+													while($general_line = $general_rows->fetch_assoc()) {
+														$length_inch = 0;
+														$width_inch = 0;
+														$height_inch = 0;
+														foreach(explode('x',$general_line['dimensions']) as $dim_i => $dim) {
+															if($dim_i == 0) {
+																$length_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															} else if($dim_i == 1) {
+																$width_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															} else if($dim_i == 2) {
+																$height_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															}
+														}
+														$piece_types[] = $general_line['qty'].' x '.$length_inch."'x".$width_inch."'x".$height_inch."' ".$general_line['piece_type'];
 													}
 													$piece_types = implode(', ', $piece_types);
 													$value .= $piece_types;
