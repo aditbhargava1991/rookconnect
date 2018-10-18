@@ -3486,7 +3486,7 @@ function get_calendar_today_color($dbc) {
     } else if ($software_config == 'btb'){
         return '5ce8c7';
     } else if ($software_config == 'blackneonred'){
-        return '660000';
+        return 'e83324';
     } else if ($software_config == 'blackneon'){
         return '006565';
     } else if ($software_config == 'blackgold'){
@@ -3494,7 +3494,7 @@ function get_calendar_today_color($dbc) {
     } else if ($software_config == 'blackorange'){
         return 'dc6214';
     } else if ($software_config == 'ffm'){
-        return '198388';
+        return '43D6DD';
     } else if ($software_config == 'garden'){
         return '6e78b0';
     } else if ($software_config == 'green'){
@@ -3504,13 +3504,13 @@ function get_calendar_today_color($dbc) {
     } else if ($software_config == 'purp'){
         return '5f008b';
     } else if ($software_config == 'turq'){
-        return '02b6d0';
+        return '04EBB0';
     } else if ($software_config == 'leo'){
         return 'B37220';
     } else if ($software_config == 'polka'){
         return '000000';
     } else if ($software_config == 'chrome'){
-        return 'dddfe3';
+        return 'a1a1a1';
     } else if ($software_config == 'cosmos'){
         return '2933A9';
     } else if ($software_config == 'flowers'){
