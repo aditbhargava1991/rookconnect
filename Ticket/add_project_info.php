@@ -60,7 +60,7 @@ var businessFilter = function() {
                         $('.serviceid').last().val(service[0]).change();
                         price += service[1];
                     }
-                }
+                });
 			}
 		});
 	<?php  } ?>
