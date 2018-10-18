@@ -140,8 +140,14 @@ function popUpClosed() {
 		<div class="main-screen">
 			<div class="tile-header">
                 <div class="pull-right settings-block">
+                    <?php
+                    $taskboardid = 0;
+                    if(!empty($_GET['category']) && $_GET['category'] != 'All') {
+                        $taskboardid = $_GET['category'];
+                    }
+                    ?>
                     <div class="pull-right gap-left"><a href="field_config_project_manage.php?category=how_to"><img src="<?= WEBSITE_URL ?>/img/icons/settings-4.png" class="settings-classic wiggle-me" width="30" /></a></div>
-                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add <?= TASK_NOUN ?> Board</button></a></div>
+                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>&taskboardid=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add <?= TASK_NOUN ?> Board</button></a></div>
                     <!-- <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?category=<?=$_GET['category']?>&tab=<?=$_GET['tab']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div> -->
 
                     <?php
@@ -492,7 +498,7 @@ function popUpClosed() {
                             } else if ( $security == 'Company' ) { // Shared Task
                                 $result = mysqli_query($dbc, "SELECT `task_board`.`taskboardid`, `board_name`, `board_security`, `company_staff_sharing`, IFNULL(`seen_date`,'0000-00-00') `seen` FROM `task_board` LEFT JOIN `taskboard_seen` ON `task_board`.`taskboardid`=`taskboard_seen`.`taskboardid` AND `taskboard_seen`.`contactid`='{$_SESSION['contactid']}' AND IFNULL(`taskboard_seen`.`tab`,'$tab') = '$tab' WHERE `board_security`='". $security ."' AND `company_staff_sharing` LIKE '%,". $contactid .",%' AND `deleted`=0");
 
-                                if ( $result->num_rows > 0 ) {
+                                // if ( $result->num_rows > 0 ) {
                                     if ( $task_name=='Company Tasks' ) {
                                         $task_name = 'Shared '.TASK_TILE;
                                     }
@@ -533,7 +539,7 @@ function popUpClosed() {
 
                                         echo '</ul>';
                                     echo '</li>';
-                                }
+                                //}
 
                             } else if($security == 'path') { // Project Tasks
                                 echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == $tab ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#board1_'.$tab.'" data-parent="#desktop_accordions" href="javascript:void(0);">'.PROJECT_NOUN. ' '.TASK_TILE.'<span class="arrow"></span></a>';

@@ -9,7 +9,7 @@ if(mysqli_num_rows($noti_list) > 0) {
     	if($row_limit > 0 && $row_i > $row_limit) {
     		break;
     	}
-    	if($email_alert != 1) {
+    	if($email_alert != 1 && $calendar_reminders != 1) {
             if(!$new_noti && $row['seen'] != 1) {
                 $noti_html .= '</ul>';
                 $noti_html .= '<h4 style="font-weight: normal;">New Notifications</h4>';

@@ -713,10 +713,10 @@ div.calendar-screen {
 /* .calendar-screen.set-height { height:100%; } */
 .calendar-screen .sidebar.panel-group,
 .calendar-screen .calendar_view {
-    height:80%;
+    height:85%;
 }
 .calendar-screen .calendar_view {
-	height:calc(80% + 4em);
+	height:calc(85% + 4em);
 }
 .calendar-screen .panel-body-height { height:84.3%; }
 .calendar-screen .block-label { min-width:auto !important; }
