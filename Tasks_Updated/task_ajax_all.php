@@ -491,8 +491,15 @@ if($_GET['fill'] == 'taskflagmanual') {
 if($_GET['fill'] == 'task_highlight') {
 	$tasklistid = $_GET['tasklistid'];
 	$taskcolor = $_GET['taskcolor'];
-    echo "UPDATE `tasklist` SET `flag_colour`='$taskcolor' WHERE `tasklistid`='$tasklistid'";
-	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$taskcolor' WHERE `tasklistid`='$tasklistid'");
+    $type = '';
+    if(!empty($_GET['type'])) {
+	    $type = $_GET['type'];
+    }
+    if($type == 'task_board') {
+	    mysqli_query($dbc, "UPDATE `task_board` SET `flag_colour`='$taskcolor' WHERE `taskboardid`='$tasklistid'");
+    } else {
+	    mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$taskcolor' WHERE `tasklistid`='$tasklistid'");
+    }
 }
 
 if($_GET['fill'] == 'taskflag') {
