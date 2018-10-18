@@ -991,13 +991,16 @@ function track_icon_time(task) {
                 $task_updateddate = $get_task['updated_date'];
                 $task_updatedby = $get_task['updated_by'];
 
-                $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
+                $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM task_board WHERE taskboardid='$task_board'"));
                 $board_security = $get_taskboard['board_security'];
                 if($task_salesid > 0) {
                     $board_security = 'Sales';
                 }
                 if($task_projectid > 0) {
                     $board_security = 'Project';
+                }
+                if($board_security == 'Company') {
+                    $board_security = 'Shared';
                 }
 
                 /*
