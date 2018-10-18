@@ -3656,6 +3656,13 @@ function setRestrictedHours(input, start_time = '', end_time = '') {
 		}
 	}
 }
+function setHoursOfOperationToDoDate(input) {
+	var stop_type = $(input).closest('.scheduled_stop').find('select[name="type"][data-table="ticket_schedule"]');
+	setHoursOfOperation(stop_type);
+	if($(stop_type).data('hours-of-operation') != 1) {
+		setRestrictedHours($(input).closest('.scheduled_stop').find('[name="to_do_start_time"]'));
+	}
+}
 function initSelectOnChanges() {
 	try {
 		setServiceFilters();
@@ -3774,14 +3781,10 @@ function initSelectOnChanges() {
 	$('select[name="po_line_range_min"],select[name="po_line_range_max"]').change(function() {
 		poLineRangeChange(this);
 	});
-	$('select[name="type"][data-table="ticket_schedule"]').off('change').change(function() {
+	$('select[name="type"][data-table="ticket_schedule"]').off('change',setHoursOfOperation).change(function() {
 		setHoursOfOperation(this);
 	});
-	$('[name="to_do_date"][data-table="ticket_schedule"]').off('change').change(function() {
-		var stop_type = $(this).closest('.scheduled_stop').find('select[name="type"][data-table="ticket_schedule"]');
-		setHoursOfOperation(stop_type);
-		if($(stop_type).data('hours-of-operation') != 1) {
-			setRestrictedHours($(this).closest('.scheduled_stop').find('[name="to_do_start_time"]'));
-		}
+	$('[name="to_do_date"][data-table="ticket_schedule"]').off('change',setHoursOfOperationToDoDate).change(function() {
+		setHoursOfOperationToDoDate(this);
 	});
 }
