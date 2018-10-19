@@ -1,4 +1,5 @@
 <script type="text/javascript">
+current_business = '<?= $businessid ?>';
 var businessFilter = function() {
 	var option = $('[name=businessid] option:selected');
 	if(option.val() > 0) {
