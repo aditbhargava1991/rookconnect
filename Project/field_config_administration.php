@@ -135,6 +135,9 @@ function remGroup(img) {
 			$project_admin_fields = ',Services,Sub Totals per Service,';
 		}
 		$project_admin_fields = ','.$project_admin_fields.','; ?>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Delivery Rows" <?= strpos($project_admin_fields,',Delivery Rows,') !== FALSE ? 'checked' : '' ?>> Subdivide by Scheduled Stops</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Customer" <?= strpos($project_admin_fields,',Customer,') !== FALSE ? 'checked' : '' ?>> Customer</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Schedule" <?= strpos($project_admin_fields,',Schedule,') !== FALSE ? 'checked' : '' ?>> Scheduled Date and Time</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Summary" <?= strpos($project_admin_fields,',Status Summary,') !== FALSE ? 'checked' : '' ?>> Status Summary</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Services" <?= strpos($project_admin_fields,',Services,') !== FALSE ? 'checked' : '' ?>> Services</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Sub Totals per Service" <?= strpos($project_admin_fields,',Sub Totals per Service,') !== FALSE ? 'checked' : '' ?>> Sub Totals per Service</label>
@@ -143,6 +146,7 @@ function remGroup(img) {
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Materials" <?= strpos($project_admin_fields,',Materials,') !== FALSE ? 'checked' : '' ?>> Materials</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Misc Item" <?= strpos($project_admin_fields,',Misc Item,') !== FALSE ? 'checked' : '' ?>> Miscellaneous</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Extra Billing" <?= strpos($project_admin_fields,',Extra Billing,') !== FALSE ? 'checked' : '' ?>> Extra Billing</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Notes" <?= strpos($project_admin_fields,',Notes,') !== FALSE ? 'checked' : '' ?>> Notes</label>
 	</div>
 </div>
 <div class="form-group">

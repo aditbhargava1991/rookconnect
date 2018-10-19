@@ -483,6 +483,16 @@
 		}
 		set_config($dbc, 'update_delivery_google', 1);
 	}
+    
+    // Ticket 9873
+	if(get_config($dbc, 'update_project_admin_notes') < 1) {
+		// October 19, 2018
+		if(!mysqli_query($dbc, "UPDATE `general_configuration` SET `value`=CONCAT(`value`,',Notes,') WHERE `name` LIKE 'project_admin_fields'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		set_config($dbc, 'update_project_admin_notes', 1);
+	}
+    // Ticket 9873
 	
 	echo "Jonathan's DB Changes Done<br />\n";
 ?>
