@@ -3481,6 +3481,38 @@ position: relative;
 	display: block;
 	padding: 0.65em 1em;
 }
+.dispatch-summary-tab {
+	width: calc(100% - 1em);
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+	margin: 0.5em;
+	vertical-align: top;
+	white-space: normal;
+}
+.dispatch-summary-title {
+	padding: 1em;
+	border-bottom: 1px solid #E1E1E1;
+	color: #fafafa !important;
+}
+.dispatch-summary-title a {
+	color: #fafafa !important;
+}
+.dispatch-summary-tab-truck {
+	width: 200px;
+	float: left;
+	height: 120px;
+}
+.dispatch-summary-tab-block {
+	width: calc(100% - 1em - 200px);
+	float: right;
+	height: 120px;
+	padding: 1em;
+}
+.dispatch-summary-active {
+	background-color: initial !important;
+	filter: brightness(0%);
+	transform: scale(1.5);
+}
 .bottom-right {
 	position: absolute;
 	right: 5px;
