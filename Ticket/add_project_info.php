@@ -15,6 +15,15 @@ var businessFilter = function() {
 		$('[name=clientid]').trigger('change.select2');
 		$('[name=rate_card] option[data-business]').hide().filter('[data-business='+option.val()+']').show();
 		$('[name=rate_card]').trigger('change.select2');
+        if($(option).data('region') != '' && $(option).data('region') != undefined) {
+            $('[name=region]').val($(option).data('region')).change();
+        }
+        if($(option).data('location') != '' && $(option).data('location') != undefined) {
+            $('[name=con_location]').val($(option).data('location')).change();
+        }
+        if($(option).data('classification') != '' && $(option).data('classification') != undefined) {
+            $('[name=classification]').val($(option).data('classification')).change();
+        }
 	} else {
 		$('[name=projectid] option').show();
 		$('[name=projectid]').trigger('change.select2');
@@ -69,6 +78,15 @@ var clientFilter = function() {
 			}
 			$('[name=projectid] option').hide().filter('[data-client*='+option.val()+'],[data-business='+$('[name=businessid] option:selected').val()+']').show();
 			$('[name=projectid]').trigger('change.select2');
+            if($(option).data('region') != '' && $(option).data('region') != undefined) {
+                $('[name=region]').val($(option).data('region')).change();
+            }
+            if($(option).data('location') != '' && $(option).data('location') != undefined) {
+                $('[name=con_location]').val($(option).data('location')).change();
+            }
+            if($(option).data('classification') != '' && $(option).data('classification') != undefined) {
+                $('[name=classification]').val($(option).data('classification')).change();
+            }
 		}
 		if(typeof filterRegLocClass == 'function') {
 			filterRegLocClass(1);
@@ -103,6 +121,15 @@ var projectFilter = function() {
 $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'));
 ?>
 <?= !$custom_accordion ? (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>'.('manual' == $force_project ? PROJECT_NOUN : TICKET_NOUN).' Information</h3>') : '' ?>
+<?php if (strpos($value_config_all, ','."Con Region".',') !== FALSE && strpos($value_config, ','."Con Region".',') === FALSE) { ?>
+    <input type="hidden" name="region" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['region'] ?>">
+<?php } ?>
+<?php if (strpos($value_config_all, ','."Con Location".',') !== FALSE && strpos($value_config, ','."Con Location".',') === FALSE) { ?>
+    <input type="hidden" name="con_location" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['con_location'] ?>">
+<?php } ?>
+<?php if (strpos($value_config_all, ','."Con Classification".',') !== FALSE && strpos($value_config, ','."Con Classification".',') === FALSE) { ?>
+    <input type="hidden" name="classification" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['classification'] ?>">
+<?php } ?>
 <?php foreach($field_sort_order as $field_sort_field) {
 	if($access_project == TRUE) { ?>
 		<?php if (( strpos($value_config, ',PI Business,') !== false  || ( strpos($value_config, ',PI ') === false) ) && $field_sort_field == 'PI Business' ) {
