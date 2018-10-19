@@ -36,6 +36,9 @@ $num_rows = mysqli_num_rows($result);
 
 if($num_rows > 0) {
 	$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT client_documents_dashboard FROM field_config"));
+	if(empty($get_field_config['client_documents_dashboard'])) {
+		$get_field_config['client_documents_dashboard'] = 'Client Documents Type,Category,Title,Uploader,Link';
+	}
 	$value_config = ','.$get_field_config['client_documents_dashboard'].',';
 	
 	// Add Pagintion //

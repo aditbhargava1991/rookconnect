@@ -36,6 +36,9 @@ $num_rows = mysqli_num_rows($result);
 
 if($num_rows > 0) {
 	$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `dashboard` FROM `field_config_custom_documents` WHERE `tab_name` = '".$_GET['tab']."'"));
+	if(empty($get_field_config['dashboard'])) {
+		$get_field_config['dashboard'] = 'Custom Documents Type,Category,Title,Uploader,Link';
+	}
 	$value_config = ','.$get_field_config['dashboard'].',';
 	
 	// Add Pagintion //

@@ -9,7 +9,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 		$tile = $tile_name[0];
 		$sub_tile = config_safe_str($tile_name[1]);
 	}
-	if((tile_visible($dbc, $tile) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket_group' && $sub_tile != '' && tile_visible($dbc, 'ticket_tile_'.$sub_tile, ROLE, 'ticket'))) {
+	if(((tile_visible($dbc, $tile) || (is_array($tile_name) && tile_visible($dbc, $tile.'_'.$sub_tile, ROLE, $tile))) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket_group' && $sub_tile != '' && tile_visible($dbc, 'ticket_tile_'.$sub_tile, ROLE, 'ticket'))) {
 		switch($tile) {
 			case 'admin_settings': return ['link'=>'admin_software_config.php','name'=>'Admin Settings']; break;
 			case 'software_config': return ['link'=>'Settings/settings.php','name'=>'Settings']; break;
@@ -21,14 +21,10 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'contacts_rolodex': return ['link'=>"ContactsRolodex/contacts_inbox.php",'name'=>'Contacts Rolodex']; break;
 			case 'staff': return ['link'=>"Staff/staff.php",'name'=>'Staff']; break;
 			case 'orientation': return ['link'=>"Orientation/orientation.php",'name'=>'Orientation']; break;
-			case 'documents': return ['link'=>"Document/documents.php",'name'=>'Documents']; break;
 			case 'infogathering': return ['link'=>"Information Gathering/infogathering.php",'name'=>'Information Gathering']; break;
 			case 'agenda_meeting': return ['link'=>"Agenda Meetings/agenda.php",'name'=>'Agendas & Meetings']; break;
 			case 'sales': return ['link'=>"Sales/index.php",'name'=>SALES_TILE]; break;
 			case 'certificate': return ['link'=>"Certificate/index.php",'name'=>'Certificates']; break;
-			case 'marketing_material': return ['link'=>"Marketing Material/marketing_material.php",'name'=>'Marketing Material']; break;
-			case 'internal_documents': return ['link'=>"Internal Documents/internal_documents.php",'name'=>'Internal Documents']; break;
-			case 'client_documents': return ['link'=>"Client Documents/client_documents.php",'name'=>'Client Documents']; break;
 			case 'contracts': return ['link'=>"Contract/index.php",'name'=>'Contracts']; break;
 			case 'driving_log': return ['link'=>"Driving Log/driving_log_tiles.php",'name'=>'Driving Log']; break;
 			case 'package': return ['link'=>"Package/package.php",'name'=>'Packages']; break;
@@ -278,7 +274,6 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
     		case 'training_quiz': return ['link'=>"TrainingQuizzes/orientation_training.php",'name'=>'Training & Quizzes']; break;
     		case 'preformance_review': return ['link'=>"HR/index.php?performance_review=list",'name'=>'Performance Reviews']; break;
 			case 'client_projects': return ['link'=>"Client Projects/project.php",'name'=>'Client Projects']; break;
-			case 'staff_documents': return ['link'=>"Staff Documents/staff_documents.php",'name'=>'Staff Documents']; break;
 			case 'safety_manual': return ['link'=>"Manuals/safety_manual.php",'name'=>'Safety Manual']; break;
 			case 'members': return ['link'=>"Members/contacts_inbox.php", 'name'=>'Members']; break;
 			case 'form_builder': return ['link'=>"Form Builder/formbuilder.php", 'name'=>'Form Builder']; break;

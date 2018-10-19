@@ -7,6 +7,9 @@ if(!empty($_GET['tile_name'])) {
 include_once('document_settings.php');
 
 if(isset($_POST['submit_tabs'])) {
+	$documents_all_dashboard_layout = filter_var($_POST['documents_all_dashboard_layout'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'documents_all_dashboard_layout', $documents_all_dashboard_layout);
+	
 	$documents_all_tabs = implode(',',$_POST['documents_all_tabs']);
 	set_config($dbc, 'documents_all_tabs', $documents_all_tabs);
 
@@ -52,6 +55,13 @@ function removeCustomDiv(img) {
         <div class="col-sm-11"><span class="notice-name">NOTE:</span>
         Tabs enabled as a Tile will have it's own separate Security settings in the Security tile. Tabs enabled in Documents will use Subtab security settings.</div>
         <div class="clearfix"></div>
+    </div>
+    <div class="form-group">
+    	<label class="col-sm-4 control-label" style="text-align: right;">Dashboard Layout:</label>
+    	<div class="col-sm-8">
+    		<label class="form-checkbox"><input type="radio" name="documents_all_dashboard_layout" value="" <?= $dashboard_layout != 'tile' ? 'checked' : '' ?>> Sidebar Navigation</label>
+    		<label class="form-checkbox"><input type="radio" name="documents_all_dashboard_layout" value="tile" <?= $dashboard_layout == 'tile' ? 'checked' : '' ?>> Tabs as Tiles</label>
+    	</div>
     </div>
 	<div class="form-group">
 		<label class="col-sm-4 control-label" style="text-align: right;">Enabled Tabs:</label>
