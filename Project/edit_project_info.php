@@ -229,15 +229,16 @@ $field_mandatory_config = array_filter(array_unique(array_merge(explode(',',mysq
 	<div class="form-group">
 		<label class="col-sm-4"><?php echo (in_array('Information Contact Classification', $field_mandatory_config) ? '<font color="red">* </font>' : ''); ?>Classification:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-			<select name="classification" multiple id="contact_classification" data-placeholder="Select a Classification..." class="chosen-select-deselect form-control <?php echo (in_array('Information Contact Classification', $field_mandatory_config) ? 'required' : ''); ?>">
-				<?php $contact_classifications = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0])));
-				foreach ($contact_classifications as $contact_classification) {
-					echo "<option ".(in_array($contact_classification, $classification) ? 'selected' : '')." value='".$contact_classification."'>".$contact_classification.'</option>';
+			<select name="classification1" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid"  id="classification1" data-placeholder="Select a Classification..." class="chosen-select-deselect form-control <?php echo (in_array('Information Contact Classification', $field_mandatory_config) ? 'required' : ''); ?>">
+				<?php $contact_classifications = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE `name` LIKE '%_classification'"));
+                $project_class = explode(',',$contact_classifications['value']);
+				foreach ($project_class as $project_classification) {
+					echo "<option ".($project['classification1'] == $project_classification ? ' selected' : '')." value='".$project_classification."'>".$project_classification.'</option>';
 				} ?>
 			</select>
 		</div>
 	</div>
-	<?php } ?>
+	<?php }?>
 
 	<?php if (in_array("Information Project Type",$value_config)) { ?>
 	<div class="form-group">
