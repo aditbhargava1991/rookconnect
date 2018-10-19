@@ -3770,7 +3770,9 @@ function initSelectOnChanges() {
 	$('[name=item_id][data-type="Staff"]').off('change',filterPositions).change(filterPositions);
 	$('.billing input,.billing select,[name=billing_discount],[name=billing_discount_type]').off('change',setBilling).change(setBilling);
 	$('[name="region"],[name="con_location"],[name="classification"]').change(function() {
-		filterRegLocClass();
+        if(typeof filterRegLocClass == 'function') {
+            filterRegLocClass();
+        }
 	});
 	if($('[name="customer_service_template"]').length > 0) {
 		try {
