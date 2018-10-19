@@ -36,6 +36,9 @@ $num_rows = mysqli_num_rows($result);
 
 if($num_rows > 0) {
 	$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT marketing_material_dashboard FROM field_config"));
+	if(empty($get_field_config['marketing_material_dashboard'])) {
+		$get_field_config['marketing_material_dashboard'] = 'Marketing Material Type,Category,Title,Uploader,Link';
+	}
 	$value_config = ','.$get_field_config['marketing_material_dashboard'].',';
 
 	//Added Pagination
@@ -232,7 +235,7 @@ while($row = mysqli_fetch_array( $result ))
 		echo '<td data-title="MSRP">' . $row['msrp'] . '</td>';
 	}
     if (strpos($value_config, ','."Send Email".',') !== FALSE) {
-        echo '<td data-title="Send Email"><a href=\'?tile_name='.$tile_name.'&tab=marketing&send_material=true&marketing_materialid='.$marketing_materialid.'\'>Send</a></td>';
+        echo '<td data-title="Send Email"><a href=\'?tile_name='.$tile_name.'&tab=marketing_material&send_material=true&marketing_materialid='.$marketing_materialid.'\'>Send</a></td>';
     }
 
 	echo '<td data-title="Function">';
