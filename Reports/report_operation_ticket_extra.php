@@ -476,6 +476,22 @@ function report_output($dbc, $starttime, $endtime, $createstart, $createend, $bu
 								</tr>';
 								$sum_hours += $task['hours'];
 							}
+                            $material_list = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid` IN ('".implode("','", explode(',',$detail['tickets']))."') AND `date_stamp`='".$date['date_stamp']."' AND `src_table`='material' AND `deleted`=0 AND (`item_id` > 0 OR `description` != '')");
+                            if($material_list->num_rows > 0) {
+                                $report_data .= '<tr>
+                                    <td></td>
+                                    <td colspan="2" style="background-color:#CCCCCC;border:0 solid black;">Materials on '.TICKET_TILE.'</td>
+                                    <td style="background-color:#CCCCCC;border:0 solid black;" colspan="2">Quantity</td>
+                                </tr>';
+                                // Tasks List
+                                while($material = $material_list->fetch_assoc()) {
+                                    $report_data .= '<tr>
+                                        <td></td>
+                                        <td colspan="2">'.($material['item_id'] > 0 ? get_field_value('name','material','materialid',$material['item_id']) : $material['description']).'</td>
+                                        <td colspan="2">'.round($material['qty'],2).'</td>
+                                    </tr>';
+                                }
+                            }
 							$report_data .= '<tr><td colspan="5" style="border-bottom:1px solid black;"></td></tr>';
 						}
 					}

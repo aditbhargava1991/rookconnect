@@ -1590,97 +1590,30 @@ if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) 
 }
 
 if(!isset($equipment)) {
-	//Add notes
-	$contact_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `calendar_notes` WHERE `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0 AND `is_equipment` = 0"))['note'];
-	$calendar_table[$calendar_date][$contact_id]['notes'] = html_entity_decode($contact_notes);
+	if($_GET['block_type'] != 'team') {
+		//Add notes
+		$contact_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `calendar_notes` WHERE `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0 AND `is_equipment` = 0"))['note'];
+		$calendar_table[$calendar_date][$contact_id]['notes'] = html_entity_decode($contact_notes);
 
-	//Add reminders
-    $reminderids = [];
-    //Reminders
-    $reminders_query = "SELECT * FROM `reminders` WHERE `reminder_date` = '$calendar_date' AND `contactid` = '$contact_id' AND `deleted` = 0";
-    $reminders_result = mysqli_fetch_all(mysqli_query($dbc, $reminders_query),MYSQLI_ASSOC);
-    foreach ($reminders_result as $reminder) {
-        mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['reminderid']."', '".$contact_id."', 'reminder', '".$calendar_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['reminderid']."' AND `type` = 'reminder' AND `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0) num WHERE num.rows = 0");
-        $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['reminderid']."' AND `type` = 'reminder' AND `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0"))['daysheetreminderid'];
-        $reminderids[] = $reminderid;
-    }
-    $sales_reminders_query = "SELECT * FROM `sales` WHERE `new_reminder` = '$calendar_date' AND (`primary_staff` = '$contact_id' OR CONCAT(',',`share_lead`,',') LIKE '%,$contact_id,%')";
-    $sales_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $sales_reminders_query),MYSQLI_ASSOC);
-    foreach ($sales_reminders_result as $reminder) {
-        mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['salesid']."', '".$contact_id."', 'sales', '".$calendar_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['salesid']."' AND `type` = 'sales' AND `date` = '".$calendar_date."' AND `contactid` ='".$contact_id."' AND `deleted` = 0) num WHERE num.rows = 0");
-        $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['salesid']."' AND `type` = 'sales' AND `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0"))['daysheetreminderid'];
-        $reminderids[] = $reminderid;
-    }
-    $estimates_reminders_query = "SELECT `ea`.*, `e`.`estimate_name` FROM `estimate_actions` AS `ea` JOIN `estimate` AS `e` ON (`ea`.`estimateid`=`e`.`estimateid`) WHERE FIND_IN_SET ('$contact_id', `e`.`assign_staffid`) AND `e`.`deleted`=0 AND FIND_IN_SET('$contact_id', `ea`.`contactid`) AND `ea`.`deleted`=0 AND `ea`.`due_date`='". date('Y-m-d', strtotime($calendar_date)) ."'";
-    $estimates_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $estimates_reminders_query),MYSQLI_ASSOC);
-    foreach ($estimates_reminders_result as $reminder) {
-        mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['id']."', '".$contact_id."', 'estimate', '".$calendar_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['id']."' AND `type` = 'estimate' AND `date` = '".$calendar_date."' AND `contactid` ='".$contact_id."' AND `deleted` = 0) num WHERE num.rows = 0");
-        $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['id']."' AND `type` = 'estimate' AND `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0"))['daysheetreminderid'];
-        $reminderids[] = $reminderid;
-    }
-    $projects_reminders_query = "SELECT `pa`.*, `p`.`project_name` FROM `project_actions` AS `pa` JOIN `project` AS `p` ON (`pa`.`projectid`=`p`.`projectid`) WHERE FIND_IN_SET ('$contact_id', `pa`.`contactid`) AND `p`.`deleted` = 0 AND `pa`.`deleted` = 0 AND `pa`.`due_date` = '".date('Y-m-d', strtotime($calendar_date))."'";
-    $projects_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $projects_reminders_query),MYSQLI_ASSOC);
-    foreach ($projects_reminders_result as $reminder) {
-        mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['id']."', '".$contact_id."', 'project', '".$calendar_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['id']."' AND `type` = 'project' AND `date` = '".$calendar_date."' AND `contactid` ='".$contact_id."' AND `deleted` = 0) num WHERE num.rows = 0");
-        $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['id']."' AND `type` = 'project' AND `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0"))['daysheetreminderid'];
-        $reminderids[] = $reminderid;
-    }
-    $pfu_reminders_query = "SELECT * FROM `project` WHERE `followup` = '".$calendar_date."' AND `project_lead` = '".$contact_id."'";
-    $pfu_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $pfu_reminders_query),MYSQLI_ASSOC);
-    foreach ($pfu_reminders_result as $key => $reminder) {
-        $project_exists = false;
-        foreach ($projects_reminders_result as $project_action) {
-            if ($project_action['projectid'] == $reminder['projectid']) {
-                $project_exists = true;
-                unset($pfu_reminders_result[$key]);
-            }
-        }
-        if (!$project_exists) {
-            mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['projectid']."', '".$contact_id."', 'project_followup', '".$calendar_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['projectid']."' AND `type` = 'project_followup' AND `date` = '".$calendar_date."' AND `contactid` ='".$contact_id."' AND `deleted` = 0) num WHERE num.rows = 0");
-            $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['projectid']."' AND `type` = 'project_followup' AND `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0"))['daysheetreminderid'];
-            $reminderids[] = $reminderid;
-        }
-    }
-    $alerts_reminders_query = "SELECT * FROM `alerts` WHERE `alert_date` = '$calendar_date' AND `alert_user` = '$contact_id'";
-    $alerts_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $alerts_reminders_query),MYSQLI_ASSOC);
-    foreach ($alerts_reminders_result as $reminder) {
-        mysqli_query($dbc, "INSERT INTO `daysheet_reminders` (`reminderid`, `contactid`, `type`, `date`, `done`) SELECT '".$reminder['alertid']."', '".$contact_id."', 'alert', '".$calendar_date."', '0' FROM (SELECT COUNT(*) rows FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['alertid']."' AND `type` = 'alert' AND `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0) num WHERE num.rows = 0");
-        $reminderid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `daysheetreminderid` FROM `daysheet_reminders` WHERE `reminderid` = '".$reminder['alertid']."' AND `type` = 'alert' AND `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0"))['daysheetreminderid'];
-        $reminderids[] = $reminderid;
-    }
+		//Add reminders
+		$reminder_html = [];
+		include_once('../Profile/daysheet_functions.php');
+	    $reminders_list = mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0 ORDER BY `done` ASC");
 
-    //If reminders not found, mark it as deleted
-    $reminderids = "'".implode("','",$reminderids)."'";
-        $date_of_archival = date('Y-m-d');
-    mysqli_query($dbc, "UPDATE `daysheet_reminders` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `daysheetreminderid` NOT IN (".$reminderids.") AND `date` = '".$calendar_date."' AND `date` >= '".date('Y-m-d')."' AND `contactid` = '".$contact_id."' AND `done` = 0 AND `deleted` = 0");
-
-    //Display Reminders
-	$reminders_list = mysqli_query($dbc, "SELECT * FROM `daysheet_reminders` WHERE `date` = '".$calendar_date."' AND `contactid` = '".$contact_id."' AND `deleted` = 0 AND `done` = 0");
-    $num_rows = mysqli_num_rows($reminders_list);
-    if ($num_rows > 0) {
-    	$calendar_table[$calendar_date][$contact_id]['reminders'] ='';
-		foreach ($reminders_list as $daysheet_reminder) {
-		    if ($daysheet_reminder['type'] == 'reminder') {
-		        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `reminders` WHERE `reminderid` = '".$daysheet_reminder['reminderid']."'"));
-		        $calendar_table[$calendar_date][$contact_id]['reminders'] .= $reminder['subject'].'<br>';
-		    } else if ($daysheet_reminder['type'] == 'sales') {
-		        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid` = '".$daysheet_reminder['reminderid']."'"));
-		        $calendar_table[$calendar_date][$contact_id]['reminders'] .= '<a href="../Sales/sale.php?p=preview&id='.$reminder['salesid'].'">Follow Up Sales: Sales #'.$reminder['salesid'].'</a><br>';
-		    } else if ($daysheet_reminder['type'] == 'estimate') {
-		        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ea`.*, `e`.`estimate_name` FROM `estimate_actions` AS `ea` JOIN `estimate` AS `e` ON (`ea`.`estimateid`=`e`.`estimateid`) WHERE `ea`.`id` = '".$daysheet_reminder['reminderid']."'"));
-		        $calendar_table[$calendar_date][$contact_id]['reminders'] .= '<a href="../Estimate/estimates.php?view='.$reminder['estimateid'].'">Follow Up Estimate: '.$reminder['estimate_name'].'</a><br>';
-		    } else if ($daysheet_reminder['type'] == 'project') {
-		        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `pa`.*, `p`.`project_name` FROM `project_actions` AS `pa` JOIN `project` AS `p` ON (`pa`.`projectid`=`p`.`projectid`) WHERE `pa`.`id` = '".$daysheet_reminder['reminderid']."'"));
-		        $calendar_table[$calendar_date][$contact_id]['reminders'] .= '<a href="../Project/projects.php?edit='.$reminder['projectid'].'">Follow Up Project: '.$reminder['project_name'].'</a><br>';
-		    } else if ($daysheet_reminder['type'] == 'project_followup') {
-		        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$daysheet_reminder['reminderid']."'"));
-		        $calendar_table[$calendar_date][$contact_id]['reminders'] .= '<a href="../Project/projects.php?edit='.$reminder['projectid'].'">Follow Up Project: '.$reminder['project_name'].'</a><br>';
-		    } else if ($daysheet_reminder['type'] == 'alert') {
-		        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `alerts` WHERE `alertid` = '".$daysheet_reminder['reminderid']."'"));
-		        $calendar_table[$calendar_date][$contact_id]['reminders'] .= '<a href="'.$reminder['alert_link'].'">Alert: '.$reminder['alert_text'].' - '.$reminder['alert_link'].'</a><br>';
+	    if(mysqli_num_rows($reminders_list) > 0) {
+	        $reminders_list = mysqli_fetch_all($reminders_list,MYSQLI_ASSOC);
+		    foreach ($reminders_list as $daysheet_reminder) {
+		        $reminder_label = daysheet_get_reminder($dbc, $daysheet_reminder);
+		        if(!empty($reminder_label)) {
+		        	if($edit_access != 1) {
+		        		$reminder_label = strip_tags($reminder_label);
+		        	}
+		        	$reminder_html[] = '<div style="font-weight: normal;" class="daysheet_row">'.($_SESSION['contactid'] == $contact_id ? '<input style="position: relative; vertical-align: middle; top: -0.25em; width: 1.5em; height: 1.5em;" type="checkbox" name="daysheet_reminder" value="'.$daysheet_reminder['daysheetreminderid'].'" '.($daysheet_reminder['done'] == 1 ? 'checked="checked"' : '').' onclick="setDaysheetReminder(this);">&nbsp;&nbsp;' : '').'<span '.($daysheet_reminder['done'] == 1 ? 'style="text-decoration: line-through;"' : '').'>'.$reminder_label.'</span></div>';
+		        }
 		    }
 		}
-		$calendar_table[$calendar_date][$contact_id]['reminders'] = rtrim($calendar_table[$calendar_date][$contact_id]['reminders'], '<br>');
+
+		$calendar_table[$calendar_date][$contact_id]['reminders'] = implode('',$reminder_html);
 	}
 } else {
 	$contact_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `calendar_notes` WHERE `date` = '".$calendar_date."' AND `contactid` = '".$equipment['equipmentid']."' AND `deleted` = 0 AND `is_equipment` = 1"))['note'];

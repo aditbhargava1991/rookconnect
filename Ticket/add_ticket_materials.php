@@ -75,13 +75,13 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 							</select>
 						</div>
 						<div class="col-sm-<?= 11 - $cols ?> manual-div" style="<?= $material['description'] != '' ? '' : 'display:none;' ?>">
-							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['description'] ?>">
+							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" data-auto-checkin="<?= strpos($value_config, ',Auto Check In Materials,') !== FALSE ? 1 : 0 ?>" data-auto-checkout="<?= strpos($value_config, ',Auto Check Out Materials,') !== FALSE ? 1 : 0 ?>" class="form-control" value="<?= $material['description'] ?>">
 						</div>
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Manual,') !== FALSE && $field_sort_field == 'Material Manual') { ?>
 						<label class="control-label show-on-mob col-sm-4">Material:</label>
 						<div class="col-sm-<?= 11 - $cols ?>">
-							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= empty($material['description']) ? $material['name'] : $material['description'] ?>">
+							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" data-auto-checkin="<?= strpos($value_config, ',Auto Check In Materials,') !== FALSE ? 1 : 0 ?>" data-auto-checkout="<?= strpos($value_config, ',Auto Check Out Materials,') !== FALSE ? 1 : 0 ?>" class="form-control" value="<?= empty($material['description']) ? $material['name'] : $material['description'] ?>">
 						</div>
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Quantity,') !== FALSE && $field_sort_field == 'Material Quantity') { ?>

@@ -51,6 +51,9 @@ if (isset($_POST['submit'])) {
 		$query_insert_site = "INSERT INTO `field_sites` (`clientid`, `site_name`, `domain_name`, `display_name`, `phone_number`,	`fax_number`, `photo`, `description`, `same_address`, `mail_street`, `mail_country`, `mail_city`, `mail_state`, `mail_zip`, `office_street`, `office_country`,	`office_city`, `office_state`, `office_zip`) VALUES	('$clientid', '$site_name', '$domain_name', '$display_name', '$phone_number',	'$fax_number', '$photo', '$description', '$same_address', '$mail_street', '$mail_country', '$mail_city', '$mail_state',	'$mail_zip', '$office_street', '$office_country', '$office_city', '$office_state', '$office_zip')";
 		$result_insert_site	= mysqli_query($dbc, $query_insert_site);
         $url = 'Added';
+		$before_change = '';
+    $history = "field_invoice entry has been added. <br />";
+    add_update_history($dbc, 'field_sites', $history, '', $before_change);
 
 	} else {
 		$siteid = $_POST['siteid'];
@@ -68,6 +71,10 @@ if (isset($_POST['submit'])) {
 
 		$result_update_site	= mysqli_query($dbc, $query_update_site);
         $url = 'Updated';
+
+		$before_change = '';
+    $history = "field_sites entry has been updated for siteid -> $siteid. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 	}
 
     echo '<script type="text/javascript"> window.location.replace("field_sites.php"); </script>';

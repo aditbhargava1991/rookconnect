@@ -3,17 +3,21 @@ $(document).ready(function() {
 	$('.panel-heading').click(loadPanel);
 });
 function loadPanel() {
-	$('.panel-body').html('Loading...');
 	body = $(this).closest('.panel').find('.panel-body');
-	$.ajax({
-		url: $(body).data('file'),
-		method: 'POST',
-		response: 'html',
-		success: function(response) {
-			$(body).html(response);
-			loadingOverlayHide();
-		}
-	});
+    if($(body).data('file') !== undefined) {
+        $('.panel-body').html('Loading...');
+        $.ajax({
+            url: $(body).data('file'),
+            method: 'POST',
+            response: 'html',
+            success: function(response) {
+                $(body).html(response);
+                loadingOverlayHide();
+            }
+        });
+    } else {
+        loadingOverlayHide();
+    }
 }
 </script>
 <div id='settings_accordions' class='sidebar show-on-mob panel-group block-panels col-xs-12'>
