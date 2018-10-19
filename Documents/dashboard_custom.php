@@ -26,7 +26,7 @@ if(!empty($_GET['search_category'])) {
 	$query_search .= " AND `category` = '".$_GET['search_category']."'";
 }
 if(!empty($_GET['search_query'])) {
-	$query_search .= " AND (custom_documents_code LIKE '%".$_GET['search_query']."%' OR custom_documents_type LIKE '%".$_GET['search_query']."%' OR category LIKE '%".$_GET['search_query']."%' OR heading LIKE '%".$_GET['search_query']."%' OR name LIKE '%".$_GET['search_query']."%' OR title LIKE '%".$_GET['search_query']."%' OR fee LIKE '%".$_GET['search_query']."%')";
+	$query_search .= " AND (custom_documents_code LIKE '%".$_GET['search_query']."%' OR custom_documents_type LIKE '%".$_GET['search_query']."%' OR category LIKE '%".$_GET['search_query']."%' OR heading LIKE '%".$_GET['search_query']."%' OR name LIKE '%".$_GET['search_query']."%' OR title LIKE '%".$_GET['search_query']."%' OR fee LIKE '%".$_GET['search_query']."%' OR custom_documentsid IN (SELECT `custom_documentsid` FROM `custom_documents_uploads` WHERE `document_link` LIKE '%".$_GET['search_query']."%'))";
 }
 $query_check_credentials = "SELECT * FROM custom_documents WHERE deleted = 0 AND `tab_name` = '".$_GET['tab']."' $query_search LIMIT $offset, $rowsPerPage";
 $query = "SELECT count(*) as numrows FROM custom_documents WHERE deleted = 0 AND `tab_name` = '".$_GET['tab']."' $query_search";

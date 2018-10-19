@@ -26,7 +26,7 @@ if(!empty($_GET['search_category'])) {
 	$query_search .= " AND `category` = '".$_GET['search_category']."'";
 }
 if(!empty($_GET['search_query'])) {
-	$query_search .= " AND (marketing_material_code LIKE '%".$_GET['search_query']."%' OR marketing_material_type LIKE '%".$_GET['search_query']."%' OR category LIKE '%".$_GET['search_query']."%' OR heading LIKE '%".$_GET['search_query']."%' OR name LIKE '%".$_GET['search_query']."%' OR title LIKE '%".$_GET['search_query']."%' OR fee LIKE '%".$_GET['search_query']."%')";
+	$query_search .= " AND (marketing_material_code LIKE '%".$_GET['search_query']."%' OR marketing_material_type LIKE '%".$_GET['search_query']."%' OR category LIKE '%".$_GET['search_query']."%' OR heading LIKE '%".$_GET['search_query']."%' OR name LIKE '%".$_GET['search_query']."%' OR title LIKE '%".$_GET['search_query']."%' OR fee LIKE '%".$_GET['search_query']."%' OR marketing_materialid IN (SELECT `marketing_materialid` FROM `marketing_material_uploads` WHERE `document_link` LIKE '%".$_GET['search_query']."%'))";
 }
 $query_check_credentials = "SELECT * FROM marketing_material WHERE deleted = 0 $query_search LIMIT $offset, $rowsPerPage";
 $query = "SELECT count(*) as numrows FROM marketing_material WHERE deleted = 0 $query_search";
