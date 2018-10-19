@@ -964,7 +964,7 @@ function saveFieldMethod(field) {
                             action: 'business_services',
                             business: $('select[name=businessid]').val()
                         }, function(response) {
-                            //$('[name=serviceid]').empty().html(response);
+                            $('[name=serviceid]').empty().html(response);
                             $.get('../Ticket/ticket_ajax_all.php', {
                                 contactid: $('select[name=businessid]').val(),
                                 action: 'list_customer_service_templates'
