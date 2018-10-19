@@ -138,13 +138,15 @@ function remGroup(img) {
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Delivery Rows" <?= strpos($project_admin_fields,',Delivery Rows,') !== FALSE ? 'checked' : '' ?>> Subdivide by Scheduled Stops</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Customer" <?= strpos($project_admin_fields,',Customer,') !== FALSE ? 'checked' : '' ?>> Customer</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Schedule" <?= strpos($project_admin_fields,',Schedule,') !== FALSE ? 'checked' : '' ?>> Scheduled Date and Time</label>
-		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Summary" <?= strpos($project_admin_fields,',Status Summary,') !== FALSE ? 'checked' : '' ?>> Status Summary</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Summary" <?= strpos($project_admin_fields,',Status Summary,') !== FALSE ? 'checked' : '' ?>> Display Status</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Edit" <?= strpos($project_admin_fields,',Status Edit,') !== FALSE ? 'checked' : '' ?>> Editable Status</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Services" <?= strpos($project_admin_fields,',Services,') !== FALSE ? 'checked' : '' ?>> Services</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Sub Totals per Service" <?= strpos($project_admin_fields,',Sub Totals per Service,') !== FALSE ? 'checked' : '' ?>> Sub Totals per Service</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Staff Tasks" <?= strpos($project_admin_fields,',Staff Tasks,') !== FALSE ? 'checked' : '' ?>> Staff <?= TASK_TILE ?></label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Inventory" <?= strpos($project_admin_fields,',Inventory,') !== FALSE ? 'checked' : '' ?>> Inventory</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Materials" <?= strpos($project_admin_fields,',Materials,') !== FALSE ? 'checked' : '' ?>> Materials</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Misc Item" <?= strpos($project_admin_fields,',Misc Item,') !== FALSE ? 'checked' : '' ?>> Miscellaneous</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Non-Billable" <?= strpos($project_admin_fields,',Non-Billable,') !== FALSE ? 'checked' : '' ?>> Mark Services Non-Billable</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Extra Billing" <?= strpos($project_admin_fields,',Extra Billing,') !== FALSE ? 'checked' : '' ?>> Extra Billing</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Notes" <?= strpos($project_admin_fields,',Notes,') !== FALSE ? 'checked' : '' ?>> Notes</label>
 	</div>
@@ -333,7 +335,7 @@ do { ?>
                     </div>
                     <button class="btn brand-btn pull-right" onclick="resetFields(<?= $group['id'] ?>); $(this).text('All Fields Unlocked!'); $(this).closest('.panel-body').find('.form-group,.accordions_sortable,h4').hide(); return false;">Unlock All Fields</button>
                     <?php $unlock_mode = true;
-                    include('field_config_field_list.php'); ?>
+                    include('../Ticket/field_config_field_list.php'); ?>
                 </div>
             </div>
         </div>

@@ -14,6 +14,7 @@ $filter_region = $name[3];
 $filter_class = $name[4];
 $filter_site = $name[5];
 $filter_business = $name[6];
+$ticket_status = explode(',',get_config($dbc, 'ticket_status'));
 
 // Get the approval settings for the current tab
 $admin_groups = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE `deleted`=0 AND CONCAT(',',`contactid`,',') LIKE '%,{$_SESSION['contactid']},%'");
@@ -50,6 +51,16 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
 <?php } else { ?>
     <script>
     $(document).ready(function() {
+        $('[name=status]').change(function() {
+            $.post('../Ticket/ticket_ajax_all.php?action=update_fields', {
+                field: 'status',
+                table: $(this).data('table'),
+                id_field: $(this).data('id-field'),
+                id: $(this).data('id'),
+                ticketid: $(this).data('ticketid'),
+                value: $(this).val()
+            });
+        });
         $('[name=approvals]').change(function() {
             <?php if($admin_group['signature'] > 0) { ?>
                 overlayIFrame('../Project/project_admin_sign.php?table='+$(this).data('table')+'&id='+this.value+'&date='+$(this).data('date')+'&invoice='+$(this).data('invoice'));
@@ -67,7 +78,32 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                 });
             <?php } ?>
         });
+        $('img[src$="void.png"],img[src$="ROOK-status-paid.png"]').click(mark_billable);
     });
+    function mark_billable() {
+        var img = this;
+        $.post('../Ticket/ticket_ajax_all.php?action=no_bill', {
+            table: $(img).data('table'),
+            id_field: $(img).data('id-field'),
+            id: $(img).data('id'),
+            serviceid: $(img).data('service'),
+            ticketid: $(img).data('ticketid'),
+            value: $(img).data('billable')
+        }, function(response) {
+            $(img).removeAttr('title');
+            $(img).removeAttr('data-original-title');
+            if($(img).data('billable') == 0) {
+                $(img).data('billable',1);
+                $(img).prop('src','../img/icons/ROOK-status-paid.png');
+                $(img).prop('title','Billable');
+            } else {
+                $(img).data('billable',0);
+                $(img).prop('src','../img/icons/void.png');
+                $(img).prop('title','Non-Billable');
+            }
+            initTooltips();
+        });
+    };
     function revisionStatus(img, status, ticket) {
         $(img).closest('td').find('img').toggle();
         setRevision($(img).data('table'), status, ticket);
@@ -101,6 +137,12 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                     <?php } ?>
                     <?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
                         <th>Sub Totals per Service</th>
+                    <?php } ?>
+                    <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Services,') !== FALSE) { ?>
+                        <th><?= TICKET_NOUN ?> Services</th>
+                    <?php } ?>
+                    <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
+                        <th><?= TICKET_NOUN ?> Service Sub Totals</th>
                     <?php } ?>
                     <?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
                         <th>Staff</th>
@@ -149,33 +191,62 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                     }
                     $query = mysqli_query($dbc, $sql);
                     $row_num = 0;
-                    while($sched_line = $query->fetch_assoc()) {
-                        $cust_list[$row_num] = '<a href="../Ticket/index.php?edit='.$sched_line['ticketid'].'&stop='.$sched_line['id'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,true); return false;">'.(empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).'</a>';
-                        $status_list[$row_num] = '<a href="../Ticket/index.php?edit='.$sched_line['ticketid'].'&stop='.$sched_line['id'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,true); return false;">'.$sched_line['status'].'</a>';
-                        $date_list[$row_num] = $sched_line['to_do_date'];
-                        if(in_array($sched_line['status'],array_merge(['Complete','Completed','Done','Finished','Archive','Archived'],explode('#*#,',get_config($dbc, 'ticket_archive_status'))))) {
-                            $completed_stops++;
-                        }
-                        $services[$row_num] = [];
-                        $services_cost_num[$row_num] = [];
-                        $services_cost[$row_num] = [];
-                        foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
-                            if($service > 0) {
-                                $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
-                                $service_rate = 0;
-                                foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
-                                    $service_cust_rate = explode('#',$service_cust_rate);
-                                    if($service_cust_rate[0] == $service['serviceid']) {
-                                        $service_rate = $service_cust_rate[1];
-                                    }
+                    if($query->num_rows > 0) {
+                        while($sched_line = $query->fetch_assoc()) {
+                            $cust_list[$row_num] = '<a href="../Ticket/index.php?edit='.$sched_line['ticketid'].'&stop='.$sched_line['id'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,true); return false;">'.(empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).'</a>';
+                            if(strpos($value_config,',Status Edit,') !== false) {
+                                $status_list[$row_num] = '<select name="status" data-table="ticket_schedule" data-id-field="id" data-id="'.$sched_line['id'].'" data-ticket="'.$sched_line['ticketid'].'" data-placeholder="Select Status" class="chosen-select-deselect"><option />';
+                                foreach($ticket_status as $status) {
+                                    $status_list[$row_num] .= '<option '.($status == $sched_line['status'] ? 'selected' : '').' value="'.$status.'">'.$status.'</option>';
                                 }
-                                $services[$row_num][] = (empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).': '.$service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
-                                $services_cost_num[$row_num][] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
-                                $services_cost[$row_num][] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
+                                if(!in_array($sched_line['status'],$ticket_status) && $sched_line['status'] != '') {
+                                    $status_list[$row_num] .= '<option selected value="'.$sched_line['status'].'">'.$sched_line['status'].'</option>';
+                                }
+                                $status_list[$row_num] .= '</select>';
+                            } else {
+                                $status_list[$row_num] = '<a href="../Ticket/index.php?edit='.$sched_line['ticketid'].'&stop='.$sched_line['id'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,true); return false;">'.$sched_line['status'].'</a>';
                             }
+                            $date_list[$row_num] = $sched_line['to_do_date'].(strpos($value_config,',Schedule,') !== false && !empty($sched_line['to_do_start_time']) ? '<br />'.$sched_line['to_do_start_time'] : '');
+                            if(in_array($sched_line['status'],array_merge(['Complete','Completed','Done','Finished','Archive','Archived'],explode('#*#,',get_config($dbc, 'ticket_archive_status'))))) {
+                                $completed_stops++;
+                            }
+                            $services[$row_num] = [];
+                            $services_cost_num[$row_num] = [];
+                            $services_cost[$row_num] = [];
+                            foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
+                                if($service > 0) {
+                                    $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                                    $service_rate = 0;
+                                    foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
+                                        $service_cust_rate = explode('#',$service_cust_rate);
+                                        if($service_cust_rate[0] == $service['serviceid']) {
+                                            $service_rate = $service_cust_rate[1];
+                                        }
+                                    }
+                                    $billable = in_array($service['serviceid'],explode(',',$sched_line['service_no_bill'])) ? 0 : 1;
+                                    $services[$row_num][] = (strpos($value_config,',Delivery Rows,') !== false ? '' : (empty($sched_line['client_name']) ? $sched_line['location_name'] : $sched_line['client_name']).': ').$service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '').(strpos($value_config,',Non-Billable,') !== false ? '<img src="../img/icons/'.($billable ? 'ROOK-status-paid' : 'void').'.png" title="'.($billable ? 'Billable' : 'Non-Billable').'" class="no-toggle cursor-hand inline-img"data-table="ticket_schedule" data-id-field="id" data-id="'.$sched_line['id'].'" data-ticketid="'.$sched_line['ticketid'].'" data-service="'.$service['serviceid'].'"  data-billable="'.$billable.'">' : '');
+                                    $services_cost_num[$row_num][] = $billable > 0 ? ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']) : 0;
+                                    $services_cost[$row_num][] = $billable > 0 ? number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2) : '0.00';
+                                }
+                            }
+                            $row_num++;
                         }
-                        $row_num++;
+                    } else {
+                        $cust_list[] = $ticket['businessid'] > 0 ? get_contact($dbc, $ticket['businessid'], 'name_company') : get_contact($dbc, array_values(array_filter(explode($ticket['clientid'])))[0], 'name_company');
+                        if(strpos($value_config,',Status Edit,') !== false) {
+                            $status_list[0] = '<select name="status" data-table="tickets" data-id-field="ticketid" data-id="'.$ticket['ticketid'].'" data-ticket="'.$ticket['ticketid'].'" data-placeholder="Select Status" class="chosen-select-deselect"><option />';
+                            foreach($ticket_status as $status) {
+                                $status_list[0] .= '<option '.($status == $ticket['status'] ? 'selected' : '').' value="'.$status.'">'.$status.'</option>';
+                            }
+                            if(!in_array($ticket['status'],$ticket_status) && $ticket['status'] != '') {
+                                $status_list[0] .= '<option selected value="'.$ticket['status'].'">'.$ticket['status'].'</option>';
+                            }
+                            $status_list[0] .= '</select>';
+                        } else {
+                            $status_list[0] = $ticket['status'];
+                        }
                     }
+                    $ticket_no_bill = explode(',',get_field_value('service_no_bill','tickets','ticketid',$ticket['ticketid']));
                     foreach(explode(',',$ticket['serviceid']) as $i => $service) {
                         if($service > 0) {
                             $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
@@ -186,38 +257,46 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                     $service_rate = $service_cust_rate[1];
                                 }
                             }
-                            for($i = 0; $i < $row_num || $i == 0; $i++) {
-                                $services[$i][] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '');
-                                $services_cost_num[$i][] = ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']);
-                                $services_cost[$i][] = number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2);
-                            }
+                            $billable = in_array($service['serviceid'],$ticket_no_bill) ? 0 : 1;
+                            $services[$row_num + 1][] = $service['heading'].($qty[$i] > 0 ? ' x '.$qty[$i] : '').(strpos($value_config,',Non-Billable,') !== false ? '<img src="../img/icons/'.($billable ? 'ROOK-status-paid' : 'void').'.png" title="'.($billable ? 'Billable' : 'Non-Billable').'" class="no-toggle cursor-hand inline-img" data-table="tickets" data-id-field="ticketid" data-id="'.$ticket['ticketid'].'" data-ticketid="'.$ticket['ticketid'].'" data-service="'.$service['serviceid'].'" data-billable="'.$billable.'">' : '');
+                            $services_cost_num[$row_num + 1][] = $billable > 0 ? ($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']) : 0;
+                            $services_cost[$row_num + 1][] = $billable > 0 ? number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2) : '0.00';
                         }
 					}
                     for($i = 0; $i < $row_num || $i == 0; $i++) { ?>
                         <tr>
                             <?php if($i == 0) { ?>
-                                <td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>" <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.$row_num.'"' : '' ?>>
+                                <td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>>
                                     <a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true'); return false;"><?= get_ticket_label($dbc, $ticket) ?></a>
-                                    <?php if(strpos($value_config, ',Status Summary,') !== FALSE) { ?><br /><?= $completed_stops ?> of <?= count($status_list) ?> Stops Completed<?php } ?>
+                                    <?php if(strpos($value_config, ',Status Summary,') !== FALSE && $row_num > 0) { ?><br /><?= $completed_stops ?> of <?= count($status_list) ?> Stops Completed<?php } ?>
                                 </td>
                             <?php } ?>
-                            <td data-title="Date"><?= empty($ticket['ticket_date']) ? implode(', ',array_unique($date_list)) : $ticket['ticket_date'] ?></td>
+                            <td data-title="Date" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= empty($ticket['ticket_date']) ? ( strpos($value_config,',Delivery Rows,') !== false ? $date_list[$i] : implode(', ',array_unique($date_list))) : $ticket['ticket_date'] ?></td>
                             <?php if(strpos($value_config, ',Customer,') !== FALSE) { ?>
-                                <td data-title="Customer"><?= implode('<br />',$cust_list) ?></td>
+                                <td data-title="Customer" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= strpos($value_config,',Delivery Rows,') !== false ? $cust_list[$i] : implode('<br />',$cust_list) ?></td>
                             <?php } ?>
                             <?php if(strpos($value_config, ',Status Summary,') !== FALSE) { ?>
-                                <td data-title="Status"><?= implode('<br />',$status_list) ?></td>
+                                <td data-title="Status" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= strpos($value_config,',Delivery Rows,') !== false ? $status_list[$i] : implode('<br />',$status_list) ?></td>
                             <?php } ?>
                             <?php if(strpos($value_config, ',Services,') !== FALSE) {
-                                foreach($services_cost_num[$i] as $cost_amt) {
+                                foreach($services_cost_num[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num + 1] as $cost_amt) {
                                     $total_cost += $cost_amt;
                                 } ?>
-                                <td data-title="Services"><?= implode('<br />',$services[$i]) ?></td>
+                                <td data-title="Services" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= implode('<br />',$services[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num + 1]) ?></td>
                             <?php } ?>
                             <?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
-                                <td data-title="Sub Totals per Service"><?= implode('<br />',$services_cost[$i]) ?></td>
+                                <td data-title="Sub Totals per Service" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= implode('<br />',$services_cost[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num]) ?></td>
                             <?php } ?>
                             <?php if($i == 0) { ?>
+                                <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Services,') !== FALSE) {
+                                    foreach($services_cost_num[$row_num + 1] as $cost_amt) {
+                                        $total_cost += $cost_amt;
+                                    } ?>
+                                    <td data-title="<?= TICKET_NOUN ?> Services" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode('<br />',$services[$row_num + 1]) ?></td>
+                                <?php } ?>
+                                <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
+                                    <td data-title="<?= TICKET_NOUN ?> Service Sub Totals" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode('<br />',$services_cost[$row_num + 1]) ?></td>
+                                <?php } ?>
                                 <?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) {
                                     $staff_tasks_staff = [];
                                     $staff_tasks_task = [];
@@ -232,9 +311,9 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                         $staff_tasks_task[] = $row['position'];
                                         $staff_tasks_hours[] = number_format($row['hours_tracked'],2);
                                     } ?>
-                                    <td data-title="Staff"><?= implode("<br />", $staff_tasks_staff) ?></td>
-                                    <td data-title="Task"><?= implode("<br />", $staff_tasks_task) ?></td>
-                                    <td data-title="Hours"><?= implode("<br />", $staff_tasks_hours) ?></td>
+                                    <td data-title="Staff" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode("<br />", $staff_tasks_staff) ?></td>
+                                    <td data-title="Task" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode("<br />", $staff_tasks_task) ?></td>
+                                    <td data-title="Hours" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode("<br />", $staff_tasks_hours) ?></td>
                                 <?php } ?>
                                 <?php if(strpos($value_config, ',Inventory,') !== FALSE) {
                                     $inventory = [];
@@ -253,7 +332,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                             $total_cost += $row['qty'] * ($row['rate'] > 0 ? $row['rate'] : $inv_row['final_retail_price']);
                                         }
                                     } ?>
-                                    <td data-title="Inventory"><?= implode("<br />", $inventory) ?></td>
+                                    <td data-title="Inventory" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode("<br />", $inventory) ?></td>
                                 <?php } ?>
                                 <?php if(strpos($value_config, ',Materials,') !== FALSE) {
                                     $materials = [];
@@ -269,7 +348,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                             $materials[] = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `material` WHERE `materialid` = '{$row['item_id']}'"))['name'].': '.round($row['qty'],3);
                                         }
                                     } ?>
-                                    <td data-title="Materials"><?= implode("<br />", $materials) ?></td>
+                                    <td data-title="Materials" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode("<br />", $materials) ?></td>
                                 <?php } ?>
                                 <?php if(strpos($value_config, ',Misc Item,') !== FALSE) {
                                     $misc = [];
@@ -282,11 +361,11 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                         $misc[] = $row['description'].': '.round($row['qty'],3).' @ $'.number_format($row['rate'],2).': $'.number_format($row['qty'] * $row['rate'],2);
                                         $total_cost += $row['qty'] * $row['rate'];
                                     } ?>
-                                    <td data-title="Miscellaneous"><?= implode("<br />", $misc) ?></td>
+                                    <td data-title="Miscellaneous" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode("<br />", $misc) ?></td>
                                 <?php } ?>
-                                <td data-title="Total">$<?= number_format($total_cost,2); ?></td>
+                                <td data-title="Total" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>>$<?= number_format($total_cost,2); ?></td>
                                 <?php if(strpos($value_config, ',Notes,') !== FALSE) { ?>
-                                    <td data-title="Notes"><?php $notes = $dbc->query("SELECT * FROM `ticket_comment` WHERE `ticketid`='{$ticket['ticketid']}' AND `type`='administration_note' AND `deleted`=0") ?></td>
+                                    <td data-title="Notes" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?php $notes = $dbc->query("SELECT * FROM `ticket_comment` WHERE `ticketid`='{$ticket['ticketid']}' AND `type`='administration_note' AND `deleted`=0") ?></td>
                                 <?php } ?>
                                 <?php if(strpos($value_config, ',Extra Billing,') !== FALSE) {
                                     $sql = "SELECT COUNT(*) `num` FROM `ticket_comment` WHERE `ticketid` = '{$ticket['ticketid']}' AND '{$ticket['ticketid']}' > 0 AND `type` = 'service_extra_billing' AND `deleted` = 0";
@@ -294,9 +373,9 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                         $sql .= " AND `created_date` = '{$ticket['ticket_date']}'";
                                     }
                                     $extra_billing = mysqli_fetch_assoc(mysqli_query($dbc, $sql)); ?>
-                                    <td data-title="Extra Billing"><?= $extra_billing['num'] > 0 ? '<img class="inline-img small no-toggle" title="Extra Billing" src="../img/icons/ROOK-status-paid.png">' : '' ?></td>
+                                    <td data-title="Extra Billing" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= $extra_billing['num'] > 0 ? '<img class="inline-img small no-toggle" title="Extra Billing" src="../img/icons/ROOK-status-paid.png">' : '' ?></td>
                                 <?php } ?>
-                                <td data-title="Approvals"><?php if((strpos(','.$ticket['approvals'].',',','.$_SESSION['contactid'].',') !== FALSE && $project_admin_multiday_tickets != 1) || (strpos(','.$ticket['approvals'].',',','.$_SESSION['contactid'].'#*#'.$ticket['ticket_date'].',') !== FALSE)) {
+                                <td data-title="Approvals" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?php if((strpos(','.$ticket['approvals'].',',','.$_SESSION['contactid'].',') !== FALSE && $project_admin_multiday_tickets != 1) || (strpos(','.$ticket['approvals'].',',','.$_SESSION['contactid'].'#*#'.$ticket['ticket_date'].',') !== FALSE)) {
                                     $approved_already = [];
                                     $approved = array_filter(explode(',',$ticket['approvals']));
                                     foreach($approved as $approvalid) {
@@ -316,7 +395,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                 <?php } ?></td>
                                 <?php foreach($admin_group_managers as $admin_manager_id => $admin_manager_name) {
                                     if($admin_manager_id != $_SESSION['contactid']) { ?>
-                                        <td data-title="Approval by <?= $admin_manager_name ?>">
+                                        <td data-title="Approval by <?= $admin_manager_name ?>" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>>
                                             <?php if(strpos(','.$ticket['revision_required'].',',','.$admin_manager_id.',') !== FALSE) { ?>
                                                 In Revision
                                             <?php } else if(strpos(','.$ticket['approvals'].',',','.$admin_manager_id.',') !== FALSE) {
@@ -325,7 +404,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                         </td>
                                     <?php }
                                 } ?>
-                                <td data-title="In Revision">
+                                <td data-title="In Revision" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>>
                                     <label class="form-checkbox any-width"><input type="checkbox" <?= ((strpos(','.$ticket['revision_required'].',',','.$_SESSION['contactid'].',') !== FALSE && $project_admin_multiday_tickets != 1) || (strpos(','.$ticket['revision_required'].',',','.$_SESSION['contactid'].'#*#'.$ticket['ticket_date'].',') !== FALSE)) ? 'checked' : '' ?> onchange="setRevision('tickets', this.checked,<?= $ticket['ticketid'] ?>, '<?= $project_admin_multiday_tickets == 1 ? $ticket['ticket_date'] : '' ?>');"></label>
                                     <!--<img class="inline-img cursor-hand" src="../img/icons/ROOK-status-error.png" data-table="tickets" onclick="revisionStatus(this,false,<?= $ticket['ticketid'] ?>);" style="<?= strpos(','.$ticket['revision_required'].',',','.$_SESSION['contactid'].',') !== FALSE ? '' : 'display:none;' ?>">
                                     <img class="inline-img cursor-hand" src="../img/icons/ROOK-status-completed.png" data-table="tickets" onclick="revisionStatus(this,true,<?= $ticket['ticketid'] ?>);" style="<?= strpos(','.$ticket['revision_required'].',',','.$_SESSION['contactid'].',') !== FALSE ? 'display:none;' : '' ?>">-->

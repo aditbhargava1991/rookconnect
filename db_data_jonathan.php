@@ -444,6 +444,15 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9744
+
+        // October 19, 2018 - Ticket 9873
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `service_no_bill` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `service_no_bill` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9873
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
