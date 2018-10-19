@@ -541,6 +541,19 @@ if($_GET['action'] == 'add_pieces') {
 		}
 	}
 }
+if($_GET['action'] == 'no_bill') {
+    $billable = get_field_value('service_no_bill',$_POST['table'],$_POST['id_field'],$_POST['id']);
+    $billable = explode(',',$billable);
+    if($_POST['value'] > 0) {
+        $billable[] = $_POST['serviceid'];
+    } else {
+        $row = array_search($_POST['serviceid'],$billable);
+        if($row !== false) {
+            unset($billable[$row]);
+        }
+    }
+    set_field_value(implode(',',array_filter($billable)),'service_no_bill', $_POST['table'], $_POST['id_field'], $_POST['id']);
+}
 if($_GET['action'] == 'update_fields') {
 	$table_name = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
 	$field_name = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
