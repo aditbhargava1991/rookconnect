@@ -42,7 +42,9 @@ foreach(explode(',',get_config($dbc, 'hr_tabs')) as $cat) {
 }
 $tab = $_GET['tab'] == '' ? ($tile == 'hr' ? (in_array('Pinned',$categories) ? 'pinned' : 'favourites') : $tile) : filter_var($_GET['tab'],FILTER_SANITIZE_STRING);
 $label = $tile == 'hr' ? 'HR' : $categories[$tile];
-if($_GET['reports'] == 'view') {
+if($_GET['request_update'] == 1) {
+	$tab = 'request_update';
+} else if($_GET['reports'] == 'view') {
 	$tab = 'reporting';
 } else if(isset($_GET['hr_edit']) || isset($_GET['manual_edit'])) {
 	$tab = 'editforms';
@@ -102,6 +104,9 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 			<?php $device = new Mobile_Detect;
 			if($device->isMobile) {
 				include('mobile_hr.php');
+			} else if($_GET['request_update'] == 1) {
+				include('sidebar.php');
+				include('request_update.php');
 			} else if(!empty($_GET['settings']) && $security['config'] > 0) {
 				include('field_config.php');
 			} else if(isset($_GET['hr'])) {
