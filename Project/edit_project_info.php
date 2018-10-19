@@ -154,7 +154,7 @@ function apply_default_template() {
             method: 'POST',
             data: {
                 projectid: pid,
-                path_list: '0,'+set_default_path,
+                path_list: set_default_path,
                 path: 'project_path',
                 new_path: set_default_path
             },
