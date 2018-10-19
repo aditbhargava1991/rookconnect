@@ -145,3 +145,4 @@ if(!empty($auto_refresh)) {
     $auto_refresh = date_parse($auto_refresh);
     $auto_refresh = ($auto_refresh['hour'] * 3600) + ($auto_refresh['minute'] * 60);
 }
+$summary_tab = get_config($dbc, 'dispatch_tile_summary_tab');

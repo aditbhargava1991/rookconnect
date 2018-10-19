@@ -59,7 +59,7 @@ if($group_regions == 1) {
 	$region_label = ' ('.str_replace('*#*', ', ', $equipment['region']).')';
 }
 
-$truck_svg = draw_svg_truck($title_color, $summary_result['On Time']['count'], $summary_result['Not On Time']['count'], $summary_result['Ongoing']['count']);
+$truck_svg = draw_svg_truck($summary_result['On Time']['count'], $summary_result['Not On Time']['count'], $summary_result['Ongoing']['count']);
 $summary_html = '<div class="dispatch-summary-tab" data-equipment="'.$equipmentid.'" data-region=\''.json_encode($equip_regions).'\' data-location=\''.json_encode($equip_locations).'\' data-classification=\''.json_encode($equip_classifications).'\' '.$border_styling.'><div class="dispatch-summary-title" style="background-color: #'.$title_color.'"><a href="" onclick="summary_select_equipment(this); return false;"><b>'.$equipment['label'].'</b></a>'.$region_label.'</div><div class="dispatch-summary-tab-truck">'.$truck_svg.'</div><div class="dispatch-summary-tab-block"></div></div>';
 
 $ontime_summary_arr = [
