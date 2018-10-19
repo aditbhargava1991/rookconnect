@@ -127,7 +127,7 @@ function loadPanel() {
 			</div>
 
 			<div class="standard-body-content" style="padding: 1em;">
-				<?php if($dashboard_layout == 'tile') { ?>
+				<?php if($dashboard_layout == 'tile' && empty($tile_name)) { ?>
 					<a href="?tile_name=<?= $tile_name ?>" class="btn brand-btn gap-bottom">Back</a>
 				<?php } ?>
 				<?php if($_GET['tab'] == 'client_documents') {
