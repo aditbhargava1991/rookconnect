@@ -446,7 +446,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 				</div>
 		<?php }
 		$total_time_estimate = 0;
-		foreach(explode(',',(!empty($_GET['serviceid']) ? $_GET['serviceid'] : mysqli_fetch_array(mysqli_query($dbc, "SELECT `serviceid` FROM `tickets` WHERE `ticketid`='$ticketid'"))[0])) as $i => $serviceid) {
+		foreach(array_filter(explode(',',(!empty($_GET['serviceid']) ? $_GET['serviceid'] : mysqli_fetch_array(mysqli_query($dbc, "SELECT `serviceid` FROM `tickets` WHERE `ticketid`='$ticketid'"))[0]))) as $i => $serviceid) {
 			if($serviceid > 0 || $i == 0) {
 				$query_mod = $query_services."(`deleted`=0 OR `serviceid`='$serviceid')";
 				$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid`='$serviceid'"));

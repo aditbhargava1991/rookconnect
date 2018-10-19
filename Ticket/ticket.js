@@ -7,6 +7,7 @@ use_google_suggest = false;
 suggest_from_google = true;
 ticket_reloading_service_checklist = '';
 finishing_ticket = false;
+var current_business = 0;
 $(document).ready(function() {
 	// Mark fields manually set as manual
 	$('input').keyup(function() {
@@ -959,7 +960,8 @@ function saveFieldMethod(field) {
 							}
 						}, 250);
 					}
-					if(field_name == 'businessid' && table_name == 'tickets') {
+					if(field_name == 'businessid' && table_name == 'tickets' && save_value != current_business) {
+                        current_business = save_value;
                         $.get('../Ticket/ticket_ajax_all.php', {
                             action: 'business_services',
                             business: $('select[name=businessid]').val()
@@ -3280,7 +3282,7 @@ function setBilling() {
 		total_discount = $('[name=billing_discount]').first().val();
 	}
 	total -= total_discount;
-	$('[name=services_cost][data-manual=0]').val(total).change();
+	$('[name=services_cost]').filter(function() { return $(this).data('manual') < 1; }).val(total).change();
 }
 function dialogQuickReminder() {
 	$('#dialog_quick_reminder').dialog({
