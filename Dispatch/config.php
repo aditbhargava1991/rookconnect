@@ -139,3 +139,9 @@ if($is_customer) {
 }
 $dont_count_warehouse = get_config($dbc, 'dispatch_tile_dont_count_warehouse');
 $group_regions = get_config($dbc, 'dispatch_tile_group_regions');
+$dispatch_tile_ticket_card_fields = explode(',', get_config($dbc, 'dispatch_tile_ticket_card_fields'));
+$auto_refresh = get_config($dbc, 'dispatch_tile_auto_refresh');
+if(!empty($auto_refresh)) {
+    $auto_refresh = date_parse($auto_refresh);
+    $auto_refresh = ($auto_refresh['hour'] * 3600) + ($auto_refresh['minute'] * 60);
+}
