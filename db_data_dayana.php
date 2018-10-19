@@ -305,6 +305,7 @@ mysqli_query($dbc, "ALTER TABLE `invoice` ADD `customer_billing_status` VARCHAR(
 
 mysqli_query($dbc, "ALTER TABLE `task_board` ADD `flag_label` VARCHAR(200) NULL AFTER `date_of_archival`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
 
+mysqli_query($dbc, "ALTER TABLE `project` ADD `classification1` VARCHAR(500) NULL AFTER `flag_label`");
 
     echo "Dayana's DB Changes Done<br />\n";
 
