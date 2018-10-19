@@ -444,6 +444,21 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9744
+
+        // October 18, 2018 - Ticket 9389
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_attached` ADD `created_by` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `date_stamp`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9389
+
+        // October 19, 2018 - Ticket 9873
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `service_no_bill` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `service_no_bill` TEXT AFTER `serviceid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9873
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
@@ -483,6 +498,16 @@
 		}
 		set_config($dbc, 'update_delivery_google', 1);
 	}
+    
+    // Ticket 9873
+	if(get_config($dbc, 'update_project_admin_notes') < 1) {
+		// October 19, 2018
+		if(!mysqli_query($dbc, "UPDATE `general_configuration` SET `value`=CONCAT(`value`,',Notes,') WHERE `name` LIKE 'project_admin_fields'")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		set_config($dbc, 'update_project_admin_notes', 1);
+	}
+    // Ticket 9873
 	
 	echo "Jonathan's DB Changes Done<br />\n";
 ?>

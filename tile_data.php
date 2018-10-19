@@ -15,10 +15,10 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'software_config': return ['link'=>'Settings/settings.php','name'=>'Settings']; break;
 			case 'security': return ['link'=>"Security/security.php",'name'=>'Security']; break;
 			case 'contacts': return ['link'=>"Contacts/contacts.php?filter=Top",'name'=>'Contacts (Tabbed View)']; break;
-			case 'contacts_inbox': return ['link'=>"Contacts/contacts_inbox.php",'name'=>CONTACTS_TILE]; break;
-			case 'contacts3': return ['link'=>"Contacts3/contacts_inbox.php",'name'=>'Contacts']; break;
-			case 'client_info': return ['link'=>"ClientInfo/contacts_inbox.php",'name'=>'Client Information']; break;
-			case 'contacts_rolodex': return ['link'=>"ContactsRolodex/contacts_inbox.php",'name'=>'Contacts Rolodex']; break;
+			case 'contacts_inbox': return ['link'=>"Contacts/contacts_inbox.php?list=summary&status=summary",'name'=>CONTACTS_TILE]; break;
+			case 'contacts3': return ['link'=>"Contacts3/contacts_inbox.php?list=summary&status=summary",'name'=>'Contacts']; break;
+			case 'client_info': return ['link'=>"ClientInfo/contacts_inbox.php?list=summary&status=summary",'name'=>'Client Information']; break;
+			case 'contacts_rolodex': return ['link'=>"ContactsRolodex/contacts_inbox.php?list=summary&status=summary",'name'=>'Contacts Rolodex']; break;
 			case 'staff': return ['link'=>"Staff/staff.php",'name'=>'Staff']; break;
 			case 'orientation': return ['link'=>"Orientation/orientation.php",'name'=>'Orientation']; break;
 			case 'infogathering': return ['link'=>"Information Gathering/infogathering.php",'name'=>'Information Gathering']; break;
@@ -275,7 +275,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
     		case 'preformance_review': return ['link'=>"HR/index.php?performance_review=list",'name'=>'Performance Reviews']; break;
 			case 'client_projects': return ['link'=>"Client Projects/project.php",'name'=>'Client Projects']; break;
 			case 'safety_manual': return ['link'=>"Manuals/safety_manual.php",'name'=>'Safety Manual']; break;
-			case 'members': return ['link'=>"Members/contacts_inbox.php", 'name'=>'Members']; break;
+			case 'members': return ['link'=>"Members/contacts_inbox.php?list=summary&status=summary", 'name'=>'Members']; break;
 			case 'form_builder': return ['link'=>"Form Builder/formbuilder.php", 'name'=>'Form Builder']; break;
 			case 'hr':
 				if(!is_array($tile_name)) {
@@ -344,7 +344,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 				} break;
             case 'website': return ['link'=>"Website/website.php",'name'=>'Website']; break;
             case 'non_verbal_communication': return ['link'=>"Non Verbal Communication/index.php",'name'=>'Emoji Comm']; break;
-            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>VENDOR_TILE]; break;
+            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php?list=summary&status=summary",'name'=>VENDOR_TILE]; break;
 			case 'quote': return ['link'=>"Quote/quotes.php",'name'=>'Quotes']; break;
 			case 'cost_estimate': return ['link'=>"Cost Estimate/estimate.php",'name'=>'Cost Estimates']; break;
 			case 'optimize': return ['link'=>"Optimize/index.php",'name'=>'Trip Optimizer']; break;

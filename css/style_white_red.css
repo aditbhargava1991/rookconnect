@@ -5296,8 +5296,19 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .icon-pie-chart:hover { background-color:#e83324 !important; }
 .calendar .main-screen .panel .panel-title > a:hover, .tile-sidebar ul li.sidebar-higher-level ul li.active a { color:#e83324 !important; }
 ul li h4 { color:#000; }
-.info-block-header {background-color:#fcd0cd !important; border-bottom:4px solid #e83324 !important; }
+.info-block-header {background-color:#fcd0cd !important; }
 .dashboard-item label { color:#000 !important; }
 .ui-datepicker .ui-state-disabled { background-color:#fff; }
-.main-screen-white, .overview-block, .connectedSortable { border-color:#e83324 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.block-button,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border { border-color:#e83324 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #e83324 !important; }

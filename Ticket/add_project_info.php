@@ -1,4 +1,5 @@
 <script type="text/javascript">
+current_business = '<?= $businessid ?>';
 var businessFilter = function() {
 	var option = $('[name=businessid] option:selected');
 	if(option.val() > 0) {
@@ -15,6 +16,15 @@ var businessFilter = function() {
 		$('[name=clientid]').trigger('change.select2');
 		$('[name=rate_card] option[data-business]').hide().filter('[data-business='+option.val()+']').show();
 		$('[name=rate_card]').trigger('change.select2');
+        if($(option).data('region') != '' && $(option).data('region') != undefined) {
+            $('[name=region]').val($(option).data('region')).change();
+        }
+        if($(option).data('location') != '' && $(option).data('location') != undefined) {
+            $('[name=con_location]').val($(option).data('location')).change();
+        }
+        if($(option).data('classification') != '' && $(option).data('classification') != undefined) {
+            $('[name=classification]').val($(option).data('classification')).change();
+        }
 	} else {
 		$('[name=projectid] option').show();
 		$('[name=projectid]').trigger('change.select2');
@@ -69,6 +79,15 @@ var clientFilter = function() {
 			}
 			$('[name=projectid] option').hide().filter('[data-client*='+option.val()+'],[data-business='+$('[name=businessid] option:selected').val()+']').show();
 			$('[name=projectid]').trigger('change.select2');
+            if($(option).data('region') != '' && $(option).data('region') != undefined) {
+                $('[name=region]').val($(option).data('region')).change();
+            }
+            if($(option).data('location') != '' && $(option).data('location') != undefined) {
+                $('[name=con_location]').val($(option).data('location')).change();
+            }
+            if($(option).data('classification') != '' && $(option).data('classification') != undefined) {
+                $('[name=classification]').val($(option).data('classification')).change();
+            }
 		}
 		if(typeof filterRegLocClass == 'function') {
 			filterRegLocClass(1);
@@ -103,6 +122,15 @@ var projectFilter = function() {
 $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'));
 ?>
 <?= !$custom_accordion ? (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>'.('manual' == $force_project ? PROJECT_NOUN : TICKET_NOUN).' Information</h3>') : '' ?>
+<?php if (strpos($value_config_all, ','."Con Region".',') !== FALSE && strpos($value_config, ','."Con Region".',') === FALSE) { ?>
+    <input type="hidden" name="region" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['region'] ?>">
+<?php } ?>
+<?php if (strpos($value_config_all, ','."Con Location".',') !== FALSE && strpos($value_config, ','."Con Location".',') === FALSE) { ?>
+    <input type="hidden" name="con_location" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['con_location'] ?>">
+<?php } ?>
+<?php if (strpos($value_config_all, ','."Con Classification".',') !== FALSE && strpos($value_config, ','."Con Classification".',') === FALSE) { ?>
+    <input type="hidden" name="classification" data-table="tickets" data-id="<?= $get_ticket['ticketid'] ?>" data-id-field="ticketid" value="<?= $get_ticket['classification'] ?>">
+<?php } ?>
 <?php foreach($field_sort_order as $field_sort_field) {
 	if($access_project == TRUE) { ?>
 		<?php if (( strpos($value_config, ',PI Business,') !== false  || ( strpos($value_config, ',PI ') === false) ) && $field_sort_field == 'PI Business' ) {
@@ -413,6 +441,32 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['agentid'],',') > 0 || $get_ticket['agentid'] == '' ? 'display:none;' : '' ?>">
 					<input type="text" name="agentid" class="form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['agentid'] > 0 ? '' : $get_ticket['agentid'] ?>">
+					<label class="form-checkbox"><input checked type="checkbox" name="one_time" onchange="if(!this.checked) { $(this).closest('.form-group').find('.select-div').show(); $(this).closest('.manual-div').hide(); }"> One Time Only <?= $contact_category ?></label>
+				</div>
+			</div>
+		<?php } ?>
+		<?php if ( strpos($value_config, ',PI Notify Party,') !== false && $field_sort_field == 'PI Notify Party' ) {
+			$default_contact_category = get_config($dbc, 'ticket_notify_contact');
+			$contact_category = ($ticket_type == '' ? $default_contact_category : get_config($dbc, 'ticket_notify_contact_'.$ticket_type)); ?>
+			<div class="form-group">
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Notify Party', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Notify Party:</label>
+				  <div class="col-sm-7 select-div" style="<?= trim($get_ticket['notifyid'],',') > 0 || $get_ticket['notifyid'] == '' ? '' : 'display:none;' ?>">
+					<select data-placeholder="Select <?= $contact_category ?>..." name="notifyid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-category="<?= (!empty($contact_category) ? $contact_category : '%') ?>" class="chosen-select-deselect form-control <?php echo (in_array('PI Notify Party', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
+					  <option value=""></option>
+					  <?php $staff_query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name, name FROM contacts WHERE deleted=0 AND status>0".(!empty($contact_category) ? "AND category='".$contact_category."'" : '')));
+						foreach($staff_query as $row) { ?>
+							<option <?= trim($get_ticket['notifyid'],',')==$row['contactid'] ? "selected" : '' ?> value="<?php echo $row['contactid']; ?>"><?php echo $row['name'].' '.$row['first_name'].' '.$row['last_name']; ?></option>
+						<?php } ?>
+						<option value="ADD_NEW">Add New <?= $contact_category ?></option>
+						<option value="MANUAL">One Time <?= $contact_category ?></option>
+					</select>
+				  </div>
+				  <div class="col-sm-1 select-div" style="<?= trim($get_ticket['notifyid'],',') > 0 || $get_ticket['notifyid'] == '' ? '' : 'display:none;' ?>">
+					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
+				  </div>
+				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['notifyid'],',') > 0 || $get_ticket['notifyid'] == '' ? 'display:none;' : '' ?>">
+					<input type="text" name="notifyid" class="form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= (!empty($contact_category) ? $contact_category : '%') ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['notifyid'] > 0 ? '' : $get_ticket['notifyid'] ?>">
 					<label class="form-checkbox"><input checked type="checkbox" name="one_time" onchange="if(!this.checked) { $(this).closest('.form-group').find('.select-div').show(); $(this).closest('.manual-div').hide(); }"> One Time Only <?= $contact_category ?></label>
 				</div>
 			</div>

@@ -84,28 +84,8 @@ function saveFields() {
 	});
 	$.post('ticket_ajax_all.php?action=ticket_action_fields', {
 		fields: ticket_fields,
-		field_name: '<?= empty($tab) ? 'ticket_status_fields_'.$status : 'ticket_action_fields_'.$status.'_'.$tab ?>'
+		field_name: '<?= empty($tab) ? 'ticket_status_fields_'.$status : 'ticket_status_fields_'.$status.'_'.$tab ?>'
 	}).success(function() {
-	});
-}
-function sortFieldsCustom(div) {
-	var blocks = [];
-	$(div).find('.sort_order_field input[type="checkbox"]:checked').each(function() {
-		blocks.push($(this).val());
-	});
-	blocks = JSON.stringify(blocks);
-
-	$.ajax({
-		url: '../Ticket/ticket_ajax_all.php?action=ticket_fields_sort_order_action',
-		method: 'POST',
-		data: {
-			field_name: '<?= empty($tab) ? 'tickets' : 'tickets_'.$tab ?>',
-			accordion: $(div).data('accordion'),
-			blocks: blocks
-		},
-		success: function(response) {
-
-		}
 	});
 }
 </script>

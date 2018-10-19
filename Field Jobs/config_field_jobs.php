@@ -46,6 +46,10 @@ if (isset($_POST['submit_sites'])) {
 		$sql_fields = "INSERT INTO field_config_field_jobs (`tab`, `field_list`, `dashboard_list`) VALUES ('sites', ',$field_list,', ',$dashboard_list,')";
 	}
 	mysqli_query($dbc, $sql_fields);
+
+	$before_change = '';
+  $history = "field_config_field_jobs entry has been updated for field_list -> $field_list. <br />";
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
     $message .= "<script></script>";
 }
 
@@ -321,7 +325,7 @@ $(document).ready(function() {
 			<a href="<?php echo $url; ?>" class="btn config-btn">Back to Dashboard</a> <?php echo $message; ?>
 			<input type="checkbox" class="selecctall"/> Select All
         </div>
-		
+
 		<div class="tab-container mobile-100-container">
 			<a href='config_field_jobs.php?tab=manage'><button type='button' class='btn brand-btn mobile-block<?php echo ('manage' == $current_tab ? ' active_tab' : ''); ?>' >Tabs</button></a>
             <a href='config_field_jobs.php?tab=sites'><button type='button' class='btn brand-btn mobile-block<?php echo ('sites' == $current_tab ? ' active_tab' : ''); ?>' >Sites</button></a>
@@ -332,7 +336,7 @@ $(document).ready(function() {
 			<a href='config_field_jobs.php?tab=invoice'><button type='button' class='btn brand-btn mobile-block<?php echo ('invoice' == $current_tab ? ' active_tab' : ''); ?>' >Invoice</button></a>
 			<a href='config_field_jobs.php?tab=payroll'><button type='button' class='btn brand-btn mobile-block<?php echo ('payroll' == $current_tab ? ' active_tab' : ''); ?>' >Payroll</button></a>
 		</div>
-		
+
 		<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 			<div class="panel-group" id="accordion2">
 				<div class="clearfix"></div>
@@ -1142,7 +1146,7 @@ $(document).ready(function() {
 					<?php endif; ?>
 				</div>
 			</div>
-			
+
 			<div class="form-group">
 				<div class="col-sm-6"><a href="<?php echo $url; ?>" class="btn config-btn btn-lg">Back</a></div>
 				<div class="col-sm-6">

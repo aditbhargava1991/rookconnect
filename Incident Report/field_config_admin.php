@@ -65,7 +65,7 @@ function remove_option(img, copy_class) {
 		<div class="form-group admin_staff">
 			<label for="tile_name" class="col-sm-4 control-label">By Staff:</label>
 			<div class="col-sm-7">
-				<select name="admin_staff[]" class="chosen-select-deselect" data-placeholder="Select Security Level">
+				<select name="admin_staff[]" class="chosen-select-deselect" data-placeholder="Select Staff">
 					<option />
 					<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE `deleted`=0 AND `status`>0 AND `category` IN (".STAFF_CATS.")")) as $user) { ?>
 						<option <?= $user['contactid'] == $admin_staff ? 'selected' : '' ?> value="<?= $user['contactid'] ?>"><?= $user['full_name'] ?></option>
