@@ -26,7 +26,7 @@ if(!empty($_GET['search_category'])) {
 	$query_search .= " AND `category` = '".$_GET['search_category']."'";
 }
 if(!empty($_GET['search_query'])) {
-	$query_search .= " AND (client_documents_code LIKE '%".$_GET['search_query']."%' OR client_documents_type LIKE '%".$_GET['search_query']."%' OR category LIKE '%".$_GET['search_query']."%' OR heading LIKE '%".$_GET['search_query']."%' OR name LIKE '%".$_GET['search_query']."%' OR title LIKE '%".$_GET['search_query']."%' OR fee LIKE '%".$_GET['search_query']."%')";
+	$query_search .= " AND (client_documents_code LIKE '%".$_GET['search_query']."%' OR client_documents_type LIKE '%".$_GET['search_query']."%' OR category LIKE '%".$_GET['search_query']."%' OR heading LIKE '%".$_GET['search_query']."%' OR name LIKE '%".$_GET['search_query']."%' OR title LIKE '%".$_GET['search_query']."%' OR fee LIKE '%".$_GET['search_query']."%' OR client_documentsid IN (SELECT `client_documentsid` FROM `client_documents_uploads` WHERE `document_link` LIKE '%".$_GET['search_query']."%'))";
 }
 $query_check_credentials = "SELECT * FROM client_documents WHERE deleted = 0 $query_search LIMIT $offset, $rowsPerPage";
 $query = "SELECT count(*) as numrows FROM client_documents WHERE deleted = 0 $query_search";

@@ -37,7 +37,7 @@ if(!empty($_GET['search_query'])) {
 		}
 	}
 	$staff_list = implode("','", $staff_list);
-	$query_search .= " AND (staff_documents_code LIKE '%".$_GET['search_query']."%' OR staff_documents_type LIKE '%".$_GET['search_query']."%' OR category LIKE '%".$_GET['search_query']."%' OR heading LIKE '%".$_GET['search_query']."%' OR name LIKE '%".$_GET['search_query']."%' OR title LIKE '%".$_GET['search_query']."%' OR fee LIKE '%".$_GET['search_query']."%' OR contactid IN ('$staff_list'))";
+	$query_search .= " AND (staff_documents_code LIKE '%".$_GET['search_query']."%' OR staff_documents_type LIKE '%".$_GET['search_query']."%' OR category LIKE '%".$_GET['search_query']."%' OR heading LIKE '%".$_GET['search_query']."%' OR name LIKE '%".$_GET['search_query']."%' OR title LIKE '%".$_GET['search_query']."%' OR fee LIKE '%".$_GET['search_query']."%' OR (contactid IN ('$staff_list') AND '$staff_list' != '') OR staff_documentsid IN (SELECT `staff_documentsid` FROM `staff_documents_uploads` WHERE `document_link` LIKE '%".$_GET['search_query']."%'))";
 }
 $query_check_credentials = "SELECT * FROM staff_documents WHERE deleted = 0 $query_search LIMIT $offset, $rowsPerPage";
 $query = "SELECT count(*) as numrows FROM staff_documents WHERE deleted = 0 $query_search";
