@@ -227,7 +227,7 @@ function dispatch_delivery_hover_icons($dbc, $ticket, $stop_number, $clickable_h
 	}
     return $row_html;
 }
-function draw_svg_truck($fill_color, $ontime, $notontime, $ongoing) {
+function draw_svg_truck($ontime, $notontime, $ongoing) {
 	$total_stops = $ontime + $notontime + $ongoing;
 
 	$curr_x = 62;
@@ -250,7 +250,7 @@ function draw_svg_truck($fill_color, $ontime, $notontime, $ongoing) {
 		$curr_x += $width;
 	}
 	$truck_html = '<svg height="100" width="200">
-		<polygon points="40,30 25,55 10,65 10,85 182,85 182,68 60,68 60,30" stroke-linejoin="round" style="fill:#'.$fill_color.';stroke:black;stroke-width:5;fill-rule:evenodd;"/>
+		<polygon points="40,30 25,55 10,65 10,85 182,85 182,68 60,68 60,30" stroke-linejoin="round" style="fill:#777;stroke:black;stroke-width:5;fill-rule:evenodd;"/>
 		<circle cx="40" cy="85" r="10" stroke="black" stroke-width="5" fill="white" />
 		<circle cx="155" cy="85" r="10" stroke="black" stroke-width="5" fill="white" />
 		<polygon points="60,10 60,68 190,68 190,10" stroke-linejoin="round" style="fill:white;stroke:black;stroke-width:5;fill-rule:evenodd;"/>'.

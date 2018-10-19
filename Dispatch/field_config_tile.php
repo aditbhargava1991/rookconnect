@@ -8,6 +8,13 @@ checkAuthorised('dispatch'); ?>
 <script type="text/javascript" src="../Dispatch/field_config.js"></script>
 
 <div class="form-group">
+    <label class="col-sm-4 control-label">Enable Summary Tab:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_summary_tab = get_config($dbc, 'dispatch_tile_summary_tab'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_summary_tab" <?= $dispatch_tile_summary_tab == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
     <label class="col-sm-4 control-label">Equipment Category:</label>
     <div class="col-sm-8">
         <?php 

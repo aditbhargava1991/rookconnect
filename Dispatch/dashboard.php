@@ -40,7 +40,9 @@ foreach ($ticket_statuses as $ticket_status) {
 
 <div id="accordion" class="tile-sidebar sidebar sidebar standard-collapsible">
     <ul>
-        <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;"><li class="active blue">Summary</li></a>
+        <?php if($summary_tab == 1) { ?>
+            <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;"><li class="active blue">Summary</li></a>
+        <?php } ?>
         <?php if(in_array('region',$search_fields) && !$is_customer) { ?>
             <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_region">Region<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_region" style="overflow: hidden;">
@@ -199,10 +201,10 @@ foreach ($ticket_statuses as $ticket_status) {
                 </div>
                 <div class="clearfix"></div>
                 <div class="double-scroller"><div></div></div>
-                <div class="dispatch-summary-tab-list"></div>
-                <div class="dispatch-summary-list-none" style="padding: 1em;">No <?= $equipment_label ?> Found</div>
-                <div class="dispatch-equipment-list" style="display: none;"></div>
-                <div class="dispatch-equipment-list-none" style="padding: 1em;">No <?= $equipment_label ?> Selected</div>
+                <div class="dispatch-summary-tab-list" <?= $summary_tab != 1 ? 'style="display:none;"' : '' ?>></div>
+                <div class="dispatch-summary-list-none" style="padding: 1em; <?= $summary_tab != 1 ? 'display:none;' : '' ?>">No <?= $equipment_label ?> Found</div>
+                <div class="dispatch-equipment-list" <?= $summary_tab == 1 ? 'style="display:none;"' : '' ?>></div>
+                <div class="dispatch-equipment-list-none" style="padding: 1em; <?= $summary_tab == 1 ? 'display:none;' : '' ?>">No <?= $equipment_label ?> Selected</div>
             </div>
         </div>
     </div>
