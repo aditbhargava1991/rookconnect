@@ -236,8 +236,11 @@ if(strpos($value_config, ',Service Rate Card,') !== FALSE) {
 			$service_price[] = $service[1];
 		}
 	}
-	$query_services = "`serviceid` IN (".implode(',',$service_list).") AND ";
-}
+	$query_services = "`serviceid` IN (".implode(',',$service_list).") AND "; ?>
+    <script>
+    reload_services = true;
+    </script>
+<?php }
 $oldservice = mysqli_fetch_array(mysqli_query($dbc, "SELECT `serviceid` FROM `services` WHERE `heading`='{$get_ticket['sub_heading']}' AND `category`='{$get_ticket['service']}' AND `service_type`='{$get_ticket['service_type']}'"))[0];
 if($oldservice > 0) {
 	mysqli_query($dbc, "UPDATE `tickets` SET `service_type`='', `service`='', `sub_heading`='', `serviceid`=CONCAT('$oldservice,',`serviceid`), `service_total_time` = '' WHERE `ticketid`='$ticketid'");
