@@ -243,6 +243,7 @@ function load_summary_tab(equipmentid) {
 }
 loading_buttons = false;
 function reload_all_data() {
+	hide_summary();
 	all_chart_data = [];
 	loading_list = [];
 	still_loading_item = false;
@@ -377,16 +378,19 @@ function load_tickets(equipmentid) {
 	
 	setTimeout(function() { $(window).resize(); }, 500);
 }
+function hide_summary() {
+	delete all_chart_data['ontime_chart'];
+	delete all_chart_data['status_chart'];
+	$('.dispatch-equipment-summary').html('').hide();
+	$('.dispatch-equipment-summary-title').html('').hide();
+	$('.dispatch-summary').hide();
+	resize_blocks();
+	$('.dispatch-summary-icon').removeClass('dispatch-summary-active');
+}
 function retrieve_summary(img, equipmentid) {
 	var date = $('[name="search_date"]').val();
 	if($('.dispatch-summary-group').is(':visible') && $('.dispatch-summary-group').data('equipment') == equipmentid) {
-		delete all_chart_data['ontime_chart'];
-		delete all_chart_data['status_chart'];
-		$('.dispatch-equipment-summary').html('').hide();
-		$('.dispatch-equipment-summary-title').html('').hide();
-		$('.dispatch-summary').hide();
-		resize_blocks();
-		$('.dispatch-summary-icon').removeClass('dispatch-summary-active');
+		hide_summary();
 	} else {
 		$(img).find('.dispatch-summary-icon').addClass('dispatch-summary-active');
 		loadingOverlayShow('.standard-body', $('.standard-body').height() + 20, $('.standard-body').width() + 20);
@@ -510,6 +514,7 @@ function display_active_blocks() {
 }
 function filter_sidebar(a = '') {
 	if($(a).is('#summary_tab')) {
+		hide_summary();
 		$(a).find('li').addClass('active blue');
 		retrieve_summary_tab();
 	} else if(a != '') {
