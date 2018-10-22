@@ -561,7 +561,7 @@ foreach(explode(',', ROLE) as $session_role) {
     $allowed_roles = array_merge($allowed_roles, explode(',', $field_config['allowed_roles']));
     $allowed_ticket_types = array_merge($allowed_ticket_types, explode(',', $field_config['allowed_ticket_types']));
 }
-if(!empty($allowed_ticket_types) && !empty($restrict_ticket_types)) {
+if(!empty(array_filter($allowed_ticket_types)) && !empty($restrict_ticket_types)) {
     $allowed_ticket_types = array_intersect($allowed_ticket_types, $restrict_ticket_types);
 } else if(!empty($restrict_ticket_types)) {
     $allowed_ticket_types = $restrict_ticket_types;
