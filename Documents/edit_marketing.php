@@ -166,6 +166,9 @@ $(document).ready(function() {
 
 <?php
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT marketing_material FROM field_config"));
+    if(empty($get_field_config['marketing_material'])) {
+        $get_field_config['marketing_material'] = 'Marketing Material Type,Category,Title,Uploader,Link';
+    }
     $value_config = ','.$get_field_config['marketing_material'].',';
 
     $marketing_material_type = '';
@@ -362,7 +365,7 @@ $(document).ready(function() {
                     } else {
                         $download_link = 'download/'.$row['document_link'];
                     }
-                    echo '<li><a href="'.$download_link.'" target="_blank">'.$row['document_link'].'</a> - <a href="?tile_name='.$tile_name.'&tab='.$_GET['tab'].'certuploadid='.$certuploadid.'&edit='.$marketing_materialid.'"> Delete</a></li>';
+                    echo '<li><a href="'.$download_link.'" target="_blank">'.$row['document_link'].'</a> - <a href="?tile_name='.$tile_name.'&tab='.$_GET['tab'].'&certuploadid='.$certuploadid.'&edit='.$marketing_materialid.'"> Delete</a></li>';
                     echo '</ul>';
                 }
             }

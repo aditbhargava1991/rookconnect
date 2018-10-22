@@ -6,7 +6,7 @@
  * Query Variables Accepted: search
  * Scripts on index.php
  */
- 
+
 include('../include.php');
 include('../database_connection_htg.php');
 
@@ -33,7 +33,7 @@ $board = mysqli_query($dbc_news, "SELECT `board_name`, `shared_staff` FROM `news
             array_push($local_arr, $local_row);
         }
         $newsboards = array_merge($sw_arr, $local_arr);
-        
+
         if ( !empty($newsboards) ) {
             foreach ($newsboards as $row ) {
                 $url_type = ($row['newsboard_type'] == 'Softwarewide' ) ? 'sw' : ''; ?>
@@ -49,7 +49,7 @@ $board = mysqli_query($dbc_news, "SELECT `board_name`, `shared_staff` FROM `news
         } else {
             echo '<h4>No records found.</h4>';
         }
-    
+
     } else {
         echo '<h4>No records found.</h4>';
     } ?>

@@ -195,6 +195,8 @@ function resize_calendar_view_monthly () {
 	$('.calendar_view table td, .calendar_view table th').css('width',width);
 	$('.calendar_view table tbody tr').first().find('td').css('padding-top',$('.calendar_view table thead tr th').outerHeight() + 8);
 	
-	$('.calendar_view').height('calc(80% + 4em)');
+	var height = $('.calendar-screen .scale-to-fill').outerHeight();
+	$('.calendar_view').height('calc('+$('.calendar-screen .scale-to-fill').outerHeight()+'px - 4em)');
+	$('.collapsible .sidebar').height('calc('+($('.calendar_view').height() - $('.search-text').outerHeight())+'px - 1.5em - 1px)');
 	// $('.calendar_view').outerHeight($('.calendar_view').outerHeight() - $('.ticket-status-legend').outerHeight(true));
 }

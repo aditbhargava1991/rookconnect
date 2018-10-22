@@ -317,7 +317,7 @@ function show_hide_email() {
                 echo "<tr>";
 
                 if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-                    echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : '<a href="add_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'">Edit '.$invoice['invoice_type'].'</a> #'). $invoice['invoiceid'].($invoice['invoiceid_src'] > 0 ? '<br />For Invoice #'.$invoice['invoiceid_src'] : '') . '</td>';
+                    echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : '<a href="create_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'">Edit '.$invoice['invoice_type'].'</a> #'). $invoice['invoiceid'].($invoice['invoiceid_src'] > 0 ? '<br />For Invoice #'.$invoice['invoiceid_src'] : '') . '</td>';
                 }
                 if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
                     echo '<td data-title="Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';

@@ -287,8 +287,7 @@ a {
   color: #dc6214;
   text-decoration: none; }
   a:hover, a:focus {
-    color: #ab8036;
-    text-decoration: underline; }
+    color: #ab8036 !important; }
   a:focus {
     outline: thin dotted;
     outline: 5px auto -webkit-focus-ring-color;
@@ -5171,6 +5170,18 @@ display: table-cell;
 .theme-color-icon {
   filter: invert(47%) sepia(100%) saturate(313%) hue-rotate(359deg) brightness(92%) contrast(82%) !important;
 }
+.default-color, .dashboard-item label, .main-item label, .text-blue { color:#ab8036 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li {
+    border-color:#ab8036 !important;
+    }
 .standard-sidebar-searchbox {
   background-color: rgba(171,128,54,0.7) !important;
 }
@@ -5195,3 +5206,4 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#ab8036 !important; }
 .calendar .main-screen .panel .panel-title > a:hover { color:#ab8036 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #fff !important; }
+.info-block-header { background-color:#f8e8cb !important; }

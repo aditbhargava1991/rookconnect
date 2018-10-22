@@ -46,17 +46,17 @@ if(isset($_POST['custom_form'])) {
 			}
 			block.find('input,textarea').last().val(text);
 		}
-		function updateTicket(select, field, update_ticket = 1) {
-			if(update_ticket != 1) {
+		function updateTicket(select, field, update_ticket = 1, table_name = 'ticket_schedule') {
+			if(update_ticket == 1) {
 				if(confirm("Click OK to update the <?= TICKET_NOUN ?> with this contact?")) {
 					$.post('ticket_ajax_all.php?action=manual_update', {
-						table_name: 'ticket_schedule',
+						table_name: table_name,
 						field_name: field.split('-')[1],
 						value: select.value,
 						ticketid: <?= $ticketid ?>,
 						identifier: 'type',
 						id: field.split('-')[0]
-					});
+					}, function(response) { console.log(response); });
 				}
 			}
 			$(select).nextAll('input,textarea').first().val($(select).find('option:selected').data('output')).change();
@@ -94,6 +94,7 @@ if(isset($_POST['custom_form'])) {
 			echo ' Origin: '.print_r($origin,true).' Destination: '.print_r($dest,true).' General: '.print_r($general,true).' Shipment: '.print_r($shipment,true)."-->";
 			while($field = $fields->fetch_assoc()) {
 				$options = explode(':',$field['options']);
+				$initial_options = $options;
 				$option_details = [];
 				foreach($options as $key => $option) {
 					$option_details[explode('-',$option)[0]] = $option;
@@ -266,7 +267,7 @@ if(isset($_POST['custom_form'])) {
 													$length_line = [];
 													$width_line = [];
 													$height_line = [];
-													$general_rows = mysqli_query($dbc, "SELECT COUNT(`ticket_attached`.`id`) `num_rows`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY CONCAT(IFNULL(`ticket_attached`.`dimensions`,''),IFNULL(`ticket_attached`.`dimension_units`,''))");
+													$general_rows = mysqli_query($dbc, "SELECT SUM(`qty`) `qty`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY CONCAT(IFNULL(`ticket_attached`.`dimensions`,''),IFNULL(`ticket_attached`.`dimension_units`,''))");
 													while($general_line = $general_rows->fetch_assoc()) {
 														$length_inch = 0;
 														$width_inch = 0;
@@ -283,7 +284,7 @@ if(isset($_POST['custom_form'])) {
 														$length_line[] = round($length_inch,2);
 														$width_line[] = round($width_inch,2);
 														$height_line[] = round($height_inch,2);
-														$quantity_line[] = $general_line['num_rows'];
+														$quantity_line[] = $general_line['qty'];
 													}
 													if($size_details[1] == 'length_inch') {
 														$value .= implode("\n",$length_line);
@@ -294,6 +295,34 @@ if(isset($_POST['custom_form'])) {
 													} else if($size_details[1] == 'quantity') {
 														$value .= implode("\n",$quantity_line);
 													}
+												} else if($field_detail[0] == 'piece_types_count') {
+													$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`piece_type`, SUM(`qty`) `qty` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY `ticket_attached`.`piece_type`");
+													$piece_types = [];
+													while($general_line = $general_rows->fetch_assoc()) {
+														$piece_types[] = $general_line['qty'].' x '.$general_line['piece_type'];
+													}
+													$piece_types = implode("\n", $piece_types);
+													$value .= $piece_types;
+												} else if($field_detail[0] == 'piece_types_count_dim') {
+													$general_rows = mysqli_query($dbc, "SELECT `ticket_attached`.`piece_type`, SUM(`qty`) `qty`, `ticket_attached`.`dimensions`, `ticket_attached`.`dimension_units` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily." GROUP BY CONCAT(IFNULL(`ticket_attached`.`piece_type`,''),IFNULL(`ticket_attached`.`dimensions`,''),IFNULL(`ticket_attached`.`dimension_units`,''))");
+													$piece_types = [];
+													while($general_line = $general_rows->fetch_assoc()) {
+														$length_inch = 0;
+														$width_inch = 0;
+														$height_inch = 0;
+														foreach(explode('x',$general_line['dimensions']) as $dim_i => $dim) {
+															if($dim_i == 0) {
+																$length_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															} else if($dim_i == 1) {
+																$width_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															} else if($dim_i == 2) {
+																$height_inch = $dim / ($general_line['dimension_units'] == 'mm' ? 25.4 : ($general_line['dimension_units'] == 'cm' ? 2.54 : 1));
+															}
+														}
+														$piece_types[] = $general_line['qty'].' x '.$length_inch."'x".$width_inch."'x".$height_inch."' ".$general_line['piece_type'];
+													}
+													$piece_types = implode("\n", $piece_types);
+													$value .= $piece_types;
 												} else if($field_detail[0] == 'piece_types') {
 													$general_rows = mysqli_query($dbc, "SELECT DISTINCT `ticket_attached`.`piece_type` FROM `ticket_attached` WHERE `ticket_attached`.`src_table`='inventory_general' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0 AND IFNULL(`piece_type`,'') != ''".$query_daily);
 													$piece_types = [];
@@ -456,9 +485,25 @@ if(isset($_POST['custom_form'])) {
 											}
 											$field_i++;
 										}
+										if($field_detail_id == $get_ticket[$field_detail[0]]) {
+											$field_detail_id = '';
+										}
 									}
 									if($field_detail_id > 0) {
-										$value = get_contact($dbc, $field_detail_id, ($field_detail[1] == 'full_name' ? '' : $field_detail[1]));
+										$contact_info = array_shift(sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$field_detail_id."'")));
+
+										foreach(explode('+',$field_detail[1]) as $row => $field_line) {
+											if($row > 0 && trim($value,"\n") == $value) {
+												$value .= "\n";
+											}
+											foreach(explode(',',$field_line) as $contact_detail) {
+												if(!array_key_exists($contact_detail,$contact_info)) {
+													$value = trim($value).trim(str_replace(['FFMCOMMA','FFMCOLON','FFMDASH','FFMPLUS','FFMHASH','FFMSINQUOT'],[',',':','-','+','#',"'"],implode('-',$contact_detail)),"'");
+												} else {
+													$value .= $contact_info[$contact_detail].' ';
+												}
+											}
+										}
 									} else if ($field_detail_id != '') {
 										$value = $field_detail_id;
 									}
@@ -531,8 +576,8 @@ if(isset($_POST['custom_form'])) {
 						$contact_option = array_search('contacts',$options);
 						if($contact_option !== FALSE) {
 							?>
-							<select class="contact_select chosen-select-deselect" data-placeholder="Select <?= $options[$contact_options+2] ?>" onchange="updateTicket(this, '<?= $options[$contact_options+1] ?>')"><option />
-								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `office_phone` FROM `contacts` WHERE `category`='".$options[$contact_options+2]."' AND `deleted`=0 AND `status` > 0")) as $contact) {
+							<select class="contact_select chosen-select-deselect" data-placeholder="Select <?= $options[$contact_options+2] ?>" onchange="updateTicket(this, '<?= $initial_options[$contact_options+1] ?>', 1, <?= ($options[$contact_options+4] == 'tickets' ? "'tickets'" : "'ticket_schedule'") ?>)"><option />
+								<?php foreach(sort_contacts_query($dbc->query("SELECT * FROM `contacts` WHERE `deleted`=0 AND `status` > 0".(empty($options[$contact_options+2]) ? '' :  " AND `category`='".$options[$contact_options+2]."'"))) as $contact) {
 									$output = '';
 									foreach(explode('+',$options[$contact_options+3]) as $option_line) {
 										foreach(explode(',',$option_line) as $option_field) {
@@ -544,7 +589,7 @@ if(isset($_POST['custom_form'])) {
 										}
 										$output = trim($output)."\n";
 									} ?>
-									<option <?= $contact['contactid'] == $field_id ? 'selected' : '' ?> value="<?= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'] ?>" data-output="<?= trim($output) ?>"><?= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'] ?></option>
+									<option <?= $contact['contactid'] == $field_id ? 'selected' : '' ?> value="<?= $contact['contactid'] ?>" data-output="<?= trim($output) ?>"><?= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'] ?></option>
 								<?php } ?>
 							</select>
 						<?php }
@@ -558,7 +603,7 @@ if(isset($_POST['custom_form'])) {
 							});
 							</script>
 							<select class="hidden_select" data-placeholder="Select <?= $options[$contact_options+3] ?>" onchange="updateTicket(this, '<?= $options[$contact_options+2] ?>', 0)" style="display: none;"><option />
-								<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name`, `ship_to_address`, `ship_city`, `ship_state`, `ship_zip`, `office_phone` FROM `contacts` WHERE `category`='".$options[$contact_options+3]."' AND `deleted`=0 AND `status` > 0")) as $contact) {
+								<?php foreach(sort_contacts_query($dbc->query("SELECT * FROM `contacts` WHERE `category`='".$options[$contact_options+3]."' AND `deleted`=0 AND `status` > 0")) as $contact) {
 									$output = '';
 									foreach(explode('+',$options[$contact_options+4]) as $option_line) {
 										foreach(explode(',',$option_line) as $option_field) {
@@ -570,7 +615,7 @@ if(isset($_POST['custom_form'])) {
 										}
 										$output = trim($output)."\n";
 									} ?>
-									<option <?= $contact['contactid'] == $field_id ? 'selected' : '' ?> value="<?= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'] ?>" data-output="<?= trim($output) ?>"><?= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'] ?></option>
+									<option <?= $contact['contactid'] == $field_id ? 'selected' : '' ?> value="<?= $contact['contactid'] ?>" data-output="<?= trim($output) ?>"><?= $contact['name'].' '.$contact['first_name'].' '.$contact['last_name'] ?></option>
 								<?php } ?>
 							</select>
 						<?php }

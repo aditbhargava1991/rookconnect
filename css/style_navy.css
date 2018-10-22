@@ -384,8 +384,7 @@ h1, h2, h3, h4, h5, h6,
 .h1, .h2, .h3, .h4, .h5, .h6 {
   font-family: inherit;
   font-weight: 300;
-  line-height: 1.1;
-  color: #bbc4db; }
+  line-height: 1.1; }
   h1 small,
   h1 .small, h2 small,
   h2 .small, h3 small,
@@ -5268,6 +5267,19 @@ background-image: url(../img/fresh-focus-noarrow.png);
     border: 2px solid #f1efff;
     cursor: default;
 }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.block-button,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border { border-color:#455884 !important; }
+.info-block-header { background-color:#eee !important; }
 .calendar .block-button,.calendar .block-item,.calendar .block-label {
   border: 1px solid #455884 !important;
   color: #000 !important;

@@ -20,12 +20,13 @@ function profile_id($dbc, $contactid, $echo = true, $class) {
 	$profile_photo = WEBSITE_URL."/Profile/download/profile_pictures/".$contactid.".jpg";
 	// Check if an image has been uploaded
 	if(url_exists($profile_photo)) {
-		$output = '<img class="id-circle no-toggle '.$class.'" src="'.$profile_photo.'" title="'.decryptIt($user['name']).decryptIt($user['first_name']).' '.decryptIt($user['last_name']).'">';
+		$user = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `name` FROM `contacts` LEFT JOIN `user_settings` ON `contacts`.`contactid`=`user_settings`.`contactid` WHERE `contacts`.`contactid` = '$contactid'"));
+        $output = '<img class="id-circle no-toggle '.$class.'" src="'.$profile_photo.'" title="'.decryptIt($user['name']).decryptIt($user['first_name']).' '.decryptIt($user['last_name']).'" data-placement="bottom">';
 	} else {
 		// If no image has been uploaded, and an avatar has been selected, use the avatar
 		$user = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `preset_profile_picture`, `first_name`, `last_name`, `name`, `initials`, `calendar_color` FROM `contacts` LEFT JOIN `user_settings` ON `contacts`.`contactid`=`user_settings`.`contactid` WHERE `contacts`.`contactid` = '$contactid'"));
 		if(!empty($user['preset_profile_picture']) && url_exists(WEBSITE_URL.'/img/avatars/'.$user['preset_profile_picture'])) {
-			$output = '<img class="id-circle no-toggle '.$class.'" title="'.decryptIt($user['name']).decryptIt($user['first_name']).' '.decryptIt($user['last_name']).'" src="'.WEBSITE_URL.'/img/avatars/'.$user['preset_profile_picture'].'">';
+			$output = '<img class="id-circle no-toggle '.$class.'" title="'.decryptIt($user['name']).decryptIt($user['first_name']).' '.decryptIt($user['last_name']).'" src="'.WEBSITE_URL.'/img/avatars/'.$user['preset_profile_picture'].'" data-placement="bottom">';
 		// If nothing else has been set, use the contact's initials
 		} else {
 			$initials = ($user['initials'] == '' ? ($user['first_name'].$user['last_name'].$user['name'] == '' ? '?' : substr(decryptIt($user['name']),0,1).substr(decryptIt($user['first_name']),0,1).substr(decryptIt($user['last_name']),0,1)) : $user['initials']);

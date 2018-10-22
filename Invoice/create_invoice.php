@@ -80,7 +80,7 @@ include_once ('../navigation.php'); ?>
                                 include('edit_misc.php');
                                 echo '<hr />';
                             }
-                            if(in_array('unbilled_tickets',$field_config)) {
+                            if(in_array_starts('unbilled_tickets',$field_config)) {
                                 include('edit_tickets.php');
                                 echo '<hr />';
                             }

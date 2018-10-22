@@ -1,4 +1,5 @@
 <?php include_once ('../include.php');
+include_once('config.php');
 if(!$no_ob_clean) {
 	ob_clean();
 } ?>
@@ -90,7 +91,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		$total_budget_time_exceeded = 0;
 	}
 	?>
-	<h3 <?= $extra_billing['num'] > 0 ? 'style="color:red;"' : '' ?>><?= $tile_security['edit'] > 0 || in_array('Hide Slider',$db_config) ? '<a href=\'../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&from='.urlencode($_GET['from']).'\' '.($extra_billing['num'] > 0 ? 'style="color:red;"' : '').'>' : '' ?>
+	<h3 <?= $extra_billing['num'] > 0 ? 'style="color:red;"' : '' ?>><?= $tile_security['edit'] > 0 || in_array('Hide Slider',$db_config) ? '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.urlencode($_GET['from']).'\' '.($extra_billing['num'] > 0 ? 'style="color:red;"' : '').'>' : '' ?>
 		<?= !in_array('Label',$db_config) ? TICKET_NOUN.' #'.($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']) : get_ticket_label($dbc, $ticket) ?>
         <?php
 				foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
@@ -103,8 +104,8 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 
 		<?= $extra_billing['num'] > 0 ? '<img class="inline-img small no-toggle" title="Extra Billing" src="../img/icons/ROOK-status-paid.png">' : '' ?>
 		<img class="inline-img small no-toggle total_budget_time_icon" title="Total Budget Time exceeded by <?= $total_budget_time_exceeded ?> hours." src="../img/icons/ROOK-status-paid.png" style="filter: invert(30%) sepia(94%) saturate(50000%) hue-rotate(356deg) brightness(103%) contrast(117%); <?= $total_budget_time_exceeded > 0 ? '' : 'display:none;' ?>">
-		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= !in_array('Hide Slider',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&action_mode=1&from='.urlencode($_GET['from']).'" '.(!in_array('Action Mode Button Eyeball',$db_config) ? 'class="btn brand-btn"' : '').' onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;">'.(in_array('Action Mode Button Eyeball',$db_config) ? '<img src="../img/icons/eyeball.png" class="inline-img">' : (!empty(get_config($dbc, 'ticket_slider_button')) ? get_config($dbc, 'ticket_slider_button') : 'Sign In')).'</a>' : '' ?>
-		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= in_array('Overview Icon',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&overview_mode=1&from='.urlencode($_GET['from']).'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img no-toggle" title="'.TICKET_NOUN.' Overview"></a>' : '' ?></h3>
+		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= !in_array('Hide Slider',$db_config) ? '<a href="../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&action_mode=1&from='.urlencode($_GET['from']).'" '.(!in_array('Action Mode Button Eyeball',$db_config) ? 'class="btn brand-btn"' : '').' onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;">'.(in_array('Action Mode Button Eyeball',$db_config) ? '<img src="../img/icons/eyeball.png" class="inline-img">' : (!empty(get_config($dbc, 'ticket_slider_button')) ? get_config($dbc, 'ticket_slider_button') : 'Sign In')).'</a>' : '' ?>
+		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= in_array('Overview Icon',$db_config) ? '<a href="../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&overview_mode=1&from='.urlencode($_GET['from']).'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img no-toggle" title="'.TICKET_NOUN.' Overview"></a>' : '' ?></h3>
 	<!-- Quick Action inputs -->
 	
 	<?php 
@@ -576,17 +577,17 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 					$functions[] = '<a href="../Ticket/ticket_pdf.php?ticketid='.$ticket['ticketid'].'">View PDF <img src="../img/pdf.png" class="inline-img small"></a>';
 				}
 				if($tile_security['edit'] == 1) {
-					$functions[] = '<a href=\'../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>Edit</a>';
+					$functions[] = '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>Edit</a>';
 					$functions[] = '<a href=\''.WEBSITE_URL.'/delete_restore.php?action=delete&ticketid='.$ticket['ticketid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
 				} else {
-					$functions[] = '<a href=\'../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>View</a>';
+					$functions[] = '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>View</a>';
 				}
 				if(check_subtab_persmission($dbc, 'ticket', ROLE, 'view_history') && !($strict_view > 0)) {
-					$functions[] = '<span onclick="overlayIFrameDiv(\'ticket_history.php?ticketid='.$ticket['ticketid'].'\', true);" style="cursor:pointer">View History</span>';
+					$functions[] = '<span onclick="overlayIFrameDiv(\'ticket_history.php?ticketid='.$ticket['ticketid'].(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'\', true);" style="cursor:pointer">View History</span>';
 				}
 			}
 			if(in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0) {
-				$functions[] = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'&calendar_view=true&edit_staff_dashboard=1\',\'auto\',false,true); return false;">Edit Staff</a>';
+				$functions[] = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&calendar_view=true&edit_staff_dashboard=1\',\'auto\',false,true); return false;">Edit Staff</a>';
 			}
 			echo implode(' | ',$functions); ?>
 		</div>

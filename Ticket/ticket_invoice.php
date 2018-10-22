@@ -288,7 +288,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 				$pdf_name = '../Invoice/Download/invoice_'.$invoice['invoiceid'].'.pdf'; ?>
 				<tr>
 					<td data-title="Date"><?= empty($invoice['to_do_date']) ? implode(', ',array_unique($date_list)) : $invoice['to_do_date'] ?></td>
-					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
+					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=<?= $invoice['ticketid'] ?><?= (empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
 					<?php if(strpos($value_config, ',Services,') !== FALSE) {
 						foreach($services_cost_num as $cost_amt) {
 							$total_cost += $cost_amt;
@@ -447,7 +447,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 				$pdf_name = '../Invoice/Download/invoice_'.$invoice['invoiceid'].'.pdf'; ?>
 				<tr>
 					<td data-title="Date"><?= $invoice['ticket_date'] ?></td>
-					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=<?= $invoice['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
+					<td data-title="<?= TICKET_NOUN ?>"><?php if($tile_security['edit'] > 0) { ?><a href="<?= WEBSITE_URL ?>/Ticket/index.php?edit=<?= $invoice['ticketid'] ?><?= (empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $invoice) ?></a><?php } else { echo get_ticket_label($dbc, $invoice); } ?></td>
 					<?php if(strpos($value_config, ',Services,') !== FALSE) {
 						foreach($services_cost_num as $cost_amt) {
 							$total_cost += $cost_amt;

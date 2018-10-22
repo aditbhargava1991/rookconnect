@@ -13,7 +13,7 @@ include_once('../tcpdf/tcpdf.php');
 /*
 if (isset($_POST['submit_pay'])) {
 	$all_invoice = implode(',',$_POST['invoice']);
-	header('Location: add_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
+	header('Location: create_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
 }
 
 if (isset($_POST['printpdf'])) {
@@ -136,7 +136,7 @@ $(document).ready(function() {
             <div class="table-responsive">
 
             <?php
-            echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
+            echo '<a href="create_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             // Display Pager
             /* Pagination Counting */
             $rowsPerPage = 25;
@@ -204,7 +204,7 @@ $(document).ready(function() {
                 echo '<td>' . $row['paid'] . '</td>';
 
                 if($row['final_price'] == '') {
-                    echo '<td><a href=\'add_invoice.php?invoiceid='.$row['invoiceid'].'&patientid='.$row['patientid'].'\' >Generate</a></td>';
+                    echo '<td><a href=\'create_invoice.php?invoiceid='.$row['invoiceid'].'&patientid='.$row['patientid'].'\' >Generate</a></td>';
                 } else {
                     echo '<td>-</td>';
                 }
@@ -215,7 +215,7 @@ $(document).ready(function() {
             echo '</table></div>';
             // Added Pagination //
             echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-            echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
+            echo '<a href="create_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             ?>
 
 

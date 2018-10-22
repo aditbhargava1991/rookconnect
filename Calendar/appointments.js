@@ -960,11 +960,13 @@ if($('[name="edit_access"]').val() == 1) {
 						var date = target.data('date');
 
 						data = { blocktype: blocktype, staffid: staffid, equipmentid: equipmentid, equipment_assignid: equipment_assignid, date: date };
+											
 						$.ajax({
 							url: '../Calendar/calendar_ajax_all.php?fill=equip_assign_draggable&offline='+offline_mode,
 							method: 'POST',
 							data: data,
 							success: function(response) {
+								 
 							    reload_all_data();
 							}
 						});
@@ -1180,7 +1182,9 @@ function resize_calendar_view() {
 			$('.sidebar.panel-group .panel-body').outerHeight($('.sidebar.panel-group').outerHeight() - sidebar_headings);
 		}
 
-		$('.calendar_view').height('calc(80% + 4em)');
+		var height = $('.calendar-screen .scale-to-fill').outerHeight();
+		$('.calendar_view').height('calc('+$('.calendar-screen .scale-to-fill').outerHeight()+'px - 4em)');
+		$('.collapsible .sidebar').height('calc('+($('.calendar_view').height() - $('.search-text').outerHeight())+'px - 1.5em - 1px)');
 		// $('.calendar_view').outerHeight($('.calendar_view').outerHeight() - $('.ticket-status-legend').outerHeight(true));
 
 		var time_blocks = [];
@@ -1480,6 +1484,52 @@ function removeTicketSchedule(ticketid, stopid) {
         });
     });
 }
+function setDaysheetReminder(input) {
+    var daysheet_reminder = $(input);
+    var daysheetreminderid = input.value;
+    var done = 0;
+    if ($(input).is(':checked')) {
+        done = 1;
+    }
+    $.ajax({
+        url: '../Profile/profile_ajax.php?fill=daysheet_reminders',
+        method: 'POST',
+        data: {
+            daysheetreminderid: daysheetreminderid,
+            done: done
+        },
+        success: function(response) {
+            if (done == 1) {
+                daysheet_reminder.closest('.daysheet_row').find('span').css('text-decoration', 'line-through');
+            } else {
+                daysheet_reminder.closest('.daysheet_row').find('span').css('text-decoration', 'none');
+            }
+        }
+    });
+}
+									 
+									 
+										 
+				 
+								  
+				 
+	 
+			
+																   
+					   
+			   
+												   
+					  
+		  
+									 
+							
+																											   
+					
+																									   
+			 
+		 
+	   
+ 
 
 // Functions for the hover icons for Customer Sign Off on Deliveries
 function display_camera(img) {
