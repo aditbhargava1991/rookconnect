@@ -366,8 +366,10 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	$get_pos_tax = get_config($dbc, 'pos_tax');
 	$pdf_tax = '';
 	$pdf_tax_number = '';
+	$pdfTaxLabel = '';
 	$gst_rate = 0;
 	$pst_rate = 0;
+	$taxDataArray = [];
 	if($get_pos_tax != '') {
 		$pos_tax = explode('*#*',$get_pos_tax);
 
@@ -389,6 +391,11 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 			} else {
 				//$pdf_tax .= $pos_tax_name_rate[0] .' : '.$pos_tax_name_rate[1].'% : $'.$taxrate_value.'<br>';
 				$pdf_tax .= '<tr><td align="right" width="75%" colspan="10"><strong>'.$pos_tax_name_rate[0] .'['.$pos_tax_name_rate[1].'%]['.$pos_tax_name_rate[2].']</strong></td><td align="right" border="1" width="25%" style="" colspan="2">$'.$taxrate_value.'</td></tr>';
+
+				$pdfTaxLabel = $pos_tax_name_rate[0] .'['.$pos_tax_name_rate[1].'%]['.$pos_tax_name_rate[2].']';
+
+				$taxDataArray[$eq_loop]['pdfTaxLabel'] = $pdfTaxLabel;
+				$taxDataArray[$eq_loop]['pdfTaxRate'] = $taxrate_value;
 			}
 
 			$pdf_tax_number .= $pos_tax_name_rate[0].' ['.$pos_tax_name_rate[2].'] <br>';
@@ -443,47 +450,95 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		$image_file = dirname(__DIR__).'/Point of Sale/'.$image_file;
 	}
 
-	$type = pathinfo($image_file, PATHINFO_EXTENSION);
-	$dataimg = file_get_contents($image_file);
-	$imgbase64 = 'data:image/' . $type . ';base64,' . base64_encode($dataimg);
 	$stripAddress = html_entity_decode($invoice_header, ENT_QUOTES, "UTF-8");
-	$html .= '<table style="width:100%;" id="invoiceData">
-				<tr rowspan="2">
-					<td colspan="4" align="left"><img src="'.$imgbase64.'" width="70" height="70" style=""/>
-					</td>
-					<td align="right" colspan="8" style="text-align:right;">'.$stripAddress.'</td>
-				</tr>
-			</table></br>';
 
 	if($_GET['format']=='xsl'){
-		//$html .= '<p style="text-align:left;">Box 2052, Sundre, AB, T0M 1X0<br>Phone: 403-638-4030<br>Fax: 403-638-4001<br>Email: info@highlandprojects.com<br>Work Ticket# : </p>';
-		if($point_of_sell['invoice_date'] !== '') {
-			$tdduedate = '<td>'.date('Y-m-d', strtotime($roww['invoice_date'] . "+30 days")).'</td>';
-			$thduedate = '<td>Due Date</td>';
-		} else { $tdduedate = ''; $thduedate = ''; }
-		$html .= '<table style="width:100%;" id="invoiceData">
-					<tr>
-						<td style="text-align:left;">
-							<table style="width:100%;"><tr><td colspan="6">BILL TO :</td></tr><tr><td colspan="6">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).($customer['mailing_address']!='' ? '<br>'.$customer['mailing_address']:'').($customer['city']!='' ? '<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code']:'').(decryptIt($customer['cell_phone'])!='' ? '<br>'.decryptIt($customer['cell_phone']):'').(decryptIt($customer['email_address'])!='' ? '<br>'.decryptIt($customer['email_address']):'').'</td></tr>
-							</table>
-						</td>
-						
-						<td colspan ="6" style="text-align:right;">
-							<table style="width:100%;"><tr><td align="right" colspan ="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td align="right"  colspan ="6">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
-							</table>
-						</td>
-					</tr>
-				</table>';
+		ini_set('display_errors', 1);
+		ini_set('display_startup_errors', 1);
+		error_reporting(E_ALL);
+		require_once(dirname(__FILE__)."/PHPExcel/Classes/PHPExcel.php");
+	    require_once(dirname(__FILE__)."/PHPExcel/Classes/PHPExcel/IOFactory.php");
 
-		$html .= '<br /><table border="1px" style="width:100%; padding:3px; border:1px solid grey;">
-				<tr nobr="true"><td style="text-align:center;" colspan="4">ORDERED BY</td><td style="text-align:center;" colspan="4">P.O. NO.</td><td style="text-align:center;" colspan="4">Area</tr>
-		<tr><td style="text-align:center;" colspan="4">'.SALESPERSON.'</td><td style="text-align:center;" colspan="4">'.$point_of_sell['po_num'].'</td><td style="text-align:center;" colspan="4">'.$point_of_sell['area'].'</td></tr>
-		</table><br />';
+	    $objPHPExcel = new PHPExcel();
+	    $objDrawing = new PHPExcel_Worksheet_Drawing();
+		$objWizard = new PHPExcel_Helper_HTML;
 
-		$html .= '<table border="0x" style="width:100%;padding:3px;">
-			<tr nobr="true" style="color:black;  width:22%; border:1px solid grey;">';
+		//Invoice Header
+	    $objPHPExcel->getActiveSheet()->mergeCells('A1:B4');
+		$objDrawing->setName('Invoice Logo');
+		$objDrawing->setDescription('Invoice Logo');
+		$objDrawing->setPath($image_file);
+		$objDrawing->setCoordinates('A1');                      
+		$objDrawing->setOffsetX(5); 
+		$objDrawing->setOffsetY(5);                
+		//$objDrawing->setWidth(70); 
+		$objDrawing->setHeight(70);
+		$objDrawing->setWorksheet($objPHPExcel->getActiveSheet());
 
-		$html .= '<th colspan="2" align="left">TICKET NO.</th><th colspan="2" align="left">LOCATION</th><th colspan="2" align="left">DESCRIPTION</th><th colspan="2" align="left">HRS - QTY</th><th colspan="2" align="left">RATE</th><th colspan="2" align="right">AMOUNT</th></tr>';
+		$addressText = $objWizard->toRichTextObject($stripAddress);
+		$objPHPExcel->getActiveSheet()->mergeCells('C1:L4')->setCellValue('C1', $addressText);
+
+		$objPHPExcel->getActiveSheet()->mergeCells('A5:L5')->setCellValue('A5', '');
+
+		$objPHPExcel->getActiveSheet()->mergeCells('A6:F6')->setCellValue('A6', $objWizard->toRichTextObject('<b>BILL TO :</b>'));
+		$objPHPExcel->getActiveSheet()->mergeCells('G6:L6')->setCellValue('G6', $objWizard->toRichTextObject('<b>INVOICE # : '.$invoiceid.'</b>'));
+
+		$receipienrAaddressText = $objWizard->toRichTextObject(decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).($customer['mailing_address']!='' ? '<br>'.$customer['mailing_address']:'').($customer['city']!='' ? '<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code']:'').(decryptIt($customer['cell_phone'])!='' ? '<br>'.decryptIt($customer['cell_phone']):'').(decryptIt($customer['email_address'])!='' ? '<br>'.decryptIt($customer['email_address']):''));
+		$objPHPExcel->getActiveSheet()->mergeCells('A7:F11')->setCellValue('A7', $receipienrAaddressText);
+
+		$invoiceDetailText = $objWizard->toRichTextObject('INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'');
+		$objPHPExcel->getActiveSheet()->mergeCells('G7:L11')->setCellValue('G7', $invoiceDetailText);
+
+
+		$objPHPExcel->getActiveSheet()->mergeCells('A6:F6')->setCellValue('A6', $objWizard->toRichTextObject('<b>BILL TO :</b>'));
+		$objPHPExcel->getActiveSheet()->mergeCells('G6:L6')->setCellValue('G6', $objWizard->toRichTextObject('<b>INVOICE # : '.$invoiceid.'</b>'));
+
+		// Set alignments
+		echo date('H:i:s') , " Set alignments" , EOL;
+		$objPHPExcel->getActiveSheet()->getStyle('A1:B4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->getStyle('C1:L4')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$objPHPExcel->getActiveSheet()->getStyle('G6:L6')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		$objPHPExcel->getActiveSheet()->getStyle('G7:L11')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+		//End Invoice Header
+		
+		//Start Invoice Body - 1
+		$objPHPExcel->getActiveSheet()->mergeCells('A12:L12')->setCellValue('A12', '');
+
+		$objPHPExcel->getActiveSheet()->mergeCells('A13:D13')->setCellValue('A13', $objWizard->toRichTextObject('<b>ORDERED BY</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('A13:D13')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->mergeCells('A14:D14')->setCellValue('A14', $objWizard->toRichTextObject(SALESPERSON));
+
+		$objPHPExcel->getActiveSheet()->mergeCells('E13:H13')->setCellValue('E13', $objWizard->toRichTextObject('<b>P.O. NO.</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('E13:H13')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->mergeCells('E14:H14')->setCellValue('E14', $objWizard->toRichTextObject($point_of_sell['po_num']));
+
+		$objPHPExcel->getActiveSheet()->mergeCells('I13:L13')->setCellValue('I13', $objWizard->toRichTextObject('<b>Area</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('I13:L13')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+		$objPHPExcel->getActiveSheet()->mergeCells('I14:L14')->setCellValue('I14', $objWizard->toRichTextObject($point_of_sell['area']));
+		//End Invoice Body - 1
+		
+		//Start Invoice Body - 2
+		$objPHPExcel->getActiveSheet()->mergeCells('A15:L15')->setCellValue('A15', '');
+
+		$objPHPExcel->getActiveSheet()->mergeCells('A16:B16')->setCellValue('A16', $objWizard->toRichTextObject('<b>TICKET NO.</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('A16:B16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		$objPHPExcel->getActiveSheet()->mergeCells('C16:D16')->setCellValue('C16', $objWizard->toRichTextObject('<b>LOCATION</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('C16:D16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		$objPHPExcel->getActiveSheet()->mergeCells('E16:F16')->setCellValue('E16', $objWizard->toRichTextObject('<b>DESCRIPTION</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('E16:F16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		$objPHPExcel->getActiveSheet()->mergeCells('G16:H16')->setCellValue('G16', $objWizard->toRichTextObject('<b>HRS - QTY</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('G16:H16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		$objPHPExcel->getActiveSheet()->mergeCells('I16:J16')->setCellValue('I16', $objWizard->toRichTextObject('<b>RATE</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('I16:J16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		$objPHPExcel->getActiveSheet()->mergeCells('K16:L16')->setCellValue('K16', $objWizard->toRichTextObject('<b>AMOUNT</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('K16:L16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+
+		$excelRowNumber = 17;
 		// START INVENTORY & MISC PRODUCTS
 		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'inventory' AND item_id IS NOT NULL");
 		$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
@@ -502,19 +557,23 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 				if ( $inventoryid != '' ) {
 					$amount = $price*($quantity-$returned);
 
-					$html .= '<tr>';
-						// Don't display Part# for SEA
-						//if ( $rookconnect !== 'sea' ) {
-							$html .= '<td colspan="2"></td><td colspan="2">' . get_inventory ( $dbc, $inventoryid, 'part_no' ) . '</td>';
-						//}
-						$html .= '<td colspan="2">' . get_inventory ( $dbc, $inventoryid, 'name' ) . '</td>';
-						$html .= '<td colspan="2">' . number_format($quantity,0) . '</td>';
-						if($return_result > 0) {
-							$html .= '<td colspan="2">'.$returned.'</td>';
-						}
-						$html .= '<td colspan="2">$'. $price . '</td>';
-						$html .= '<td style="text-align:right; " colspan="2" align="right">$'.number_format($amount,2).'</td>';
-					$html .= '</tr>';
+					$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':B'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject(''));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('C'.$excelRowNumber.':D'.$excelRowNumber.'')->setCellValue('C'.$excelRowNumber.'', $objWizard->toRichTextObject(get_inventory ( $dbc, $inventoryid, 'part_no' )));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('E'.$excelRowNumber.':F'.$excelRowNumber.'')->setCellValue('E'.$excelRowNumber.'', $objWizard->toRichTextObject(get_inventory ( $dbc, $inventoryid, 'name' )));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject(number_format($quantity,0)));
+
+					if($return_result > 0) {
+						$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject($returned));
+					}
+
+					$objPHPExcel->getActiveSheet()->mergeCells('I'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('I'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$price));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($amount,2)));
+
+					$excelRowNumber++;
 				}
 		        
 		        $returned_amt += $price * $returned;
@@ -528,16 +587,24 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 				$returned = $row['returned_qty'];
 
 				if($misc_product != '') {
-					$html .= '<tr>';
-					$html .=  '<td colspan="2"></td><td colspan="2">Not Available</td>';
-					$html .=  '<td colspan="2">'.$misc_product.'</td>';
-					$html .=  '<td colspan="2">'.number_format($qty,0).'</td>';
+
+					$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':B'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject(''));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('C'.$excelRowNumber.':D'.$excelRowNumber.'')->setCellValue('C'.$excelRowNumber.'', $objWizard->toRichTextObject('Not Available'));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('E'.$excelRowNumber.':F'.$excelRowNumber.'')->setCellValue('E'.$excelRowNumber.'', $objWizard->toRichTextObject($misc_product));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject(number_format($qty,0)));
+
 					if($return_result > 0) {
-						$html .= '<td colspan="2">'.$returned.'</td>';
+						$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject($returned));
 					}
-					$html .=  '<td colspan="2">$'.$price.'</td>';
-					$html .=  '<td style="text-align:right; " colspan="2" align="right">$'.$price * ($qty - $returned).'</td>';
-					$html .= '</tr>';
+
+					$objPHPExcel->getActiveSheet()->mergeCells('I'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('I'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$price));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$price * ($qty - $returned)));
+
+					$excelRowNumber++;
 				}
 			}
 		}
@@ -555,16 +622,24 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 
 				if($inventoryid != '') {
 					$amount = $price*($quantity-$returned);
-					$html .= '<tr>';
-					$html .=  '<td colspan="2"></td><td colspan="2">'.get_products($dbc, $inventoryid, 'category').'</td>';
-					$html .=  '<td colspan="2">'.get_products($dbc, $inventoryid, 'heading').'</td>';
-					$html .=  '<td colspan="2">'.number_format($quantity,0).'</td>';
+
+					$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':B'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject(''));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('C'.$excelRowNumber.':D'.$excelRowNumber.'')->setCellValue('C'.$excelRowNumber.'', $objWizard->toRichTextObject(get_products($dbc, $inventoryid, 'category')));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('E'.$excelRowNumber.':F'.$excelRowNumber.'')->setCellValue('E'.$excelRowNumber.'', $objWizard->toRichTextObject(get_products($dbc, $inventoryid, 'heading')));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject(number_format($quantity,0)));
+
 					if($return_result > 0) {
-						$html .= '<td colspan="2">'.$returned.'</td>';
+						$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject($returned));
 					}
-					$html .=  '<td colspan="2">$'.$price.'</td>';
-					$html .=  '<td style="text-align:right; " colspan="2" align="right">$'.number_format($amount,2).'</td>';
-					$html .= '</tr>';
+
+					$objPHPExcel->getActiveSheet()->mergeCells('I'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('I'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$price));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($amount,2)));
+
+					$excelRowNumber++;
 				}
 			}
 		}
@@ -582,16 +657,24 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 
 				if($inventoryid != '') {
 					$amount = $price*($quantity-$returned);
-					$html .= '<tr>';
-					$html .=  '<td colspan="2"></td><td colspan="2">'.get_services($dbc, $inventoryid, 'category').'</td>';
-					$html .=  '<td colspan="2">'.get_services($dbc, $inventoryid, 'heading').'</td>';
-					$html .=  '<td colspan="2">'.number_format($quantity,0).'</td>';
+
+					$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':B'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject(''));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('C'.$excelRowNumber.':D'.$excelRowNumber.'')->setCellValue('C'.$excelRowNumber.'', $objWizard->toRichTextObject(get_services($dbc, $inventoryid, 'category')));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('E'.$excelRowNumber.':F'.$excelRowNumber.'')->setCellValue('E'.$excelRowNumber.'', $objWizard->toRichTextObject(get_services($dbc, $inventoryid, 'heading')));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject(number_format($quantity,0)));
+
 					if($return_result > 0) {
-						$html .= '<td colspan="2">'.$returned.'</td>';
+						$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject($returned));
 					}
-					$html .=  '<td colspan="2">$'.$price.'</td>';
-					$html .=  '<td style="text-align:right; " colspan="2" align="right">$'.number_format($amount,2).'</td>';
-					$html .= '</tr>';
+
+					$objPHPExcel->getActiveSheet()->mergeCells('I'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('I'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$price));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($amount,2)));
+
+					$excelRowNumber++;
 				}
 			}
 		}
@@ -610,16 +693,23 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 				if($inventoryid != '') {
 					$amount = $price*($quantity-$returned);
 
-					$html .= '<tr>';
-					$html .=  '<td colspan="2"></td><td colspan="2">'.get_vpl($dbc, $inventoryid, 'part_no').'</td>';
-					$html .=  '<td colspan="2">'.get_vpl($dbc, $inventoryid, 'name').'</td>';
-					$html .=  '<td colspan="2">'.number_format($quantity,0).'</td>';
+					$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':B'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject(''));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('C'.$excelRowNumber.':D'.$excelRowNumber.'')->setCellValue('C'.$excelRowNumber.'', $objWizard->toRichTextObject(get_vpl($dbc, $inventoryid, 'part_no')));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('E'.$excelRowNumber.':F'.$excelRowNumber.'')->setCellValue('E'.$excelRowNumber.'', $objWizard->toRichTextObject(get_vpl($dbc, $inventoryid, 'name')));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject(number_format($quantity,0)));
+
 					if($return_result > 0) {
-						$html .= '<td colspan="2">'.$returned.'</td>';
+						$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject($returned));
 					}
-					$html .=  '<td colspan="2">$'.$price.'</td>';
-					$html .=  '<td style="text-align:right; " colspan="2" align="right">$'.number_format($amount,2).'</td>';
-					$html .= '</tr>';
+
+					$objPHPExcel->getActiveSheet()->mergeCells('I'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('I'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$price));
+
+					$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($amount,2)));
+
+					$excelRowNumber++;
 				}
 			}
 		}
@@ -632,75 +722,167 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 			while($row = mysqli_fetch_array( $result )) {
 				$amount = $row['sub_total'];
 
-				$html .= '<tr>';
-				$html .=  '<td colspan="2"></td><td colspan="2">'.$row['heading'].'</td>';
-				$html .=  '<td colspan="2">'.number_format($row['quantity'],0).'</td>';
-				$html .=  '<td colspan="2">$'.$row['unit_price'].'</td>';
-				$html .=  '<td style="text-align:right;">$'.number_format($amount,2).'</td>';
-				$html .= '</tr>';
+				$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':B'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject(''));
+
+				$objPHPExcel->getActiveSheet()->mergeCells('C'.$excelRowNumber.':D'.$excelRowNumber.'')->setCellValue('C'.$excelRowNumber.'', $objWizard->toRichTextObject(''));
+
+				$objPHPExcel->getActiveSheet()->mergeCells('E'.$excelRowNumber.':F'.$excelRowNumber.'')->setCellValue('E'.$excelRowNumber.'', $objWizard->toRichTextObject($row['heading']));
+
+				$objPHPExcel->getActiveSheet()->mergeCells('G'.$excelRowNumber.':H'.$excelRowNumber.'')->setCellValue('G'.$excelRowNumber.'', $objWizard->toRichTextObject(number_format($row['quantity'],0)));
+
+				$objPHPExcel->getActiveSheet()->mergeCells('I'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('I'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$row['unit_price']));
+
+				$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($amount,2)));
+
+				$excelRowNumber++;
 			}
 		}
-		// START TIME SHEET
-		$html .= '</table>';
-
+		//End Invoice Body - 2
+		
+		//Start Invoice Footer
+		$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', '');
+		$excelRowNumber++;
 		if($client_tax_number != '') {
-			$html .= '<br>Tax Exemption Number : '.$point_of_sell['tax_exemption_number'];
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Tax Exemption Number</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject($point_of_sell['tax_exemption_number']));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
 		}
-		$html .= '
-				<br><br>
-				<table border="0" cellpadding="2" style="width:100%;">';
-				if ( !empty($couponid) || $coupon_value!=0 ) {
-					$html .= '<tr><td style="text-align:right;" width="90%" colspan="10"><strong>Coupon Value</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['coupon_value'].'</td></tr>';
-				}
-				if($point_of_sell['discount'] != '' && $point_of_sell['discount'] != 0) {
-					$html .= '<tr><td align="right" width="82%" colspan="10"><strong>Total Before Discount</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['total_price'].'</td></tr>';
-					$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Discount Value</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['discount'].'</td></tr>';
-					$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Total After Discount</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.number_format($point_of_sell['total_price'] - $point_of_sell['discount'], 2).'</td></tr>';
-				} else {
-					$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Sub Total</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.number_format($point_of_sell['total_price'], 2).'</td></tr>';
-				}
-				if($point_of_sell['delivery'] != '' && $point_of_sell['delivery'] != 0) {
-					$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Delivery</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.number_format($point_of_sell['delivery'],2).'</td></tr>';
-				}
-				if($point_of_sell['assembly'] != '' && $point_of_sell['assembly'] != 0) {
-					$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Assembly</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.number_format($point_of_sell['assembly'],2).'</td></tr>';
-				}
 
-				if($pdf_tax != '') {
-					$html .= $pdf_tax;
-					//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
-				}
-		        
-				$total_returned_amt = 0;
-		        if($returned_amt != 0) {
-					$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
-		            $total_returned_amt = $returned_amt + ($returned_amt * $total_tax_rate);
-		            $html .= '<tr><td align="right" width="90%" colspan="10"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$total_returned_amt.'</td></tr>';
-				}
+		if ( !empty($couponid) || $coupon_value!=0 ) {
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Coupon Value</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 
-		        
-				$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Total</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
-				if($point_of_sell['deposit_paid'] > 0) {
-					$html .='<tr><td align="right" width="90%" colspan="10"><strong>Deposit Paid</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['deposit_paid'].'</td></tr>';
-					$html .='<tr><td align="right" width="90%" colspan="10"><strong>Updated Total</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['updatedtotal'].'</td></tr>';
-				}
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$point_of_sell['coupon_value']));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 
-				$html .= '</table><br><br>';
+			$excelRowNumber++;
+		}
 
+		if($point_of_sell['discount'] != '' && $point_of_sell['discount'] != 0) {
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Total Before Discount</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 
-		$html .= '<br />';
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$point_of_sell['total_price']));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 
-		$html .= $comment.'<br>';
-		$html = str_replace('[[FINAL_PRICE]]','$'.number_format($point_of_sell['final_price'] - $total_returned_amt,2),$html);
+			$excelRowNumber++;
 
-		header("Pragma: public");
-	    header("Expires: 0");
-	    header("Cache-Control: must-revalidate, post-check=0, pre-check=0");
-	    header("Content-Type: application/vnd.ms-excel; charset=UTF-8");
-	    header("Content-Type: application/force-download");
-	    header("Content-Type: application/octet-stream");
-	    header("Content-Type: application/download");
-		header('Content-Disposition: attachment; filename=invoice_'.$invoiceid.'.xls');
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Discount Value</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$point_of_sell['discount']));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
+
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Total After Discount</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($point_of_sell['total_price'] - $point_of_sell['discount'], 2)));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
+		} else {
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Sub Total</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($point_of_sell['total_price'], 2)));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
+		}
+
+		if($point_of_sell['delivery'] != '' && $point_of_sell['delivery'] != 0) {
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Delivery</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($point_of_sell['delivery'],2)));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
+		}
+
+		if($point_of_sell['assembly'] != '' && $point_of_sell['assembly'] != 0) {
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Assembly</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($point_of_sell['assembly'],2)));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
+		}
+
+		if($pdf_tax != '' && !empty($taxDataArray)) {
+			foreach ($taxDataArray as $value) {
+				$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>'.$value['pdfTaxLabel'].'</b>'));
+				$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+				$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$value['pdfTaxRate']));
+				$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+				$excelRowNumber++;
+			}
+		}
+
+		$total_returned_amt = 0;
+        if($returned_amt != 0) {
+			$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
+            $total_returned_amt = $returned_amt + ($returned_amt * $total_tax_rate);
+
+            $objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Returned Total (Including Tax)</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$total_returned_amt));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
+		}
+
+		$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Total</b>'));
+		$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+		$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2)));
+		$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+		$excelRowNumber++;
+
+		if($point_of_sell['deposit_paid'] > 0) {
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Deposit Paid</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$point_of_sell['deposit_paid']));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
+
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Updated Total</b>'));
+			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$point_of_sell['updatedtotal']));
+			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+			$excelRowNumber++;
+		}
+		//End Invoice Footer
+	        
+	    ob_end_clean();
+
+	    header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+	    header("Cache-Control: no-store, no-cache, must-revalidate");
+	    header("Cache-Control: post-check=0, pre-check=0", false);
+	    header("Pragma: no-cache");
+	    header('Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+	    header('Content-Disposition: attachment;filename=invoice_'.$invoiceid.'.xls');
+
+	    $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+	    ob_end_clean();
+
+	    $objWriter->save('php://output');
+	    die;
 	}
 	if($_GET['format']=='xml'){
 		$stripAddress = strip_tags((string)html_entity_decode($invoice_header));
@@ -711,6 +893,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		$email_address = decryptIt($customer['email_address']);
 		$countItems = 1;
 		$billfrom = $xml->addChild('bill_from');
+	    $billfrom->addChild('logo', $image_file);
 	    $billfrom->addChild('office_address', $stripAddress);
 		$billto = $xml->addChild('bill_to');
 	    $customer = $billto->addChild('customer');
@@ -921,9 +1104,12 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 			$assembly = $xml->addChild('assembly', number_format($point_of_sell['assembly'],2));
 		}
 
-		if($pdf_tax != '') {
-			$html .= $pdf_tax;
-			//$tax = $xml->addChild('tax', $pdf_tax);
+		if($pdf_tax != '' && !empty($taxDataArray)) {
+			$taxCount = 1;
+			foreach ($taxDataArray as $value) {
+				$xml->addChild('tax'.$taxCount , ($value['pdfTaxLabel']. ':' . '$'.$value['pdfTaxRate']));
+				$taxCount++;
+			}
 		}
         
 		$total_returned_amt = 0;
