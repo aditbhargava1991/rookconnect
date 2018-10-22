@@ -166,4 +166,4 @@ switch($invoice_design) {
         include('pos_invoice_1.php');
         break;
 }
-echo WEBSITE_URL.'/'.$tile_target.'/add_invoice.php?invoiceid='.$invoiceid; ?>
+echo WEBSITE_URL.'/'.$tile_target.'/create_invoice.php?invoiceid='.$invoiceid; ?>
