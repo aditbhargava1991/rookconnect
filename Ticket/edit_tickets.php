@@ -652,11 +652,18 @@ if($get_ticket['main_ticketid'] > 0 && $get_ticket['is_recurrence'] == 1 && !$fo
 	$is_recurrence = true;
 }
 $quick_action_html = '<div class="clearfix"></div>';
+$get_var = $_GET;
+unset($get_var['mode']);
+unset($get_var['calendar_view']);
+foreach($get_var as $key => &$value) {
+    $value = $key.'='.urlencode($value);
+}
 if(!($strict_view > 0) && !isset($_GET['intake_key'])) {
 	$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
 	$quick_action_html .= '<div class="action-icons" data-colour="'.$get_ticket['flag_colour'].'" data-table="tickets" data-id-field="ticketid">';
     if($_GET['calendar_view'] == 'true') {
-        $quick_action_html .= '<a href="" onclick="openFullView(); return false;"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle inline-img" width="25" /></a>';
+        $quick_action_html .= '<a href="" onclick="openFullView(); return false;"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle inline-img" /></a>';
+        $quick_action_html .= '<a href="?'.implode('&',$get_var).'" target="_blank"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open New Tab" title="Open New Tab" class="no-toggle inline-img" /></a>';
     }
 	$quick_action_html .= (strpos($value_config,',Create Recurrence Button,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/month-overview-blue.png" class="inline-img no-toggle" title="Recurring '.TICKET_TILE .'" onclick="dialogCreateRecurrence(this);">' : '');
 	$quick_action_html .= (in_array('flag_manual',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
@@ -671,7 +678,8 @@ if(!($strict_view > 0) && !isset($_GET['intake_key'])) {
 		<input type="text" name="emailpdf" value="" class="form-control" style="display:none;">
 		<input type="file" name="document" value="" data-table="ticket_document" data-folder="ticket_document" style="display:none;">';
 } else if($_GET['calendar_view'] == 'true') {
-    $quick_action_html .= '<a href="" onclick="openFullView(); return false;" class="pull-right"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle inline-img" width="25" /></a>';
+    $quick_action_html .= '<a href="" onclick="openFullView(); return false;" class="pull-right"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open Full Window" title="Open Full Window" class="no-toggle inline-img" /></a>';
+    $quick_action_html .= '<a href="?'.implode('&',$get_var).'" target="_blank" class="pull-right"><img src="../img/icons/ROOK-FullScreen-icon.png" alt="Open New Tab" title="Open New Tab" class="no-toggle inline-img" /></a>';
 }
 
 $global_value_config = $value_config; ?>
