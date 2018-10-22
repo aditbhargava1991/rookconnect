@@ -427,7 +427,6 @@ h6,
     font-family: inherit;
     font-weight: 300;
     line-height: 1.1;
-    color: #fafafa
 }
 
 h1 small,
@@ -7213,7 +7212,19 @@ h1, h1 a { color:#8e71d6 !important; font-weight:bold; }
 h2, h3, h4 { font-weight:bold; }
 .dashboard-item label, .main-item label { color:#000 !important; }
 .dashboard-item h4 { color:#333; }
-.overview-block, .summary-block { border-color:#8e71d6 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable {
+    border-color:#8e71d6 !important;
+    }
+.info-block-header { background-color:#e1d6fd !important; }
 .theme-color-icon { filter: invert(57%) sepia(15%) saturate(1976%) hue-rotate(213deg) brightness(86%) contrast(95%) !important; }
 
 .calendar .block-button,.calendar .block-item,.calendar .block-label {

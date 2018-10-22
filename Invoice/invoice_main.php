@@ -37,7 +37,7 @@ foreach($tab_list as $tab_name) {
 			case 'ui_report': header('Location: unpaid_insurer_invoice.php');
 				$redirected = true;
 				break;
-			case 'sell': header('Location: add_invoice.php');
+			case 'sell': header('Location: create_invoice.php');
 				$redirected = true;
 				break;
 			case 'cashout': header('Location: cashout.php');

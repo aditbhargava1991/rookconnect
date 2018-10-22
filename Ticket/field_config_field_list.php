@@ -73,6 +73,23 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 			</div>
 		</div>
 		<div class="form-group">
+			<?php $ticket_invoice_type = get_config($dbc, 'ticket_invoice_type');
+            $invoice_types = [];
+            foreach(explode(',',get_config($dbc,'invoice_types')) as $invoice_type) {
+                $invoice_types[config_safe_str($invoice_type)] = $invoice_type;
+            } ?>
+			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the type of Invoice that will be used for this <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>New Invoice Type
+				<?= $ticket_invoice_type != '' && $tab != '' ? '(Default: '.$invoice_types[$ticket_invoice_type].')' : '' ?>:</label>
+			<div class="col-sm-8">
+				<select name="ticket_invoice_type<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option />
+					<?php $tab_ticket_invoice_type = $tab == '' ? $ticket_invoice_type : get_config($dbc, 'ticket_invoice_type_'.$tab);
+                    foreach($invoice_types as $inv_type_id => $inv_type_name) { ?>
+                        <option <?= $inv_type_id == $tab_ticket_invoice_type ? 'selected' : '' ?> value="<?= $inv_type_id ?>"><?= $inv_type_name ?></option>
+                    <?php } ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
 			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This is the status that will be used to indicate completed <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Status for a Completed <?= TICKET_NOUN ?>:</label>
 			<div class="col-sm-8">
 				<?php $auto_archive_complete_tickets = get_config($dbc, 'auto_archive_complete_tickets'); ?>
@@ -349,6 +366,10 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Agent", $all_config) ? 'checked disabled' : (in_array("PI Agent", $value_config) ? "checked" : '') ?> value="PI Agent" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Additional Contact</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'PI Notify Party') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Notify Party", $all_config) ? 'checked disabled' : (in_array("PI Notify Party", $value_config) ? "checked" : '') ?> value="PI Notify Party" name="tickets[]">
+									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of <?= CONTACTS_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Notify Party</label>
+							<?php } ?>
 							<?php if($field_sort_field == 'PI Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("PI Status", $all_config) ? 'checked disabled' : (in_array("PI Status", $value_config) ? "checked" : '') ?> value="PI Status" name="tickets[]">
 									<span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will create a list of statuses to assign to the current <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Status</label>
@@ -423,6 +444,18 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 										<?php $tab_ticket_project_contact = get_config($dbc, 'ticket_project_contact'.($tab == '' ? '' : '_'.$tab));
 										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
 											<option <?= $category == $tab_ticket_project_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
+										<?php } ?>
+									</select>
+								</div>
+							</div>
+							<div class="form-group">
+								<?php $ticket_notify_contact = get_config($dbc, 'ticket_notify_contact'); ?>
+								<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the tab for the <?= CONTACTS_TILE ?> in the Notify Party list."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Notify Party Tab<?= $ticket_project_contact != '' && $tab != '' ? ' (Default: '.$ticket_project_contact.')' : '' ?>:</label>
+								<div class="col-sm-8">
+									<select name="ticket_notify_contact<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option></option>
+										<?php $tab_ticket_notify_contact = get_config($dbc, 'ticket_notify_contact'.($tab == '' ? '' : '_'.$tab));
+										foreach(explode(',',get_config($dbc, 'all_contact_tabs')) as $category) { ?>
+											<option <?= $category == $tab_ticket_notify_contact ? 'selected' : '' ?> value="<?= $category ?>"><?= $category ?></option>
 										<?php } ?>
 									</select>
 								</div>

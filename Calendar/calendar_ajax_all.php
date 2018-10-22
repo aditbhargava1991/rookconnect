@@ -2426,10 +2426,10 @@ if($_GET['fill'] == 'delete_shift') {
             }
         }
 		$start_time = date('H:i:s',strtotime($start_time) + ($_POST['drive_time'][0] > 0 ? filter_var($_POST['drive_time'][$i+1],FILTER_SANITIZE_STRING) : $auto_duration * ceil((strtotime($length) - strtotime('00:00')) / $auto_duration)));
-    } else if($_POST['from_current'] == true && $date == date('Y-m-d')) {
-        $start_time = date('H:i', time() + ($_POST['drive_time'][0] > 0 ? filter_var($_POST['drive_time'][$i+1],FILTER_SANITIZE_STRING) : 0));
     } else if(!empty($_POST['start_of_day'])) {
         $start_time = date('H:i', strtotime(filter_var($_POST['start_of_day'],FILTER_SANITIZE_STRING)));
+    } else if($_POST['from_current'] == true && $date == date('Y-m-d')) {
+        $start_time = date('H:i', time() + ($_POST['drive_time'][0] > 0 ? filter_var($_POST['drive_time'][$i+1],FILTER_SANITIZE_STRING) : 0));
     } else {
         $start_time = get_config($dbc, 'scheduling_day_start');
     }

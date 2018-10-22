@@ -6,6 +6,7 @@
 include ('../include.php');
 error_reporting(0);
 $communication_type = empty($_POST['comm_type']) ? (empty($_GET['type']) ? 'Internal' : ucfirst(filter_var($_GET['type'], FILTER_SANITIZE_STRING))) : $_POST['comm_type'];
+$back_url = '../blank_loading_page.php';
 
 if (isset($_POST['submit'])) {
     $businessid = $_POST['businessid'];
@@ -260,7 +261,7 @@ if (isset($_POST['submit'])) {
             } ?>
             <img src="../img/icons/ROOK-reminder-icon.png" alt="Add Reminder" title="Add Reminder" class="no-toggle cursor-hand" data-placement="bottom" width="25" onclick="overlayIFrameSlider('../quick_action_reminders.php?tile=email&id=<?= $id ?>', 'auto', false, true);" />
             <img src="../img/icons/ROOK-timer2-icon.png" alt="Track Time" title="Track Time" class="no-toggle cursor-hand offset-left-5 offset-right-5" data-placement="bottom" width="25" onclick="overlayIFrameSlider('../quick_action_timer.php?tile=email&id=<?= $id ?>', 'auto', false, true);" />
-            <a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="no-toggle" data-placement="bottom" width="25" /></a>
+            <a href="../blank_loading_page.php"><img src="../img/icons/cancel.png" alt="Close" title="Close" class="no-toggle" data-placement="bottom" width="25" /></a>
         </div>
         <div class="clearfix"></div>
 
@@ -346,6 +347,13 @@ if (isset($_POST['submit'])) {
                 if(empty($subject)) {
                     $subject = get_ticket_label($dbc, $ticket_details);
                 }
+            }
+            $local_page = $_GET;
+            unset($local_page['type']);
+            unset($local_page['category']);
+            $local_query = '';
+            foreach($local_page as $name => $value) {
+                $local_query .= "&$name=$value";
             } ?>
             <input type="hidden" name="ticketid" value="<?= $ticketid ?>">
 
@@ -360,7 +368,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div id="collapse_type" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <select name="comm_type" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control">
+                            <select name="comm_type" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" onchange="window.location.replace('?type='+this.value+'<?= $local_query ?>');">
                                 <option value="Internal" <?= $comm_type == 'Internal' ? 'selected' : '' ?>>Internal</option>
                                 <option value="External" <?= $comm_type == 'External' ? 'selected' : '' ?>>External</option>
                             </select>
@@ -470,7 +478,7 @@ if (isset($_POST['submit'])) {
             <div class="form-group">
                 <button type="submit" name="submit" value="draft" class="btn brand-btn pull-right">Save as Draft</button>
                 <button type="submit" name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
-                <a href="" class="btn brand-btn pull-right">Cancel</a>
+                <a href="../blank_loading_page.php" class="btn brand-btn pull-right">Cancel</a>
             </div>
         </form>
   </div>

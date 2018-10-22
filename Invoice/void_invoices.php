@@ -18,7 +18,7 @@ $purchaser_label = count($purchaser_config) > 1 ? 'Customer' : $purchaser_config
 /*
 if (isset($_POST['submit_pay'])) {
 	$all_invoice = implode(',',$_POST['invoice']);
-	header('Location: add_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
+	header('Location: create_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
 }
 
 

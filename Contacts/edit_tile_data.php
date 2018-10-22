@@ -995,7 +995,7 @@
 					</td>
 						<?php
 							if($row['invoice_type'] == 'Saved') {
-								echo '<td data-title="Function"><a href=\''.WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$contactid.'&search_invoice='.$row['invoiceid'].'\' >Edit</a>';
+								echo '<td data-title="Function"><a href=\''.WEBSITE_URL.'/Invoice/create_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$contactid.'&search_invoice='.$row['invoiceid'].'\' >Edit</a>';
 								$role = $_SESSION['role'];
 								if($role== 'super' || $role == ',office_admin,' || $role == ',executive_front_staff,') {
 									echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\''.WEBSITE_URL.'/Invoice/today_invoice.php?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';

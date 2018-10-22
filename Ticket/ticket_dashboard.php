@@ -361,7 +361,7 @@ function showResults(result_list, target, search_id) {
 				$('#mobile_accordions').hide();
 			}
 			ajax_loads.push($.ajax({
-				url: 'ticket_load.php?ticketid='+ticket.id+'&tile=<?= $_GET['tile_name'] ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>',
+				url: 'ticket_load.php?<?= $current_tile ?>ticketid='+ticket.id+'&tile=<?= $_GET['tile_name'] ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>',
 				success: function(response) {
 					if(search_id == search_option_id) {
 						target.append(response);
@@ -1441,9 +1441,9 @@ IF(!IFRAME_PAGE) { ?>
 		                $tickets = $dbc->query("SELECT *, IF(`status` = 'Internal QA',`internal_qa_date`,IF(`status` = 'Customer QA',`deliverable_date`,`to_do_date`)) `ticket_start_date` FROM `tickets` WHERE (`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR `internal_qa_date` BETWEEN '$start_date' AND '$end_date' OR `deliverable_date` BETWEEN '$start_date' AND '$end_date') AND `deleted` = 0 AND `status` != 'Archive' ORDER BY `ticket_start_date`");
 		                while($ticket = $tickets->fetch_assoc()) {
 		                    if($summary_urls == 'slider') {
-		                        $block .= '<p><a href="'.WEBSITE_URL.'/Ticket/index.php?tile_name='.$_GET['tile_name'].'&edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">'.$ticket['ticket_start_date'].': '.get_ticket_label($dbc, $ticket).' - '.$ticket['status'].'</a></p>';
+		                        $block .= '<p><a href="'.WEBSITE_URL.'/Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">'.$ticket['ticket_start_date'].': '.get_ticket_label($dbc, $ticket).' - '.$ticket['status'].'</a></p>';
 		                    } else {
-		                        $block .= '<p><a href="index.php?tile_name='.$_GET['tile_name'].'&edit='.$ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.'/Ticket/index.php?tile_name='.$_GET['tile_name']).'">'.$ticket['ticket_start_date'].': '.get_ticket_label($dbc, $ticket).' - '.$ticket['status'].'</a></p>';
+		                        $block .= '<p><a href="index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.'/Ticket/index.php?tile_name='.$_GET['tile_name']).'">'.$ticket['ticket_start_date'].': '.get_ticket_label($dbc, $ticket).' - '.$ticket['status'].'</a></p>';
 		                    }
 		                    $block_length += 17;
 		                }
@@ -1613,9 +1613,9 @@ IF(!IFRAME_PAGE) { ?>
 		                $tickets = $dbc->query("SELECT * FROM `tickets` WHERE `deleted`=0 AND `status` NOT IN ('Archive','Archived','Done') $match_business AND `ticket_type`='$type' ORDER BY `ticketid` DESC LIMIT 0, 25");
 		                while($ticket = $tickets->fetch_assoc()) {
 		                    if($summary_urls == 'slider') {
-		                        $block .= '<p><a href="'.WEBSITE_URL.'/Ticket/index.php?tile_name='.$_GET['tile_name'].'&edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">'.get_ticket_label($dbc, $ticket).'</a></p>';
+		                        $block .= '<p><a href="'.WEBSITE_URL.'/Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">'.get_ticket_label($dbc, $ticket).'</a></p>';
 		                    } else {
-		                        $block .= '<p><a href="index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.'/Ticket/index.php?tile_name='.$_GET['tile_name']).'">'.get_ticket_label($dbc, $ticket).'</a></p>';
+		                        $block .= '<p><a href="index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.urlencode(WEBSITE_URL.'/Ticket/index.php?'.$current_tile).'">'.get_ticket_label($dbc, $ticket).'</a></p>';
 		                    }
 		                    $block_length += 17;
 		                }

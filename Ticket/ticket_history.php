@@ -166,6 +166,6 @@ function get_ticket_block($dbc, $ticket, $history_fields) {
 			<div class="col-sm-12">Notes: '.$notes_html.'</div>';
 	}
 
-	$html = '<div class="block-group"><a style="color:black !important;" href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'"><b style="margin-top: 0;">'.get_ticket_label($dbc, $ticket).'</a></b>'.$html.'<div class="clearfix"></div></div>';
+	$html = '<div class="block-group"><a style="color:black !important;" href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'"><b style="margin-top: 0;">'.get_ticket_label($dbc, $ticket).'</a></b>'.$html.'<div class="clearfix"></div></div>';
 	return $html;
 }
