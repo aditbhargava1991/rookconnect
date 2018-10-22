@@ -193,8 +193,17 @@ function toggle_columns(type = '', reload_teams = 0) {
                 $(this).show();
             }
         });
+        if(ticket_types.length > 0) {
+            $('.ticket_type_header').hide();
+            ticket_types.forEach(function(ticket_type) {
+                $('.ticket_type_header[data-tickettype="'+ticket_type+'"]').show();
+            });
+        } else {
+            $('.ticket_type_header').show();
+        }
 	} else {
 		$('.calendar_table .calendarSortable').show();
+        $('.ticket_type_header').show();
 	}
 	
 	// Save which contacts or staff are active
