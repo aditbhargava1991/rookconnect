@@ -75,7 +75,7 @@ foreach($main_tasks as $i => $task_name) {
 							send_every_email: 'true',
 							send_to: '<?= $extra_billing_address ?>',
 							subject: 'Extra Billing added from '+ticket_label,
-							body: "<p>Additional tasks that require extra billing were added to "+ticket_label+".</p><p>The tasks were:<br />\n"+extra_billing.join('<br />\n')+"</p><p>You are receiving this message because your email address has been set to be notified when extra billing occurs.<br />To view the <?= TICKET_NOUN ?>, click <a href='<?= WEBSITE_URL ?>/Ticket/index.php?edit="+ticketid+"'>here</a>.</p><p>This was created by <?= get_contact($dbc, $_SESSION['contactid']) ?>.</p>"
+							body: "<p>Additional tasks that require extra billing were added to "+ticket_label+".</p><p>The tasks were:<br />\n"+extra_billing.join('<br />\n')+"</p><p>You are receiving this message because your email address has been set to be notified when extra billing occurs.<br />To view the <?= TICKET_NOUN ?>, click <a href='<?= WEBSITE_URL ?>/Ticket/index.php?edit="+ticketid+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name)+"'>here</a>.</p><p>This was created by <?= get_contact($dbc, $_SESSION['contactid']) ?>.</p>"
 						}, success: function(response) {
 							// console.log(response);
 							if(response != '') {

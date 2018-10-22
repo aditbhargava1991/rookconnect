@@ -190,7 +190,7 @@ function addPieces(button) {
 			if($('#calendar_view').val() == 'true') {
 				window.parent.$('.iframe_overlay iframe').off('load');
 				window.parent.$('.iframe_overlay iframe').attr('src','../blank_loading_page.php');
-				window.parent.overlayIFrameSlider('../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url+'&calendar_view=true');
+				window.parent.overlayIFrameSlider('../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url+'&calendar_view=true'+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 			} else {
 				window.location.reload();
 			}

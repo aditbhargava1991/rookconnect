@@ -81,7 +81,7 @@
 					'.TICKET_NOUN.' Heading: [HEADING]<br>
 					Status: [STATUS]<br>
 					Please click the '.TICKET_NOUN.' link below to view all information.<br>
-					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br>';
+					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br>';
 			?>
 			<script>
 			function ticket_comment_check_send_email(checked) {

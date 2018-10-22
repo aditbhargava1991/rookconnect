@@ -134,9 +134,9 @@ function viewFullTicket(a) {
 	if($('#calendar_view').val() == 'true') {
 		window.parent.$('[name="calendar_iframe"],[name="daysheet_iframe"]').off('load');
 		window.parent.$('[name="calendar_iframe"],[name="daysheet_iframe"]').attr('src','../blank_loading_page.php');
-		window.parent.overlayIFrameSlider('../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url+'&calendar_view=true');
+		window.parent.overlayIFrameSlider('../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url+'&calendar_view=true'+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 	} else {
-		window.location.href = '../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url;
+		window.location.href = '../Ticket/index.php?edit='+ticketid+'&ticketid='+ticketid+'&from='+from_url+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 	}
 }
 function viewProfile(img, view_contactid = '') {
@@ -889,12 +889,12 @@ function saveFieldMethod(field) {
 						if($('#calendar_view').val() == 'true' && $('#new_ticket_from_calendar').val() == '1') {
 							window.parent.$('[name="calendar_iframe"]').off('load');
 							window.parent.$('[name="calendar_iframe"]').attr('src','../blank_loading_page.php');
-							window.parent.overlayIFrameSlider('../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val());
+							window.parent.overlayIFrameSlider('../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 						} else if($('#calendar_view').val() == 'true') {
-							var new_url = '../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val();
+							var new_url = '../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 							setTimeout(function() { reloadSidebarOnSaved(new_url); }, 250);
 						} else {
-							var new_url = '?tile_name='+tile_name+'&from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid;
+							var new_url = '?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 							setTimeout(function() { reloadOnSaved(new_url); }, 250);
 						}
 					} else if(field_name == 'piece_num') {
@@ -1373,6 +1373,7 @@ function saveMethod(field) {
 					one_time: $(field).data('one-time'),
 					category: $(field).data('category'),
 					tile_name: tile_name,
+					tile_group: tile_group,
 					auto_create_unscheduled: $('[name="auto_create_unscheduled"]').val(),
 					track_timesheet: $(field).data('track-timesheet'),
 					sync_recurring_data: $('#sync_recurrences').val()
@@ -1547,10 +1548,10 @@ function saveMethod(field) {
 						if($('#calendar_view').val() == 'true') {
 							window.parent.$('[name="calendar_iframe"]').off('load');
 							window.parent.$('[name="calendar_iframe"]').attr('src','../blank_loading_page.php');
-							window.parent.overlayIFrameSlider('../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val());
+							window.parent.overlayIFrameSlider('../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 						} else {
 							no_verify = true;
-							window.location.replace('?tile_name='+tile_name+'&from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid);
+							window.location.replace('?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 						}
 					} else if(field_name == 'piece_num') {
 						$(field).closest('.form-group').find('.setMultiDims').change();
@@ -2420,7 +2421,7 @@ function addition() {
 				window.parent.$('[name="calendar_iframe"]').attr('src','../blank_loading_page.php');
 				window.parent.overlayIFrameSlider('../Ticket/index.php?ticketid='+response+'&edit='+response+'&calendar_view=true&action_mode='+$('#action_mode').val());
 			} else {
-				window.location.href = '?ticketid='+response+'&edit='+response;
+				window.location.href = '?ticketid='+response+'&edit='+response+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 			}
 		}
 	});
@@ -2957,7 +2958,7 @@ function add_staff_task(checkin) {
 								window.parent.$('[name="calendar_iframe"]').attr('src','../blank_loading_page.php');
 								window.parent.overlayIFrameSlider('../Ticket/index.php?edit='+extra_id+'&ticketid='+extra_id+'&from='+from_url+'&calendar_view=true&action_mode='+$('#action_mode').val());
 							} else {
-								window.location.href = '?edit='+extra_id+'&ticketid='+extra_id+'&from='+from_url;
+								window.location.href = '?edit='+extra_id+'&ticketid='+extra_id+'&from='+from_url+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 							}
 						} else {
 							window.onbeforeunload = function() { }
