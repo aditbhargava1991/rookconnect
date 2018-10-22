@@ -8,6 +8,13 @@ checkAuthorised('dispatch'); ?>
 <script type="text/javascript" src="../Dispatch/field_config.js"></script>
 
 <div class="form-group">
+    <label class="col-sm-4 control-label">Enable Summary Tab:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_summary_tab = get_config($dbc, 'dispatch_tile_summary_tab'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_summary_tab" <?= $dispatch_tile_summary_tab == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
     <label class="col-sm-4 control-label">Equipment Category:</label>
     <div class="col-sm-8">
         <?php 
@@ -73,6 +80,13 @@ checkAuthorised('dispatch'); ?>
     <div class="col-sm-8">
         <?php $dispatch_tile_hide_empty = get_config($dbc, 'dispatch_tile_hide_empty'); ?>
         <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_hide_empty" <?= $dispatch_tile_hide_empty == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-4 control-label">Auto Refresh Data After Inactivity Time:</label>
+    <div class="col-sm-8"><?php
+        $dispatch_tile_auto_refresh = get_config($dbc, 'dispatch_tile_auto_refresh'); ?>
+        <input type="text" name="dispatch_tile_auto_refresh" class="timepicker form-control" value="<?= $dispatch_tile_auto_refresh ?>">
     </div>
 </div>
 <div class="form-group">

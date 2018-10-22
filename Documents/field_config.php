@@ -31,21 +31,23 @@ function loadPanel() {
 </script>
 
 <div class="show-on-mob panel-group block-panels col-xs-12 form-horizontal" id="mobile_tabs">
-	<div class="panel panel-default">
-		<div data-type="tabs" class="panel-heading mobile_load">
-			<h4 class="panel-title">
-				<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_tabs">
-					Tab Settings<span class="glyphicon glyphicon-plus"></span>
-				</a>
-			</h4>
-		</div>
+	<?php if(empty($tile_name)) { ?>
+		<div class="panel panel-default">
+			<div data-type="tabs" class="panel-heading mobile_load">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_tabs">
+						Tab Settings<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
 
-		<div id="collapse_tabs" class="panel-collapse collapse">
-			<div class="panel-body" data-file-name="field_config_tabs.php?settings=tabs">
-				Loading...
+			<div id="collapse_tabs" class="panel-collapse collapse">
+				<div class="panel-body" data-file-name="field_config_tabs.php?settings=tabs">
+					Loading...
+				</div>
 			</div>
 		</div>
-	</div>
+	<?php } ?>
 	<?php foreach ($document_tabs as $type => $type_name) {
 		switch($type) {
 			case 'client_documents':
@@ -83,10 +85,12 @@ function loadPanel() {
 
 <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
 	<ul>
-		<li><a href="?tab=<?= $_GET['tab'] ?>">Back to Dashboard</a></li>
-		<li class="<?= $_GET['settings'] == 'tabs' ? 'active blue' : '' ?>"><a href="?settings=tabs">Tab Settings</a></li>
+		<li><a href="?tile_name=<?= $tile_name ?>&tab=<?= $_GET['tab'] ?>">Back to Dashboard</a></li>
+		<?php if(empty($tile_name)) { ?>
+			<li class="<?= $_GET['settings'] == 'tabs' ? 'active blue' : '' ?>"><a href="?tile_name=<?= $tile_name ?>&settings=tabs">Tab Settings</a></li>
+		<?php } ?>
 		<?php foreach ($document_tabs as $type => $type_name) { ?>
-			<li class="<?= $_GET['settings'] == $type ? 'active blue' : '' ?>"><a href="?settings=<?= $type ?>"><?= $type_name ?> Settings</a></li>
+			<li class="<?= $_GET['settings'] == $type ? 'active blue' : '' ?>"><a href="?tile_name=<?= $tile_name ?>&settings=<?= $type ?>"><?= $type_name ?> Settings</a></li>
 		<?php } ?>
 	</ul>
 </div>

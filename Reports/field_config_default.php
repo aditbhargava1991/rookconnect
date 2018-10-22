@@ -382,6 +382,7 @@ if (isset($_POST['submit'])) {
                   <option value="History Products History" <?= $desktop_landing_subtab_config['value']=='History Products History' ? 'selected="selected"' : '' ?>>Products History</option>
                   <option value="History Safety History" <?= $desktop_landing_subtab_config['value']=='History Safety History' ? 'selected="selected"' : '' ?>>Safety History</option>
                   <option value="History DB Backup History" <?= $desktop_landing_subtab_config['value']=='History DB Backup History' ? 'selected="selected"' : '' ?>>DB Backup History</option>
+                  <option value="History Field Jobs History" <?= $desktop_landing_subtab_config['value']=='History Field Jobs History' ? 'selected="selected"' : '' ?>>Field Jobs History</option>
               </optgroup>
               <optgroup label="Estimates">
                   <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>

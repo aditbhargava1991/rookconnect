@@ -52,7 +52,7 @@ if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exi
 				$pdf->writeHTMLCell($field['width'], $field['height'], $field['x'],$field['y'], $html='Revision # '.$revision, $border=0);
 			} else if($field['input_class'] == 'editLink') {
 				$pdf->setVisibility('screen');
-				$pdf->Write('', 'Edit '.$form['pdf_name'], WEBSITE_URL.'/Ticket/index.php?custom_form='.$form['id'].'&ticketid='.$ticketid, false, 'L', true);
+				$pdf->Write('', 'Edit '.$form['pdf_name'], WEBSITE_URL.'/Ticket/index.php?'.$current_tile.'custom_form='.$form['id'].'&ticketid='.$ticketid, false, 'L', true);
 				$pdf->setVisibility('all');
 			} else if(in_array('no-edit',explode(':',$field['options']))) {
 				$pdf->Cell($field['width'], $field['height'], trim(html_entity_decode($field['field_value'],ENT_QUOTES)));
@@ -69,6 +69,6 @@ if($_GET['revision'] > 0 && $form['pdf_name'] != '' && $ticketid > 0 && file_exi
 	$pdf->Output($file_name, 'F');
 	echo "<script>
 	window.top.open('".$file_name."', '_blank');
-	window.location.replace('".WEBSITE_URL."/Ticket/index.php?custom_form=".$form['id']."&ticketid=".$ticketid."&revision=".$revision."&pdf_mode=edit&revision_mode=".$_GET['revision_mode']."');
+	window.location.replace('".WEBSITE_URL."/Ticket/index.php?".$current_tile."custom_form=".$form['id']."&ticketid=".$ticketid."&revision=".$revision."&pdf_mode=edit&revision_mode=".$_GET['revision_mode']."');
 	</script>";
 }

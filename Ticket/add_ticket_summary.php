@@ -76,8 +76,9 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_summary.php') {
 }
 if(!empty($_GET['date'])) {
 	$current_date = filter_var($_GET['date'],FILTER_SANITIZE_STRING);
-	$query_daily = " AND `date_stamp`='".$current_date."' ";
-}
+	$query_daily = " AND `date_stamp`='".$current_date."' "; ?>
+    <input type="hidden" name="load_for_date" value="<?= $_GET['date'] ?>">
+<?php }
 
 $summary_hide_positions = get_config($dbc, 'ticket_summary_hide_positions');
 if($get_ticket['ticket_type'] != '') {
@@ -702,17 +703,21 @@ if(!empty($summary_hide_positions)) {
 	if(strpos($value_config, ',Summary Materials Summary,')) { ?>
 		<h4>Materials Summary</h4>
 		<div class="form-group">
-			<?php $summary_materials = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND `src_table`='material'".$query_daily);
+			<?php $summary_materials = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE (`ticket_attached`.`item_id` > 0 OR `description` != '') AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND `src_table`='material'".$query_daily);
 			if($summary_materials->num_rows > 0) { ?>
 				<div class="col-sm-4 text-center"><label>Material</label></div>
-				<div class="col-sm-4 text-center"><label>Checked In</label></div>
-				<div class="col-sm-4 text-center"><label>Checked Out</label></div>
+				<div class="col-sm-4 text-center"><label>Quantity</label></div>
+				<div class="col-sm-4 text-center"><label>Used</label></div>
 				<div class="clearfix"></div>
 				<?php while($summary = mysqli_fetch_array($summary_materials)) {
-					$material = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `material` where `materialid` = '".$summary['item_id']."'")); ?>
+                    if($summary['item_id'] > 0) {
+                        $material = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `material` where `materialid` = '".$summary['item_id']."'"));
+                    } else {
+                        $material = ['name' => $summary['description']];
+                    } ?>
 					<div class="form-group summary">
-						<div class="col-sm-4 text-center"><?= $material['category'].': '.$material['sub_category'].' ',$material['name'] ?></div>
-						<div class="col-sm-4 text-center"><?= $summary['arrived'] == 1 ? 'Yes' : 'No' ?></div>
+						<div class="col-sm-4 text-center"><?= (!empty($material['category']) ? $material['category'].': ' : '').$material['sub_category'].' ',$material['name'] ?></div>
+						<div class="col-sm-4 text-center"><?= $summary['qty'] ?></div>
 						<div class="col-sm-4 text-center"><?= $summary['completed'] == 1 ? 'Yes' : 'No' ?></div>
 						<div class="clearfix"></div>
 					</div>

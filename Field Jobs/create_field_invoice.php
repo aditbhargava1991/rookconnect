@@ -27,6 +27,9 @@ if (isset($_POST['submit'])) {
 		$query_insert_po = "INSERT INTO `field_invoice` (`jobid`, `invoice_date`, `comments`) VALUES ('$jobid', '$invoice_date', '$invoice_comments')";
 		$result_insert_po = mysqli_query($dbc, $query_insert_po);
 		$invoice_id = mysqli_insert_id($dbc);
+    $before_change = '';
+    $history = "field_invoice entry has been added. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 	}
 
     DEFINE('IN_DATE', $invoice_date);
@@ -79,7 +82,13 @@ if (isset($_POST['submit'])) {
 	$pdf->writeHTML($html, true, false, true, false, '');
 	if($_POST['invoice_mode'] == 'flat_rate') {
 		$get_job = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_jobs` WHERE `jobid`='$jobid'"));
+    $before_change = capture_before_change($dbc, 'field_jobs', 'invoice', 'jobid', $jobid);
+
 		mysqli_query($dbc, "UPDATE `field_jobs` SET `invoice`='Flat Rate' WHERE `jobid`='$jobid'");
+
+    $history = capture_after_change('invoice', 'Flat Rate');
+  	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 		$html = '
             <table style="border:1px solid black" cellpadding="2">
                 <tr>
@@ -94,6 +103,9 @@ if (isset($_POST['submit'])) {
 	} else {
 		for ( $i=0; $i<count($_POST['workticketid']); $i++ ) {
             $update_comments = mysqli_query($dbc, "UPDATE `field_work_ticket` SET `comments`='{$_POST['comments'][$i]}' WHERE `workticketid`='{$_POST['workticketid'][$i]}'");
+            $before_change = '';
+            $history = "field_work_ticket entry has been updated for workticketid -> {$_POST['workticketid'][$i]}. <br />";
+            add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
         }
 
         $html = '
@@ -144,14 +156,24 @@ if (isset($_POST['submit'])) {
 		$pdf->Output('download/field_invoice_'.$invoice_id.'.pdf', 'F');
 		// PDF
 
+    $before_change = capture_before_change($dbc, 'field_work_ticket', 'attach_invoice', 'attach_invoice', 0, 'status', 'Approved');
+
 		$query_update_wt = "UPDATE `field_work_ticket` SET `attach_invoice`='$invoice_id' WHERE `jobid`='$jobid' AND attach_invoice=0 AND status='Approved'";
 		$result_update_wt = mysqli_query($dbc, $query_update_wt);
+
+    $history = capture_after_change('attach_invoice', $invoice_id);
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 		$f_fsid= rtrim ($fsid, ',');
         $date_of_archival = date('Y-m-d');
 
+
 		$query_update_wt = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `fsid` IN ($f_fsid)";
 		$result_update_wt = mysqli_query($dbc, $query_update_wt);echo $html;
+
+    $before_change = '';
+    $history = "field_foreman_sheet entry has been updated for fsid -> $f_fsid. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 		?>
 
 	<script type="text/javascript" language="Javascript">

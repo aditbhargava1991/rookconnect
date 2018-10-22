@@ -108,7 +108,7 @@
 					$sender = get_contact($dbc, $_SESSION['contactid'], 'email_address');
 						$subject = 'FFM - '.TICKET_NOUN.' assigned to you for Doing';
 						$body = 'A ticket has been assigned to you.<br/><br/>
-                            <b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' :  #[TICKETID]</a></b><br/><br/>
+                            <b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' :  #[TICKETID]</a></b><br/><br/>
 							Business : [CLIENT]<br>
                             Project : [PROJECT]<br>
 							'.TICKET_NOUN.' Heading : [HEADING]<br><br>
@@ -272,7 +272,7 @@
 						Client: [CLIENT]<br>
 						'.TICKET_NOUN.' Heading: [HEADING]<br>
 						Status: [STATUS]<br>
-						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
+						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
 						<img src="'.WEBSITE_URL.'/img/ffm-signature.png" width="154" height="77" border="0" alt="">';
 					?>
 					<script>
@@ -355,7 +355,7 @@
 						Client: [CLIENT]<br>
 						'.TICKET_NOUN.' Heading: [HEADING]<br>
 						Status: [STATUS]<br>
-						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
+						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
 						<img src="'.WEBSITE_URL.'/img/ffm-signature.png" width="154" height="77" border="0" alt="">';
 					?>
 					<script>

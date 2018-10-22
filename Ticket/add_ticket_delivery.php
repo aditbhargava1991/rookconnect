@@ -97,7 +97,7 @@ foreach(array_filter(explode(',', ROLE)) as $contact_role) {
 		break;
 	}
 }
-$dbc->query("UPDATE `ticket_schedule` SET `deleted`=1 WHERE `ticketid`='$ticketid' AND IFNULL(`location_name`,'')='' AND IFNULL(`client_name`,'')='' AND IFNULL(`address`,'')='' AND IFNULL(`city`,'')='' AND IFNULL(`province`,'')='' AND IFNULL(`postal_code`,'')='' AND IFNULL(`country`,'')='' AND IFNULL(`map_link`,'')='' AND IFNULL(`coordinates`,'')='' AND IFNULL(`est_time`,'')='' AND IFNULL(`details`,'')='' AND IFNULL(`email`,'')='' AND IFNULL(`carrier`,'')='' AND IFNULL(`vendor`,'')='' AND IFNULL(`lading_number`,'')='' AND IFNULL(`volume`,'')='' AND IFNULL(`eta`,'')='' AND IFNULL(`notes`,'')=''"); ?>
+$dbc->query("UPDATE `ticket_schedule` SET `deleted`=1 WHERE `ticketid`='$ticketid' AND IFNULL(`type`,'')='' AND IFNULL(`location_name`,'')='' AND IFNULL(`client_name`,'')='' AND IFNULL(`serviceid`,'')='' AND IFNULL(`address`,'')='' AND IFNULL(`city`,'')='' AND IFNULL(`province`,'')='' AND IFNULL(`postal_code`,'')='' AND IFNULL(`country`,'')='' AND IFNULL(`map_link`,'')='' AND IFNULL(`coordinates`,'')='' AND IFNULL(`est_time`,'')='' AND IFNULL(`details`,'')='' AND IFNULL(`email`,'')='' AND IFNULL(`carrier`,'')='' AND IFNULL(`vendor`,'')='' AND IFNULL(`lading_number`,'')='' AND IFNULL(`volume`,'')='' AND IFNULL(`eta`,'')='' AND IFNULL(`notes`,'')=''"); ?>
 <script type="text/javascript">
 $(document).ready(function() {
 	if(ticketid > 0) {
@@ -322,7 +322,7 @@ if(strpos($value_config, ',Service Rate Card,') !== FALSE) {
 					<?php } ?>
 				</div>
 			<?php } else { ?>
-				<?php $ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND `type` != 'origin' AND `type` != 'destination' $stop_id ORDER BY `sort`");
+				<?php $ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND IFNULL(`type`,'') NOT IN ('origin','destination') $stop_id ORDER BY `sort`");
                 if($ticket_stops->num_rows == 0) {
                     $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs'.($ticket_type == '' ? '' : '_'.$ticket_type));
                     if(empty($delivery_default_tabs) && !empty($ticket_type)) {
@@ -738,8 +738,8 @@ if(strpos($value_config, ',Service Rate Card,') !== FALSE) {
                                                     </select>
                                                 </div>
                                                 <div class="col-sm-1">
-                                                    <img class="cursor-hand inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
                                                     <img class="cursor-hand inline-img pull-right" onclick="remMulti(this);" data-remove="1" src="../img/remove.png">
+                                                    <img class="cursor-hand inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
                                                 </div>
                                             </div>
                                         </div>

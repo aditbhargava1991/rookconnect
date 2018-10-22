@@ -166,6 +166,9 @@ $(document).ready(function() {
 
 <?php
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT internal_documents FROM field_config"));
+    if(empty($get_field_config['internal_documents'])) {
+        $get_field_config['internal_documents'] = 'Internal Documents Type,Category,Title,Uploader,Link';
+    }
     $value_config = ','.$get_field_config['internal_documents'].',';
 
     $internal_documents_type = '';

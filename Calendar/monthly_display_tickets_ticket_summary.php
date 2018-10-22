@@ -170,7 +170,7 @@ foreach($all_tickets as $key => $tickets) {
 		}
 		$assigned_staff = implode(', ', $assigned_staff);
 
-	    $column .= '<div class="calendar_block calendarSortable" data-ticket="'.$row['ticketid'].'" data-region="'.$row['region'].'" data-blocktype="'.$row['block_type'].'" data-business="'.$row['businessid'].'" data-client="'.$row['clientid'].'" data-contact="'.implode(',',$all_contacts).'" data-team="'.$teams_list[implode(',',$all_contacts)].'">';
+	    $column .= '<div class="calendar_block calendarSortable" data-ticket="'.$row['ticketid'].'" data-region="'.$row['region'].'" data-blocktype="'.$row['block_type'].'" data-business="'.$row['businessid'].'" data-client="'.$row['clientid'].'" data-contact="'.implode(',',$all_contacts).'" data-team="'.$teams_list[implode(',',$all_contacts)].'" data-tickettype="'.$row['ticket_type'].'" data-equipment="'.$row['equipmentid'].'">';
 		$column .= '<span class="sortable-blocks" style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$row['calendar_color'].';'.$ticket_styling.'"><a href="" onclick="'.($edit_access == 1 ? 'overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$row['ticketid'].'\');' : '').'return false;">';
 		$column .= $recurring_icon;
 		if($key == 'deleted_tickets') {
