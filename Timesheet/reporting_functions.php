@@ -504,7 +504,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 					}
 				}
 				$report_block .= '<tr>
-					<td data-title="" colspan="'.COLSPAN.'">Totals</td>
+					<td data-title="" colspan="'.(COLSPAN-1).'">Totals</td>
 					'.(in_array($layout,['position_dropdown', 'ticket_task']) ? '<td data-title="Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['TRACKED_HRS'],2) : time_decimal2time($total['REG'])).'</td>' : '').'
 					'.(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config) ? '<td data-title="'.(in_array('payable_hrs',$value_config) ? 'Payable' : 'Regular').' Hours">'.($timesheet_time_format == 'decimal' ? number_format($total['REG'],2) : time_decimal2time($total['REG'])).'</td>' : '').'
 					'.(in_array('start_day_tile_separate',$value_config) ? '<td data-title="'.$timesheet_start_tile.'">'.($timesheet_time_format == 'decimal' ? number_format($total['DRIVE'],2) : time_decimal2time($total['DRIVE'])).'</td>' : '').'
@@ -714,6 +714,9 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 	}
 	if($report_format == 'to_array') {
 		return $report_blocks;
+	}
+	if($report_format == 'to_xls') {
+		return $report;
 	}
 	return implode('',$report_blocks);
 } ?>
