@@ -227,3 +227,34 @@ function dispatch_delivery_hover_icons($dbc, $ticket, $stop_number, $clickable_h
 	}
     return $row_html;
 }
+function draw_svg_truck($ontime, $notontime, $ongoing) {
+	$total_stops = $ontime + $notontime + $ongoing;
+
+	$curr_x = 62;
+	$ontime_polygon = '';
+	$notontime_polygon = '';
+	$ongoing_polygon = '';
+	if($ontime > 0) {
+		$width = ceil(($ontime / $total_stops) * 126);
+		$ontime_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#00ff00;fill-rule:evenodd;"/>';
+		$curr_x += $width;
+	}
+	if($notontime > 0) {
+		$width = ceil(($notontime / $total_stops) * 126);
+		$notontime_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#ff0000;fill-rule:evenodd;"/>';
+		$curr_x += $width;
+	}
+	if($ongoing > 0) {
+		$width = ceil(($ongoing / $total_stops) * 126);
+		$ongoing_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#ddd;fill-rule:evenodd;"/>';
+		$curr_x += $width;
+	}
+	$truck_html = '<svg height="100" width="200">
+		<polygon points="40,30 25,55 10,65 10,85 182,85 182,68 60,68 60,30" stroke-linejoin="round" style="fill:#777;stroke:black;stroke-width:5;fill-rule:evenodd;"/>
+		<circle cx="40" cy="85" r="10" stroke="black" stroke-width="5" fill="white" />
+		<circle cx="155" cy="85" r="10" stroke="black" stroke-width="5" fill="white" />
+		<polygon points="60,10 60,68 190,68 190,10" stroke-linejoin="round" style="fill:white;stroke:black;stroke-width:5;fill-rule:evenodd;"/>'.
+		$ontime_polygon.$notontime_polygon.$ongoing_polygon.
+	'</svg>';
+	return $truck_html;
+}

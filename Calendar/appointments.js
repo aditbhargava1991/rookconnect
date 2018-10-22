@@ -1150,7 +1150,9 @@ function resize_calendar_view() {
 			$('.sidebar.panel-group .panel-body').outerHeight($('.sidebar.panel-group').outerHeight() - sidebar_headings);
 		}
 
-		$('.calendar_view').height('calc(80% + 4em)');
+		var height = $('.calendar-screen .scale-to-fill').outerHeight();
+		$('.calendar_view').height('calc('+$('.calendar-screen .scale-to-fill').outerHeight()+'px - 4em)');
+		$('.collapsible .sidebar').height('calc('+($('.calendar_view').height() - $('.search-text').outerHeight())+'px - 1.5em - 1px)');
 		// $('.calendar_view').outerHeight($('.calendar_view').outerHeight() - $('.ticket-status-legend').outerHeight(true));
 
 		var time_blocks = [];
@@ -1444,6 +1446,29 @@ function removeTicketSchedule(ticketid, stopid) {
             var td = $(this).closest('td');
             retrieve_items($('[id^='+$('#retrieve_collapse').val()+']').find('.block-item[data-'+$('#retrieve_contact').val()+'='+$(td).data('contact')+']').closest('a'),$(td).data('date'))
         });
+    });
+}
+function setDaysheetReminder(input) {
+    var daysheet_reminder = $(input);
+    var daysheetreminderid = input.value;
+    var done = 0;
+    if ($(input).is(':checked')) {
+        done = 1;
+    }
+    $.ajax({
+        url: '../Profile/profile_ajax.php?fill=daysheet_reminders',
+        method: 'POST',
+        data: {
+            daysheetreminderid: daysheetreminderid,
+            done: done
+        },
+        success: function(response) {
+            if (done == 1) {
+                daysheet_reminder.closest('.daysheet_row').find('span').css('text-decoration', 'line-through');
+            } else {
+                daysheet_reminder.closest('.daysheet_row').find('span').css('text-decoration', 'none');
+            }
+        }
     });
 }
 

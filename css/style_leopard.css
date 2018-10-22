@@ -5734,9 +5734,20 @@ ul.sidebar a, ul.sidebar a li.active, .info-block-header:hover, .tile-sidebar ul
 ul.sidebar .active.blue, .tile-sidebar ul li.active, div.calendar-screen .block-item.active {color:#000 !important; background-color:#F4BC52 !important; }
 .sidebar table { background-color:#fff; }
 .blue span { background-color:transparent !important; color:#000 !important; }
-.summary-block, .main-screen-white { color:#000 !important; border-color:#F4BC52 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.block-button,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border { border-color:#F4BC52 !important; }
 .info-block-detail a, h4 a, a h4, a .info-block-header { color:#000 !important; }
-.info-block-header {background-color:#F4BC52 !important; border-bottom:4px solid #F4BC52 !important; }
+.info-block-header { background-color:#fcefd7 !important; }
 .iframe_overlay { background-color:rgba(0,0,0,0.3) !important; }
 table th a, table th a:hover { color:#fff !important; }
 table td a { color:#F4BC52 !important; }
