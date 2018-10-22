@@ -13,9 +13,15 @@ $misc_price = [];
 $misc_qty = [];
 $misc_total = [];
 $price_final = 0;
+$ticket_type = '';
+$po_num_list = [];
 foreach($ticket_list as $ticketid) {
 	if($ticketid > 0) {
 		$ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+        $ticket_type = empty($ticket_type) ? $ticket['ticket_type'] : $ticket_type;
+        foreach(explode('#*#',$ticket['purchase_order']) as $po_number) {
+            $po_num_list[] = $po_number;
+        }
 		foreach(explode(',',$ticket['serviceid']) as $i => $service) {
 			$qty = explode(',',$ticket['service_qty'])[$i];
 			$fuel = explode(',',$ticket['service_fuel_charge'])[$i];
@@ -107,7 +113,10 @@ foreach($ticket_list as $ticketid) {
 		$price_final += $total_price - $billing_discount_total;
 	}
 }
-mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`,`service_ticketid`,`misc_ticketid`) SELECT 'invoice',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),MAX(`businessid`),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."','".implode(',',$inv_service_ticketid)."','".implode(',',$misc_ticketid)."' FROM `tickets` WHERE `ticketid` IN (".implode(',',$ticket_list).")");
+$invoice_type = !empty($ticket_type) ? get_config($dbc, 'ticket_invoice_type_'.$ticket_type) : '';
+$invoice_type = empty($invoice_type) ? get_config($dbc, 'ticket_invoice_type') : $invoice_type;
+$po_num_list = implode(', ',array_filter(array_unique($po_num_list)));
+mysqli_query($dbc, "INSERT INTO `invoice` (`tile_name`,`type`,`po_num`,`projectid`,`ticketid`,`businessid`,`patientid`,`invoice_date`,`total_price`,`discount`,`final_price`,`serviceid`,`fee`,`misc_item`,`misc_price`,`misc_qty`,`misc_total`,`service_ticketid`,`misc_ticketid`) SELECT 'invoice','$invoice_type','$po_num_list',MAX(`projectid`),GROUP_CONCAT(`ticketid` SEPARATOR ','),MAX(`businessid`),MAX(`businessid`),DATE(NOW()),'$total_price','$billing_discount_total','$price_final','".implode(',',$inv_services)."','".implode(',',$inv_service_fee)."','".implode(',',$misc_item)."','".implode(',',$misc_price)."','".implode(',',$misc_qty)."','".implode(',',$misc_total)."','".implode(',',$inv_service_ticketid)."','".implode(',',$misc_ticketid)."' FROM `tickets` WHERE `ticketid` IN (".implode(',',$ticket_list).")");
 $invoiceid = $dbc->insert_id;
 foreach($inv_services as $i => $service) {
 	$service = $dbc->query("SELECT * FROM `services` WHERE `serviceid`='$service'")->fetch_assoc();
@@ -166,4 +175,5 @@ switch($invoice_design) {
         include('pos_invoice_1.php');
         break;
 }
+$invoiceid .= empty($invoice_type) ? '' : '&type='.$invoice_type;
 echo WEBSITE_URL.'/'.$tile_target.'/add_invoice.php?invoiceid='.$invoiceid; ?>
