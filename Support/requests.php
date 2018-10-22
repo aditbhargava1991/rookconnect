@@ -1,15 +1,4 @@
 <?php include_once('config.php');
-if(!isset($request_tab)) {
-	$request_tab = (!empty($_GET['type']) ? $_GET['type'] : 'closed');
-	$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
-	// $dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
-	$user = get_config($dbc, 'company_name');
-	$url = WEBSITE_URL;
-	$user_name = $user;
-	$user_category = '';
-	$ticket_types = explode(',',get_config($dbc_support,'ticket_tabs'));
-	$security = get_security($dbc, 'customer_support');
-}
 if($request_tab == 'new'): ?>
 	<?php if(!empty($_POST['new_request'])) {
 		$errors = '';
@@ -548,6 +537,7 @@ if($request_tab == 'new'): ?>
 		All completed Support Requests will be displayed here for two months. After two months completed requests are moved to the archive, still accessible upon request.</div>
 		<div class="clearfix"></div>
 	</div>
+    <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-left-5 theme-color-icon pull-right show-on-mob" title="" width="25" data-title="Show/Hide Search" onclick="$('.search-group').toggle();"><br />&nbsp;<div class="clearfix"></div>
 	<form name='search_form' method='POST' action=''>
 	<?php $date = date('Y-m-d',strtotime('-2month'));
 	$search_string = '';
@@ -562,6 +552,29 @@ if($request_tab == 'new'): ?>
 		$search_end = $_POST['search_end'];
 		$search_head = $_POST['search_head'];
 		$search_details = $_POST['search_details'];
+		
+		$search_string = " AND `current_date` >= '$search_start' AND `current_date` <= '$search_end' AND `company_name` LIKE '$search_cust%' AND `heading` LIKE '%$search_head%' AND IFNULL(`message`,'') LIKE '%$search_details%'";
+	} if(!empty($_GET['search'])) {
+		$search_cust = $_GET['search_cust'];
+        if($search_cust == 'undefined') {
+            $search_cust = '';
+        }
+		$search_start = $_GET['search_start'];
+        if($search_start == 'undefined') {
+            $search_start = '';
+        }
+		$search_end = $_GET['search_end'];
+        if($search_end == 'undefined') {
+            $search_end = date('Y-m-d');
+        }
+		$search_head = $_GET['search_head'];
+        if($search_head == 'undefined') {
+            $search_head = '';
+        }
+		$search_details = $_GET['search_details'];
+        if($search_details == 'undefined') {
+            $search_details = '';
+        }
 		
 		$search_string = " AND `current_date` >= '$search_start' AND `current_date` <= '$search_end' AND `company_name` LIKE '$search_cust%' AND `heading` LIKE '%$search_head%' AND IFNULL(`message`,'') LIKE '%$search_details%'";
 	} ?>
@@ -627,7 +640,8 @@ if($request_tab == 'new'): ?>
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see closed requests from the past two months."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<a href="" class="btn brand-btn mobile-block">Display All</a>
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button type="submit" name="search" value="Search" class="btn brand-btn mobile-block">Search</button>
+				<button type="submit" name="search" value="Search" class="hide-titles-mob btn brand-btn mobile-block">Search</button>
+                <a type="submit" name="search" value="Search" class="show-on-mob btn brand-btn mobile-block" onclick="loadPanel($(this).closest('.panel').find('.panel-heading'), 'requests.php?type=closed&search=Search&search_cust='+$('[name=search_cust]:visible').val()+'&search_start='+$('[name=search_start]:visible').val()+'&search_end='+$('[name=search_end]:visible').val()+'&search_head='+$('.search_head:visible').find('[name=search_head]').val()+'&search_details='+$('[name=search_details]').val());">Search</a>
 			</div>
 		</div><!-- .form-group -->
 		<div class="clearfix"></div>
@@ -681,6 +695,7 @@ if($request_tab == 'new'): ?>
 		All active <?= ($request_tab == 'feedback' ? 'Feedback & Ideas' : ($request_tab == 'requests' ? 'Support Requests' : 'Critical Incidents')) ?> display here. As we complete support requests, require your approval or simply want to provide you with work ready for your approval, all Active Requests will display here.</div>
 		<div class="clearfix"></div>
 	</div>
+    <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-left-5 theme-color-icon pull-right show-on-mob" title="" width="25" data-title="Show/Hide Search" onclick="$('.search-group').toggle();"><br />&nbsp;<div class="clearfix"></div>
 	
 	<form name='search_form' method='POST' action=''>
 	<?php $date = date('Y-m-d',strtotime('-2month'));
@@ -698,6 +713,29 @@ if($request_tab == 'new'): ?>
 		$search_details = $_POST['search_details'];
 		
 		$search_string = " AND `current_date` >= '$search_start' AND `current_date` <= '$search_end' AND `company_name` LIKE '$search_cust%' AND `heading` LIKE '%$search_head%' AND IFNULL(`message`,'') LIKE '%$search_details%'";
+	} if(!empty($_GET['search'])) {
+		$search_cust = $_GET['search_cust'];
+        if($search_cust == 'undefined') {
+            $search_cust = '';
+        }
+		$search_start = $_GET['search_start'];
+        if($search_start == 'undefined') {
+            $search_start = '';
+        }
+		$search_end = $_GET['search_end'];
+        if($search_end == 'undefined') {
+            $search_end = date('Y-m-d');
+        }
+		$search_head = $_GET['search_head'];
+        if($search_head == 'undefined') {
+            $search_head = '';
+        }
+		$search_details = $_GET['search_details'];
+        if($search_details == 'undefined') {
+            $search_details = '';
+        }
+		
+		$search_string = " AND `current_date` >= '$search_start' AND `current_date` <= '$search_end' AND `company_name` LIKE '$search_cust%' AND `heading` LIKE '%$search_head%' AND IFNULL(`message`,'') LIKE '%$search_details%'";
 	} ?>
 	<div class="search-group" style="display:none;">
 		<div class="form-group col-sm-12">
@@ -706,7 +744,7 @@ if($request_tab == 'new'): ?>
 					<div class="col-sm-4">
 						<label for="site_name" class="control-label">Search By Customer:</label>
 					</div>
-					<div class="col-sm-8">
+					<div class="col-sm-8 search_cust">
 						<select data-placeholder="Select a Customer" name="search_cust" class="chosen-select-deselect form-control">
 							<option></option>
 							<?php $query = mysqli_query($dbc_support,"SELECT DISTINCT `company_name` FROM `support` WHERE `support_type`='$request_tab' AND `deleted`=0 ORDER BY `company_name`");
@@ -737,7 +775,7 @@ if($request_tab == 'new'): ?>
 				<div class="col-sm-4">
 					<label for="site_name" class="control-label">Search By Heading:</label>
 				</div>
-				<div class="col-sm-8">
+				<div class="col-sm-8 search_head">
 						<select data-placeholder="Select a Heading" name="search_head" class="chosen-select-deselect form-control">
 							<option></option>
 							<?php $query = mysqli_query($dbc_support,"SELECT DISTINCT `heading` FROM `support` WHERE `support_type`='$request_tab' AND `deleted`=0 ORDER BY `heading`");
@@ -761,7 +799,8 @@ if($request_tab == 'new'): ?>
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see all active requests."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<a href="" class="btn brand-btn mobile-block">Display All</a>
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button type="submit" name="search" value="Search" class="btn brand-btn mobile-block">Search</button>
+				<button type="submit" name="search" value="Search" class="hide-titles-mob btn brand-btn mobile-block">Search</button>
+				<a type="submit" name="search" value="Search" class="show-on-mob btn brand-btn mobile-block" onclick="loadPanel($(this).closest('.panel').find('.panel-heading'), 'requests.php?type=<?= $_GET['type'] ?>&search=Search&search_cust='+$('[name=search_cust]:visible').val()+'&search_start='+$('[name=search_start]:visible').val()+'&search_end='+$('[name=search_end]:visible').val()+'&search_head='+$('.search_head:visible').find('[name=search_head]').val()+'&search_details='+$('[name=search_details]').val());">Search</a>
 			</div>
 		</div><!-- .form-group -->
 		<div class="clearfix"></div>
