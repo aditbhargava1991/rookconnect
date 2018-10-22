@@ -371,7 +371,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	<?php }
 	if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS))) {
 		ob_clean();
-		header('Location: index.php');
+		header('Location: index.php'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']));
 		exit();
 	} ?>
 	<script>
