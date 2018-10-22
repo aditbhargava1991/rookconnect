@@ -1250,4 +1250,10 @@
     }
     //2018-10-18 - Task 7695 - CDS Match
 
+    //2018-10-22 - Ticket #9920 - Ticket Types
+    if(!mysqli_query($dbc, "ALTER TABLE `user_settings` ADD `appt_calendar_tickettypes` text AFTER `appt_calendar_classifications`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-22 - Ticket #9920 - Ticket Types
+
     echo "Baldwin's DB Changes Done<br />\n";

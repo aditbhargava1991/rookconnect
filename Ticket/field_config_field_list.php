@@ -1704,6 +1704,9 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 							<?php if($field_sort_field == 'Equipment Status') { ?>
 								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Status", $all_config) ? 'checked disabled' : (in_array("Equipment Status", $value_config) ? "checked" : '') ?> value="Equipment Status" name="tickets[]"> Status</label>
 							<?php } ?>
+							<?php if($field_sort_field == 'Equipment Limit One') { ?>
+								<label class="form-checkbox sort_order_field"><input type="checkbox" <?= in_array("Equipment Limit One", $all_config) ? 'checked disabled' : (in_array("Equipment Limit One", $value_config) ? "checked" : '') ?> value="Equipment Limit One" name="tickets[]"> Limit To One Equipment</label>
+							<?php } ?>
 						<?php } ?>
 						</div>
 					</div>

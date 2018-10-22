@@ -575,7 +575,15 @@ function saveFieldMethod(field) {
 			} else if(field.type == 'checkbox' && !field.checked) {
 				save_value = '';
 			}
-			if((field_name == 'item_id' || field_name == 'deleted') && $(field).data('type') == 'Staff') {
+			if((field_name == 'item_id' || field_name == 'deleted') && $(field).data('type') == 'equipment') {
+				var equipmentids = [];
+				$('#collapse_ticket_equipment [name=item_id] option:selected,#tab_section_ticket_equipment [name=item_id] option:selected').each(function() {
+					if(this.value > 0 && $(this).closest('.multi-block').find('[name="deleted"]').val() != 1) {
+						equipmentids.push(this.value);
+					}
+				});
+				$('[name=equipmentid][data-table=tickets]').val(equipmentids.join(',')).change();
+			} else if((field_name == 'item_id' || field_name == 'deleted') && $(field).data('type') == 'Staff') {
 				var staff_ids = [];
 				$('#collapse_staff [name=item_id] option:selected,#tab_section_ticket_staff_list [name=item_id] option:selected').each(function() {
 					if(this.value > 0 && $(this).closest('.multi-block').find('[name="deleted"]').val() != 1) {
@@ -3122,6 +3130,13 @@ function saveNewTicketFromCalendar(element) {
 			$(element).change();
 			if($('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').length > 0) {
 				$('select[name="item_id"][data-table="ticket_attached"][data-type="Staff"]').each(function() {
+					if($(this).val() != undefined && $(this).val() != '' && $(this).val() != 0) {
+						$(this).change();
+					}
+				});
+			}
+			if($('select[name="item_id"][data-table="ticket_attached"][data-type="equipment"]').length > 0) {
+				$('select[name="item_id"][data-table="ticket_attached"][data-type="equipment"]').each(function() {
 					if($(this).val() != undefined && $(this).val() != '' && $(this).val() != 0) {
 						$(this).change();
 					}

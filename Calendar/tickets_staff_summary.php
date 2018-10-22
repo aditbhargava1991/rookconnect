@@ -39,12 +39,18 @@ function toggle_columns(type = '', reload_teams = 0) {
 	// Hide deselected columns
 	var visibles = [];
     var regions = [];
+    var ticket_types = [];
 	var teams = [];
 	var all_staff = [];
     // Filter selected regions
     $('#collapse_region').find('.block-item.active').each(function() {
         var region = $(this).data('region');
         regions.push(region);
+    });
+    // Filter Ticket Types
+    $('#collapse_ticket_type').find('.block-item.active').each(function() {
+        var ticket_type = $(this).data('tickettype');
+        ticket_types.push(ticket_type);
     });
     // Hide teams that are not in selected regions
     $('#collapse_teams').find('.block-item').each(function() {
@@ -135,7 +141,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 	<div class="pull-left collapsible">
 		<input type="text" class="search-text form-control" placeholder="Search All">
 		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
-            <?php if(count($contact_regions) > 0) { ?>
+            <?php if(count($contact_regions) > 0 && in_array('Region', $sidebar_filters)) { ?>
 	            <div class="panel panel-default">
 	                <div class="panel-heading">
 	                    <h4 class="panel-title">

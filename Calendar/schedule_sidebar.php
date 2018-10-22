@@ -34,6 +34,37 @@ if($_GET['view'] == 'monthly') {
 	?>
 	<input type="text" class="search-text form-control" placeholder="Search All">
 	<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
+        <?php if(strpos(','.$dispatch_filters.',', ',Ticket Type,') !== FALSE) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_ticket_type">
+                            <span style="display: inline-block; width: calc(100% - 6em);"><?= TICKET_NOUN ?> Type</span><span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_ticket_type" class="panel-collapse collapse">
+                    <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                        <?php $active_tickettypes = array_filter(explode(',',get_user_settings()['appt_calendar_tickettypes']));
+                        foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                            $ticket_type_value = config_safe_str($ticket_type);
+                            if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) {
+                                echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type."</div></a>";
+                            }
+                        } ?>
+                    </div>
+                </div>
+            </div>
+            <div class="active_blocks" data-accordion="collapse_ticket_type" style="display: none;">
+                <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                    $ticket_type_value = config_safe_str($ticket_type);
+                    if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) { ?>
+                        <div class="block-item active" data-activevalue="<?= $ticket_type_value ?>"><?= $ticket_type ?></div> 
+                    <?php }
+                } ?>
+            </div>
+        <?php } ?>
 		<?php if(count($contact_regions) > 0 && strpos(",$dispatch_filters,", ",Region,") !== FALSE && !$is_customer) { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -459,6 +490,37 @@ if($_GET['view'] == 'monthly') {
 	} ?>
 	<input type="text" class="search-text form-control" placeholder="Search All">
 	<div class="sidebar panel-group block-panels equip_assign_div" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
+        <?php if(strpos(','.$dispatch_filters.',', ',Ticket Type,') !== FALSE) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_ticket_type">
+                            <span style="display: inline-block; width: calc(100% - 6em);"><?= TICKET_NOUN ?> Type</span><span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_ticket_type" class="panel-collapse collapse">
+                    <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                        <?php $active_tickettypes = array_filter(explode(',',get_user_settings()['appt_calendar_tickettypes']));
+                        foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                            $ticket_type_value = config_safe_str($ticket_type);
+                            if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) {
+                                echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type."</div></a>";
+                            }
+                        } ?>
+                    </div>
+                </div>
+            </div>
+            <div class="active_blocks" data-accordion="collapse_ticket_type" style="display: none;">
+                <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                    $ticket_type_value = config_safe_str($ticket_type);
+                    if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) { ?>
+                        <div class="block-item active" data-activevalue="<?= $ticket_type_value ?>"><?= $ticket_type ?></div> 
+                    <?php }
+                } ?>
+            </div>
+        <?php } ?>
 		<?php if(count($contact_regions) > 0 && strpos(",$dispatch_filters,", ",Region,") !== FALSE && !$is_customer) { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -880,6 +942,37 @@ if($_GET['view'] == 'monthly') {
 	} ?>
 	<input type="text" class="search-text form-control" placeholder="Search All">
 	<div class="sidebar panel-group block-panels equip_assign_div" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
+        <?php if(strpos(','.$dispatch_filters.',', ',Ticket Type,') !== FALSE) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_ticket_type">
+                            <span style="display: inline-block; width: calc(100% - 6em);"><?= TICKET_NOUN ?> Type</span><span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_ticket_type" class="panel-collapse collapse">
+                    <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                        <?php $active_tickettypes = array_filter(explode(',',get_user_settings()['appt_calendar_tickettypes']));
+                        foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                            $ticket_type_value = config_safe_str($ticket_type);
+                            if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) {
+                                echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type."</div></a>";
+                            }
+                        } ?>
+                    </div>
+                </div>
+            </div>
+            <div class="active_blocks" data-accordion="collapse_ticket_type" style="display: none;">
+                <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                    $ticket_type_value = config_safe_str($ticket_type);
+                    if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) { ?>
+                        <div class="block-item active" data-activevalue="<?= $ticket_type_value ?>"><?= $ticket_type ?></div> 
+                    <?php }
+                } ?>
+            </div>
+        <?php } ?>
 		<?php if(count($contact_regions) > 0 && strpos(",$dispatch_filters,", ",Region,") !== FALSE && !$is_customer) { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
