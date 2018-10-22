@@ -361,7 +361,7 @@ function showResults(result_list, target, search_id) {
 				$('#mobile_accordions').hide();
 			}
 			ajax_loads.push($.ajax({
-				url: 'ticket_load.php?ticketid='+ticket.id+'&tile=<?= $_GET['tile_name'] ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>',
+				url: 'ticket_load.php?<?= $current_tile ?>ticketid='+ticket.id+'&tile=<?= $_GET['tile_name'] ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>',
 				success: function(response) {
 					if(search_id == search_option_id) {
 						target.append(response);
