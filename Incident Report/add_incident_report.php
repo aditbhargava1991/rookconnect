@@ -195,11 +195,11 @@ if (isset($_POST['add_ir']) || isset($_POST['save_ir'])) {
 			$logo_height = $image_height;
 			$logo_width = $image_width;
 			if($image_height > 180) {
-				$logo_width = (180 / $logo_height) * 100;
+				$logo_width = (180 / $logo_height) * $logo_width;
 				$logo_height = 180;
 			}
 			if($logo_width > 360) {
-				$logo_height = (360 / $logo_width) * 100;
+				$logo_height = (360 / $logo_width) * $logo_height;
 				$logo_width = 360;
 			}
 			$logo_height = $logo_height / 7.2;
