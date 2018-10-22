@@ -1,0 +1,14 @@
+RewriteEngine On
+RewriteBase /
+RewriteCond %{HTTPS} !=off
+RewriteCond %{HTTP_HOST} !^local [NC]
+RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+RewriteCond %{REQUEST_URI} !(img|Settings|Inventory|Website) [NC]
+RewriteCond %{REQUEST_URI} !(/|\.html|\.php|\.css|\.js)$ [NC]
+RewriteRule (.*) download_check.php?path=$1 [L]
+
+DirectoryIndex index.php
+ErrorDocument 403 /403.html
+ErrorDocument 404 /404.html
+ErrorDocument 500 /500.html
+Options -Indexes

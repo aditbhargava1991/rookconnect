@@ -61,6 +61,7 @@ DEFINE('INTAKE_TICKET', $intake_ticket);
 
 if(!isset($_SESSION['user_name']) && !isset($guest_access) && $guest_access != true && !$external_intake && !$update_contact && !$intake_ticket && !isset($_SESSION['intake_ticket'])) {
     ob_clean();
+    $url = (isset($_SERVER["HTTPS"]) ? 'https://' : 'http://').$_SERVER['SERVER_NAME'];
     $url = (isset($_SERVER["HTTPS"]) ? 'http://' : 'http://').$_SERVER['SERVER_NAME'];
     if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
         echo '<script>
@@ -94,7 +95,6 @@ if(!defined('FOLDER_NAME')) {
     DEFINE('FOLDER_URL', $each_tab[1]);
 }
 DEFINE('WEBSITE_URL', (isset($_SERVER["HTTPS"]) ? 'http://' : 'http://').(!empty($_SERVER['SERVER_NAME']) ? $_SERVER['SERVER_NAME'] : basename(__DIR__)));
-echo WEBSITE_URL; die;
 DEFINE('ITEMS_PER_PAGE', 25);
 DEFINE('COMPANY_NAME', 'Washtech');
 DEFINE('ROLE', $_SESSION['role']);
