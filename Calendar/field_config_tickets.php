@@ -175,6 +175,7 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
     </div>
     <?php $ticket_label_fields = [
         'project'=>PROJECT_NOUN,
+        'ticket_type'=>TICKET_NOUN.' Type',
         'customer'=>'Customer',
         'client'=>'Client',
         'site_address'=>'Site Address',
