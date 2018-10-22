@@ -33,7 +33,7 @@ function saveFields() {
 <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
     <div class="gap-top">
 
-        <h4>Pipeline &amp; Schedule Accordions</h4>
+        <!--<h4>Pipeline &amp; Schedule Accordions</h4>
         <div class="form-group">
             <input type="checkbox" id="selectall"/> Select All
     		<div id='no-more-tables'>
@@ -107,7 +107,6 @@ function saveFields() {
         </div>
 
         <hr>
-
         <h4><?= SALES_TILE ?> Path Accordion</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Sales Lead Path Intake".',') !== FALSE) { echo " checked"; } ?> value="Sales Lead Path Intake" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Intake Forms&nbsp;&nbsp;
@@ -119,11 +118,11 @@ function saveFields() {
         <h4>Lead Information Accordion</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Lead Information Lead Value".',') !== FALSE) { echo " checked"; } ?> value="Lead Information Lead Value" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Lead Value&nbsp;&nbsp;
-        </div>
+        </div>-->
 
         <hr>
 
-        <h4>Services Accordion</h4>
+        <h4>Services Fields</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Services Service Type".',') !== FALSE) { echo " checked"; } ?> value="Services Service Type" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Service Type&nbsp;&nbsp;
             <input type="checkbox" <?php if (strpos($value_config, ','."Services Category".',') !== FALSE) { echo " checked"; } ?> value="Services Category" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Category&nbsp;&nbsp;
