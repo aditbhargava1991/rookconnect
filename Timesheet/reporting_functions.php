@@ -696,7 +696,9 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 			}*/
 		endif;
 		$report_blocks[] = $report_block;
-		$report_block = '';
+        if($report_format != 'to_xls') {
+		    $report_block = '';
+        }
 	}
 	if(in_array('staff_combine',$value_config)) {
 		foreach($report_blocks as $i => $report) {
