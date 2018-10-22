@@ -4,27 +4,6 @@ Dashboard FFM
 */
 error_reporting(0);
 include ('include.php');
-$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`,`email_address` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
-foreach($staff_list as $staff) {
-	$tag_staff_array[] = $staff['contactid'];
-	$tag_staff_email_array[] = $staff['email_address'];
-}
-
-//foreach($tag_staff_email_array as $tag_staff_email) {
-try {
-		$sender = '';
-		$cc_emails = '';
-		$bcc_emails = '';
-		$title = "test";
-		$user = $tag_staff_email_array;
-		$subject = "New post -> $title has been added to the News Board.";
-		$body = "New Post with Name $title has been added to the news Board. <br>";
-		$body .= 'For more details <a href="'.'https://' . $_SERVER['SERVER_NAME'] . '/News Board/index.php">click here</a>';
-		send_email($sender, $user, $cc_emails, $bcc_emails, $subject, html_entity_decode($body), '');
-} catch (Exception $e) {
-		$error .= "Unable to send email: ".$e->getMessage()."\n";
-}
-exit;
 ?>
 <script>
 	jQuery(document).ready(function($){
