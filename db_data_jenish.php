@@ -56,5 +56,16 @@ if(!mysqli_query($dbc, "ALTER TABLE `field_jobs_history` CHANGE `history_id` `hi
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
+
+
+
+if(!mysqli_query($dbc, "CREATE TABLE `newsboard_tag` ( `newsboard_tagid` INT NOT NULL AUTO_INCREMENT ,
+                        `boardid` INT(11) NOT NULL , `newsboardid` INT(11) NOT NULL ,
+                        `staff` TEXT NOT NULL , PRIMARY KEY (`newsboard_tagid`))"))
+{
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+
 echo "<br> ======Jenish's db changes Done======<br>";
 ?>

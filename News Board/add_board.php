@@ -13,7 +13,7 @@ $rookconnect = get_software_name();
 
 if (isset($_POST['add_board'])) {
     $contactid = $_SESSION['contactid'];
-    
+
     if ( isset($_POST['new_newsboard_board']) && !empty($_POST['new_newsboard_board']) ) {
         $new_newsboard_board = filter_var($_POST['new_newsboard_board'],FILTER_SANITIZE_STRING);
         mysqli_query($dbc, "INSERT INTO `newsboard_boards` (`board_name`, `shared_staff`) VALUES ('$new_newsboard_board', ',$contactid,')");
@@ -21,12 +21,12 @@ if (isset($_POST['add_board'])) {
     } else {
         $newsboard_board = preg_replace('/[^0-9]/', '', $_POST['newsboard_board']);
     }
-    
+
     $board_name_query = '';
     if ( isset($_POST['board_name']) ) {
         $board_name_query = ", `board_name`='". filter_var($_POST['board_name'],FILTER_SANITIZE_STRING) ."'";
     }
-    
+
     foreach ( $_POST['contactid'] as $staff ) {
         $shared_staff_arr[] = str_replace(',', ' ', filter_var($staff, FILTER_SANITIZE_STRING));
     }
@@ -47,7 +47,7 @@ if (isset($_POST['add_board'])) {
                 return false;
             }
         });
-        
+
         $('#newsboard_board').on('change', function() {
             var boardid = $('#newsboard_board option:selected').val();
             if ( boardid == 'NEW' ) {
@@ -63,11 +63,11 @@ if (isset($_POST['add_board'])) {
             }
         });
     });
-    
+
     $(document).on('change', '#newsboard_board', changeBoard);
     $(document).on('click', '.archive_board', archiveBoard);
     $(document).on('click', '.edit_board_name', editBoardName);
-    
+
     function closeSlider() {
         window.location.href="../blank_loading_page.php";
     }
@@ -104,7 +104,7 @@ if (isset($_POST['add_board'])) {
         } else {
             var ans = confirm('Are you sure you want to archive the News Board? This will remove the board and all the news items in the board.');
         }
-        
+
         if ( ans == true ) {
             $.ajax({
                 type: 'GET',
@@ -120,7 +120,7 @@ if (isset($_POST['add_board'])) {
         var board_name = $('#newsboard_board option:selected').text();
         $('input[name="board_name"]').show();
         $('input[name="board_name"]').val(board_name);
-        
+
     }
 </script>
 </head>
@@ -137,7 +137,7 @@ checkAuthorised('newsboard');
             <div class="pull-right gap-right offset-top-15"><a class="cursor-hand" onclick="closeSlider();"><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img"></a></div>
             <div class="clearfix"></div>
         </div>
-        
+
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <div class="form-group">
                 <div class="col-sm-12">
@@ -163,12 +163,12 @@ checkAuthorised('newsboard');
                     <input type="text" name="board_name" class="form-control" style="display:none;" />
                 </div>
             </div>
-               
+
             <div class="form-group">
                 <div class="col-sm-12 staff_container">
                     <label class="control-label">
                         <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                        Share with Staff<span class="red">*</span>: 
+                        Share with Staff<span class="red">*</span>:
                     </label>
                     <?php foreach(explode(',',trim($contactid,',')) as $line_contactid) { ?>
                         <div class="add_staff">
@@ -193,7 +193,7 @@ checkAuthorised('newsboard');
                     <?php } ?>
                 </div>
             </div>
-            
+
             <div class="clearfix"></div>
 
             <div class="double-gap-bottom gap-top">
