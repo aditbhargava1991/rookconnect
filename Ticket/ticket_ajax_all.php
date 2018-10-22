@@ -1660,6 +1660,7 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, $_POST['ticket_new_email_subject'], filter_var($_POST['ticket_new_email_subject_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, $_POST['ticket_new_email_body'], filter_var($_POST['ticket_new_email_body_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, $_POST['delivery_default_tabs'], filter_var($_POST['delivery_default_tabs_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_invoice_type'], filter_var($_POST['ticket_invoice_type_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING), 1);
@@ -1761,6 +1762,7 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, $_POST['ticket_new_email_subject'], filter_var($_POST['ticket_new_email_subject_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, $_POST['ticket_new_email_body'], filter_var($_POST['ticket_new_email_body_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, $_POST['delivery_default_tabs'], filter_var($_POST['delivery_default_tabs_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_invoice_type'], filter_var($_POST['ticket_invoice_type_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING));

@@ -447,6 +447,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 						<?php } ?>
 					<?php } ?>
 				</div>
+                <div class="clearfix"></div>
 		<?php }
 		$total_time_estimate = 0;
 		foreach(array_filter(explode(',',(!empty($_GET['serviceid']) ? $_GET['serviceid'] : mysqli_fetch_array(mysqli_query($dbc, "SELECT `serviceid` FROM `tickets` WHERE `ticketid`='$ticketid'"))[0]))) as $i => $serviceid) {

@@ -296,6 +296,8 @@ function saveFields() {
 		ticket_new_email_body_value: $('[name^=ticket_new_email_body]').val(),
 		delivery_default_tabs: $('[name^=delivery_default_tabs]').attr('name'),
 		delivery_default_tabs_value: $('[name^=delivery_default_tabs]').val(),
+		ticket_invoice_type: $('[name^=ticket_invoice_type]').attr('name'),
+		ticket_invoice_type_value: $('[name^=ticket_invoice_type]').val(),
 		ticket_recurrence_sync_upto: ticket_recurrence_sync_upto,
 		mandatory: mandate,
 		delivery_type_default: $('[name="delivery_type_default"]').val(),

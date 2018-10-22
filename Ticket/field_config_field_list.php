@@ -73,6 +73,23 @@ if(!$action_mode && !$status_fields && !$overview_mode && !$unlock_mode && !$int
 			</div>
 		</div>
 		<div class="form-group">
+			<?php $ticket_invoice_type = get_config($dbc, 'ticket_invoice_type');
+            $invoice_types = [];
+            foreach(explode(',',get_config($dbc,'invoice_types')) as $invoice_type) {
+                $invoice_types[config_safe_str($invoice_type)] = $invoice_type;
+            } ?>
+			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This will specify the type of Invoice that will be used for this <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>New Invoice Type
+				<?= $ticket_invoice_type != '' && $tab != '' ? '(Default: '.$invoice_types[$ticket_invoice_type].')' : '' ?>:</label>
+			<div class="col-sm-8">
+				<select name="ticket_invoice_type<?= $tab == '' ? '' : '_'.$tab ?>" data-placeholder="Select Tab" class="chosen-select-deselect"><option />
+					<?php $tab_ticket_invoice_type = $tab == '' ? $ticket_invoice_type : get_config($dbc, 'ticket_invoice_type_'.$tab);
+                    foreach($invoice_types as $inv_type_id => $inv_type_name) { ?>
+                        <option <?= $inv_type_id == $tab_ticket_invoice_type ? 'selected' : '' ?> value="<?= $inv_type_id ?>"><?= $inv_type_name ?></option>
+                    <?php } ?>
+				</select>
+			</div>
+		</div>
+		<div class="form-group">
 			<label class="col-sm-4 control-label"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="This is the status that will be used to indicate completed <?= TICKET_TILE ?>."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Status for a Completed <?= TICKET_NOUN ?>:</label>
 			<div class="col-sm-8">
 				<?php $auto_archive_complete_tickets = get_config($dbc, 'auto_archive_complete_tickets'); ?>
