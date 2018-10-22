@@ -700,17 +700,20 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 		    $report_block = '';
         }
 	}
-	if(in_array('staff_combine',$value_config)) {
-		foreach($report_blocks as $i => $report) {
-			$key = array_search($report,array_slice($report_blocks,$i+1));
-			while($key !== FALSE) {
-				$report_name[$i+$key+1] .= ', '.$report_name[$i];
-				unset($report_blocks[$i]);
-				unset($report_name[$i]);
-				$key = array_search($report,array_slice($report_blocks,$i+1));
-			}
-		}
-	}
+
+    if($report_format != 'to_xls') {
+        if(in_array('staff_combine',$value_config)) {
+            foreach($report_blocks as $i => $report) {
+                $key = array_search($report,array_slice($report_blocks,$i+1));
+                while($key !== FALSE) {
+                    $report_name[$i+$key+1] .= ', '.$report_name[$i];
+                    unset($report_blocks[$i]);
+                    unset($report_name[$i]);
+                    $key = array_search($report,array_slice($report_blocks,$i+1));
+                }
+            }
+        }
+    }
 	foreach($report_blocks as $i => &$report) {
 		$report = '<h3>'.$report_name[$i].'<img src="../img/empty.png" class="statusIcon inline-img no-toggle no-margin"></h3>'.$report;
 	}
