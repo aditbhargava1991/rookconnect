@@ -1867,6 +1867,7 @@ if($_GET['action'] == 'update_fields') {
 } else if($_GET['action'] == 'ticket_types') {
 	// Save the settings for ticket dashboard fields
 	set_config($dbc, 'ticket_tabs', filter_var(implode(',',$_POST['types']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_tabs_color', filter_var(implode(',',$_POST['color_lists']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_type_tiles', filter_var($_POST['tiles'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'default_ticket_type', filter_var($_POST['default_ticket_type'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_status_list') {
