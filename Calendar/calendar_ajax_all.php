@@ -155,11 +155,17 @@ if($_GET['fill'] == 'selected_staff') {
 	$team_list = implode(',',$_POST['teams']);
 	$region_list = implode(',',$_POST['regions']);
 	$client_list = implode(',',$_POST['clients']);
+	$tickettype_list = implode(',',$_POST['tickettype']);
 	mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_staff`='$staff_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_teams`='$team_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_regions`='$region_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_clients`='$client_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_tickettypes`='$tickettype_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+	if(isset($_POST['equipment'])) {
+		$equipment_list = implode(',',$_POST['equipment']);
+		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_equipment`='$equipment_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+	}
 }
 if($_GET['fill'] == 'selected_contacts') {
 	$contact_list = implode(',',$_POST['contacts']);
@@ -169,6 +175,7 @@ if($_GET['fill'] == 'selected_contacts') {
 	$region_list = implode(',',$_POST['regions']);
 	$location_list = implode(',',$_POST['locations']);
 	$classification_list = implode(',',$_POST['classifications']);
+	$tickettype_list = implode(',',$_POST['tickettype']);
 	if($_POST['category'] == 'client') {
 		mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '".$_SESSION['contactid']."' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
 		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_contacts`='$contact_list' WHERE `contactid`='".$_SESSION['contactid']."'");
@@ -187,9 +194,14 @@ if($_GET['fill'] == 'selected_contacts') {
 	} else {
 		mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '".$_SESSION['contactid']."' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
 		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_staff`='$contact_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+		if(isset($_POST['equipment'])) {
+			$equipment_list = implode(',',$_POST['equipment']);
+			mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_equipment`='$equipment_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+		}
 	}
 	mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '".$_SESSION['contactid']."' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_teams`='$team_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_tickettypes`='$tickettype_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 }
 if($_GET['fill'] == 'selected_projects') {
 	$project_list = implode(',',$_POST['projects']);

@@ -70,6 +70,7 @@ function toggle_columns(type = global_type) {
 
 	// Hide deselected columns
 	var visibles = [];
+    var ticket_types = [];
 	var regions = [];
     var classifications = [];
     var locations = [];
@@ -79,6 +80,11 @@ function toggle_columns(type = global_type) {
 	var contractors = [];
 	var ea_visibles = [];
 	
+    // Filter Ticket Types
+    $('#collapse_ticket_type').find('.block-item.active').each(function() {
+        var ticket_type = $(this).data('tickettype');
+        ticket_types.push(ticket_type);
+    });
     // Filter selected regions
 	$('#collapse_region').find('.block-item.active').each(function() {
 		var region = $(this).data('region');
@@ -428,6 +434,16 @@ function toggle_columns(type = global_type) {
 		}
 	});
 
+    // Filter tickets in Calendar view based on the selected client
+    $('div.used-block').each(function() {
+        var ticket_type = $(this).data('tickettype');
+        if (ticket_types.indexOf(ticket_type) == -1 && ticket_types.length > 0) {
+            $(this).hide();
+        } else {
+            $(this).show();
+        }
+    });
+
 	<?php if ($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') { ?>
 		staff.forEach(function (contact_id) {
 			visibles.push(contact_id);
@@ -439,7 +455,7 @@ function toggle_columns(type = global_type) {
 		$.ajax({
 			url: 'calendar_ajax_all.php?fill=selected_contacts&offline='+offline_mode,
 			method: 'POST',
-			data: { category: 'equipment', teams: teams, staff: staff, clients: clients, regions: regions, classifications: classifications, locations: locations },
+			data: { category: 'equipment', teams: teams, staff: staff, clients: clients, regions: regions, classifications: classifications, locations: locations, tickettype_list: ticket_types },
 			success: function(response) {
 			}
 		});
@@ -448,7 +464,7 @@ function toggle_columns(type = global_type) {
 		$.ajax({
 			url: 'calendar_ajax_all.php?fill=selected_contacts&offline='+offline_mode,
 			method: 'POST',
-			data: { contacts: visibles, category: 'equipment', clients: clients, regions: regions, classifications: classifications, locations: locations },
+			data: { contacts: visibles, category: 'equipment', clients: clients, regions: regions, classifications: classifications, locations: locations, tickettype_list: ticket_types },
 			success: function(response) {
 			}
 		});
