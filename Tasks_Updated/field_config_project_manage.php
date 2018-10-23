@@ -481,7 +481,6 @@ if(!empty($_POST['submit'])) {
                     </div>
                 </div>
                 -->
-
                 <?php } else if($_GET['category'] == 'add_tab') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">

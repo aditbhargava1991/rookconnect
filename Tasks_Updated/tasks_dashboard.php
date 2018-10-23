@@ -25,8 +25,8 @@ $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `co
 .new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
 .flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 0;top: 40px;z-index: 1;border: 2px solid #878787;}
 </style>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet">
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet"> -->
 <script type="text/javascript" src="tasks.js"></script>
 <script>
 $(document).ready(function() {
@@ -390,13 +390,16 @@ function flag_item_manual1(task) {
 }
 
 function flag_item_box(taskid){
-	$('#flag_color_box_'+taskid).show();
+	//$('#flag_color_box_'+taskid).show();
+	$('#colorpickerbtn_'+taskid)[0].click();
 }
 
-function flag_item(task) {
+function flag_item(task,flag_colour) {
+	alert(task); alert(flag_colour);
 	//task_id = $(task).parents('span').data('task');
-	task_id = $('#flag_color_box_'+task).next('span').data('task');
-	flag_colour = $('#demo_'+task_id).val();
+	//task_id = $('#flag_color_box_'+task).next('span').data('task');
+	//flag_colour = $('#demo_'+task_id).val();
+	task_id = task;
 	flag_colour = flag_colour. substring(1, flag_colour. length);
 	var type = 'task';
 	if(task_id.toString().substring(0,5) == 'BOARD') {
@@ -417,7 +420,7 @@ function flag_item(task) {
 				//$(task).closest('form').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
 				$('#'+task_id).closest('form').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
 			}
-			$('#flag_color_box_'+task_id).hide();
+			//$('#flag_color_box_'+task_id).hide();
 		}
 	});
 }
