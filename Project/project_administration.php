@@ -218,7 +218,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                             $services_cost[$row_num] = [];
                             foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
                                 if($service > 0) {
-                                    $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                                    $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
                                     $service_rate = 0;
                                     foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                                         $service_cust_rate = explode('#',$service_cust_rate);
@@ -252,7 +252,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                     $ticket_no_bill = explode(',',get_field_value('service_no_bill','tickets','ticketid',$ticket['ticketid']));
                     foreach(explode(',',$ticket['serviceid']) as $i => $service) {
                         if($service > 0) {
-                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
                             $service_rate = 0;
                             foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                                 $service_cust_rate = explode('#',$service_cust_rate);
