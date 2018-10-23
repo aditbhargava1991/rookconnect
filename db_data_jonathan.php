@@ -465,6 +465,12 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9919
+
+        // October 23, 2018 - Ticket 9720
+		if(!mysqli_query($dbc, "ALTER TABLE `contacts` ADD `software_url` TEXT AFTER `website`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9720
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
