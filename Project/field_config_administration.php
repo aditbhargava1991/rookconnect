@@ -20,6 +20,7 @@ function saveFields() {
 				signature: $(this).find('[name^=signature]:checked').val(),
 				precedence: $(this).find('[name^=precedence]:checked').val(),
 				status: $(this).find('[name=status]').val(),
+				options: $(this).find('[name=options]:checked').map(function() { return this.value; }).get().join(','),
 				action_items: $(this).find('[name=action_items]').map(function() { return this.value; }).get().join(','),
 				region: $(this).find('[name=region]').val(),
 				location: $(this).find('[name=location]').val(),
@@ -135,6 +136,7 @@ function remGroup(img) {
 			$project_admin_fields = ',Services,Sub Totals per Service,';
 		}
 		$project_admin_fields = ','.$project_admin_fields.','; ?>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Approve All" <?= strpos($project_admin_fields,',Approve All,') !== FALSE ? 'checked' : '' ?>> Allow Approve All</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Delivery Rows" <?= strpos($project_admin_fields,',Delivery Rows,') !== FALSE ? 'checked' : '' ?>> Subdivide by Scheduled Stops</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Customer" <?= strpos($project_admin_fields,',Customer,') !== FALSE ? 'checked' : '' ?>> Customer</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Schedule" <?= strpos($project_admin_fields,',Schedule,') !== FALSE ? 'checked' : '' ?>> Scheduled Date and Time</label>

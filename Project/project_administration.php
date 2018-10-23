@@ -21,6 +21,11 @@ $admin_groups = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE `d
 for($admin_group = $admin_groups->fetch_assoc(); $admin_group['id'] != $id && !empty($admin_group['name']); $admin_group = $admin_groups->fetch_assoc());
 $ticket_db = explode(',',get_field_config($dbc, 'tickets_dashboard'));
 $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',$admin_group['contactid']))) : 1; ?>
+<?php if(strpos($value_config, ',Approve All,') !== false) { ?>
+    <button class="btn brand-btn pull-right" onclick="approve_all(); return false;">Approve All</button>
+<?php } ?>
+<button class="btn brand-btn pull-right" name="approve_multiple" onclick="approve_multiple(); return false;">Approve Multiple</button>
+<button class="btn brand-btn pull-right" name="approve_selected" onclick="approve_selected(); return false;" style="display:none;">Approve Selected</button>
 <h3>Administration - <?= $admin_group['name'] ?>: <?= ucfirst($status).($admin_group['region'] != '' ? ' <em><small>'.$admin_group['region'].'</small></em>' : '').($admin_group['classification'] != '' ? ' <em><small>'.$admin_group['classification'].'</small></em>' : '').($admin_group['location'] != '' ? ' <em><small>'.$admin_group['location'].'</small></em>' : '').($admin_group['customer'] > 0 ? ' <em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h3>
 <?php if($status == 'summary') { ?>
     <?php $other_groups = $dbc->query("SELECT GROUP_CONCAT(`region` SEPARATOR ''',''') `regions`, GROUP_CONCAT(`classification` SEPARATOR ''',''') `classifications` FROM `field_config_project_admin` WHERE `id`!='{$admin_group['id']}' AND `deleted`=0")->fetch_assoc(); ?>
@@ -51,6 +56,8 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
 <?php } else { ?>
     <script>
     $(document).ready(function() {
+        $('[name=approvals]').change(mark_approved);
+        $('img[src$="void.png"],img[src$="ROOK-status-paid.png"]').click(mark_billable);
         $('[name=status]').change(function() {
             $.post('../Ticket/ticket_ajax_all.php?action=update_fields', {
                 field: 'status',
@@ -61,25 +68,28 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                 value: $(this).val()
             });
         });
-        $('[name=approvals]').change(function() {
-            <?php if($admin_group['signature'] > 0) { ?>
-                overlayIFrame('../Project/project_admin_sign.php?table='+$(this).data('table')+'&id='+this.value+'&date='+$(this).data('date')+'&invoice='+$(this).data('invoice'));
-            <?php } else { ?>
-                $.post('../Project/projects_ajax.php?action=approvals', {
-                    field: 'approvals',
-                    table: $(this).data('table'),
-                    contactid: '<?= $_SESSION['contactid'] ?>',
-                    status: this.checked ? 1 : 0,
-                    id: this.value,
-                    date: $(this).data('date'),
-                    invoice: $(this).data('invoice')
-                }).success(function(response) {
-                    console.log(response);
-                });
-            <?php } ?>
-        });
-        $('img[src$="void.png"],img[src$="ROOK-status-paid.png"]').click(mark_billable);
     });
+    function mark_approved(element) {
+        if(element.target != undefined) {
+            element = element.target;
+        }
+        <?php if($admin_group['signature'] > 0) { ?>
+            overlayIFrame('../Project/project_admin_sign.php?table='+$(element).data('table')+'&id='+element.value+'&date='+$(element).data('date')+'&invoice='+$(element).data('invoice'));
+        <?php } else { ?>
+            $.post('../Project/projects_ajax.php?action=approvals', {
+                field: 'approvals',
+                table: $(element).data('table'),
+                contactid: '<?= $_SESSION['contactid'] ?>',
+                status: element.checked ? 1 : 0,
+                id: element.value,
+                date: $(element).data('date'),
+                invoice: $(element).data('invoice')
+            }).success(function(response) {
+                $(element).closest('tr').remove();
+                // console.log(response);
+            });
+        <?php } ?>
+    }
     function mark_billable() {
         var img = this;
         $.post('../Ticket/ticket_ajax_all.php?action=no_bill', {
@@ -116,7 +126,23 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
             status: status ? 1 : 0,
             id: ticket,
             date: date
-        },function(response) {console.log(response);});
+        },function(response) {
+            // console.log(response);
+        });
+    }
+    function approve_multiple() {
+        $('[name=approvals]').off('change',mark_approved);
+        $('[name=approve_multiple],[name=approve_selected]').toggle();
+    }
+    function approve_selected() {
+        $('[name=approvals]:checked').each(function() {
+            mark_approved(this);
+        });
+        window.location.reload();
+    }
+    function approve_all() {
+        $('[name=approvals]').prop('checked',true);
+        approve_selected();
     }
     </script>
     <?php $tickets = get_administration_tickets($dbc, $_GET['tab'], $projectid, isset($ticket_conf_list) ? $ticket_conf_list : []);
@@ -414,6 +440,11 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                     <?php } ?>
                 <?php } ?>
             </table>
+            <?php if(strpos($value_config, ',Approve All,') !== false) { ?>
+                <button class="btn brand-btn pull-right" onclick="approve_all(); return false;">Approve All</button>
+            <?php } ?>
+            <button class="btn brand-btn pull-right" name="approve_multiple" onclick="approve_multiple(); return false;">Approve Multiple</button>
+            <button class="btn brand-btn pull-right" name="approve_selected" onclick="approve_selected(); return false;" style="display:none;">Approve Selected</button>
         </div>
     <?php } else {
         echo "<h3>No ".(empty($ticket_tile) ? TICKET_TILE : $ticket_tile)." Found.</h3>";
