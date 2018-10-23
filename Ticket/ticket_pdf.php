@@ -1,6 +1,7 @@
 <?php include_once('../include.php');
 include_once('../tcpdf/tcpdf.php');
 include_once('../Ticket/field_list.php');
+include_once('../Ticket/config.php');
 if(!file_exists('download')) {
 	mkdir('download', 0777, true);
 }
