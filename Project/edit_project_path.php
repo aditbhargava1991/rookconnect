@@ -603,6 +603,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 					id_field: 'tasklistid',
 					table: 'tasklist',
 					field: 'heading',
+                    task_path: '<?= $_GET["pathid"] ?>',
 					value: text
 				},
 				success: function(response) {

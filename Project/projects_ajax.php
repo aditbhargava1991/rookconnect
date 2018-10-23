@@ -332,8 +332,9 @@ if($_GET['action'] == 'mark_favourite') {
 		mysqli_query($dbc, "INSERT INTO `$table` (`projectid`) VALUES ('$project')");
 		$id = mysqli_insert_id($dbc);
         if($table == 'tasklist' && $field == 'heading') {
+            $task_path = explode('|', $_POST['task_path'])[1];
             $default_task = get_config($dbc, 'task_default_status');
-            mysqli_query($dbc, "UPDATE `tasklist` SET `status` = '$default_task', `task_tododate`='".date('Y-m-d')."', `contactid`='".$_SESSION['contactid']."' WHERE `tasklistid`='$id'");
+            mysqli_query($dbc, "UPDATE `tasklist` SET `status` = '$default_task', `task_path` = '$task_path', `task_tododate`='".date('Y-m-d')."', `contactid`='".$_SESSION['contactid']."' WHERE `tasklistid`='$id'");
         }
 		if($type != '' && $type_field != '') {
 			mysqli_query($dbc, "UPDATE `$table` SET `$type_field`='$type' WHERE `$id_field`='$id'");
