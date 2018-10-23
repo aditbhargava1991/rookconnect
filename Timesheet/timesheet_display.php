@@ -21,7 +21,7 @@ if($current_page == 'daysheet.php') {
 $layout = get_config($dbc, 'timesheet_layout');
 $value_config = explode(',',get_field_config($dbc, 'time_cards'));
 if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array('total_hrs',$value_config)) {
-    $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+    $value_config = array_merge($value_config,['total_hrs']);
 }
 $timesheet_payroll_fields = ($current_page == 'payroll.php' ? ','.get_config($dbc, 'timesheet_payroll_fields').',' : ',,');
 $timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
@@ -215,8 +215,7 @@ var useProfileSig = function(chk) {
             $vacation_taken = $year_to_date['VACA_HRS'];
             $sick_taken = $year_to_date['SICK_HRS']; ?>
             <td colspan="<?= $colspan ?>">Balance Forward Y.T.D.</td>
-            <?php if(in_array('total_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-            <?php if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
+            <?php if(in_array('total_hrs',$value_config) || in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(in_array('start_day_tile_separate',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(in_array('direct_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(in_array('indirect_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
@@ -242,7 +241,7 @@ var useProfileSig = function(chk) {
             <?php if($timesheet_approval_initials == 1) { ?><td style='text-align:center;'></td><?php } ?>
             <?php if($timesheet_approval_date == 1) { ?><td style='text-align:center;'></td><?php } ?>
             <?php } ?>
-            <td colspan="<?= (in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0)) ?>"></td>
+            <th colspan="<?= (in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0)) ?>"></th>
         </tr>
         <tr class='hidden-xs hidden-sm'>
             <th style='text-align:center; vertical-align:bottom;'><div style="min-width:<?= (in_array('editable_dates',$value_config) ? '9em;' : '6em;') ?>">Date</div></th>
