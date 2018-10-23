@@ -123,7 +123,9 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 						$checkmark_ticket = '';
 					}
 					$delivery_color = get_delivery_color($dbc, $row_ticket['delivery_type']);
-					if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+					if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$row_ticket['ticket_type']])) {
+						$ticket_styling = ' background-color:'.$ticket_tabs_color[$row_ticket['ticket_type']].';';
+					} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 					} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 						$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';
@@ -360,7 +362,9 @@ if($_GET['mode'] == 'staff' || $_GET['mode'] == 'contractors') {
 						$checkmark_ticket = '';
 					}
 					$delivery_color = get_delivery_color($dbc, $row_ticket['delivery_type']);
-					if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+					if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$row_ticket['ticket_type']])) {
+						$ticket_styling = ' background-color:'.$ticket_tabs_color[$row_ticket['ticket_type']].';';
+					} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 					} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 						$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';

@@ -79,6 +79,7 @@ foreach($calendar_incomplete_status as $i => $incomplete_status) {
 if(empty($calendar_incomplete_color)) {
     $calendar_incomplete_color = '#ff0000';
 }
+$calendar_ticket_color_code_tabs = get_config($dbc, 'calendar_ticket_color_code_tabs');
 $ticket_status_color_code = get_config($dbc, 'ticket_status_color_code');
 if($ticket_status_color_code == 1) {
     $status_color_codes = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color`"),MYSQLI_ASSOC);
@@ -662,8 +663,14 @@ if($_GET['type'] == 'schedule') {
 <input type="hidden" id="calendar_check_days_off" value="<?= get_config($dbc, 'calendar_ticket_check_days_off') ?>">
 
 <?php $ticket_config = ','.get_field_config($dbc, 'tickets').',';
-foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_type) {
+$ticket_tabs_color_config = explode(',',get_config($dbc, 'ticket_tabs_color'));
+$ticket_tabs_color = [];
+foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $type_i => $ticket_type) {
     $ticket_types[config_safe_str($ticket_type)] = $ticket_type;
+    if($ticket_tabs_color_config[$type_i] == '#000000') {
+        $ticket_tabs_color_config[$type_i] = '';
+    }
+    $ticket_tabs_color[config_safe_str($ticket_type)] = $ticket_tabs_color_config[$type_i];
 }
 foreach($ticket_types as $type_i => $type_label) {
     $ticket_config .= get_config($dbc, 'ticket_fields_'.$type_i).',';
