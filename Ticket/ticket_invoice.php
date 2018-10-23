@@ -249,7 +249,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                 $cust_rate_card = $dbc->query("SELECT * FROM `rate_card` WHERE `clientid`='".$invoice['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
 				foreach(explode(',',$invoice['serviceid']) as $i => $service) {
 					if($service > 0) {
-						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
                         $service_rate = 0;
                         foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                             $service_cust_rate = explode('#',$service_cust_rate);
@@ -274,7 +274,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                     $date_list[] = $sched_line['to_do_date'];
                     foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
                         if($service > 0) {
-                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
                             $service_rate = 0;
                             foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                                 $service_cust_rate = explode('#',$service_cust_rate);
@@ -446,7 +446,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                 $cust_rate_card = $dbc->query("SELECT * FROM `rate_card` WHERE `clientid`='".$invoice['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
 				foreach(explode(',',$invoice['serviceid']) as $i => $service) {
 					if($service > 0) {
-						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
                         $service_rate = 0;
                         foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                             $service_cust_rate = explode('#',$service_cust_rate);
