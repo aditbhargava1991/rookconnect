@@ -147,41 +147,56 @@ do {
 					</div>
 				<?php } ?>
 			<?php } else if ($equipment['equipmentid'] > 0) { ?>
+				<?php if ( strpos($value_config, ',Equipment Category,') !== false && $field_sort_field == 'Equipment Category' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8"><?= $equipment['category'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Category', $equipment['category'] ]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Make,') !== false && $field_sort_field == 'Equipment Make' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Make:</label>
 						<div class="col-sm-8"><?= $equipment['make'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Make', $equipment['make']]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Model,') !== false && $field_sort_field == 'Equipment Model' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Model:</label>
 						<div class="col-sm-8"><?= $equipment['model'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Model', $equipment['model']]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Unit,') !== false && $field_sort_field == 'Equipment Unit' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Unit #:</label>
 						<div class="col-sm-8"><?= $equipment['unit_number'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Unit #', $equipment['unit_number']]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Residue,') !== false && $field_sort_field == 'Equipment Residue' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Residue:</label>
 						<div class="col-sm-8"><?= $equipment['residue'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Residue', $equipment['residue']]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Hours,') !== false && $field_sort_field == 'Equipment Hours' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Hours:</label>
 						<div class="col-sm-8"><?= $equipment['hours_estimated'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Hours', $equipment['hours_estimated']]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Volume,') !== false && $field_sort_field == 'Equipment Volume' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Volume:</label>
 						<div class="col-sm-8"><?= $equipment['qty'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Volume', $equipment['qty']]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Rate,') !== false && $field_sort_field == 'Equipment Rate' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Rate:</label>
 						<div class="col-sm-8">
@@ -189,16 +204,21 @@ do {
 						</div>
 					</div>
 					<?php $pdf_contents[] = ['Rate', $equipment['rate']]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Cost,') !== false && $field_sort_field == 'Equipment Cost' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Cost:</label>
 						<div class="col-sm-8"><?= $equipment['rate'] * $equipment['hours_estimated'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Cost', $equipment['rate'] * $equipment['hours_estimated']]; ?>
+				<?php } ?>
+				<?php if ( strpos($value_config, ',Equipment Status,') !== false && $field_sort_field == 'Equipment Status' ) { ?>
 					<div class="form-group">
 						<label class="control-label col-sm-4">Status:</label>
 						<div class="col-sm-8"><?= $equipment['status'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Status', $equipment['status']]; ?>
+				<?php } ?>
 			<?php }
 		}
 		if($access_all > 0 && strpos($value_config, ',Equipment Limit One,') === FALSE) { ?>
