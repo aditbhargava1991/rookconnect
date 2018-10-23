@@ -164,6 +164,9 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                     <?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
                         <th>Sub Totals per Service</th>
                     <?php } ?>
+                    <?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) { ?>
+                        <th>Additional KM Charge</th>
+                    <?php } ?>
                     <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Services,') !== FALSE) { ?>
                         <th><?= TICKET_NOUN ?> Services</th>
                     <?php } ?>
@@ -311,7 +314,16 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                 <td data-title="Services" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= implode('<br />',$services[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num + 1]) ?></td>
                             <?php } ?>
                             <?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
-                                <td data-title="Sub Totals per Service" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= implode('<br />',$services_cost[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num]) ?></td>
+                                <td data-title="Sub Totals per Service" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= implode('<br />',$services_cost[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num + 1]) ?></td>
+                            <?php } ?>
+                            <?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) {
+                                $travel_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`hours_travel`) `travel_km` FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0"))['travel_km'];
+                                $total_travel_km = 0;
+                                foreach($services_cost_num[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num + 1] as $cost_amt) {
+                                    $total_travel_km += ($travel_km * $cost_amt);
+                                }
+                                $total_cost += $total_travel_km; ?>
+                                <td data-title="Additional KM Charge" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= number_format($total_travel_km,2) ?></td>
                             <?php } ?>
                             <?php if($i == 0) { ?>
                                 <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Services,') !== FALSE) {
