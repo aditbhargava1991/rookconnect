@@ -471,6 +471,15 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9720
+
+        // October 23, 2018 - Ticket 9827
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `status_date` DATETIME AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `status_contact` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `status_date`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9827
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
