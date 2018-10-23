@@ -1275,11 +1275,6 @@ function track_icon_time(task) {
                     <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                         <option value=""></option>
                         <?php if($task_projectid > 0) {
-                            $task_milestone_timeline = str_replace("&","FFMEND",$task_milestone_timeline);
-                            $task_milestone_timeline = str_replace(" ","FFMSPACE",$task_milestone_timeline);
-                            $task_milestone_timeline = str_replace("#","FFMHASH",$task_milestone_timeline);
-                            $task_milestone_timeline = str_replace("amp;","",$task_milestone_timeline);
-
                             foreach($project_path_milestones as $path) {
                                 if($path['path_id'] == $task_path) {
                                     foreach($path['milestones'] as $milestone) {
@@ -1290,7 +1285,7 @@ function track_icon_time(task) {
                                         $f_milestone = str_replace("#","FFMHASH",$f_milestone);
 
                                         ?>
-                                        <option <?php if($task_milestone_timeline == $f_milestone) { echo " selected"; } ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                        <option <?php if($project_milestone == $f_milestone) { echo " selected"; } ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                     <?php }
                                 }
                             }
