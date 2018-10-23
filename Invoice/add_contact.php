@@ -41,8 +41,8 @@ $category = $purchaser_config[0]; ?>
         <script>
         $(window.top.document).find('select[name=patientid]').append('<option value="<?= $contactid ?>"><?= $_POST['first_name'].' '.$_POST['last_name'] ?></option>').val(<?= $contactid ?>).change();
         </script>
-        echo '<script>window.top.location.href="add_invoice.php?contactid='.$contactid.'&type='.$_POST['type'].'";</script>';
-        <?php // echo '<script>window.top.location.href="add_invoice.php?contactid='.$contactid.'&type='.$_POST['type'].'";</script>';
+        echo '<script>window.top.location.href="create_invoice.php?contactid='.$contactid.'&type='.$_POST['type'].'";</script>';
+        <?php // echo '<script>window.top.location.href="create_invoice.php?contactid='.$contactid.'&type='.$_POST['type'].'";</script>';
     }
     $field_config = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tab`='$category' AND `subtab` = '**no_subtab**'"))[0] . ',' . mysqli_fetch_array(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_contacts` WHERE `tab`='$category' AND `subtab` = 'additions'"))[0]); ?>
 	

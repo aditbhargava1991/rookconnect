@@ -46,7 +46,7 @@ include('../navigation.php'); ?>
                     <script src="../Calendar/map_sorting.js"></script>
                 <?php }
                 $ticket = $ticket->fetch_assoc(); ?>
-                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12" align="center"><span class="dashboard link" style="width: calc(100% - 45px);"><a href="../Ticket/index.php?<?= empty($_GET['tile_name']) ? '' : 'tile_name='.$_GET['tile_name'].'&' ?>edit=<?= $ticket['ticketid'] ?>&action_mode=<?= $_GET['action_mode'] ?>" onclick="<?= $update_time == 'auto_sort' ? 'sort_by_map(\''.date('Y-m-d').'\', \''.$ticket['equipmentid'].'\', \'\', \'\', \'true\');' : '' ?>"><?= get_ticket_label($dbc, $ticket) ?></a></span></div>
+                <div class="col-lg-3 col-md-4 col-sm-6 col-xs-12" align="center"><span class="dashboard link" style="width: calc(100% - 45px);"><a href="../Ticket/index.php?<?= (empty($_GET['tile_name']) ? '' : 'tile_name='.$_GET['tile_name'].'&').(empty($_GET['tile_group']) ? '' : 'tile_group='.$_GET['tile_group'].'&') ?>edit=<?= $ticket['ticketid'] ?>&action_mode=<?= $_GET['action_mode'] ?>" onclick="<?= $update_time == 'auto_sort' ? 'sort_by_map(\''.date('Y-m-d').'\', \''.$ticket['equipmentid'].'\', \'\', \'\', \'true\');' : '' ?>"><?= get_ticket_label($dbc, $ticket) ?></a></span></div>
             <?php }
         }
         if(in_array('break',$ticket_next_step_timesheet)) { ?>

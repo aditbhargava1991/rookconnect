@@ -17,13 +17,13 @@ if(!empty($_GET['certuploadid'])) {
 
 if (isset($_POST['add_newsboard'])) {
     $contactid = $_SESSION['contactid'];
-	
+
     if ( !empty($_POST['newsboard_type']) ) {
 		$newsboard_type = filter_var($_POST['newsboard_type'],FILTER_SANITIZE_STRING);
 	} else {
 		$newsboard_type = 'Local';
 	}
-    
+
     $title = filter_var($_POST['title'],FILTER_SANITIZE_STRING);
     $issue_date = date('Y-m-d');
     $expiry_date = $_POST['expiry_date'];
@@ -34,7 +34,7 @@ if (isset($_POST['add_newsboard'])) {
         $software_url       = $_SERVER['SERVER_NAME'];
         $software_author    = '';
         $software_approval  = '';
-        
+
         if($software_url == 'sea-alberta.rookconnect.com') {
             $software_author = 'SEA Alberta';
         } else if($software_url == 'sea-vancouver.rookconnect.com') {
@@ -44,7 +44,7 @@ if (isset($_POST['add_newsboard'])) {
         } else if($software_url == 'sea-regina.rookconnect.com') {
             $software_author = 'SEA Regina';
         }
-        
+
         $query_insert = "INSERT INTO `newsboard` (`contactid`, `newsboard_type`, `description`, `title`, `issue_date`, `expiry_date`, `cross_software`, `cross_software_approval`) VALUES ('$contactid', '$newsboard_type', '$description', '$title', '$issue_date', '$expiry_date', '$software_author', '$software_approval')";
 
         if ( $newsboard_type=='Softwarewide' ) {
@@ -54,12 +54,40 @@ if (isset($_POST['add_newsboard'])) {
             $result_insert_newsboard = mysqli_query($dbc, $query_insert) or die(mysqli_error($dbc));
             $newsboardid = mysqli_insert_id($dbc);
         }
+
+        // Tag all the staff by default to the new post in a news board
+        $boardid = $newsboard_board;
+        $tag_newsboardid = $newsboardid;
+        $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`,`email_address` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
+        foreach($staff_list as $staff) {
+          $tag_staff_array[] = $staff['contactid'];
+          $tag_staff_email_array[] = $staff['email_address'];
+        }
+
+        $tag_staff = implode(",", $tag_staff_array);
+        $tag_staff_query = "INSERT INTO newsboard_tag(`boardid`, `newsboardid`, `staff`) VALUES('$boardid', '$tag_newsboardid', '$tag_staff')";
+        mysqli_query($dbc, $tag_staff_query);
         $url = 'Added';
-    
+
+        //foreach($tag_staff_email_array as $tag_staff_email) {
+        try {
+            $sender = '';
+            $cc_emails = '';
+            $bcc_emails = '';
+            $title = "test";
+            $user = $tag_staff_email_array;
+            $subject = "New post -> $title has been added to the News Board.";
+            $body = "New Post with Name $title has been added to the news Board. <br>";
+            $body .= 'For more details <a href="'.'https://' . $_SERVER['SERVER_NAME'] . '/News Board/index.php">click here</a>';
+            send_email($sender, $user, $cc_emails, $bcc_emails, $subject, html_entity_decode($body), '');
+        } catch (Exception $e) {
+            $error .= "Unable to send email: ".$e->getMessage()."\n";
+        }
+        $url = 'Added';
     } else {
         $newsboardid = $_POST['newsboardid'];
         $query_update = "UPDATE `newsboard` SET `contactid`='$contactid', `newsboard_type`='$newsboard_type', `description`='$description', `title`='$title', `expiry_date`='$expiry_date' WHERE `newsboardid`='$newsboardid'";
-        
+
         if ( $newsboard_type=='Softwarewide' ) {
             $result_update_vendor = mysqli_query($dbc_htg, $query_update);
         } else {
@@ -167,7 +195,7 @@ checkAuthorised('newsboard');
                     </div>
                 </div>
             <?php } ?>
-            
+
             <?php if (strpos($value_config, ','."Title".',') !== FALSE) { ?>
                 <div class="form-group">
                     <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is the title of the news item that will display on the New Board dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Title<span class="hp-red">*</span>:</label>
@@ -176,7 +204,7 @@ checkAuthorised('newsboard');
                     </div>
                 </div>
             <?php } ?>
-            
+
             <?php if (strpos($value_config, ','."Uploader".',') !== FALSE) { ?>
                 <div class="form-group">
                     <label for="additional_note" class="col-sm-4 control-label">
@@ -216,7 +244,7 @@ checkAuthorised('newsboard');
                     </div>
                 </div>
             <?php } ?>
-            
+
             <?php if (strpos($value_config, ','."Expiry Date".',') !== FALSE) { ?>
                 <div class="form-group">
                     <label for="company_name" class="col-sm-4 control-label">Expiry Date:</label>

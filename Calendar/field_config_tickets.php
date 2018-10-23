@@ -14,6 +14,8 @@ if (isset($_POST['add_tickets'])) {
 
     $calendar_ticket_check_days_off = filter_var($_POST['calendar_ticket_check_days_off'], FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_check_days_off', $calendar_ticket_check_days_off);
+    $calendar_ticket_color_code_tabs = filter_var($_POST['calendar_ticket_color_code_tabs'],FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_color_code_tabs', $calendar_ticket_color_code_tabs);
     
     $calendar_ticket_slider = filter_var($_POST['calendar_ticket_slider'], FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_slider', $calendar_ticket_slider);
@@ -170,11 +172,19 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
                         <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_check_days_off" value="1" <?= $calendar_ticket_check_days_off == 1 ? 'checked' : '' ?>> Enable</label>
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Color Code By <?= TICKET_NOUN ?> Type:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_color_code_tabs = get_config($dbc, 'calendar_ticket_color_code_tabs'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_color_code_tabs" value="1" <?= $calendar_ticket_color_code_tabs == 1 ? 'checked' : '' ?>> Enable</label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
     <?php $ticket_label_fields = [
         'project'=>PROJECT_NOUN,
+        'ticket_type'=>TICKET_NOUN.' Type',
         'customer'=>'Customer',
         'client'=>'Client',
         'site_address'=>'Site Address',

@@ -4690,7 +4690,7 @@ input {
     .brand-nav a:hover {
           color: rgb(137, 166, 255) !important;}
 
-/* a.newsboard-button, a.calendar-button, .social-icon { filter: brightness(0%); } */
+a.newsboard-button, a.calendar-button, .social-icon { filter: brightness(0%); }
 
 .logo {
   display: block;
@@ -5204,7 +5204,7 @@ div.calendar-screen { background-color:#ccc !important; }
 .standard-sidebar-searchbox {
   background-color: rgba(160,162,165,0.7) !important;
 }
-.sidebar-higher-level a.cursor-hand.active, .tile-sidebar ul li.active a {
+.sidebar-higher-level a.cursor-hand.active, .tile-sidebar ul li.active, .tile-sidebar ul li.active a {
   background-color: #a1a1a1 !important;
   color:#fff !important;
 }

@@ -4685,7 +4685,7 @@ background: linear-gradient(to bottom, #FFF, #FFC300);
     .brand-nav a:hover {
       color: #FAB367  !important; }
 
-a.newsboard-button, a.calendar-button, .social-icon, .home-button { filter: brightness(0%); }
+a.newsboard-button, a.calendar-button, .social-icon { filter: brightness(0%); }
 
 .logo {
   display: block;
@@ -5197,6 +5197,22 @@ a.newsboard-button, a.calendar-button, .social-icon, .home-button { filter: brig
     background: linear-gradient(to right, red, red);
     border: 2px solid #00adc5;
     box-shadow: 0 0 3px 3px #fafafa; }
+    
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.block-button,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border {
+    border-color:#FFC300 !important;
+}
+.info-block-header { background-color:#eee !important; }
 .calendar .block-button,.calendar .block-item,.calendar .block-label {
   border: 1px solid #FFC300 !important;
   color: #000 !important;
@@ -5233,5 +5249,6 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
   color: #fff !important;
 }
 .blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#FFC300 !important; }
-.calendar .main-screen .panel .panel-title > a:hover { color:#FFC300 !important; }
+.calendar .main-screen .panel .panel-title > a:hover, .dashboard-item label, .main-item label, .text-blue { color:#FFC300 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #FFC300 !important; }
+.copyright, .posh-tag { color:#000; }
