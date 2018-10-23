@@ -963,7 +963,7 @@ function addIntakeForm(btn) {
 								-->
 								<div class="clearfix"></div>
 							</div>
-                            <ul class="scrollable_unit no-gap-pad overflow-y"><?php
+                            <ul class="scrollable_unit no-gap-pad <?php echo $status; ?> overflow-y"><?php
 							/* echo '<li class="ui-state-default ui-state-disabled no-sort '.$class_on_2.'">';
 							echo $alert.$cat_tab.'<br>'.$timeline[$i].'</li>'; */
 
