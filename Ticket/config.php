@@ -2,12 +2,15 @@
 // Get the list of ticket types available in the current Ticket tile
 $tile_config = '';
 $ticket_tabs = $ticket_conf_list = [];
-$ticket_tile = '';
-$ticket_noun = '';
+$ticket_tile = TICKET_TILE;
+$ticket_noun = TICKET_NOUN;
 $ticket_types = explode(',',get_config($dbc, 'ticket_tabs'));
 $security = $tile_security = [];
-$current_tile = '';
-if(!empty($_GET['tile_group'])) {
+$current_tile = ''; ?>
+<script>
+var tile_name = tile_group = '';
+</script>
+<?php if(!empty($_GET['tile_group'])) {
 	checkAuthorised(false,false,'ticket_tile_'.$_GET['tile_group']);
     $tile_config = explode('#*#',get_config($dbc, 'ticket_split_tiles_'.$_GET['tile_group']));
     $ticket_tile = $tile_config[0];
@@ -30,8 +33,11 @@ if(!empty($_GET['tile_group'])) {
     if(empty($ticket_tabs[$ticket_type])) {
         $ticket_type = explode('|',$tile_config[2])[0];
     }
-    $security = $tile_security = get_security($dbc, 'ticket_tile_'.$_GET['tile_group']);
-} else if(!empty($_GET['tile_name'])) {
+    $security = $tile_security = get_security($dbc, 'ticket_tile_'.$_GET['tile_group']); ?>
+    <script>
+    tile_group = '<?= $_GET['tile_group'] ?>';
+    </script>
+<?php } else if(!empty($_GET['tile_name'])) {
 	checkAuthorised(false,false,'ticket_type_'.$_GET['tile_name']);
     foreach(get_config($dbc, 'ticket_split_tiles_%', true, null) as $tile_group) {
         if(in_array($_GET['tile_name'],explode('|',explode('#*#',$tile_group)[2]))) {
@@ -52,16 +58,17 @@ if(!empty($_GET['tile_group'])) {
     }
     $current_tile = 'tile_name='.$_GET['tile_name'].'&';
     $ticket_type = filter_var($_GET['tile_name'],FILTER_SANITIZE_STRING);
-    $security = $tile_security = get_security($dbc, 'ticket_type_'.$ticket_type);
-} else {
+    $security = $tile_security = get_security($dbc, 'ticket_type_'.$ticket_type); ?>
+    <script>
+    tile_name = '<?= $_GET['tile_name'] ?>';
+    </script>
+<?php } else {
 	checkAuthorised('ticket');
     foreach($ticket_types as $ticket_tab) {
         $ticket_tabs[config_safe_str($ticket_tab)] = $ticket_tab;
         $ticket_conf_list[] = config_safe_str($ticket_tab);
     }
     $ticket_conf_list[] = '';
-    $ticket_tile = TICKET_TILE;
-    $ticket_noun = TICKET_NOUN;
     $ticket_type = empty($_GET['type']) ? get_config($dbc, 'default_ticket_type') : filter_var($_GET['type'],FILTER_SANITIZE_STRING);
     $security = $tile_security = get_security($dbc, 'ticket');
 }

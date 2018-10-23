@@ -385,9 +385,17 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $
 		$assigned_staff[] = get_contact($dbc, $contactid);
 	}
 	$assigned_staff = implode(', ',$assigned_staff);
+	$tickettype = '';
+	foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+        $ticket_type_value = config_safe_str($ticket_type);
+        if($ticket_type_value == $ticket['ticket_type']) {
+        	$tickettype = $ticket_type;
+        }
+    }
 	
 	$row_html = '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
 	(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
+	(in_array('ticket_type',$calendar_ticket_card_fields) ? '<br />'.TICKET_NOUN.' Type: '.$tickettype : '').
 	(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
 	(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
 	(in_array('assigned',$calendar_ticket_card_fields) ? '<br />'.'Staff: '.$assigned_staff : '').

@@ -128,7 +128,7 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 				'.TICKET_NOUN.' Heading: [HEADING]<br>
 				Status: [STATUS]<br>
 				Please click the '.TICKET_NOUN.' link below to view all information.<br>
-				<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br>'; ?>
+				<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br>'; ?>
 		<script>
 		<?php if(strpos($value_config, ',Notes Email Default On,') !== FALSE && $_GET['contact_note'] != 1 && $comment_type == 'note') { ?>
 			$(document).ready(function() {

@@ -25,12 +25,13 @@ while($team = mysqli_fetch_assoc($teams)) {
 }
 
 $all_tickets = [];
-$tickets = mysqli_fetch_all(mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `deleted`=0 AND (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND `status` NOT IN ('Archive','Done')".$allowed_ticket_types_query." ORDER BY `to_do_start_time`, `to_do_end_time`"),MYSQLI_ASSOC);
+$tickets = mysqli_fetch_all(mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE `deleted`=0 AND (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND `status` NOT IN ('Archive','Done')".$allowed_ticket_types_query." ORDER BY ".(in_array('Ticket Type', $sidebar_filters) ? "`ticket_type`, " : '')." `to_do_start_time`, `to_do_end_time`"),MYSQLI_ASSOC);
 $deleted_tickets = [];
 if($ticket_summary_tab_deleted == 1) {
 	$deleted_tickets = mysqli_fetch_all(mysqli_query($dbc,"SELECT *, IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`) `to_do_end_date` FROM `tickets` WHERE (`internal_qa_date` = '$new_today_date' OR `deliverable_date` = '$new_today_date' OR '$new_today_date' BETWEEN `to_do_date` AND IFNULL(NULLIF(`to_do_end_date`,'0000-00-00'),`to_do_date`)) AND (`deleted` = 1 OR `status` IN ('Archive','Done'))".$allowed_ticket_types_query." ORDER BY `to_do_start_time`, `to_do_end_time`"),MYSQLI_ASSOC);
 }
 $all_tickets = ['tickets'=>$tickets, 'deleted_tickets'=>$deleted_tickets];
+$current_tickettype = '';
 foreach($all_tickets as $key => $tickets) {
 	if(count($tickets) > 0 && $key == 'deleted_tickets') {
 		$column .= '<h4>Deleted '.TICKET_TILE.'</h4>';
@@ -170,7 +171,11 @@ foreach($all_tickets as $key => $tickets) {
 		}
 		$assigned_staff = implode(', ', $assigned_staff);
 
-	    $column .= '<div class="calendar_block calendarSortable" data-ticket="'.$row['ticketid'].'" data-region="'.$row['region'].'" data-blocktype="'.$row['block_type'].'" data-business="'.$row['businessid'].'" data-client="'.$row['clientid'].'" data-contact="'.implode(',',$all_contacts).'" data-team="'.$teams_list[implode(',',$all_contacts)].'">';
+		if($row['ticket_type'] != $current_tickettype && in_array('Ticket Type', $sidebar_filters)) {
+			$current_tickettype = $row['ticket_type'];
+			$column .= '<h4 data-tickettype="'.$row['ticket_type'].'" class="ticket_type_header">'.$ticket_types[$row['ticket_type']].'</h4>';
+		}
+	    $column .= '<div class="calendar_block calendarSortable" data-ticket="'.$row['ticketid'].'" data-region="'.$row['region'].'" data-blocktype="'.$row['block_type'].'" data-business="'.$row['businessid'].'" data-client="'.$row['clientid'].'" data-contact="'.implode(',',$all_contacts).'" data-team="'.$teams_list[implode(',',$all_contacts)].'" data-tickettype="'.$row['ticket_type'].'" data-equipment="'.$row['equipmentid'].'">';
 		$column .= '<span class="sortable-blocks" style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$row['calendar_color'].';'.$ticket_styling.'"><a href="" onclick="'.($edit_access == 1 ? 'overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$row['ticketid'].'\');' : '').'return false;">';
 		$column .= $recurring_icon;
 		if($key == 'deleted_tickets') {

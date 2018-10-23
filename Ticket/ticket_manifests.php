@@ -429,7 +429,7 @@ if($siteid == 'recent') {
 				</tr>
 				<?php while($ticket = $ticket_list->fetch_assoc()) { ?>
 					<tr>
-						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
+						<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?<?= $current_tile ?>edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
 						<?php if(in_array('site',$manifest_fields)) { ?><td data-title="<?= SITES_CAT ?>"><div class="col-xs-10"><select name="siteid" multiple data-table="<?= in_array('group pieces',$manifest_fields) ? 'tickets' : 'ticket_attached' ?>" data-id="<?= in_array('group pieces',$manifest_fields) ? $ticket['ticketid'] : $ticket['id'] ?>" data-id-field="<?= in_array('group pieces',$manifest_fields) ? 'ticketid' : 'id' ?>" class="chosen-select-deselect" data-placeholder="Select <?= SITES_CAT ?>"><option />
 							<?php foreach($site_list as $site) { ?>
 								<option <?= in_array($site['contactid'],explode(',',$ticket['siteid'])) ? 'selected' : '' ?> value="<?= $site['contactid'] ?>"><?= $site['full_name'] ?></option>

@@ -555,13 +555,13 @@ if(!empty($invoice_types)) { ?>
                         foreach($invoice_types as $invoice_type) { ?>
                             <div class="form-group invoice_type">
                                 <label class="col-sm-4">Invoice Type:</label>
-                                <div class="col-sm-7">
+                                <div class="col-sm-6">
                                     <input type="text" name="invoice_types[]" class="form-control" value="<?= $invoice_type ?>">
                                 </div>
-                                <div class="col-sm-1">
+                                <div class="col-sm-2">
                                     <img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle">
-                                    <img src="../img/icons/plus.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addType();">
                                     <img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeType(this);">
+                                    <img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addType();">
                                 </div>
                             </div>
                         <?php } ?>
@@ -1038,6 +1038,14 @@ if(!empty($invoice_types)) { ?>
 					<label class="form-checkbox"><input <?= (in_array('packages_fee',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="packages_fee"> Packages - Fee</label>
 					<label class="form-checkbox"><input <?= (in_array('misc_items',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="misc_items"> Misc Items</label>
 					<label class="form-checkbox"><input <?= (in_array('unbilled_tickets',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="unbilled_tickets"> Unbilled <?= TICKET_TILE ?></label>
+                    <?php $split_ticket_tiles = $dbc->query("SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%'");
+                    while($split_tile = $split_ticket_tiles->fetch_assoc()['value']) {
+                        $split_tile = explode('#*#',$split_tile)[0]; ?>
+                        <label class="form-checkbox"><input <?= (in_array('unbilled_tickets_split_'.config_safe_str($split_tile),$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="unbilled_tickets_split_<?= config_safe_str($split_tile) ?>"> Unbilled <?= $split_tile ?></label>
+                    <?php }
+                    foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_tab) { ?>
+                        <label class="form-checkbox"><input <?= (in_array('unbilled_tickets_type_'.config_safe_str($ticket_tab),$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="unbilled_tickets_type_<?= config_safe_str($ticket_tab) ?>"> Unbilled <?= TICKET_NOUN.' - '.$ticket_tab ?></label>
+                    <?php } ?>
 					<label class="form-checkbox"><input <?= (in_array('deposit_paid',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="deposit_paid"> Deposit Paid</label>
 					<label class="form-checkbox"><input <?= (in_array('due_date',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="due_date"> Due Date</label>
 					<label class="form-checkbox"><input <?= (in_array('service_queue',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="service_queue"> Service Queue</label>

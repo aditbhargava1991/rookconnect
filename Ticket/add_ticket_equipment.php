@@ -1,6 +1,24 @@
+<input type="hidden" name="equipmentid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['equipmentid'] ?>">
 <?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Equipment</h3>') ?>
-<?php $equipment_list = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`status`, `ticket_attached`.`qty`, `ticket_attached`.`hours_estimated`, `equipment`.* FROM `ticket_attached` LEFT JOIN `equipment` ON `ticket_attached`.`src_table`='equipment' AND `ticket_attached`.`item_id`=`equipment`.`equipmentid` WHERE `ticket_attached`.`item_id` > 0 AND `ticket_attached`.`src_table`='equipment' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily);
-$equipment = mysqli_fetch_assoc($equipment_list);
+<?php
+if($ticketid > 0) {
+	foreach(explode(',',$get_ticket['equipmentid']) as $ticket_equipmentid) {
+		if($ticket_equipmentid > 0) {
+			mysqli_query($dbc, "INSERT INTO `ticket_attached` (`src_table`, `ticketid`, `item_id`) SELECT 'equipment', '$ticketid', '$ticket_equipmentid' FROM (SELECT COUNT(*) rows FROM `ticket_attached` WHERE `src_table` = 'equipment' AND `ticketid` = '$ticketid' AND `item_id` = '$ticket_equipmentid') num WHERE num.rows=0");
+		}
+	}
+}
+$equipment_list = mysqli_query($dbc, "SELECT `ticket_attached`.`id`, `ticket_attached`.`item_id`, `ticket_attached`.`rate`, `ticket_attached`.`status`, `ticket_attached`.`qty`, `ticket_attached`.`hours_estimated`, `equipment`.* FROM `ticket_attached` LEFT JOIN `equipment` ON `ticket_attached`.`src_table`='equipment' AND `ticket_attached`.`item_id`=`equipment`.`equipmentid` WHERE `ticket_attached`.`item_id` > 0 AND `ticket_attached`.`src_table`='equipment' AND `ticket_attached`.`ticketid`='$ticketid' AND `ticket_attached`.`ticketid` > 0 AND `ticket_attached`.`deleted`=0".$query_daily.(strpos($value_config, ',Equipment Limit One,') !== FALSE ? ' LIMIT 1' : ''));
+if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit']) && !($_GET['ticketid'] > 0)) {
+	if(!empty($_GET['equipmentid'])) {
+		$equipmentid = $_GET['equipmentid'];
+	}
+	$equipment_query = "SELECT '$equipmentid' `item_id`";
+	$query = mysqli_query($dbc, $equipment_query);
+	$equipment = mysqli_fetch_assoc($query);
+} else {
+	$equipment = mysqli_fetch_assoc($equipment_list);
+}
 do {
 	$daily_rate = $hourly_rate = 0; ?>
 	<div class="multi-block">
@@ -183,7 +201,7 @@ do {
 					<?php $pdf_contents[] = ['Status', $equipment['status']]; ?>
 			<?php }
 		}
-		if($access_all > 0) { ?>
+		if($access_all > 0 && strpos($value_config, ',Equipment Limit One,') === FALSE) { ?>
 			<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $equipment['id'] ?>" data-id-field="id" data-type="equipment" data-type-field="src_table" value="0">
 			<img class="inline-img pull-right" data-history-label="Equipment" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
 			<img class="inline-img pull-right" data-history-label="Equipment" onclick="remMulti(this);" src="../img/remove.png">
