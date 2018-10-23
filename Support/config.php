@@ -13,7 +13,7 @@ if($user == 'ROOK Connect' && $_SERVER['SERVER_NAME'] == 'ffm.rookconnect.com') 
 	$user_name = get_contact($dbc, $user);
 	$user_category = get_contact($dbc, $user, 'category');
 } else {
-	$user = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT * FROM `contacts` WHERE ('".WEBSITE_URL."' LIKE CONCAT('%',`website`) AND IFNULL(`website`,'') NOT LIKE '') OR `name`='".encryptIt($user)."' ORDER BY `name`='".encryptIt($user)."'"))['contactid'];
+	$user = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT * FROM `contacts` WHERE ('".WEBSITE_URL."' LIKE CONCAT('%',`website`) AND IFNULL(`website`,'') NOT LIKE '') OR `software_url`='".WEBSITE_URL."' OR `name`='".encryptIt($user)."' ORDER BY `software_url`='".WEBSITE_URL."' DESC, `name`='".encryptIt($user)."'"))['contactid'];
 	$user_category = 'REMOTE_'.get_contact($dbc, $_SESSION['contactid'], 'category');
 	if($user_category != 'REMOTE_Staff') {
 		$user_category = 'USER_CUSTOMER';
