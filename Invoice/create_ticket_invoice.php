@@ -14,7 +14,9 @@ $misc_qty = [];
 $misc_total = [];
 $price_final = 0;
 $ticket_type = '';
+$total_service_price = 0;
 $po_num_list = [];
+$value_config = ','.get_config($dbc, 'project_admin_fields').',';
 foreach($ticket_list as $ticketid) {
 	if($ticketid > 0) {
 		$ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
@@ -47,6 +49,7 @@ foreach($ticket_list as $ticketid) {
 			$price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
 			$inv_service_fee[] = $price_total;
 			$total_price += $price_total;
+            $total_service_price += $price_total;
 		}
         $srv_i = count(explode(',',$ticket['serviceid']));
 		$tickets = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 ORDER BY `sort`");
@@ -77,6 +80,7 @@ foreach($ticket_list as $ticketid) {
                 $price_total -= ($dis_type == '%' ? $discount / 100 * $price_total : $discount);
                 $inv_service_fee[] = $price_total;
                 $total_price += $price_total;
+                $total_service_price += $price_total;
             }
             $srv_i += count(explode(',',$ticket['serviceid']));
         }
@@ -94,6 +98,21 @@ foreach($ticket_list as $ticketid) {
 			$misc_total[] = $price * $qty;
 			$total_price += $price * $qty;
 		}
+        if(strpos($value_config, ',Additional KM Charge,') !== FALSE) {
+            $travel_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`hours_travel`) `travel_km` FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0"))['travel_km'];
+            $total_travel_km = $total_service_price * $travel_km;
+            if($total_travel_km > 0) {
+                $description = 'Additional KM Charge';
+                $qty = 1;
+                $price = $total_travel_km;
+                $misc_item[] = $description;
+                $misc_stopid[] = 0;
+                $misc_qty[] = $qty;
+                $misc_price = $price;
+                $mist_total = $price * $qty;
+                $total_price += $price * $qty;
+            }
+        }
 		$ticket_lines = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `src_table` LIKE 'misc_item'");
 		while($line = $ticket_lines->fetch_assoc()) {
 			$description = get_contact($dbc, $line['description']);

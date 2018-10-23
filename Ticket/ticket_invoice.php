@@ -215,6 +215,9 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 				<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
 					<th>Sub Totals per Service</th>
 				<?php } ?>
+                <?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) { ?>
+                    <th>Additional KM Charge</th>
+                <?php } ?>
 				<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
 					<th>Staff</th>
 					<th><?= TASK_TILE ?></th>
@@ -246,7 +249,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                 $cust_rate_card = $dbc->query("SELECT * FROM `rate_card` WHERE `clientid`='".$invoice['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
 				foreach(explode(',',$invoice['serviceid']) as $i => $service) {
 					if($service > 0) {
-						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
                         $service_rate = 0;
                         foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                             $service_cust_rate = explode('#',$service_cust_rate);
@@ -271,7 +274,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                     $date_list[] = $sched_line['to_do_date'];
                     foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
                         if($service > 0) {
-                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
                             $service_rate = 0;
                             foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                                 $service_cust_rate = explode('#',$service_cust_rate);
@@ -297,6 +300,15 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 					<?php } ?>
 					<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
 						<td data-title="Sub Totals per Service"><?= implode('<br />',$services_cost) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) {
+                        $travel_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`hours_travel`) `travel_km` FROM `ticket_attached` WHERE `ticketid` = '".$invoice['ticketid']."' AND `deleted` = 0"))['travel_km'];
+                        $total_travel_km = 0;
+						foreach($services_cost_num as $cost_amt) {
+                            $total_travel_km += ($travel_km * $cost_amt);
+                        }
+                        $total_cost += $total_travel_km; ?>
+						<td data-title="Additional KM Charge"><?= number_format($total_travel_km,2) ?></td>
 					<?php } ?>
 					<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) {
 						$staff_tasks_staff = [];
@@ -397,6 +409,9 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 				<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
 					<th>Sub Totals per Service</th>
 				<?php } ?>
+				<?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) { ?>
+					<th>Additional KM Charge</th>
+				<?php } ?>
 				<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
 					<th>Staff</th>
 					<th><?= TASK_TILE ?></th>
@@ -431,7 +446,7 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
                 $cust_rate_card = $dbc->query("SELECT * FROM `rate_card` WHERE `clientid`='".$invoice['businessid']."' AND `deleted`=0 AND `on_off`=1")->fetch_assoc();
 				foreach(explode(',',$invoice['serviceid']) as $i => $service) {
 					if($service > 0) {
-						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service'")->fetch_assoc();
+						$service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
                         $service_rate = 0;
                         foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                             $service_cust_rate = explode('#',$service_cust_rate);
@@ -456,6 +471,15 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 					<?php } ?>
 					<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
 						<td data-title="Sub Totals per Service"><?= implode('<br />',$services_cost) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) {
+                        $travel_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`hours_travel`) `travel_km` FROM `ticket_attached` WHERE `ticketid` = '".$invoice['ticketid']."' AND `deleted` = 0"))['travel_km'];
+                        $total_travel_km = 0;
+						foreach($services_cost_num as $cost_amt) {
+                            $total_travel_km += ($travel_km * $cost_amt);
+                        }
+                        $total_cost += $total_travel_km; ?>
+						<td data-title="Additional KM Charge"><?= number_format($total_travel_km,2) ?></td>
 					<?php } ?>
 					<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) {
 						$staff_tasks_staff = [];
