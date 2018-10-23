@@ -214,6 +214,9 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']); ?>
 		if(!empty($current_cat)) {
 			$search .= " AND inv.po_category='$current_cat'";
 		}
+		if(!empty($_GET['ticket'])) {
+			$search .= " AND t.ticket_type='".filter_var($_GET['ticket'],FILTER_SANITIZE_STRING)."'";
+		}
 		?>
 		<div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
 			<label for="search_any" class="control-label">Search Within Tab:</label>
@@ -315,7 +318,6 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']); ?>
 			//	echo '<a href="add_inventory.php" class="btn brand-btn pull-right">Add Product</a>';
 			//}
 		?>
-		</div>
 	<?php
 	// Display Pager
 
@@ -347,12 +349,12 @@ $current_cat = (empty($_GET['category']) ? $cat_list[0] : $_GET['category']); ?>
 	for($i = 0; $i < (!empty($number_of_connections) ? $number_of_connections : 0); $i++) {
 		$dbc_cross = ${'dbc_cross_'.($i+1)};
 		$url_cross = ${'software_url_'.($i+1)};
-		$query_check_credentials = "SELECT inv.*, c.*, '$url_cross' URL FROM purchase_orders inv,  contacts c WHERE inv.contactid = c.contactid AND inv.deleted = 0 AND (inv.status='Completed') ".$search." ORDER BY inv.posid DESC";
+		$query_check_credentials = "SELECT inv.*, c.*, '$url_cross' URL FROM purchase_orders inv LEFT JOIN contacts c ON inv.contactid=c.contactid LEFT JOIN tickets t ON inv.ticketid=t.ticketid WHERE inv.deleted = 0 AND (inv.status='Completed') ".$search." ORDER BY inv.posid DESC";
 		if($result = mysqli_query($dbc_cross, $query_check_credentials)) {
 			$result_set = array_merge($result_set, mysqli_fetch_all($result, MYSQLI_ASSOC));
 		}
 	}
-	$query_check_credentials = "SELECT inv.*, c.*, '".WEBSITE_URL."' URL FROM purchase_orders inv,  contacts c WHERE inv.contactid = c.contactid AND inv.deleted = 0 AND (inv.status='Completed') ".$search." ORDER BY inv.posid DESC";
+	$query_check_credentials = "SELECT inv.*, c.*, '".WEBSITE_URL."' URL FROM purchase_orders inv LEFT JOIN contacts c ON inv.contactid=c.contactid LEFT JOIN tickets t ON inv.ticketid=t.ticketid WHERE inv.deleted = 0 AND (inv.status='Completed') ".$search." ORDER BY inv.posid DESC";
 	if($result = mysqli_query($dbc, $query_check_credentials)) {
 		$result_set = array_merge($result_set, mysqli_fetch_all($result, MYSQLI_ASSOC));
 	}
