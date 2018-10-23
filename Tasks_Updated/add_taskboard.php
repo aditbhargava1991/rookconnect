@@ -15,7 +15,14 @@ if (isset($_POST['add_tab'])) {
         $company_staff_sharing = ','.$_SESSION['contactid'].',';
     } else {
 	    $company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
-
+        if (strpos($company_staff_sharing, 'All') !== false) {
+                $staff_sharing = '';
+                $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT DISTINCT(`contactid`), `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
+                foreach($staff_list as $staff_id) {
+                    $staff_sharing .= $staff_id['contactid'].',';
+                }
+            $company_staff_sharing = ','.$staff_sharing;
+        }
         //$company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
     }
     /* if ( empty($company_staff_sharing) ) {
@@ -298,14 +305,20 @@ function removeStaffTb(button) {
                 <div class="col-sm-8">
 
                 <?php
-                foreach(explode(',',trim($company_staff_sharing,',')) as $task_contactid) { ?>
+                foreach(explode(',',trim($company_staff_sharing,',')) as $task_contactid) {
+                   //echo "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND contactid NOT IN ('$company_staff_sharing') AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."";
+                    ?>
                     <div id="taskboardid_<?= $taskboardid ?>" class="add_staff">
                         <div class="clearfix"></div>
                         <div class="col-xs-9 no-pad-left">
 
                             <select data-placeholder="Select a Staff" name="company_staff_sharing[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" id="staff_<?= $taskboardid ?>">
-                                <option value=""></option><?php
-                                $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
+                                <option value=""></option>
+                                    <option selected value="<?= $_SESSION['contactid']; ?>"><?= decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']); ?></option>
+                                    <option value="All">Share with All</option>
+
+                                    <?php
+                                $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT DISTINCT(`contactid`), `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND contactid NOT IN ('$company_staff_sharing') AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
                                 foreach($staff_list as $staff_id) {
                                     $selected = ($task_contactid == $staff_id['contactid']) ? 'selected="selected"' : '' ?>
                                     <option <?= $selected ?> value="<?= $staff_id['contactid']; ?>"><?= $staff_id['first_name'].' '.$staff_id['last_name']; ?></option><?php
