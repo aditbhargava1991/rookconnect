@@ -57,6 +57,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
     <script>
     $(document).ready(function() {
         $('[name=approvals]').change(mark_approved);
+        $('img[src$="void.png"],img[src$="ROOK-status-paid.png"]').click(mark_billable);
         $('[name=status]').change(function() {
             $.post('../Ticket/ticket_ajax_all.php?action=update_fields', {
                 field: 'status',
@@ -67,7 +68,6 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                 value: $(this).val()
             });
         });
-        $('img[src$="void.png"],img[src$="ROOK-status-paid.png"]').click(mark_billable);
     });
     function mark_approved(element) {
         if(element.target != undefined) {
