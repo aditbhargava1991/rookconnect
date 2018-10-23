@@ -99,7 +99,7 @@ $from = FOLDER_NAME;
 
         if ( $from == 'project' ) { ?>
             <div class="pull-right gap-bottom">
-                <a class="cursor-hand" onclick="overlayIFrameSlider('../Email Communication/add_email.php?projectid=<?= $projectid ?>', 'auto', false, true);"><img src="../img/icons/ROOK-add-icon.png" class="no-toggle" title="Add Email" /></a>
+                <a class="cursor-hand" onclick="overlayIFrameSlider('../Email Communication/add_email.php?projectid=<?= $projectid ?>', 'auto', false, true, 'auto', true);"><img src="../img/icons/ROOK-add-icon.png" class="no-toggle" title="Add Email" /></a>
             </div>
             <div class="clearfix"></div><?php
         }
