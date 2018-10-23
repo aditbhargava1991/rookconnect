@@ -79,7 +79,7 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
 	}
 	$row_html .= '<div class="clearfix"></div>';
-	$row_html .= '<span class="bottom-right">'.$ticket['status'].'</span>';
+	$row_html .= '<span class="bottom-right no-toggle" title="'.$ticket['status'].' as of '.$ticket['status_date'].($ticket['status_contact'] > 0 ? ' by '.get_contact($dbc, $ticket['status_contact']) : '').'">'.$ticket['status'].' '.date('H:i',strtotime($ticket['status_date'])).'</span>';
     $row_html .= dispatch_delivery_hover_icons($dbc, $ticket, $stop_number, $clickable_html, $dispatch_tile_ticket_card_fields);
 
 	return $row_html;
