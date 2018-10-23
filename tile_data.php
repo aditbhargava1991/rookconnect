@@ -9,26 +9,22 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 		$tile = $tile_name[0];
 		$sub_tile = config_safe_str($tile_name[1]);
 	}
-	if((tile_visible($dbc, $tile) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket_group' && $sub_tile != '' && tile_visible($dbc, 'ticket_tile_'.$sub_tile, ROLE, 'ticket'))) {
+	if(((tile_visible($dbc, $tile) || (is_array($tile_name) && tile_visible($dbc, $tile.'_'.$sub_tile, ROLE, $tile))) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket_group' && $sub_tile != '' && tile_visible($dbc, 'ticket_tile_'.$sub_tile, ROLE, 'ticket'))) {
 		switch($tile) {
 			case 'admin_settings': return ['link'=>'admin_software_config.php','name'=>'Admin Settings']; break;
 			case 'software_config': return ['link'=>'Settings/settings.php','name'=>'Settings']; break;
 			case 'security': return ['link'=>"Security/security.php",'name'=>'Security']; break;
 			case 'contacts': return ['link'=>"Contacts/contacts.php?filter=Top",'name'=>'Contacts (Tabbed View)']; break;
-			case 'contacts_inbox': return ['link'=>"Contacts/contacts_inbox.php",'name'=>CONTACTS_TILE]; break;
-			case 'contacts3': return ['link'=>"Contacts3/contacts_inbox.php",'name'=>'Contacts']; break;
-			case 'client_info': return ['link'=>"ClientInfo/contacts_inbox.php",'name'=>'Client Information']; break;
-			case 'contacts_rolodex': return ['link'=>"ContactsRolodex/contacts_inbox.php",'name'=>'Contacts Rolodex']; break;
+			case 'contacts_inbox': return ['link'=>"Contacts/contacts_inbox.php?list=summary&status=summary",'name'=>CONTACTS_TILE]; break;
+			case 'contacts3': return ['link'=>"Contacts3/contacts_inbox.php?list=summary&status=summary",'name'=>'Contacts']; break;
+			case 'client_info': return ['link'=>"ClientInfo/contacts_inbox.php?list=summary&status=summary",'name'=>'Client Information']; break;
+			case 'contacts_rolodex': return ['link'=>"ContactsRolodex/contacts_inbox.php?list=summary&status=summary",'name'=>'Contacts Rolodex']; break;
 			case 'staff': return ['link'=>"Staff/staff.php",'name'=>'Staff']; break;
 			case 'orientation': return ['link'=>"Orientation/orientation.php",'name'=>'Orientation']; break;
-			case 'documents': return ['link'=>"Document/documents.php",'name'=>'Documents']; break;
 			case 'infogathering': return ['link'=>"Information Gathering/infogathering.php",'name'=>'Information Gathering']; break;
 			case 'agenda_meeting': return ['link'=>"Agenda Meetings/agenda.php",'name'=>'Agendas & Meetings']; break;
 			case 'sales': return ['link'=>"Sales/index.php",'name'=>SALES_TILE]; break;
 			case 'certificate': return ['link'=>"Certificate/index.php",'name'=>'Certificates']; break;
-			case 'marketing_material': return ['link'=>"Marketing Material/marketing_material.php",'name'=>'Marketing Material']; break;
-			case 'internal_documents': return ['link'=>"Internal Documents/internal_documents.php",'name'=>'Internal Documents']; break;
-			case 'client_documents': return ['link'=>"Client Documents/client_documents.php",'name'=>'Client Documents']; break;
 			case 'contracts': return ['link'=>"Contract/index.php",'name'=>'Contracts']; break;
 			case 'driving_log': return ['link'=>"Driving Log/driving_log_tiles.php",'name'=>'Driving Log']; break;
 			case 'package': return ['link'=>"Package/package.php",'name'=>'Packages']; break;
@@ -104,7 +100,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'newsboard': return ['link'=>"News Board/index.php",'name'=>'News Board']; break;
 			case 'calendar_rook': return ['link'=>"Calendar/calendars.php",'name'=>'Calendar']; break;
 			case 'field_job': return ['link'=>"Field Jobs/field_sites.php",'name'=>'Field Jobs']; break;
-			case 'expense': return ['link'=>"Expense/expenses.php",'name'=>'Expenses']; break;
+			case 'expense': return ['link'=>"Expense/expenses.php?filter_id=all",'name'=>'Expenses']; break;
 			case 'payables': return ['link'=>"Payables/payables.php",'name'=>"Payables"]; break;
 			case 'billing': return ['link'=>"Project Billing/project_billing.php",'name'=>"Project Billing & Invoices"]; break;
 			case 'report':
@@ -278,9 +274,8 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
     		case 'training_quiz': return ['link'=>"TrainingQuizzes/orientation_training.php",'name'=>'Training & Quizzes']; break;
     		case 'preformance_review': return ['link'=>"HR/index.php?performance_review=list",'name'=>'Performance Reviews']; break;
 			case 'client_projects': return ['link'=>"Client Projects/project.php",'name'=>'Client Projects']; break;
-			case 'staff_documents': return ['link'=>"Staff Documents/staff_documents.php",'name'=>'Staff Documents']; break;
 			case 'safety_manual': return ['link'=>"Manuals/safety_manual.php",'name'=>'Safety Manual']; break;
-			case 'members': return ['link'=>"Members/contacts_inbox.php", 'name'=>'Members']; break;
+			case 'members': return ['link'=>"Members/contacts_inbox.php?list=summary&status=summary", 'name'=>'Members']; break;
 			case 'form_builder': return ['link'=>"Form Builder/formbuilder.php", 'name'=>'Form Builder']; break;
 			case 'hr':
 				if(!is_array($tile_name)) {
@@ -349,7 +344,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 				} break;
             case 'website': return ['link'=>"Website/website.php",'name'=>'Website']; break;
             case 'non_verbal_communication': return ['link'=>"Non Verbal Communication/index.php",'name'=>'Emoji Comm']; break;
-            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>VENDOR_TILE]; break;
+            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php?list=summary&status=summary",'name'=>VENDOR_TILE]; break;
 			case 'quote': return ['link'=>"Quote/quotes.php",'name'=>'Quotes']; break;
 			case 'cost_estimate': return ['link'=>"Cost Estimate/estimate.php",'name'=>'Cost Estimates']; break;
 			case 'optimize': return ['link'=>"Optimize/index.php",'name'=>'Trip Optimizer']; break;

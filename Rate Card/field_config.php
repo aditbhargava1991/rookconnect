@@ -1061,6 +1061,23 @@ $(document).ready(function(){
 							</div>
 						</div>
 					</div>
+
+					<div class="panel panel-default">
+						<div class="panel-heading">
+							<h4 class="panel-title">
+								<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_comp" >
+									Compensation<span class="glyphicon glyphicon-plus"></span>
+								</a>
+							</h4>
+						</div>
+
+						<div id="collapse_comp" class="panel-collapse collapse">
+							<div class="panel-body">
+
+								<input type="checkbox" <?php if (strpos($value_config, ','."Compensation".',') !== FALSE) { echo " checked"; } ?> value="Compensation" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Compensation
+							</div>
+						</div>
+					</div>
 				</div>
 			<?php } elseif($tab == 'labour') { ?>
 				<h4 class="pad-5"><?php echo $title; ?> Dashboard Fields</h4>

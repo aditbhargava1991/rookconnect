@@ -344,7 +344,7 @@ function <?= $diff_function ?>export_pdf(checklist) {
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			if(response != 'NO ID') {
-				window.location = response;
+				window.open(response, '_blank');
 			}
 		}
 	});

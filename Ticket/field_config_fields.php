@@ -117,6 +117,7 @@ $(document).ready(function() {
 	});
 	$('select[name="attached_chart_tab[]"],select[name="attached_chart_subtab[]"],select[name="attached_chart_heading[]"],select[name="attached_chart[]"]').change(function() { filterAttachedCharts(this); });
 });
+$(document).on('change', '.delivery_restriction_div input,.delivery_restriction_div select', saveDeliveryRestrictions);
 function reloadSortableAccordions() {
 	$('.accordions_sortable,.sort_order_heading_block').sortable({
 		connectWith: '.sort_order_heading_block,.accordions_sortable',
@@ -208,6 +209,10 @@ function saveFields() {
 	$('[name="ticket_hide_summary[]"]').each(function() {
 		ticket_summary_hide_positions.push($(this).val());
 	});
+	var delivery_restrict_contacts = [];
+	$('[name^="delivery_restrict_contacts"]:checked').each(function() {
+		delivery_restrict_contacts.push(this.value);
+	});
 	var ticket_notes_limit = $('[name="ticket_notes_limit"]').val();
 	var ticket_recurring_status = $('[name="ticket_recurring_status"]').val();
 	var ticket_material_increment = $('[name="ticket_material_increment"]').val();
@@ -272,6 +277,8 @@ function saveFields() {
 		ticket_summary_hide_positions: ticket_summary_hide_positions,
 		ticket_delivery_time_mintime: $('[name="ticket_delivery_time_mintime"]').val(),
 		ticket_delivery_time_maxtime: $('[name="ticket_delivery_time_maxtime"]').val(),
+		delivery_default_pickup_type: $('[name="delivery_default_pickup_type"]').val(),
+		delivery_default_pickup_time: $('[name="delivery_default_pickup_time"]').val(),
 		ticket_recurring_status: ticket_recurring_status,
 		ticket_material_increment: ticket_material_increment,
 		ticket_notes_alert_role: ticket_notes_alert_role,
@@ -289,9 +296,12 @@ function saveFields() {
 		ticket_new_email_body_value: $('[name^=ticket_new_email_body]').val(),
 		delivery_default_tabs: $('[name^=delivery_default_tabs]').attr('name'),
 		delivery_default_tabs_value: $('[name^=delivery_default_tabs]').val(),
+		ticket_invoice_type: $('[name^=ticket_invoice_type]').attr('name'),
+		ticket_invoice_type_value: $('[name^=ticket_invoice_type]').val(),
 		ticket_recurrence_sync_upto: ticket_recurrence_sync_upto,
 		mandatory: mandate,
-		delivery_type_default: $('[name="delivery_type_default"]').val()
+		delivery_type_default: $('[name="delivery_type_default"]').val(),
+		delivery_restrict_contacts: delivery_restrict_contacts
 	}).success(function(response) {
 		if(this_field_name == 'delivery_types') {
 			reloadDeliveryColors();
@@ -725,6 +735,66 @@ function loadDefaultDeliveryDropdown() {
 	$('[name="delivery_type_default"]').html(default_html);
 	initInputs('[name="delivery_type_default"]');
 	$('[name="delivery_type_default"]').change();
+}
+function getRestrictContactsList(select) {
+	var category = $(select).val();
+	if(category == undefined || category == '') {
+		category = $(select).data('default');
+	}
+
+	if(category == undefined || category == '') {
+		$('.delivery_restrict_contacts').hide();
+	} else {
+		$.ajax({
+			url: '../Ticket/ticket_ajax_all.php?action=get_restrict_contacts_list',
+			method: 'POST',
+			data: {
+				tab: '<?= $tab ?>',
+				category: category
+			},
+			success: function(response) {
+				$('.delivery_restrict_contacts_div').html(response);
+				$('.delivery_restrict_contacts').find('.control-label').text('Restrict '+category);
+				$('input,select,textarea').change(saveFields);
+			}
+		});
+	}
+}
+function saveDeliveryRestrictions() {
+	var tab = '<?= $tab ?>';
+	var security_level = [];
+	$('[name="delivery_restriction_security_level"]').each(function() {
+		security_level.push(this.value);
+	});
+	security_level = security_level.join(',');
+	var to_do_date_min = $('[name="delivery_restriction_to_do_date_min"]').val();
+	var to_do_date_max = $('[name="delivery_restriction_to_do_date_max"]').val();
+	var to_do_start_time_min = $('[name="delivery_restriction_to_do_start_time_min"]').val();
+	var to_do_start_time_max = $('[name="delivery_restriction_to_do_start_time_max"]').val();
+	$.ajax({
+		url: '../Ticket/ticket_ajax_all.php?action=save_delivery_restriction',
+		method: 'POST',
+		data: { tab: tab, security_level: security_level, to_do_date_min: to_do_date_min, to_do_date_max: to_do_date_max, to_do_start_time_min: to_do_start_time_min, to_do_start_time_max: to_do_start_time_max },
+		success: function(response) {
+
+		}
+	});
+}
+function addDeliveryRestriction() {
+	destroyInputs('.delivery_restriction_role');
+	var block = $('.delivery_restriction_role').last();
+	var clone = $(block).clone();
+	$(clone).find('select').val('');
+	$(block).after(clone);
+	initInputs('.delivery_restriction_role');
+}
+function removeDeliveryRestriction(select) {
+	if($('.delivery_restriction_role').length <= 1) {
+		addDeliveryRestriction();
+	}
+
+	$(select).closest('.delivery_restriction_role').remove();
+	$('.delivery_restriction_role').first().change();
 }
 </script>
 <!-- <h1><?= (!empty($tab) ? $ticket_tabs[$tab].' Fields' : 'All '.TICKET_NOUN.' Fields') ?></h1> -->

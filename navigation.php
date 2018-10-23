@@ -12,6 +12,10 @@ $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - 
 	}
 
 	$active_ticket_buttons = '';
+
+    $today_date = date('Y-m-d');
+	$active_tasks = mysqli_query($dbc, "SELECT time_id, tasklistid FROM `tasklist_time` WHERE `start_time` IS NOT NULL AND end_time IS NULL AND src='A' AND contactid='{$_SESSION['contactid']}' AND timer_date='$today_date' ORDER BY time_id DESC LIMIT 1");
+
 	$active_tickets = mysqli_query($dbc, "SELECT `tickets`.`ticketid`, `tickets`.`heading`, `tickets`.`businessid`, `tickets`.`clientid`, `tickets`.`contactid`, `tickets`.`ticket_type`, `tickets`.`to_do_date`, `tickets`.`status`, `tickets`.`projectid`, `tickets`.`main_ticketid`, `tickets`.`sub_ticket`, `ticket_label` FROM `tickets` LEFT JOIN `ticket_timer` ON `tickets`.`ticketid`=`ticket_timer`.`ticketid` AND `ticket_timer`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_timer`.`created_by`='{$_SESSION['contactid']}' AND `start_timer_time` > 0 GROUP BY `tickets`.`ticketid` UNION SELECT `tickets`.`ticketid`, `tickets`.`heading`, `tickets`.`businessid`, `tickets`.`clientid`, `tickets`.`contactid`, `tickets`.`ticket_type`, `tickets`.`to_do_date`, `tickets`.`status`, `tickets`.`projectid`, `tickets`.`main_ticketid`, `tickets`.`sub_ticket`, `tickets`.`ticket_label` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` WHERE `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`arrived` > `ticket_attached`.`completed` AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`src_table` IN ('Staff','Staff_Tasks') AND `ticket_attached`.`item_id`='{$_SESSION['contactid']}' GROUP BY `tickets`.`ticketid`");
 	if($active_tickets->num_rows > 0 && ACTIVE_TICKET_BUTTON != 'disable_active_ticket') {
 		$ticket_tile_visible = tile_visible($dbc, 'ticket');
@@ -30,7 +34,21 @@ $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - 
 		if(SHOW_SIGN_IN == '1' && strpos(get_privileges($dbc, 'start_day_button', ROLE),'*hide*') === FALSE) {
 			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
 		}
-	} else if((SHOW_SIGN_IN == '1' || ACTIVE_DAY_BANNER != '') && strpos(get_privileges($dbc, 'start_day_button', ROLE),'*hide*') === FALSE) {
+	} else if($active_tasks->num_rows > 0 && ACTIVE_TICKET_BUTTON != 'disable_active_ticket') {
+		$task_shown = [];
+		while($active_task = mysqli_fetch_assoc($active_tasks)) {
+			if(!in_array($active_task['tasklistid'],$task_shown)) {
+				$task_shown[] = $active_task['tasklistid'];
+                $task_label = get_tasklist_tabledata($dbc, $active_task['tasklistid'], 'heading');
+				if(ACTIVE_TICKET_BUTTON == 'ticket_label') {
+					$label = $task_label;
+				} else {
+					$label = 'Running '.TASK_NOUN.' #'.$active_task['tasklistid'];
+				}
+				$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Tasks_Updated/add_task_full_view.php?tasklistid='.$active_task['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&action_mode='.$ticket_action_mode.'">'.$label.'</a>';
+			}
+		}
+    } else if((SHOW_SIGN_IN == '1' || ACTIVE_DAY_BANNER != '') && strpos(get_privileges($dbc, 'start_day_button', ROLE),'*hide*') === FALSE) {
 		$timer_running = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start` FROM `time_cards` WHERE `type_of_time` IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='".$_SESSION['contactid']."'"))['timer_start'];
 		if(ACTIVE_DAY_BANNER != '' && $timer_running > 0) {
 			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.\ACTIVE_DAY_BANNER.'</a>';

@@ -74,6 +74,10 @@ if(isset($_POST['submit'])) {
                 $query = "INSERT INTO `daysheet_notepad` (`contactid`, `notes`, `date`) VALUES ('$id', '$note', '$date')";
             }
             break;
+
+        case 'incident_report_approvals':
+            $query = "INSERT INTO `incident_report_comment` (`type`, `incidentreportid`, `comment`, `created_date`, `created_by`, `seen_by`) VALUES ('approval_note', '$id', '$note', '$date', '$contactid', ',$contactid')";
+            break;
         
         default:
             break;
@@ -288,6 +292,33 @@ switch(filter_var($_GET['tile'], FILTER_SANITIZE_STRING)) {
                             </div>
                             <div class="clearfix"></div>
                         </div>';
+                    }
+                $html .= '</div>
+                <div class="clearfix"></div>
+            </div>';
+        }
+        break;
+
+    case 'incident_report_approvals':
+        $tile = 'incident_report_approvals';
+        $id = preg_replace('/[^0-9]/', '', $_GET['id']);
+        $query = mysqli_query($dbc, "SELECT * FROM `incident_report_comment` WHERE `incidentreportid` = '$id' AND `deleted` = 0 AND `type` = 'approval_note'");
+        if ( $query->num_rows > 0 ) {
+            $html .= '<div class="form-group clearfix full-width">
+                <div class="col-sm-12">';
+                    while ( $row=mysqli_fetch_assoc($query) ) {
+                        if(strpos(','.$row['seen_by'].',', ','.$_SESSION['contactid'].',') === FALSE) {
+                            mysqli_query($dbc, "UPDATE `incident_report_comment` SET `seen_by` = CONCAT(IFNULL(`seen_by`,''),',".$_SESSION['contactid']."') WHERE `id` = '".$row['id']."'");
+                        }
+                        $html .= '<div class="note_block row">
+                            <div class="col-xs-1">'. profile_id($dbc, $row['created_by'], false) .'</div>
+                            <div class="col-xs-11">
+                                <div>'. html_entity_decode($row['comment']) .'</div>
+                                <div><em>Added by '. get_contact($dbc, $row['created_by']) .' on '. $row['created_date'] .'</em></div>
+                            </div>
+                            <div class="clearfix"></div>
+                        </div>
+                        <hr class="margin-vertical" />';
                     }
                 $html .= '</div>
                 <div class="clearfix"></div>

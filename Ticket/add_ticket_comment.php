@@ -128,7 +128,7 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 				'.TICKET_NOUN.' Heading: [HEADING]<br>
 				Status: [STATUS]<br>
 				Please click the '.TICKET_NOUN.' link below to view all information.<br>
-				<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br>'; ?>
+				<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br>'; ?>
 		<script>
 		<?php if(strpos($value_config, ',Notes Email Default On,') !== FALSE && $_GET['contact_note'] != 1 && $comment_type == 'note') { ?>
 			$(document).ready(function() {
@@ -188,7 +188,7 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 					<textarea name="body" class="form-control"><?php echo $body; ?></textarea>
 				</div>
 			</div>
-			<button class="btn brand-btn pull-right" name="submit" value="email">Send Email</button>
+			<button class="btn brand-btn pull-right" name="submit" data-history-label="Send Note as Email" value="email">Send Email</button>
 		</div>
 		<a class="btn brand-btn pull-left" href="../blank_loading_page.php">Cancel</a>
 		<button class="btn brand-btn pull-right" name="submit" value="add">Add Note</button>

@@ -20,11 +20,11 @@
 				$sign_output_options = 'data-table="tickets" data-id="'.$ticketid.'" data-id-field="ticketid"';
 				include('../phpsign/sign_multiple.php'); ?>
 				<?php if(strpos($value_config, ','."Complete Hide Sign & Complete".',') === FALSE) { ?>
-					<button class="<?= strpos($value_config, ',Complete Do Not Require Notes,') !== FALSE ? 'force_sign_off_click' : 'sign_off_click' ?> btn brand-btn pull-right">Sign &amp; Complete</button>
+					<button data-history-label="Complete <?= TICKET_NOUN ?>" class="<?= strpos($value_config, ',Complete Do Not Require Notes,') !== FALSE ? 'force_sign_off_click' : 'sign_off_click' ?> btn brand-btn pull-right">Sign &amp; Complete</button>
 				<?php } ?>
 				<?php if(config_visible_function($dbc, 'ticket') > 0 && strpos($value_config, ','."Complete Sign & Force Complete".',') !== FALSE) { ?>
 					<br /><div class="clearfix"></div>
-					<button class="force_sign_off_click btn brand-btn pull-right">Sign &amp; Force Complete</button>
+					<button data-history-label="Force Complete <?= TICKET_NOUN ?>" class="force_sign_off_click btn brand-btn pull-right">Sign &amp; Force Complete</button>
 					<span class="popover-examples list-inline pull-right" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="This will complete the <?= TICKET_NOUN ?> even if there are notes that have not been entered."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<?php } ?>
 				<input type="hidden" name="complete_force" value="0">

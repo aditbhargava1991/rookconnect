@@ -892,7 +892,8 @@ checkAuthorised('security');
 						foreach (explode(',', $hr_tabs) as $hr_tab) {?>
 							<tr><td><?= $hr_tab ?></td><?php echo subtab_config_function( $dbc, $tile, $level_url, $hr_tab ); ?></tr><?php
 						}
-						?><tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr><?php
+						?><tr><td>Reporting</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'reporting' ); ?></tr>
+						<tr><td>Request an Update</td><?php echo subtab_config_function( $dbc, $tile, $level_url, 'request_update' ); ?></tr><?php
 					}
 
 					/* Expenses tile subtab settings */

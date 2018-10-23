@@ -70,7 +70,10 @@
                     </ul>
                 <?php }
                 if(check_subtab_persmission($dbc, 'hr', ROLE, 'reporting')) { ?>
-                    <a href='?reports=view&tile_name=<?= $tile ?>'><li class='<?= ($_GET['reports'] == 'view' ? "active_tab" : "") ?>'>Reporting</li></a>
+                    <a href='?reports=view&tile_name=<?= $tile ?>'><li class='<?= ($_GET['reports'] == 'view' ? "active blue" : "") ?>'>Reporting</li></a>
+                <?php }
+                if(check_subtab_persmission($dbc, 'hr', ROLE, 'request_an_update') && get_config($dbc, 'hr_include_request_update') == 1) { ?>
+                    <a href='?request_update=1&tile_name=<?= $tile ?>'><li class='<?= ($_GET['request_update'] == 1 ? "active blue" : "") ?>'>Request an Update</li></a>
                 <?php }
             } ?>
         </ul>

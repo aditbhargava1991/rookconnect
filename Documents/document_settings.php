@@ -1,4 +1,5 @@
 <?php
+$dashboard_layout = get_config($dbc, 'documents_all_dashboard_layout');
 $documents_all_tabs = array_filter(explode(',',get_config($dbc, 'documents_all_tabs')));
 $documents_all_tiles = array_filter(explode(',',get_config($dbc, 'documents_all_tiles')));
 
@@ -43,7 +44,7 @@ if(!empty($_GET['tile_name'])) {
 	foreach($document_tabs as $type => $type_name) {
 		if(!check_subtab_persmission($dbc, 'documents_all', ROLE, $type_name)) {
 			unset($document_tabs[$type]);
-		} else if(empty($_GET['tab'])) {
+		} else if(empty($_GET['tab']) && $dashboard_layout != 'tile') {
 			$_GET['tab'] = $type;
 		}
 	}
@@ -91,5 +92,4 @@ switch($tab) {
 		$tab_table_category = 'category';
 		$custom_tab_query = " AND `tab_name` = '".config_safe_str($tab_type)."'";
 }
-
 ?>

@@ -5,6 +5,7 @@ include 'config.php';
 $_GET['from_url'] = 'index.php'.(!empty($_GET['from_url']) ? '?url='.$_GET['from_url'] : '');
 
 if (isset($_POST['submit']) && $_POST['submit'] == 'reporting') {
+    set_config($dbc, 'timesheet_report_options', implode(',',$_POST['timesheet_report_options']));
     $timesheet_reporting_styling = filter_var($_POST['timesheet_reporting_styling'],FILTER_SANITIZE_STRING);
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE `name` = 'timesheet_reporting_styling'"));
 
@@ -114,6 +115,8 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$highlight_manager' WHERE `name`='timesheet_manager'");
 	$timesheet_approval_initials = filter_var($_POST['timesheet_approval_initials'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'timesheet_approval_initials', $timesheet_approval_initials);
+	$timesheet_approval_date = filter_var($_POST['timesheet_approval_date'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'timesheet_approval_date', $timesheet_approval_date);
 	$timesheet_approval_status_comments = filter_var($_POST['timesheet_approval_status_comments'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'timesheet_approval_status_comments', $timesheet_approval_status_comments);
 	$timesheet_approval_import_export = filter_var($_POST['timesheet_approval_import_export'],FILTER_SANITIZE_STRING);
@@ -430,6 +433,14 @@ if($_GET['tab'] == 'approvals') {
 							<input type="color" value="<?= $highlight_manager ?>" name="highlight_manager" class="form-control">
 						</div>
 					</div>
+
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Show Approval Status:</label>
+						<div class="col-sm-8">
+							<?php $timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments'); ?>
+							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_status_comments" <?= $timesheet_approval_status_comments == 1 ? 'checked' : '' ?>> Enable</label>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Show Approval Initials:</label>
 						<div class="col-sm-8">
@@ -438,10 +449,10 @@ if($_GET['tab'] == 'approvals') {
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Show Approval Status In Comments:</label>
+						<label class="col-sm-4 control-label">Show Approval Date:</label>
 						<div class="col-sm-8">
-							<?php $timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments'); ?>
-							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_status_comments" <?= $timesheet_approval_status_comments == 1 ? 'checked' : '' ?>> Enable</label>
+							<?php $timesheet_approval_date = get_config($dbc, 'timesheet_approval_date'); ?>
+							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_date" <?= $timesheet_approval_date == 1 ? 'checked' : '' ?>> Enable</label>
 						</div>
 					</div>
 					<div class="form-group">
@@ -646,8 +657,8 @@ if($_GET['tab'] == 'approvals') {
 					echo "<label><input ".($layout == ''?'checked':'')." type='radio' name='timesheet_layout' value=''>&nbsp;&nbsp;Default Layout</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'multi_line'?'checked':'')." type='radio' name='timesheet_layout' value='multi_line'>&nbsp;&nbsp;Show Multiple Lines</label>&nbsp;&nbsp;";
 					// echo "<label><input ".($layout == 'position_columns'?'checked':'')." type='radio' name='timesheet_layout' value='position_columns'>&nbsp;&nbsp;Time Sheet with Position Columns</label>&nbsp;&nbsp;";
-					echo "<label><input ".($layout == 'position_dropdown'?'checked':'')." type='radio' name='timesheet_layout' value='position_dropdown'>&nbsp;&nbsp;Time Sheet with Position Drop Down</label>&nbsp;&nbsp;";
-					echo "<label><input ".($layout == 'ticket_task'?'checked':'')." type='radio' name='timesheet_layout' value='ticket_task'>&nbsp;&nbsp;Time Sheet with ".TICKET_NOUN." Tasks</label>&nbsp;&nbsp;";
+					//echo "<label><input ".($layout == 'position_dropdown'?'checked':'')." type='radio' name='timesheet_layout' value='position_dropdown'>&nbsp;&nbsp;Time Sheet with Position Drop Down</label>&nbsp;&nbsp;";
+					//echo "<label><input ".($layout == 'ticket_task'?'checked':'')." type='radio' name='timesheet_layout' value='ticket_task'>&nbsp;&nbsp;Time Sheet with ".TICKET_NOUN." Tasks</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'rate_card'?'checked':'')." type='radio' name='timesheet_layout' value='rate_card'>&nbsp;&nbsp;Rate Card Category Layout</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'rate_card_tickets'?'checked':'')." type='radio' name='timesheet_layout' value='rate_card_tickets'>&nbsp;&nbsp;Rate Card Category Per ".TICKET_NOUN."</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'table_add_button'?'checked':'')." type='radio' name='timesheet_layout' value='table_add_button'>&nbsp;&nbsp;Table Layout with Add Button</label>&nbsp;&nbsp;"; ?>
@@ -837,6 +848,7 @@ if($_GET['tab'] == 'approvals') {
 
 <?php elseif($_GET['tab'] == 'reporting'):
 	$timesheet_reporting_styling = get_config($dbc,'timesheet_reporting_styling');
+	$timesheet_report_options = explode(',',get_config($dbc,'timesheet_report_options'));
     ?>
 	<div class="panel-group" id="accordion2">
 		<div class="panel panel-default">
@@ -855,6 +867,13 @@ if($_GET['tab'] == 'approvals') {
                       <div class="col-sm-8">
                         <label class="form-checkbox"><input type="radio" name="timesheet_reporting_styling" <?= $timesheet_reporting_styling == 'Default' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_reporting_styling ?>" data-id-field="timesheet_reporting_styling" class="form-control" value="Default"> Default</label>
                         <label class="form-checkbox"><input type="radio" name="timesheet_reporting_styling" <?= $timesheet_reporting_styling == 'EGS' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_reporting_styling ?>" data-id-field="timesheet_reporting_styling" class="form-control" value="EGS"> Total Time Tracked</label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="site_name" class="col-sm-4 control-label">Options:</label>
+                      <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="timesheet_report_options[]" <?= in_array('summary',$timesheet_report_options) ? 'checked' : '' ?> class="form-control" value="summary"> Display Summary</label>
                       </div>
                     </div>
 

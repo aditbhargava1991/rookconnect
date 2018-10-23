@@ -361,11 +361,11 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="view_ticket_deliverables"><li class="<?= $_GET['tab'] == 'view_ticket_deliverables' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Deliverables' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') { ?>
+	<?php if (strpos($value_config, ','."Time Tracking Block".',') !== FALSE && $sort_field == 'Timer') { ?>
 		<a href="" data-tab-target="view_ticket_timer"><li class="<?= $_GET['tab'] == 'view_ticket_timer' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Time Tracking' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
+	<?php if (strpos($value_config, ','."Day Tracking Block".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
 		<a href="" data-tab-target="view_day_tracking"><li class="<?= $_GET['tab'] == 'view_day_tracking' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Day Tracking' ?></li></a>
 	<?php } ?>
 
@@ -499,8 +499,8 @@ if(!$current_heading_closed) { ?>
 		</ul>
 	</li>
 <?php } ?>
-<li>Created<?= ($created_by > 0 ? ' by '.get_staff($dbc, $created_by).'<br />' : '').' on '.($created_date ?: date('Y-m-d')) ?></li>
-<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
+<li>Created<?= ($created_by > 0 ? ' by '.get_staff($dbc, $created_by).'<br />' : '').' on '.(!empty($created_date) ? convert_timestamp_mysql($dbc, $created_date, true) : date('Y-m-d')) ?></li>
+<?php if(time() < strtotime(str_replace('0000-00-00',date('Y-m-d'),$get_ticket['flag_start'])) || time() > strtotime(str_replace('9999',date('Y'),$get_ticket['flag_end']).' + 1 day')) {
 	$get_ticket['flag_colour'] = '';
 }
 if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
@@ -516,5 +516,5 @@ if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
 		}
 		$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
 	} ?>
-	<li style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></li>
 <?php } ?>
+<li class="flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></li>

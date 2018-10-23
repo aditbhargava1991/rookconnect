@@ -571,7 +571,6 @@ if($num_rows7 > 0) {
                         }
                     }
                     $item_id_query .= " AND item_id NOT IN (".$service_id.")";
-
                 }
                 $html .= '</td>';
             }

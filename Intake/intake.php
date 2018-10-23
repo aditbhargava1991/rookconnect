@@ -21,13 +21,16 @@ if($tab == 'softwareforms') {
 		$form_name = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `intakeformid` = '".$_GET['type']."'"))['form_name'];
 		$note = 'These are all Forms that have been completed externally and can be attached to a Contact or '.PROJECT_NOUN.'.';
 		$include_url = 'intake_completedsoftware.php';
+		$include_search_icon = true;
 	} else {
 		$note = 'Software Intake Forms are created from the Form Builder within the software and can be added as an Intake Form. Forms added here will have the ability to generate a link to be filled out externally.';
 		$include_url = 'intake_softwareforms.php';
+		$include_search_icon = false;
 	}
 } else {
 	$note = 'Web Intake Forms are used for admitting patients to the clinic. Any form submitted on the company website automatically submits to the Intake Form tile.';
 	$include_url = 'intake_webforms.php';
+	$include_search_icon = true;
 }
 ?>
 
@@ -90,6 +93,14 @@ function pagination_load() {
 		}
 	});
 	return false;
+}
+function show_search_fields() {
+	if($('.search-fields').is(':visible')) {
+		$('.search-fields').hide();
+	} else {
+		$('.search-fields').show();
+	}
+	resize_blocks();
 }
 </script>
 
@@ -315,6 +326,39 @@ function pagination_load() {
 	        				} ?>
 	            		</div>
 	            		<div class="standard-body-content" style="padding: 0 0.5em;">
+	            			<?php if($include_search_icon) {
+	            				if($_POST['search_filters'] == 'Display Default') {
+	            					$_POST['search_start_date'] = '';
+	            					$_POST['search_end_date'] = '';
+	            				} ?>
+					            <div class="menu-bar" style="position: fixed; right: 20px; z-index: 1; top: 130px; display: block;">
+					                <img src="../img/icons/ROOK-3dot-icon.png" width="30" class="no-toggle cursor-hand pull-right menu_button offset-right-10 theme-color-icon" title="" data-original-title="Search Filters" onclick="show_search_fields();">
+					            </div>
+					            <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+						            <div class="search-fields" style="padding: 1em; display: none;">
+						                <h4>Search Filters</h4>
+						                <div class="col-sm-6">
+						                    <label class="col-sm-4">Start Date:</label>
+						                    <div class="col-sm-8">
+						                        <input type="text" name="search_start_date" value="<?= !empty($_POST['search_start_date']) ? $_POST['search_start_date'] : '' ?>" class="form-control datepicker">
+						                    </div>
+						                </div>
+						                <div class="col-sm-6">
+						                    <label class="col-sm-4">End Date:</label>
+						                    <div class="col-sm-8">
+						                        <input type="text" name="search_end_date" value="<?= !empty($_POST['search_end_date']) ? $_POST['search_end_date'] : '' ?>" class="form-control datepicker">
+						                    </div>
+						                </div>
+						                <div class="clearfix"></div>
+						                <div class="col-sm-12 pull-right pad-5">
+							                <button type="submit" name="search_filters" value="Display Default" class="btn brand-btn pull-right">Display Default</button>
+							                <button type="submit" name="search_filters" value="Submit" class="btn brand-btn pull-right">Submit</button>
+							            </div>
+						                <div class="clearfix"></div>
+						            </div>
+						        </form>
+					        <?php } ?>
+
 				        	<!-- Notice -->
 				            <div class="notice gap-bottom gap-top popover-examples">
 				                <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -322,21 +366,6 @@ function pagination_load() {
 								<?= $note ?></div>
 				                <div class="clearfix"></div>
 				            </div>
-
-				            <!-- <center>
-				                <div class="form-group">
-				                    <label for="site_name" class="col-sm-5 control-label">Search By Any:</label>
-				                    <div class="col-sm-6">
-				                        <input type="text" name="search_term" class="form-control" value="<?php echo (isset($_POST['search_submit'])) ? $_POST['search_term'] : ''; ?>">
-				                    </div>
-				                </div>
-				                &nbsp;
-				                <button type="submit" name="search_submit" value="Search" class="btn brand-btn mobile-block mobile-100">Search</button>
-				                <button type="submit" name="display_all_submit" value="Display All" class="btn brand-btn mobile-block mobile-100">Display All</button>
-					            <?php if(!empty($type) && $tab == 'softwareforms') { ?>
-					            	<a href="<?= WEBSITE_URL ?>/Intake/add_form.php?formid=<?= $_GET['type'] ?>" class="btn brand-btn pull-right">Add <?= $form_name ?></a>
-					            <?php } ?>
-				            </center> -->
 
 				            <?php 
 				            	include('../Intake/'.$include_url); ?>

@@ -108,7 +108,7 @@
 					$sender = get_contact($dbc, $_SESSION['contactid'], 'email_address');
 						$subject = 'FFM - '.TICKET_NOUN.' assigned to you for Doing';
 						$body = 'A ticket has been assigned to you.<br/><br/>
-                            <b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' :  #[TICKETID]</a></b><br/><br/>
+                            <b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' :  #[TICKETID]</a></b><br/><br/>
 							Business : [CLIENT]<br>
                             Project : [PROJECT]<br>
 							'.TICKET_NOUN.' Heading : [HEADING]<br><br>
@@ -153,7 +153,7 @@
 								<textarea name="ticket_comment_email_body" class="form-control email_body"><?php echo $body; ?></textarea>
 							</div>
 						</div>
-						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="to_do_date" onclick="send_email(this); return false;">Send Email</button>
+						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="to_do_date" data-history-label="Send Assigned User Email" onclick="send_email(this); return false;">Send Email</button>
 					</div>
 					<div class="clearfix"></div>
 				</div>
@@ -189,7 +189,7 @@
 						<label class="form-checkbox"><input type="checkbox" name="recur_days" value="sunday">Sunday</label>
 					</div>
 				</div>
-				<button class="btn brand-btn pull-right" onclick="apply_repeat(); return false;">Create Recurrence</button>
+				<button class="btn brand-btn pull-right" data-history-label="Create Recurrence" onclick="apply_repeat(); return false;">Create Recurrence</button>
 				<script>
 				apply_repeat = function() {
 					if(ticketid > 0 && $('[name=recurrence]').val() > 0) {
@@ -272,7 +272,7 @@
 						Client: [CLIENT]<br>
 						'.TICKET_NOUN.' Heading: [HEADING]<br>
 						Status: [STATUS]<br>
-						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
+						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
 						<img src="'.WEBSITE_URL.'/img/ffm-signature.png" width="154" height="77" border="0" alt="">';
 					?>
 					<script>
@@ -309,7 +309,7 @@
 								<textarea name="ticket_comment_email_body" class="form-control email_body"><?php echo $body; ?></textarea>
 							</div>
 						</div>
-						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="internal_qa_date" onclick="send_email(this); return false;">Send Email</button>
+						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="internal_qa_date" data-history-label="Send Internal QA User Email" onclick="send_email(this); return false;">Send Email</button>
 					</div>
 					<div class="clearfix"></div>
 				</div>
@@ -355,7 +355,7 @@
 						Client: [CLIENT]<br>
 						'.TICKET_NOUN.' Heading: [HEADING]<br>
 						Status: [STATUS]<br>
-						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
+						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
 						<img src="'.WEBSITE_URL.'/img/ffm-signature.png" width="154" height="77" border="0" alt="">';
 					?>
 					<script>
@@ -392,7 +392,7 @@
 								<textarea name="ticket_comment_email_body" class="form-control email_body"><?php echo $body; ?></textarea>
 							</div>
 						</div>
-						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="deliverable_date" onclick="send_email(this); return false;">Send Email</button>
+						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="deliverable_date" data-history-label="Send Customer QA User Email" onclick="send_email(this); return false;">Send Email</button>
 					</div>
 					<div class="clearfix"></div>
 				</div>

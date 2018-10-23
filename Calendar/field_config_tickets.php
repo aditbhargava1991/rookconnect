@@ -175,6 +175,7 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
     </div>
     <?php $ticket_label_fields = [
         'project'=>PROJECT_NOUN,
+        'ticket_type'=>TICKET_NOUN.' Type',
         'customer'=>'Customer',
         'client'=>'Client',
         'site_address'=>'Site Address',
@@ -188,6 +189,7 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
         'start_date'=>'Date',
         'ticket_notes'=>TICKET_NOUN.' Notes',
         'delivery_notes'=>'Delivery Notes',
+        'delivery_sign_off'=>'Delivery Sign Off',
         'status'=>'Status'
     ]; ?>
     <div class="panel panel-default">

@@ -23,13 +23,13 @@ if(!empty($equipment)) {
 } else {
     if((empty($_GET['category'])) || ($_GET['category'] == 'Top')) {
         $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search $access_query ORDER BY ABS(unit_number) DESC LIMIT 25";
+        $query = "SELECT 25 as numrows";
     } else {
         $category = $_GET['category'];
         $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search AND category='$category' $access_query ORDER BY ABS(unit_number) LIMIT $offset, $rowsPerPage";
         $query = "SELECT count(*) as numrows FROM equipment WHERE deleted = 0 $status_search AND category='$category'".$access_query;
     }
 }
-
 $result = mysqli_query($dbc, $query_check_credentials);
 
 $num_rows = mysqli_num_rows($result);

@@ -297,14 +297,14 @@ if($num_rows > 0) {
 	if($tile_security['edit'] == 1) {
 		echo '<div class="pull-right gap-bottom">';
 			?><span class="popover-examples list-inline" style="margin:0 5px 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add <?= in_array(substr(TICKET_NOUN,0,1),['a','e','i','o','u','A','E','I','O','U']) ? 'an' : 'a' ?> <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
-		echo '<a href="../Ticket/index.php?edit=0&type='.$ticket_type.'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
+		echo '<a href="../Ticket/index.php?edit=0&type='.$ticket_type.'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
 		echo '</div>';
 	}
 	echo "<h2>No Record Found.</h2>";
 	if($tile_security['edit'] == 1) {
 		echo '<div class="pull-right gap-bottom">';
 			?><span class="popover-examples list-inline" style="margin:0 5px 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add <?= in_array(substr(TICKET_NOUN,0,1),['a','e','i','o','u']) ? 'an' : 'a' ?> <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
-		echo '<a href="../Ticket/index.php?edit=0&type='.$ticket_type.'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
+		echo '<a href="../Ticket/index.php?edit=0&type='.$ticket_type.'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
 		echo '</div>';
 	}
 }
@@ -314,7 +314,7 @@ if($num_rows > 0) {
 $(document).ready(function() {
 	$('.iframe_open').click(function(){
 		   var id = $(this).attr('id');
-		   $('#iframe_instead_of_window').attr('src', 'ticket_history.php?ticketid='+id);
+		   $('#iframe_instead_of_window').attr('src', 'ticket_history.php?ticketid='+id+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 		   $('.iframe_title').text('<?= TICKET_NOUN ?> History');
 		   $('.iframe_holder').show();
 		   $('.hide_on_iframe').hide();

@@ -6,7 +6,7 @@ ob_clean();
 $daily_date = $_POST['date'];
 $equipmentid = $_POST['equipmentid'];
 
-$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
+$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label, `region` FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
 
 //POPULATE
 $equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT ea.*, e.*, ea.`notes`, ea.`classification` FROM `equipment_assignment` ea LEFT JOIN `equipment` e ON ea.`equipmentid` = e.`equipmentid` WHERE e.`equipmentid` = '".$equipment['equipmentid']."' AND ea.`deleted` = 0 AND DATE(`start_date`) <= '$daily_date' AND DATE(ea.`end_date`) >= '$daily_date' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$daily_date,%' ORDER BY ea.`start_date` DESC, ea.`end_date` ASC, e.`category`, e.`unit_number`"));
@@ -37,10 +37,12 @@ if($combine_warehouses == 1) {
     		}
     		$warehouse_times[date('H:i', strtotime($ticket['to_do_start_time']))][$ticket['warehouse_full_address']][] = ($ticket['stop_id'] > 0 ? 'ticket_schedule-'.$ticket['stop_id'] : 'tickets-'.$ticket['ticketid']);
 
-    		$total_tickets++;
-    		if(in_array($ticket['status'],$calendar_checkmark_status)) {
-    			$completed_tickets++;
-    		}
+    		if($dont_count_warehouse != 1) {
+	    		$total_tickets++;
+	    		if(in_array($ticket['status'],$calendar_checkmark_status)) {
+	    			$completed_tickets++;
+	    		}
+	    	}
     	}
     }
     foreach($warehouse_times as $start_time => $addresses) {
@@ -191,8 +193,12 @@ foreach(array_filter(array_unique($star_contacts)) as $star_contact) {
 	$staff_html[] = ($staff_view_access > 0 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Staff/staff_edit.php?view_only=id_card&contactid='.$star_contact.'\', \'auto\', true, true); return false;">' : '').get_contact($dbc, $star_contact).($staff_view_access > 0 ? '</a>' : '');
 }
 $staff_html = implode('<br />', $staff_html);
+$region_label = '';
+if($group_regions == 1) {
+	$region_label = ' ('.str_replace('*#*', ', ', $equipment['region']).')';
+}
 $equipment_html = '<div data-equipment="'.$equipment['equipmentid'].'" class="dispatch-equipment-group">
-        <div class="dispatch-equipment-title" style="background-color: #'.$title_color.'"><a href="" onclick="retrieve_summary(\''.$equipment['equipmentid'].'\'); return false;"><img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary" style="margin: 0;"></a><b>'.($equipment_edit_access > 0 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$equipment['equipmentid'].'&iframe_slider=1\', \'auto\', true, true); return false;">' : '').$equipment['label'].($equipment_edit_access > 0 ? '</a>' : '').'</b><div class="dispatch-equipment-staff">'.$staff_html.'<br />(Completed '.$completed_tickets.' of '.$total_tickets.' '.TICKET_TILE.')</div></div>
+        <div class="dispatch-equipment-title" style="background-color: #'.$title_color.'"><a href="" onclick="retrieve_summary(this, \''.$equipment['equipmentid'].'\'); return false;"><img class="dispatch-summary-icon inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary" style="margin: 0;"></a><b>'.($equipment_edit_access > 0 ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$equipment['equipmentid'].'&iframe_slider=1\', \'auto\', true, true); return false;">' : '').$equipment['label'].($equipment_edit_access > 0 ? '</a>' : '').'</b>'.$region_label.'<div class="dispatch-equipment-staff">'.$staff_html.'<br />(Completed '.$completed_tickets.' of '.$total_tickets.' '.TICKET_TILE.')</div></div>
         <div class="dispatch-equipment-content">'.$equipment_html.'</div>
     </div>';
 

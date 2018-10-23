@@ -713,10 +713,10 @@ div.calendar-screen {
 /* .calendar-screen.set-height { height:100%; } */
 .calendar-screen .sidebar.panel-group,
 .calendar-screen .calendar_view {
-    height:80%;
+    height:85%;
 }
 .calendar-screen .calendar_view {
-	height:calc(80% + 4em);
+	height:calc(85% + 4em);
 }
 .calendar-screen .panel-body-height { height:84.3%; }
 .calendar-screen .block-label { min-width:auto !important; }
@@ -1156,6 +1156,7 @@ right: 0;
 
 .no-pad-right { padding-right:0 !important; }
 .no-pad-left { padding-left:0 !important; }
+.no-padding { padding:0 !important; }
 
 .text-uppercase { text-transform:uppercase; }
 
@@ -1373,6 +1374,9 @@ footer#footer { margin:0; padding:0; }
 		position: relative;
 		font-size: 0.6em;
 	}
+    .inline-img, .inline-img-height {
+        font-size: 1.2em;
+    }
 
 	.collapsible { width: 100%; padding-left: 5px; padding-right: 5px; }
 	.scale-to-fill { width: 100%; padding-left: 5px; padding-right: 5px; }
@@ -2444,10 +2448,10 @@ ul.guide-index li { font-weight:bold; list-style-type:none; margin-top:20px; mar
 .no-scroll {
 	overflow: hidden !important;
 }
-.no-margin {
+.no-margin, .no-margin li {
 	margin: 0 !important;
 }
-.no-pad {
+.no-pad, .no-pad li {
 	padding: 0 !important;
 }
 .no-pad-left {
@@ -3268,7 +3272,7 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 	text-align: center;
 	line-height: 10px;
 }
-body.innerframe { background-image:none; }
+body.innerframe { background-image:none; background-color: #fff; }
 
 .hide-header-footer { margin-top:10px; }
     .pullup { background-color:#eee; border:1px solid #666; cursor:pointer; margin-top:2px; margin-right:8px; padding:5px; }
@@ -3472,6 +3476,42 @@ position: relative;
 .dispatch-legend-img {
 	width: 20px;
 	height: auto;
+}
+.dispatch-region-block {
+	display: block;
+	padding: 0.65em 1em;
+}
+.dispatch-summary-tab {
+	width: calc(100% - 1em);
+	display: inline-block;
+	border: 1px solid #E1E1E1;
+	margin: 0.5em;
+	vertical-align: top;
+	white-space: normal;
+}
+.dispatch-summary-title {
+	padding: 1em;
+	border-bottom: 1px solid #E1E1E1;
+	color: #fafafa !important;
+}
+.dispatch-summary-title a {
+	color: #fafafa !important;
+}
+.dispatch-summary-tab-truck {
+	width: 200px;
+	float: left;
+	height: 120px;
+}
+.dispatch-summary-tab-block {
+	width: calc(100% - 1em - 200px);
+	float: right;
+	height: 120px;
+	padding: 1em;
+}
+.dispatch-summary-active {
+	background-color: initial !important;
+	filter: brightness(0%);
+	transform: scale(1.5);
 }
 .bottom-right {
 	position: absolute;

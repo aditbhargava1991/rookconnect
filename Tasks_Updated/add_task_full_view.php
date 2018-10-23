@@ -93,7 +93,7 @@ if (isset($_POST['tasklist'])) {
     if($task_tododate == '') {
         $task_tododate = date('Y-m-d');
     }
-    $task_status = $_POST['task_status'];
+    $task_status = $_POST['status'];
     if($task_status == '') {
         $task_status = 'To Do';
     }
@@ -488,6 +488,7 @@ if (isset($_POST['tasklist'])) {
                     success: function(response){
                         alert('You have successfully deleted this task.');
                         window.location.href = "index.php?category=All&tab=Summary";
+
                     }
                 });
             }
@@ -849,6 +850,131 @@ function deletestartTicketStaff(button) {
             success: function(response){}
         });
     }
+
+function flag_item_manual(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=tasks&id='+task_id, 'auto', true, true);
+}
+
+function highlight_item(task) {
+    $('.color_picker').click();
+}
+
+function choose_color(sel) {
+	var typeId = sel.id;
+	var arr = typeId.split('_');
+
+    var task_id = arr[1];
+    var taskcolor = sel.value;
+	var taskcolor = taskcolor.replace("#", "");
+
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=task_highlight&tasklistid="+arr[1]+'&taskcolor='+taskcolor,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+			location.reload();
+		}
+	});
+}
+
+function send_email(task) {
+	task_id = $(task).parents('span').data('task');
+	var type = 'task';
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		var type = 'task board';
+		task_id = task_id.substring(5);
+	}
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=tasks&id='+task_id+'&from_task=task&type='+type, 'auto', false, false);
+}
+
+function send_task_alert(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, false);
+}
+
+function send_task_reminder(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, false);
+}
+
+function attach_file(task) {
+	task_id = $(task).parents('span').data('task');
+	var type = 'task';
+	if(task_id.toString().substring(0,5) == 'BOARD') {
+		var type = 'task_board';
+		task_id = task_id.substring(5);
+	}
+	var file_id = 'attach_'+(type == 'task' ? '' : 'board_')+task_id;
+	$('[name='+file_id+']').change(function() {
+		var fileData = new FormData();
+		fileData.append('file',$('[name='+file_id+']')[0].files[0]);
+		$.ajax({
+			contentType: false,
+			processData: false,
+			type: "POST",
+			url: "task_ajax_all.php?fill=task_upload&type="+type+"&id="+task_id,
+			data: fileData,
+			complete: function(result) {
+				console.log(result.responseText);
+				window.location.reload();
+				//alert('Your file has been uploaded.');
+			}
+		});
+	});
+	$('[name='+file_id+']').click();
+}
+
+function send_note(task) {
+       task_id = $(task).parents('span').data('task');
+       if(task_id.toString().substring(0,5) == 'BOARD') {
+               task_id = task_id.substring(5);
+       }
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=tasks&id='+task_id, 'auto', false, false);
+}
+
+function quick_icon_add_time(task) {
+	task_id = $(task).parents('span').data('task');
+	$('[name=task_time_'+task_id+']').timepicker('option', 'onClose', function(time) {
+		var time = $(this).val();
+		$(this).val('00:00');
+		if(time != '' && time != '00:00') {
+			$.ajax({
+				method: 'POST',
+				url: 'task_ajax_all.php?fill=task_quick_time',
+				data: { id: task_id, time: time+':00' },
+				complete: function(result) { console.log(result.responseText); window.location.reload();
+                    $.ajax({
+                        method: 'POST',
+                        url: 'task_ajax_all.php?fill=taskreply',
+                        data: { taskid: task_id, reply: 'Time added '+time+':00' },
+                        complete: function(result) { console.log(result.responseText); window.location.reload(); }
+                    });
+                }
+			});
+		}
+	});
+	$('[name=task_time_'+task_id+']').timepicker('show');
+}
+
+function track_icon_time(task) {
+    var task_id = $(task).parents('span').data('task');
+   if(task_id.toString().substring(0,5) == 'BOARD') {
+           task_id = task_id.substring(5);
+   }
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, false);
+
+    //$('.timer_block_'+task_id).toggle();
+}
 </script>
 
 </head>
@@ -859,6 +985,14 @@ function deletestartTicketStaff(button) {
     $back_url = (isset($_SERVER['HTTPS']) ? "https" : "http") . "://$_SERVER[HTTP_HOST]$_SERVER[REQUEST_URI]";
 ?>
 <div class="container">
+
+	<div class="iframe_overlay" style="display:none; margin-top:-20px; padding-bottom:20px;">
+		<div class="iframe">
+			<div class="iframe_loading">Loading...</div>
+			<iframe name="edit_board" src=""></iframe>
+		</div>
+	</div>
+
 	<div class="row">
         <div class="main-screen">
 
@@ -944,7 +1078,7 @@ function deletestartTicketStaff(button) {
                             $task_updateddate = $get_task['updated_date'];
                             $task_updatedby = $get_task['updated_by'];
 
-                            $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
+                            $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM task_board WHERE taskboardid='$task_board'"));
                             $board_security = $get_taskboard['board_security'];
                             if($task_salesid > 0) {
                                 $board_security = 'Sales';
@@ -952,7 +1086,9 @@ function deletestartTicketStaff(button) {
                             if($task_projectid > 0) {
                                 $board_security = 'Project';
                             }
-
+                            if($board_security == 'Company') {
+                                $board_security = 'Shared';
+                            }
                             /*
                             if ( $board_security=='Client' ) {
                                 $contact_section_display = 'display:block;';
@@ -1021,7 +1157,38 @@ function deletestartTicketStaff(button) {
                             <h3 class="pull-left"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
                             <div class="pull-right">
                                 <?php if(!empty($_GET['tasklistid'])) { ?>
-                                    <button name="" type="button" value="" class="delete_task pull-right image-btn no-toggle header-icon pad-right offset-top-5" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task"></button>
+
+                                <?php
+                                    echo '<span class="action-icons double-gap-bottom gap-top" data-task="'.$_GET['tasklistid'].'">';
+                                        $quick_actions = explode(',',get_config($dbc, 'task_quick_action_icons'));
+
+                                        echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
+
+                                        echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="sync_task(this); return false;"><img title="Sync to External Path" src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="send_task_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" title="Send Email" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="send_task_reminder(this); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('attach', $quick_actions) ? '<span title="Attach File(s)" onclick="attach_file(this); return false;"><img src="../img/icons/ROOK-attachment-icon.png" title="Attach File(s)" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('reply', $quick_actions) ? '<span title="Add Note" onclick="send_note(this); return false;"><img src="../img/icons/ROOK-reply-icon.png" title="Add Note" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                                        echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="quick_icon_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_icon_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo '<button name="" type="button" value="" class="delete_task image-btn"><img class="inline-img no-toggle" src="../img/icons/trash-icon-red.png" alt="Delete Task"></button>';
+
+                                    echo '</span>';
+
+                                    echo '<input type="color" onchange="choose_color(this); return false;" class="color_picker" id="color_'.$_GET['tasklistid'].'"" name="color_'.$_GET['tasklistid'].'" style="display:none;" value="#f6b73c" />';
+
+                                    echo '<input type="text" name="task_time_'.$_GET['tasklistid'].'" style="visibility: hidden;" class="form-control timepicker" />';
+                                    echo '<input type="text" name="reminder_'.$_GET['tasklistid'].'" style="display:none;" class="form-control datepicker" />';
+                                    echo '<input type="file" name="attach_'.$_GET['tasklistid'].'" style="display:none;" class="form-control" />';
+                                ?>
+
+                                    <!-- <button name="" type="button" value="" class="delete_task image-btn no-toggle header-icon pad-right offset-top-5" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task"></button> -->
                                 <?php } ?>
                             </div>
                             <div class="clearfix"></div>
@@ -1130,17 +1297,25 @@ function deletestartTicketStaff(button) {
                                             $task_milestone_timeline = str_replace("FFMSPACE"," ",$task_milestone_timeline);
                                             $task_milestone_timeline = str_replace("FFMHASH","#",$task_milestone_timeline);
 
-                                            $project_milestone = str_replace("FFMEND","&",$project_milestone);
-                                            $project_milestone = str_replace("FFMSPACE"," ",$project_milestone);
-                                            $project_milestone = str_replace("FFMHASH","#",$project_milestone);
+                                            $project_milestone = str_replace("&","FFMEND",$project_milestone);
+                                            $project_milestone = str_replace(" ","FFMSPACE",$project_milestone);
+                                            $project_milestone = str_replace("#","FFMHASH",$project_milestone);
+                                            $project_milestone = str_replace("amp;","",$project_milestone);
                                         ?>
                                             <select data-placeholder="Select a Milestone & Timeline..." name="task_milestone_timeline" id="task_milestone_timeline" data-table="tasklist" data-field="task_milestone_timeline"  class="chosen-select-deselect form-control" width="580">
                                                 <option value=""></option>
                                                 <?php if($task_projectid > 0) {
                                                     foreach($project_path_milestones as $path) {
                                                         if($path['path_id'] == $task_path) {
-                                                            foreach($path['milestones'] as $milestone) { ?>
-                                                                <option <?= $project_milestone == $milestone['milestone'] ? 'selected' : '' ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
+                                                            foreach($path['milestones'] as $milestone) {
+                                                                $f_milestone = $milestone['milestone'];
+
+                                                                $f_milestone = str_replace("&","FFMEND",$f_milestone);
+                                                                $f_milestone = str_replace(" ","FFMSPACE",$f_milestone);
+                                                                $f_milestone = str_replace("#","FFMHASH",$f_milestone);
+
+                                                                ?>
+                                                                <option <?php if($project_milestone == $f_milestone) { echo " selected"; } ?> value="<?= $milestone['milestone'] ?>"><?= $milestone['label'] ?></option>
                                                             <?php }
                                                         }
                                                     }
@@ -1282,7 +1457,7 @@ function deletestartTicketStaff(button) {
                                             $tabs = get_config($dbc, 'ticket_status');
                                             $each_tab = explode(',', $tabs);
                                             if($task_status == '') {
-                                                $task_status = 'To Be Scheduled';
+                                                $task_status = get_config($dbc, 'task_default_status');
                                             }
                                             foreach ($each_tab as $cat_tab) {
                                                 if ($task_status == $cat_tab) {
@@ -1317,10 +1492,8 @@ function deletestartTicketStaff(button) {
                                             <div class="clearfix"></div>
                                             <div class="col-sm-6">
                                                 <select data-placeholder="Select User" name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                                                    <option value=""></option>
                                                     <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
                                                     foreach($staff_list as $staff_id) { ?>
-                                                        <option <?= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?=  $staff_id; ?>' ><?= get_contact($dbc, $staff_id) ?></option>
                                                         <option <?= (strpos(','.$task_contactid.',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
                                                     <?php } ?>
                                                 </select>
@@ -1359,9 +1532,10 @@ function deletestartTicketStaff(button) {
                                     </div>
                                 </div>
 
+                                <!--
                                 <div class="form-group clearfix">
                                     <label for="first_name" class="col-sm-4 control-label">
-                                        <!-- <img src="../img/icons/ROOK-flag-icon.png" class="inline-img" /> --> Flag This:
+                                        Flag This:
                                     </label>
                                     <div class="col-sm-8">
                                         <a class="btn brand-btn" data-tasklistid="<?= $tasklistid ?>" onclick="flag_item(this);">Flag</a>
@@ -1371,7 +1545,7 @@ function deletestartTicketStaff(button) {
 
                                 <div class="form-group">
                                     <label for="site_name" class="col-sm-4 control-label">
-                                        <!-- <img src="../img/icons/ROOK-alert-icon.png" class="inline-img" />-->  Send Alert:
+                                        Send Alert:
                                     </label>
                                     <div class="col-sm-8">
                                         <select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="chosen-select-deselect form-control" width="380">
@@ -1385,7 +1559,7 @@ function deletestartTicketStaff(button) {
                                 </div>
                                 <div class="form-group">
                                     <label for="site_name" class="col-sm-4 control-label">
-                                        <!-- <img src="../img/icons/ROOK-email-icon.png" class="inline-img" /> --> Send Email:
+                                         Send Email:
                                     </label>
                                     <div class="col-sm-8">
                                         <select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="chosen-select-deselect form-control" width="380">
@@ -1399,12 +1573,14 @@ function deletestartTicketStaff(button) {
                                 </div>
                                 <div class="form-group">
                                     <label for="site_name" class="col-sm-4 control-label">
-                                        <!-- <img src="../img/icons/ROOK-reminder-icon.png" class="inline-img" /> --> Schedule Reminder:
+                                        Schedule Reminder:
                                     </label>
                                     <div class="col-sm-8">
                                         <input type="text" class="form-control datepicker" name="schedule_reminder" />
                                     </div>
                                 </div>
+                                -->
+
                                 <div class="form-group">
                                     <label for="additional_note" class="col-sm-4 control-label">
                                        <!-- <img src="../img/icons/ROOK-attachment-icon.png" class="inline-img" />--> Attach File(s):
@@ -1454,10 +1630,10 @@ function deletestartTicketStaff(button) {
                                     </div>
                                 </div>
                                 <div class="form-group clearfix">
-                                    <label for="task_comment" class="col-sm-4 control-label text-right">
+                                    <label for="task_comment" class="col-sm-12 control-label text-right">
                                         <!-- <img src="../img/icons/ROOK-reply-icon.png" class="inline-img" /> --> Comments:
                                     </label>
-                                    <div class="col-sm-8">
+                                    <div class="col-sm-12">
                                         <!-- <input type="text" name="task_comment" id="task_comment" class="form-control" width="65536" /> -->
                                         <textarea name="task_comment" id="task_comment" class="form-control"></textarea>
                                     </div>
@@ -1535,9 +1711,8 @@ function deletestartTicketStaff(button) {
                             </div><!-- .accordion-block-details -->
 
                             <div class="form-group padded">
-                                <?php if(!empty($_GET['tasklistid'])) { ?>
-                                    <button name="" type="button" value="" class="delete_task pull-left image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/ROOK-trash-icon.png" alt="Archive Task" width="30"></button>
-                                <?php } ?>
+                                <?php if(!empty($_GET['tasklistid'])) { ?><button name="" type='button' value="" class="delete_task image-btn no-toggle" title="Archive"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Archive Task" width="30"></button><?php } ?>
+
                                 <button name="tasklist" value="tasklist" class="btn brand-btn pull-right stop-timer-submit">Submit</button>
 
                                 <img class="no-toggle pull-right theme-color-icon save-btn gap-right" src="../img/icons/save.png" alt="Save" width="36" title="" data-original-title="Save">

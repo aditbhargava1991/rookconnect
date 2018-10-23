@@ -64,7 +64,7 @@ if(isset($_POST['submit'])) {
     foreach(array_filter(explode(',',$_POST['to_other'])) as $to_other) {
         $to_other = trim($to_other);
         if(filter_var($to_other,FILTER_VALIDATE_EMAIL)) {
-            $all_emails[] = get_email($dbc, $to_other);
+            $all_emails[] = $to_other;
         }
     }
 
@@ -91,7 +91,7 @@ if(isset($_POST['submit'])) {
             }
         }
     }
-    foreach(array_filter(explode(',',$_POST['to_staff'])) as $user) {
+    foreach(array_filter(explode(',',$_POST['to_other'])) as $user) {
         $user = trim($user);
         if(filter_var($user,FILTER_VALIDATE_EMAIL)) {
             $body = str_replace(['[STAFF_NAME]'],[$user],$body);

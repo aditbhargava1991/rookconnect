@@ -102,8 +102,7 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
 	<div class="row">
 		<div class="main-screen">
             <div class="tile-header col-sm-12 icons_div" data-id="<?= $_GET['edit'] ?>">
-				<h1><a href="?"><?= ESTIMATE_TILE ?></a>
-					<?php if(!empty($_GET['edit'])) {
+				<h1><a href="?"><?= ESTIMATE_TILE ?></a><?php if(!empty($_GET['edit'])) {
 						echo ': '.ESTIMATE_TILE.' #'.$_GET['edit'].' - <span id="estimate_name_fill">'.get_field_value('estimate_name','estimate','estimateid',$_GET['edit']).'</span>';
 					}
 					if($config_access > 0) {
@@ -135,7 +134,6 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
                             </select>
                         </div>
                     <?php } ?>
-                    <img class="no-toggle syncIcon pull-right no-margin inline-img" title="" src="" />
 				</h1>
 				<div class="clearfix"></div>
             </div>

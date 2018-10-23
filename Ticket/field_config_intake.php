@@ -148,7 +148,7 @@ function removeLink() {
 	<h4><?= TICKET_NOUN ?> Intake URL</h4>
 	<div class="external_link_div">
 		<?php if(!empty($ticket_intake_url)) {
-			echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit=0&type='.$tab.'&intake_key='.$ticket_intake_url.'" target="_blank">'.WEBSITE_URL.'/Ticket/index.php?edit=0&type='.$tab.'&intake_key='.$ticket_intake_url.'</a>';
+			echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit=0&type='.$tab.'&intake_key='.$ticket_intake_url.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'" target="_blank">'.WEBSITE_URL.'/Ticket/index.php?edit=0&type='.$tab.'&intake_key='.$ticket_intake_url.'</a>';
 		} ?>
 	</div>
 	<a href="" onclick="removeLink(); return false;" <?= empty($ticket_intake_url) ? 'style="display: none;"' : '' ?> class="remove_link">Remove Link</a>

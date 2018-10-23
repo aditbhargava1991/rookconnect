@@ -10,6 +10,15 @@ if($_GET['fill'] == 'setting_task_checklist') {
     set_config($dbc, 'task_include_checklists', $checklist);
 }
 
+if($_GET['fill'] == 'task_default_status') {
+    $status = $_GET['task_default_status'];
+	$status = str_replace("FFMEND","&",$status);
+    $status = str_replace("FFMSPACE"," ",$status);
+    $status = str_replace("FFMHASH","#",$status);
+
+    set_config($dbc, 'task_default_status', $status);
+}
+
 if($_GET['fill'] == 'setting_task_intake') {
     $intake = $_GET['intake'];
     set_config($dbc, 'task_include_intake', $intake);
@@ -272,9 +281,9 @@ if($_GET['fill'] == 'add_task') {
 
     $heading = filter_var($heading,FILTER_SANITIZE_STRING);
     $created_date = date('Y-m-d');
-
+    $default_task = get_config($dbc, 'task_default_status');
     if($heading != '') {
-        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`, `task_tododate`, `status`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date', '$created_date', 'To Be Scheduled')";
+        echo $query_insert_log = "INSERT INTO `tasklist` (`task_milestone_timeline`, `task_path`, `heading`, `contactid`, `task_board`, `salesid`, `created_date`, `created_by`, `status_date`, `task_tododate`, `status`) VALUES ('$task_milestone_timeline', '$task_path', '$heading', '$contactid', '$taskboardid', '$salesid', '$created_date', '$contactid', '$created_date', '$created_date', '$default_task')";
         $result_insert_log = mysqli_query($dbc, $query_insert_log);
         $last_id = mysqli_insert_id($dbc);
 
@@ -479,6 +488,20 @@ if($_GET['fill'] == 'taskflagmanual') {
 	$end = filter_var($_POST['end'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$value',`flag_label`='$label',`flag_start`='$start',`flag_end`='$end' WHERE `tasklistid`='$id'");
 }
+if($_GET['fill'] == 'task_highlight') {
+	$tasklistid = $_GET['tasklistid'];
+	$taskcolor = $_GET['taskcolor'];
+    $type = '';
+    if(!empty($_GET['type'])) {
+	    $type = $_GET['type'];
+    }
+    if($type == 'task_board') {
+	    mysqli_query($dbc, "UPDATE `task_board` SET `flag_colour`='$taskcolor' WHERE `taskboardid`='$tasklistid'");
+    } else {
+	    mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$taskcolor' WHERE `tasklistid`='$tasklistid'");
+    }
+}
+
 if($_GET['fill'] == 'taskflag') {
 	$item_id = $_POST['id'];
 	$type = $_POST['type'];
@@ -560,13 +583,13 @@ if($_GET['fill'] == 'task_estimated_time') {
 if($_GET['fill'] == 'mark_done') {
 	$taskid = preg_replace('/[^0-9]/', '', $_GET['taskid']);
     $status = filter_var($_GET['status'], FILTER_SANITIZE_STRING);
-    if($status == 'Done') {
+    //if($status == 'Done' || $status == 'Complete' || $status == 'Finish') {
 	    $result = mysqli_query($dbc, "UPDATE `tasklist` SET `status`='$status' WHERE `tasklistid`='$taskid'");
-    }
+    //}
 	if (mysqli_affected_rows($dbc) > 0) {
         $contactid = $_SESSION['contactid'];
         $created_date = date('Y-m-d');
-        $reply = 'Task marked as '. $status;
+        $reply = 'Task marked as '. $status. ' by '.decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
         $insert = mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `created_by`, `created_date`, `comment`) VALUES ('$taskid', '$contactid', '$created_date', '$reply')");
     }
 }

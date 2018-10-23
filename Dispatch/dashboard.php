@@ -1,17 +1,38 @@
 <?php include_once ('../include.php');
 include_once('../Dispatch/dashboard_functions.php');
 include_once('../Dispatch/config.php');
+checkAuthorised('dispatch');
+
 $ticket_statuses = explode(',', get_config($dbc, 'ticket_status'));
+
+$dispatch_icon_legend = '';
+if(in_array('camera',$dispatch_tile_ticket_card_fields)) {
+    $dispatch_icon_legend .= '<label><img src="../img/icons/ROOK-camera-icon.png" style="width: 1em; height: 1em;"> Camera</img></label><br />';
+}
+if(in_array('signature',$dispatch_tile_ticket_card_fields)) {
+    $dispatch_icon_legend .= '<label><img src="../img/icons/ROOK-signature-icon.png" style="width: 1em; height: 1em;"> Signature</img></label><br />';
+}
+if(in_array('star_rating',$dispatch_tile_ticket_card_fields)) {
+    $dispatch_icon_legend .= '<label><img src="../img/icons/ROOK-star-icon.png" style="width: 1em; height: 1em;"> Star Rating</img></label><br />';
+}
+if(in_array('customer_notes_hover',$dispatch_tile_ticket_card_fields)) {
+    $dispatch_icon_legend .= '<label><img src="../img/icons/ROOK-reply-icon.png" style="width: 1em; height: 1em;"> Notes</img></label><br />';
+}
+if(!empty($dispatch_icon_legend)) {
+    $dispatch_icon_legend = '<b>Icon Legend:</b><br>'.$dispatch_icon_legend;
+}
+
 $ticket_status_legend = '<b>Status Color Code:</b><br>';
 foreach ($ticket_statuses as $ticket_status) {
     $ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = '$ticket_status'"))['color'];
     $ticket_status_legend .= '<label><div class="ticket-status-color" style="background-color: '.$ticket_status_color_detail.';"></div>'.$ticket_status.'</label><br />';
 }
-checkAuthorised('dispatch');
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="../Dispatch/dashboard.js"></script>
 
+<input type="hidden" name="group_regions" value="<?= $group_regions ?>">
+<input type="hidden" id="dispatch_auto_refresh" name="dispatch_auto_refresh" value="<?= $auto_refresh ?>">
 <div id="camera_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 <div id="signature_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 <div id="star_rating_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
@@ -19,6 +40,9 @@ checkAuthorised('dispatch');
 
 <div id="accordion" class="tile-sidebar sidebar sidebar standard-collapsible">
     <ul>
+        <?php if($summary_tab == 1) { ?>
+            <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;"><li class="active blue">Summary</li></a>
+        <?php } ?>
         <?php if(in_array('region',$search_fields) && !$is_customer) { ?>
             <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_region">Region<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_region" style="overflow: hidden;">
@@ -67,8 +91,8 @@ checkAuthorised('dispatch');
                 </ul>
             </li>
         <?php } ?>
-        <li class="sidebar-higher-level"><a class="cursor-hand" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment"><?= $equipment_label ?><span class="arrow"></span></a>
-            <ul class="collapse in dispatch-equipment-buttons" id="collapse_equipment" style="overflow: hidden;"></ul>
+        <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment"><?= $equipment_label ?><span class="arrow"></span></a>
+            <ul class="collapse dispatch-equipment-buttons" id="collapse_equipment" style="overflow: hidden;"></ul>
         </li>
         <li class="equip_active_li active_li sidebar-higher-level" data-accordion="collapse_equipment" style="display: none; padding-top: 0;">
             <ul class="collapse in" data-accordion="collapse_equipment"></ul>
@@ -87,7 +111,7 @@ checkAuthorised('dispatch');
             <div class="menu-bar" style="position: fixed; right: 20px; z-index: 1; top: 125px; display: block;">
                 <img src="../img/icons/ROOK-3dot-icon.png" width="30" class="no-toggle cursor-hand pull-right menu_button offset-right-10 theme-color-icon" title="" data-original-title="Search <?= TICKET_TILE ?>" onclick="show_search_fields();">
                 <div class="block-button offset-right-10 dispatch-legend-block pull-right" style="position: relative;">
-                    <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $ticket_status_legend ?></div>
+                    <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $dispatch_icon_legend.$ticket_status_legend ?></div>
                     <img src="../img/legend-icon.png" class="dispatch-legend-img">
                 </div>
             </div>
@@ -176,14 +200,11 @@ checkAuthorised('dispatch');
                     <div class="dispatch-equipment-summary"></div>
                 </div>
                 <div class="clearfix"></div>
-                <!-- <div class="dashboard-equipment-buttons-group" style="padding: 1em;">
-                    <h4 style="margin: 0; padding: 0.5em 0;"><?= count($equipment_categories) == 1 ? $equipment_categories[0] : 'Equipment' ?></h4>
-                    <div class="dispatch-equipment-buttons"></div>
-                    <label class="form-checkbox"><input type="checkbox" onclick="select_all_buttons(this);"> Select All</label>
-                </div> -->
                 <div class="double-scroller"><div></div></div>
-                <div class="dispatch-equipment-list"></div>
-                <div class="dispatch-equipment-list-none" style="padding: 1em;">No <?= $equipment_label ?> Selected</div>
+                <div class="dispatch-summary-tab-list" <?= $summary_tab != 1 ? 'style="display:none;"' : '' ?>></div>
+                <div class="dispatch-summary-list-none" style="padding: 1em; <?= $summary_tab != 1 ? 'display:none;' : '' ?>">No <?= $equipment_label ?> Found</div>
+                <div class="dispatch-equipment-list" <?= $summary_tab == 1 ? 'style="display:none;"' : '' ?>></div>
+                <div class="dispatch-equipment-list-none" style="padding: 1em; <?= $summary_tab == 1 ? 'display:none;' : '' ?>">No <?= $equipment_label ?> Selected</div>
             </div>
         </div>
     </div>

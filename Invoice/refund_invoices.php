@@ -114,7 +114,7 @@ if (isset($_POST['submit'])) {
 
 if (isset($_POST['submit_pay'])) {
 	$all_invoice = implode(',',$_POST['invoice']);
-	header('Location: add_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
+	header('Location: create_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
 }
 
 if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
@@ -322,7 +322,7 @@ function view_summary() {
 
         <div id="no-more-tables" class="table-responsive double-gap-top">
         <?php
-        //echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
+        //echo '<a href="create_invoice.php" class="btn brand-btn pull-right">Sell</a>';
         // Display Pager
 
         /* Pagination Counting */
@@ -405,7 +405,7 @@ function view_summary() {
 
             if($row['patientid'] != 0) {
                 //echo '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $row['patientid']). '</a></td>';
-                echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'. get_contact($dbc, $row['patientid']) .'</a></td>';
+                echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Contacts/contacts_inbox.php?edit='.$row['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">'. get_contact($dbc, $row['patientid']) .'</a></td>';
             } else {
                 echo '<td data-title="'.$purchaser_label.'">-</td>';
             }
@@ -507,7 +507,7 @@ function view_summary() {
 
             //if($row['paid'] != 'Yes' && $row['final_price'] != '') {
                 if($row['invoice_type'] == 'Saved') {
-                    echo '<td data-title="Function"><a href=\'add_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Edit</a>';
+                    echo '<td data-title="Function"><a href=\'create_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Edit</a>';
                     $role = $_SESSION['role'];
                     if($role== 'super' || $role == ',office_admin,' || $role == ',executive_front_staff,') {
                         echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'index.php?tab=today?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
@@ -578,7 +578,7 @@ function view_summary() {
         //    echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
         //}
         //echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-        //echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
+        //echo '<a href="create_invoice.php" class="btn brand-btn pull-right">Sell</a>';
         ?>
 
     </form>
