@@ -236,16 +236,25 @@ function draw_svg_truck($ontime, $notontime, $ongoing) {
 	$ongoing_polygon = '';
 	if($ontime > 0) {
 		$width = ceil(($ontime / $total_stops) * 126);
+		if(($width + $curr_x) > 188) {
+			$width = 188 - $curr_x;
+		}
 		$ontime_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#00ff00;fill-rule:evenodd;"/>';
 		$curr_x += $width;
 	}
 	if($notontime > 0) {
 		$width = ceil(($notontime / $total_stops) * 126);
+		if(($width + $curr_x) > 188) {
+			$width = 188 - $curr_x;
+		}
 		$notontime_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#ff0000;fill-rule:evenodd;"/>';
 		$curr_x += $width;
 	}
 	if($ongoing > 0) {
 		$width = ceil(($ongoing / $total_stops) * 126);
+		if(($width + $curr_x) > 188) {
+			$width = 188 - $curr_x;
+		}
 		$ongoing_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#ddd;fill-rule:evenodd;"/>';
 		$curr_x += $width;
 	}
