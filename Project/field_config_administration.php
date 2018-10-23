@@ -143,6 +143,7 @@ function remGroup(img) {
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Summary" <?= strpos($project_admin_fields,',Status Summary,') !== FALSE ? 'checked' : '' ?>> Display Status</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Edit" <?= strpos($project_admin_fields,',Status Edit,') !== FALSE ? 'checked' : '' ?>> Editable Status</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Services" <?= strpos($project_admin_fields,',Services,') !== FALSE ? 'checked' : '' ?>> Services</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Additional KM Charge" <?= strpos($project_admin_fields,',Additional KM Charge,') !== FALSE ? 'checked' : '' ?>> Additional KM Charge - Based on Services & Staff Time Travel</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Sub Totals per Service" <?= strpos($project_admin_fields,',Sub Totals per Service,') !== FALSE ? 'checked' : '' ?>> Sub Totals per Service</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Staff Tasks" <?= strpos($project_admin_fields,',Staff Tasks,') !== FALSE ? 'checked' : '' ?>> Staff <?= TASK_TILE ?></label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Inventory" <?= strpos($project_admin_fields,',Inventory,') !== FALSE ? 'checked' : '' ?>> Inventory</label>
