@@ -20,6 +20,7 @@ function saveFields() {
 				signature: $(this).find('[name^=signature]:checked').val(),
 				precedence: $(this).find('[name^=precedence]:checked').val(),
 				status: $(this).find('[name=status]').val(),
+				options: $(this).find('[name=options]:checked').map(function() { return this.value; }).get().join(','),
 				action_items: $(this).find('[name=action_items]').map(function() { return this.value; }).get().join(','),
 				region: $(this).find('[name=region]').val(),
 				location: $(this).find('[name=location]').val(),
@@ -135,6 +136,7 @@ function remGroup(img) {
 			$project_admin_fields = ',Services,Sub Totals per Service,';
 		}
 		$project_admin_fields = ','.$project_admin_fields.','; ?>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Approve All" <?= strpos($project_admin_fields,',Approve All,') !== FALSE ? 'checked' : '' ?>> Allow Approve All</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Summary" <?= strpos($project_admin_fields,',Status Summary,') !== FALSE ? 'checked' : '' ?>> Status Summary</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Services" <?= strpos($project_admin_fields,',Services,') !== FALSE ? 'checked' : '' ?>> Services</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Sub Totals per Service" <?= strpos($project_admin_fields,',Sub Totals per Service,') !== FALSE ? 'checked' : '' ?>> Sub Totals per Service</label>

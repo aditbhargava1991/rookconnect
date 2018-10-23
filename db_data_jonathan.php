@@ -444,6 +444,12 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9744
+
+        // October 22, 2018 - Ticket 9919
+		if(!mysqli_query($dbc, "ALTER TABLE `field_config_project_admin` ADD `options` TEXT AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9919
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
