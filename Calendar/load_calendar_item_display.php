@@ -252,7 +252,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$rows = 1;
 					$ticket_styling = '';
 					$calendar_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `calendar_color` FROM `contacts` WHERE `contactid` = '".$contact_id."'"))['calendar_color'];
-					if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+					if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+						$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+					} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 					} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 						$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';
@@ -538,7 +540,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				    $cur_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='combined_block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 				    $cur_html .= "style='border-bottom: 1px solid rgb(221,221,221);";
 					$delivery_color = get_delivery_color($dbc, $ticket['delivery_type']);
-					if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+					if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+						$cur_html .= ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+					} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$cur_html .= 'background-color:'.$calendar_completed_color[$status].';';
 					} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 						$cur_html .= 'background-color:'.$calendar_incomplete_color[$status].';';
@@ -645,7 +649,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				$row_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 				$row_html .= "style='";
 				$delivery_color = get_delivery_color($dbc, $ticket['delivery_type']);
-				if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+				if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+					$row_html .= ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+				} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 					$row_html .= 'background-color:'.$calendar_completed_color[$status].';';
 				} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 					$row_html .= 'background-color:'.$calendar_incomplete_color[$status].';';
@@ -850,7 +856,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				}
 				$status_class = $status;
 				$calendar_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `calendar_color` FROM `contacts` WHERE `contactid` = '".$contact_id."'"))['calendar_color'];
-				if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+				if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+					$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+				} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 					$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 				} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 					$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';
@@ -1004,7 +1012,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			} else {
 				$checkmark_ticket = '';
 			}
-			if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+			if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+				$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+			} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 				$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 			} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 				$ticket_styling = 'background-color:'.$calendar_incomplete_color[$status].';';
