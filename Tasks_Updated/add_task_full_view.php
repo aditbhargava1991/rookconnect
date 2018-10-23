@@ -1102,8 +1102,8 @@ function track_icon_time(task) {
                             $task_projectid = $_GET['projectid'];
                             $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT `businessid`, `clientid`, `project_path` FROM `project` WHERE `projectid`='$task_projectid'"));
                             $task_businessid = $project['businessid'];
-                            $task_contactid = $project['clientid'];
-                            $task_path = $project['project_path'];
+                            //$task_contactid = $project['clientid'];
+                            //$task_path = $project['project_path'];
                             //$project_section_display = 'display:block;';
                             $board_security = 'Project';
 
