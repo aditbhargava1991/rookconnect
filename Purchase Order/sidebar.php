@@ -15,6 +15,7 @@
 	<a href="?settings=promo"><li class="<?= $_GET['settings'] == 'promo' ? 'active blue' : '' ?>">Promotions</li></a>
 <?php } else {
 	$po_tabs = explode(',',get_config($dbc,'po_tabs'));
+    //$ticket_tabs = [];
     $ticket_tabs = [ '' => TICKET_TILE ];
     foreach(explode(',',get_config($dbc,'ticket_tabs')) as $ticket_tab) {
         $ticket_tabs[config_safe_str($ticket_tab)] = $ticket_tab;
