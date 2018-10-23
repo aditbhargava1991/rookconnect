@@ -241,7 +241,18 @@ if(!empty($_GET['contactid'])) {
                             foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
                                 $ticket_type_value = config_safe_str($ticket_type);
                                 if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) {
-                                    echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type."</div></a>";
+                                    if($calendar_ticket_color_code_tabs == 1) {
+                                        $color_styling = $ticket_tabs_color[$ticket_type_value];
+                                        if(empty($color_styling)) {
+                                            $color_box = '<span style="height: 15px; width: 15px; background-color: #fff; border: 1px solid #888; float: right; margin-left: 0.5em;"><svg style="width: 100%; height: 100%; position: relative; top: -2px;"><line x1="0" y1="100%" x2="100%" y2="0"
+                                                        style="stroke:#888;stroke-width:1"/></svg></span>';
+                                        } else {
+                                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
+                                        }
+                                    } else {
+                                        $color_box = '';
+                                    }
+                                    echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type.$color_box."</div></a>";
                                 }
                             } ?>
                         </div>
@@ -275,7 +286,7 @@ if(!empty($_GET['contactid'])) {
                             if(!empty($region_colours[$region_line])) {
                                 $color_styling = $region_colours[$region_line];
                             }
-                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right;"></span>';
+                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
                             echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-activevalue='".$region."' data-region='".$region."'>".$region.$color_box."</div></a>";
                         } ?>
                         </div>
