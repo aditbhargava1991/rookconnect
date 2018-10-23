@@ -215,6 +215,9 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 				<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
 					<th>Sub Totals per Service</th>
 				<?php } ?>
+                <?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) { ?>
+                    <th>Additional KM Charge</th>
+                <?php } ?>
 				<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
 					<th>Staff</th>
 					<th><?= TASK_TILE ?></th>
@@ -297,6 +300,15 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 					<?php } ?>
 					<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
 						<td data-title="Sub Totals per Service"><?= implode('<br />',$services_cost) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) {
+                        $travel_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`hours_travel`) `travel_km` FROM `ticket_attached` WHERE `ticketid` = '".$invoice['ticketid']."' AND `deleted` = 0"))['travel_km'];
+                        $total_travel_km = 0;
+						foreach($services_cost_num as $cost_amt) {
+                            $total_travel_km += ($travel_km * $cost_amt);
+                        }
+                        $total_cost += $total_travel_km; ?>
+						<td data-title="Additional KM Charge"><?= number_format($total_travel_km,2) ?></td>
 					<?php } ?>
 					<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) {
 						$staff_tasks_staff = [];
@@ -397,6 +409,9 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 				<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
 					<th>Sub Totals per Service</th>
 				<?php } ?>
+				<?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) { ?>
+					<th>Additional KM Charge</th>
+				<?php } ?>
 				<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) { ?>
 					<th>Staff</th>
 					<th><?= TASK_TILE ?></th>
@@ -456,6 +471,15 @@ if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
 					<?php } ?>
 					<?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
 						<td data-title="Sub Totals per Service"><?= implode('<br />',$services_cost) ?></td>
+					<?php } ?>
+					<?php if(strpos($value_config, ',Additional KM Charge,') !== FALSE) {
+                        $travel_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`hours_travel`) `travel_km` FROM `ticket_attached` WHERE `ticketid` = '".$invoice['ticketid']."' AND `deleted` = 0"))['travel_km'];
+                        $total_travel_km = 0;
+						foreach($services_cost_num as $cost_amt) {
+                            $total_travel_km += ($travel_km * $cost_amt);
+                        }
+                        $total_cost += $total_travel_km; ?>
+						<td data-title="Additional KM Charge"><?= number_format($total_travel_km,2) ?></td>
 					<?php } ?>
 					<?php if(strpos($value_config, ',Staff Tasks,') !== FALSE) {
 						$staff_tasks_staff = [];
