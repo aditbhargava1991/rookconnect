@@ -642,7 +642,7 @@ function addIntakeForm(btn) {
                 $board_name = get_client($dbc, $businessid);
             }
             ?>
-            <div class="col-sm-6"><h3 class="offset-left-5"><?php echo $board_name .': '.$path_name; ?>
+            <div class="col-sm-8"><h3 class="offset-left-5"><?php echo $board_name .': '.$path_name; ?>
             <img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next('span').show().find('input').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName(this.value); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="<?php echo $path_name; ?>" class="form-control"></span>
 
             <?php
@@ -654,7 +654,7 @@ function addIntakeForm(btn) {
                     foreach (array_filter($cids_unique) as $staffcid ) {
                         $i++;
                         if($i>5){
-                            break;
+                            //break;
                         }
                         profile_id($dbc, $staffcid);
                     }
@@ -666,7 +666,7 @@ function addIntakeForm(btn) {
             </h3>
             </div>
 
-            <div class="col-sm-6 text-right">
+            <div class="col-sm-4 text-right">
             <span class="pull-right text-right" data-task="BOARD<?php echo $_GET['category']; ?>">
             <?php
                 if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
