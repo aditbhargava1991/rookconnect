@@ -92,8 +92,8 @@ foreach ($ticket_statuses as $ticket_status) {
                 </ul>
             </li>
         <?php } ?>
-        <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment"><?= $equipment_label ?><span class="arrow"></span></a>
-            <ul class="collapse dispatch-equipment-buttons" id="collapse_equipment" style="overflow: hidden;"></ul>
+        <li class="sidebar-higher-level"><a class="cursor-hand <?= $summary_tab != 1 ? '' : 'collapsed' ?>" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment"><?= $equipment_label ?><span class="arrow"></span></a>
+            <ul class="collapse <?= $summary_tab != 1 ? 'in' : '' ?> dispatch-equipment-buttons" id="collapse_equipment" style="overflow: hidden;"></ul>
         </li>
         <li class="equip_active_li active_li sidebar-higher-level" data-accordion="collapse_equipment" style="display: none; padding-top: 0;">
             <ul class="collapse in" data-accordion="collapse_equipment"></ul>

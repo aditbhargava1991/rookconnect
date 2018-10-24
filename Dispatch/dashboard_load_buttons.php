@@ -27,7 +27,7 @@ foreach($equip_list as $equipment) {
 	$tickets = mysqli_fetch_all(mysqli_query($dbc, $all_tickets_sql),MYSQLI_ASSOC);
 
 	if(get_config($dbc, 'dispatch_tile_hide_empty') != 1 || !empty($tickets)) {
-		$title_color = substr(md5(encryptIt($equipment['equipmentid'])), 0, 6);
+		$title_color = get_equipment_color($equipment['equipmentid']);
 		$region_label = (empty($equipment['region']) ? 'No Region' : implode(', ',explode('*#*', $equipment['region'])));
 		$region_key = array_search($equipment['region'], $contact_regions);
 		$region_colour = $region_colours[$region_key];

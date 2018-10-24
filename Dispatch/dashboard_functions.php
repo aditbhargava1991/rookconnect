@@ -267,3 +267,18 @@ function draw_svg_truck($ontime, $notontime, $ongoing) {
 	'</svg>';
 	return $truck_html;
 }
+function get_equipment_color($equipmentid) {
+	$color = substr(md5(encryptIt($equipmentid)), 0, 6);
+
+	$r = hexdec(substr($color,0,2));
+	$g = hexdec(substr($color,2,2));
+	$b = hexdec(substr($color,4,2));
+	$yiq = (($r*299)+($g*587)+($b*114))/1000;
+
+	if($yiq >= 128) {
+		$darken_percentage = 255 - $yiq;
+		$color = darken_color($color, $darken_percentage);
+	}
+
+	return $color;
+}

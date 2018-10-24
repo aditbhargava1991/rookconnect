@@ -193,7 +193,7 @@ foreach($ticket_times as $ticket_htmls) {
 	}
 }
 
-$title_color = substr(md5(encryptIt($equipment['equipmentid'])), 0, 6);
+$title_color = get_equipment_color($equipment['equipmentid']);
 
 if(empty($equipment_html)) {
 	$equipment_html = '<div style="margin: 0.5em; padding: 0.5em;">No '.TICKET_TILE.' Found.</div>';
