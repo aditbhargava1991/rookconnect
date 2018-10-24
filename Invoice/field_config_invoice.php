@@ -625,6 +625,9 @@ if(!empty($invoice_types)) { ?>
                                     <label class="form-checkbox"><input <?= (in_array('pro_number',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="pro_number"> Pro Number</label>
                                 </div>
                                 <div class="col-sm-4">
+                                    <label class="form-checkbox"><input <?= (in_array('volume',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="volume"> Volume</label>
+                                </div>
+                                <div class="col-sm-4">
                                     <label class="form-checkbox"><input <?= (in_array('customer_code',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="customer_code"> Customer Code</label>
                                 </div>
                                 <div class="col-sm-4">
