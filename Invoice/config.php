@@ -2,6 +2,9 @@
 checkAuthorised(FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out');
 $security = get_security($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out'));
 
+if (!empty($_GET['type']) && $_GET['invoiceid'] > 0) {
+    mysqli_query($dbc, "UPDATE `invoice` SET `type` = '".$_GET['type']."' WHERE `invoiceid` = '".$_GET['invoiceid']."'");
+}
 $invoice_type = empty($_GET['type']) ? '' : filter_var($_GET['type'],FILTER_SANITIZE_STRING);
 $invoice_mode = empty($_GET['inv_mode']) ? '' : filter_var($_GET['inv_mode'],FILTER_SANITIZE_STRING);
 $insurer_row_id = 0;
