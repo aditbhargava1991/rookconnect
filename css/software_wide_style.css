@@ -483,7 +483,7 @@ input { max-width:100%; }
 }
 .white-color {
 	background-color: initial !important;
-	filter: invert(98%) sepia(2%) saturate(6%) hue-rotate(352deg) brightness(102%) contrast(102%);
+	filter: brightness(0%) invert(1);
 }
 
 .connectedSortable {
