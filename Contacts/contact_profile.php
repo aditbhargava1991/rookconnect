@@ -64,7 +64,7 @@ if(in_array_any(['Star Rating'], $id_card_fields)) {
                     profile_id($dbc, $contactid, true, 'pull-left');
                 }
             } ?>
-            <?= get_client($dbc, $contactid).' '.get_contact($dbc, $contactid) ?><?= $rating_html ?></h3>
+            <?= get_client($dbc, $contactid).' '.get_contact($dbc, $contactid) ?><?= $rating_html ?></h3><div class="clearfix"></div>
             <style>
             .dashboard-profile-icon { height:auto; margin-right:8px; width:20px; }
             .dashboard-social-icon { height:auto; margin-right:3px; width:25px; }
