@@ -542,7 +542,7 @@ if($num_rows7 > 0) {
             $html .= '</td>';
 		}
 		if(in_array('destination',$custom_ticket_fields)) {
-			$destinations = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Drop Off'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'locations')
+			$destinations = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Drop Off'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'locations');
 			$html .= '<td>';
                 foreach ( $destinations as $destination ) {
                 	if(!empty($destination)) {
