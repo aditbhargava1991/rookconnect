@@ -89,7 +89,8 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 						}
 						if($security['edit'] > 0) {
 							echo "<div class='pull-right gap-left'><a href='?hr_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Form</button></a></div>";
-							echo "<div class='pull-right gap-left'><a href='?manual_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Manual</button></a></div>";
+                            $back_url = $_GET['tab'];
+							echo "<div class='pull-right gap-left'><a href='?manual_edit=0&tile_name=$tile&tab=$back_url'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Manual</button></a></div>";
 						} ?>
                         <?php if(vuaed_visible_function($dbc, 'preformance_review')) { ?>
                             <a href="?performance_review=add" class="btn brand-btn pull-right">Add Performance Review</a>
@@ -99,7 +100,7 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 					<div class="clearfix"></div>
 				</div><!-- .tile-header -->
 			<?php } ?>
-            
+
 			<div class="clearfix"></div>
 			<?php $device = new Mobile_Detect;
 			if($device->isMobile) {
