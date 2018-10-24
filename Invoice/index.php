@@ -104,7 +104,9 @@
                             include('checkin.php');
                             break;
                         case 'sell':
-                            include('add_invoice.php');
+                            ob_clean();
+                            header('Location: create_invoice.php?invoiceid='.$_GET['invoiceid']);
+                            exit();
                             break;
                         case 'touch':
                             include('touch_main.php');

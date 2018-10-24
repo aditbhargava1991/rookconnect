@@ -173,6 +173,9 @@ $(document).ready(function() {
 <input type="hidden" name="tab_name" value="<?= $_GET['tab'] ?>">
 <?php
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `fields` FROM `field_config_custom_documents` WHERE `tab_name` = '".$_GET['tab']."'"));
+    if(empty($get_field_config['fields'])) {
+        $get_field_config['fields'] = 'Custom Documents Type,Category,Title,Uploader,Link';
+    }
     $value_config = ','.$get_field_config['fields'].',';
 
     $custom_documents_type = '';

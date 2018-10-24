@@ -540,6 +540,11 @@
 	<div class="col-sm-12">
 		<a href="" onclick="emailCredentialsDialog(); return false;" class="btn brand-btn pull-right">Email Credentials</a>
 	</div>
+<?php } else if($field_option == 'Software URL') { ?>
+	<label class="col-sm-4 control-label"><?php echo (in_array($field_option, $field_config_mandate) ? '<font color="red">*</font>' : ''); ?> Software URL:</label>
+	<div class="col-sm-8">
+		<input type="text" name="software_url" value="<?= $contact['software_url'] ?>" data-field="software_url" data-table="contacts" class="<?php echo (in_array($field_option, $field_config_mandate) ? 'required' : ''); ?> form-control">
+	</div>
 <?php } else if($field_option == 'Region Access') {
 	$allowed_regions = array_filter(explode('#*#', $contact_security['region_access']));
 	if(count($allowed_regions) == 0) {

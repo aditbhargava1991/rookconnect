@@ -1,18 +1,33 @@
 <?php include_once('../include.php'); ?>
+
+<style>
+.new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
+.flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 20px;top: 110px;z-index: 1;border: 2px solid #878787;}
+</style>
+<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet"> -->
+<script>
+//$(document).ready(function(){
+	//$('.demo_cpicker').colorpicker();
+//});
+
 <script src="../Project/project.js"></script>
 <script>
 $(document).ready(function(){
 	//$('.demo_cpicker').colorpicker();
 });
 
+
 function flag_item_box(taskid){
-	$('#flag_color_box_'+taskid).show();
+	//$('#flag_color_box_'+taskid).show();
+	$('#colorpickerbtn_'+taskid)[0].click();
 }
-function flag_item(task) {
+
+function flag_item(task,flag_colour) {
 	//task_id = $(task).parents('span').data('task');
 	//task_id = $('#flag_color_box_'+task).next('span').data('task');
 	task_id = task;
-	flag_colour = $('#demo_'+task_id).val();
+	//flag_colour = $('#demo_'+task_id).val();
 	flag_colour = flag_colour. substring(1, flag_colour. length);
 	$.ajax({
 		method: "POST",
@@ -21,7 +36,7 @@ function flag_item(task) {
 		data: { table:'tasklist', id_field:'tasklistid', field:'flag_colour', id: task_id, new_colour:flag_colour },
 		complete: function(result) {
 			$('li[data-id="'+task_id+'"]').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
-			$('#flag_color_box_'+task_id).hide();
+			//$('#flag_color_box_'+task_id).hide();
 		}
 	});
 }
@@ -307,16 +322,11 @@ if($type == 'Ticket') {
 	$doc_table = "project_milestone_document";
 	$doc_folder = "../Tasks_Updated/download/";
     ?>
+
     <div style="position: relative; display:none" id="flag_color_box_<?php echo $item['tasklistid']?>">
     	<div class="form-group flag_color_box">
     		<label class="col-sm-5 control-label" style="text-align: left;">Flag Colour:</label>
     		<div class="col-sm-7">
-                <!-- <select name='flag_colour' class="form-control" style="background-color:#<?= $item['flag_colour'] ?>;font-weight:bold;" onchange="flag_item('<?php echo $item['tasklistid']?>',this.value);">
-                    <option value="" style="background-color:#FFFFFF;">No Flag</option>
-                    <?php foreach(explode(',', get_config($dbc, "ticket_colour_flags")) as $flag_colour) { ?>
-                        <option <?= $item['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"><?= $flag_colour ?></option>
-                    <?php } ?>
-                </select> -->
                 <input id="demo_<?php echo $item['tasklistid']?>" type="text" class="form-control demo_cpicker" value="<?php echo $item['flag_colour']?>" />
             </div>
             <div class="col-sm-12">
@@ -325,6 +335,16 @@ if($type == 'Ticket') {
             </div>
 		</div>
 	</div>
+	
+	<input type="color" style="display:none" id="colorpickerbtn_<?php echo $item['tasklistid']?>" value="<?php echo '#'.$item['flag_colour']?>">
+	
+	<script>
+	var theInput = document.getElementById("colorpickerbtn_<?php echo $item['tasklistid']?>");
+	theInput.addEventListener("input", function() {
+		flag_item('<?php echo $item['tasklistid']?>',theInput.value);
+	}, false);
+	</script>
+	
     <?php
     $task_statuses = explode(',',get_config($dbc, 'task_status'));
     $status_complete = $task_statuses[count($task_statuses) - 1];

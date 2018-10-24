@@ -1302,13 +1302,14 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                                                 <div class="col-sm-8">
                                                     <label class="form-checkbox"><input type="checkbox" name="contact_field[]" onchange="set_accordion(this);" value="acc_software_login">Enable</label>
                                                     <div class="block-group sortable_group" style="display:none;">
-                                                        <?php foreach(array_unique(array_merge($field_config,['Role','User Name','Password','Auto-Generate Using Email','Email Credentials'])) as $field_option) {
+                                                        <?php foreach(array_unique(array_merge($field_config,['Role','User Name','Password','Auto-Generate Using Email','Email Credentials','Software URL'])) as $field_option) {
                                                             switch($field_option) {
                                                                 case 'Role': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Role', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Role" onchange="save_options();">Security Level</label><?php break;
                                                                 case 'User Name': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('User Name', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="User Name" onchange="save_options();">Username</label><?php break;
                                                                 case 'Password': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Password', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Password" onchange="save_options();">Password</label><?php break;
                                                                 case 'Auto-Generate Using Email': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Auto-Generate Using Email', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Auto-Generate Using Email" onchange="save_options();">Auto-Generate Using Email Button</label><?php break;
                                                                 case 'Email Credentials': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Email Credentials', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Email Credentials" onchange="save_options();">Email Credentials Button</label><?php break;
+                                                                case 'Software URL': ?><label class="form-checkbox"><input type="checkbox" <?= in_array('Software URL', $field_config) ? 'checked' : '' ?> name="contact_field[]" value="Software URL" onchange="save_options();">Software URL</label><?php break;
                                                             }
                                                         } ?>
                                                     </div>

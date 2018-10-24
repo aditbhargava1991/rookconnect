@@ -371,7 +371,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	<?php }
 	if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS))) {
 		ob_clean();
-		header('Location: index.php');
+		header('Location: index.php'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']));
 		exit();
 	} ?>
 	<script>
@@ -755,7 +755,17 @@ if(!empty($_GET['endtime'])) {
 	$to_do_end_time = $_GET['endtime'];
 }
 
-$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = '".$sort_field."'"))['accordion_name'];
+$acc_label_id = $sort_field;
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_destination') {
+    $acc_label_id = 'Transport Destination';
+}
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_origin') {
+    $acc_label_id = 'Transport Origin';
+}
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_details') {
+    $acc_label_id = 'Transport Carrier';
+}
+$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = '".$acc_label_id."'"))['accordion_name'];
 if(!empty($renamed_accordion)) {
 	$acc_label = $renamed_accordion;
 }

@@ -1,31 +1,4 @@
-<?php include_once('config.php');
-$user = get_config($dbc, 'company_name');
-$url = WEBSITE_URL;
-$user_name = $user;
-$user_category = '';
-$ticket_types = explode(',',get_config($dbc_support,'ticket_tabs'));
-$security = get_security($dbc, 'customer_support');
-if($user == 'ROOK Connect' && $_SERVER['SERVER_NAME'] == 'ffm.rookconnect.com') {
-	$user = $_SESSION['contactid'];
-	$user_name = get_contact($dbc, $user);
-	$user_category = get_contact($dbc, $user, 'category');
-} else {
-	$user = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT * FROM `contacts` WHERE ('".WEBSITE_URL."' LIKE CONCAT('%',`website`) AND IFNULL(`website`,'') NOT LIKE '') OR `name`='".encryptIt($user)."' ORDER BY `name`='".encryptIt($user)."'"))['contactid'];
-	$user_category = 'REMOTE_'.get_contact($dbc, $_SESSION['contactid'], 'category');
-	if($user_category != 'REMOTE_Staff') {
-		$user_category = 'USER_CUSTOMER';
-		$user = $_SESSION['contactid'];
-		$name = get_contact($dbc, $user);
-		$user_name = ($name == '' ? get_client($dbc, $user) : $name);
-		$dbc_support = $dbc;
-	}
-}
-$tab_list = explode(',',get_config($dbc_support,'cust_support_tab_list'));
-if(!in_array('new',$tab_list)) {
-    $tab_list[] = 'new';
-}
-$current_tab = (empty($_GET['tab']) ? ($user_category == 'USER_CUSTOMER' && in_array('customer',$tab_list) ? 'customer' : 'requests') : $_GET['tab']);
-$request_tab = (!empty($_GET['type']) ? $_GET['type'] : (in_array('closed',$tab_list) ? 'closed' : 'new')); ?>
+<?php include_once('config.php'); ?>
 <?php if(!IFRAME_PAGE) { ?>
 <script>
 $(document).ready(function() {
@@ -42,35 +15,23 @@ $(document).ready(function() {
 	}).resize();
 	$('#mobile .panel-heading').off('click',loadPanel).click(loadPanel);
 });
-function loadPanel() {
-	$(this).off('click',loadPanel);
-	var panel = $(this).closest('.panel').find('.panel-body');
+function loadPanel(panel_head, url) {
+    if(panel_head.target != undefined) {
+        panel_head = panel_head.target;
+    }
+	$(panel_head).off('click',loadPanel);
+	var panel = $(panel_head).closest('.panel').find('.panel-body');
 	panel.html('Loading...');
-	panel.load(panel.data('file-name'));
+    if(url == undefined || url == '') {
+        url = panel.data('file-name');
+    }
+	panel.load(url);
 }
 </script>
 <?php } ?>
 </head>
 <body>
-<?php include_once ('../navigation.php');
-$request_tab_name = 'Feedback &amp; Ideas';
-foreach($ticket_types as $type) {
-    if(config_safe_str($type) == $request_tab) {
-        $request_tab_name = $type;
-    }
-}
-if($request_tab == 'closed') {
-    $request_tab_name = 'Closed Requests';
-} else if($request_tab == 'closed') {
-    $request_tab_name = 'Closed Requests';
-} else if($request_tab == 'new') {
-    $request_tab_name = 'Add New Request';
-    foreach($ticket_types as $type_name) {
-        if($_GET['new_type'] == config_safe_str($type_name)) {
-            $request_tab_name .= ' '.$type_name;
-        }
-    }
-} ?>
+<?php include_once ('../navigation.php'); ?>
 
 <div class="container">
 	<div class="iframe_overlay" style="display:none;">
@@ -186,129 +147,130 @@ if($request_tab == 'closed') {
                         <div class="clearfix"></div>
                     </div>
 				</div>
-	            <div id="mobile" class="show-on-mob full-width panel-group block-panels">
-					<div class="standard-body-title"><h3><?= $current_tab == 'field_config' ? 'Settings' : 'User: '.$user_name ?></h3></div>
-					<?php if(!$dbc_support) { ?>
-						<div class="notice double-gap-bottom">
-							<img src="<?= WEBSITE_URL; ?>/img/error.png" class="wiggle-me" style="width:3em;">
-							<div style="float:right; width:calc(100% - 4em);"><span class="notice-name">Error:</span>
-							The software is unable to connect to the database. No support requests can be logged. We are working to resolve this error as quickly as possible. Your patience is appreciated.</div>
-							<div class="clearfix"></div>
-							<!--ERROR: #<?= mysqli_connect_errno() ?> - <?= mysqli_connect_error() ?>-->
-						</div>
-					<?php } else if($current_tab == 'requests' && $request_tab == 'new' && empty($_POST['new_request'])) { ?>
-						<div id="no-more-tables">
-							<div class="form-horizontal col-sm-12"><?php include($current_tab.'.php'); ?></div>
-						</div>
-					<?php } else {
-                        foreach($tab_list as $tab_id) {
-                            switch($tab_id) {
-                                case 'services': ?>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading mobile_load">
-                                            <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#mobile"href="#collapse_services">
-                                                    FFM Services<span class="glyphicon glyphicon-plus"></span>
-                                                </a>
-                                            </h4>
-                                        </div>
-
-                                        <div id="collapse_services" class="panel-collapse collapse">
-                                            <div class="panel-body" data-file-name="services.php">
-                                                Loading...
+	            <div class="tile-sidebar show-on-mob full-width">
+                    <div id="mobile" class="panel-group block-panels sidebar">
+                        <?php if(!$dbc_support) { ?>
+                            <div class="notice double-gap-bottom">
+                                <img src="<?= WEBSITE_URL; ?>/img/error.png" class="wiggle-me" style="width:3em;">
+                                <div style="float:right; width:calc(100% - 4em);"><span class="notice-name">Error:</span>
+                                The software is unable to connect to the database. No support requests can be logged. We are working to resolve this error as quickly as possible. Your patience is appreciated.</div>
+                                <div class="clearfix"></div>
+                                <!--ERROR: #<?= mysqli_connect_errno() ?> - <?= mysqli_connect_error() ?>-->
+                            </div>
+                        <?php } else if($current_tab == 'requests' && $request_tab == 'new' && empty($_POST['new_request'])) { ?>
+                            <div id="no-more-tables">
+                                <div class="form-horizontal col-sm-12"><?php include($current_tab.'.php'); ?></div>
+                            </div>
+                        <?php } else {
+                            foreach($tab_list as $tab_id) {
+                                switch($tab_id) {
+                                    case 'services': ?>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading mobile_load">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#mobile"href="#collapse_services">
+                                                        FFM Services<span class="glyphicon glyphicon-plus"></span>
+                                                    </a>
+                                                </h4>
                                             </div>
-                                        </div>
-                                    </div>
-                                    <?php break;
-                                case 'new': ?>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading mobile_load">
-                                            <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#mobile"href="#collapse_new_request">
-                                                    New Request<span class="glyphicon glyphicon-plus"></span>
-                                                </a>
-                                            </h4>
-                                        </div>
 
-                                        <div id="collapse_new_request" class="panel-collapse collapse">
-                                            <div class="panel-body" data-file-name="requests.php?type=new">
-                                                Loading...
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php break;
-                                case 'feedback': ?>
-                                    <?php $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`support_type`='feedback' AND `deleted`=0, 1, 0)) `count` FROM `support` WHERE `businessid`='$user' OR '$user_category'  IN (".STAFF_CATS.")")); ?>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading mobile_load">
-                                            <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#mobile"href="#collapse_feedback">
-                                                    Feedback & Ideas - <?= $count_row['count'] ?><span class="glyphicon glyphicon-plus"></span>
-                                                </a>
-                                            </h4>
-                                        </div>
-
-                                        <div id="collapse_feedback" class="panel-collapse collapse">
-                                            <div class="panel-body" data-file-name="requests.php?type=feedback">
-                                                Loading...
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php break;
-                                case 'documents': ?>
-                                    <a href='?tab=documents'><li <?= $current_tab == 'documents' ? 'class="active"' : '' ?>>Customer Documents</li></a>
-                                    <?php break;
-                                case 'meetings': ?>
-                                    <a href='?tab=meetings'><li <?= $current_tab == 'meetings' ? 'class="active"' : '' ?>>Agendas & Meetings</li></a>
-                                    <?php break;
-                                case 'customer': ?>
-                                    <a href='?tab=customer'><li <?= $current_tab == 'customer' ? 'class="active"' : '' ?>>Information Requests</li></a>
-                                    <?php break;
-                                case 'closed': ?>
-                                    <?php $date = date('Y-m-d',strtotime('-2month'));
-                                    $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`deleted`=1 AND `archived_date` > '$date', 1, 0)) `count` FROM `support` WHERE `businessid`='$user' OR '$user_category'  IN (".STAFF_CATS.")")); ?>
-                                    <div class="panel panel-default">
-                                        <div class="panel-heading mobile_load">
-                                            <h4 class="panel-title">
-                                                <a data-toggle="collapse" data-parent="#mobile"href="#collapse_closed">
-                                                    Closed Requests - <?= $count_row['count'] ?><span class="glyphicon glyphicon-plus"></span>
-                                                </a>
-                                            </h4>
-                                        </div>
-
-                                        <div id="collapse_closed" class="panel-collapse collapse">
-                                            <div class="panel-body" data-file-name="requests.php?type=closed">
-                                                Loading...
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <?php break;
-                                default:
-                                    foreach($ticket_types as $type) {
-                                        if(config_safe_str($type) == $tab_id) {
-                                            $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`support_type`='".config_safe_str($type)."' AND `deleted`=0, 1, 0)) `count` FROM `support` WHERE `businessid`='$user' OR '$user_category'  IN (".STAFF_CATS.")")); ?>
-                                            <div class="panel panel-default">
-                                                <div class="panel-heading mobile_load">
-                                                    <h4 class="panel-title">
-                                                        <a data-toggle="collapse" data-parent="#mobile"href="#collapse_<?= config_safe_str($type) ?>">
-                                                            <?= $type ?> - <?= $count_row['count'] ?><span class="glyphicon glyphicon-plus"></span>
-                                                        </a>
-                                                    </h4>
+                                            <div id="collapse_services" class="panel-collapse collapse">
+                                                <div class="panel-body" data-file-name="services.php">
+                                                    Loading...
                                                 </div>
+                                            </div>
+                                        </div>
+                                        <?php break;
+                                    case 'new': ?>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading mobile_load">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#mobile"href="#collapse_new_request">
+                                                        New Request<span class="glyphicon glyphicon-plus"></span>
+                                                    </a>
+                                                </h4>
+                                            </div>
 
-                                                <div id="collapse_<?= config_safe_str($type) ?>" class="panel-collapse collapse">
-                                                    <div class="panel-body" data-file-name="requests.php?type=<?= config_safe_str($type) ?>">
-                                                        Loading...
+                                            <div id="collapse_new_request" class="panel-collapse collapse">
+                                                <div class="panel-body" data-file-name="requests.php?type=new">
+                                                    Loading...
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php break;
+                                    case 'feedback': ?>
+                                        <?php $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`support_type`='feedback' AND `deleted`=0, 1, 0)) `count` FROM `support` WHERE `businessid`='$user' OR '$user_category'  IN (".STAFF_CATS.")")); ?>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading mobile_load">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#mobile"href="#collapse_feedback">
+                                                        Feedback & Ideas - <?= $count_row['count'] ?><span class="glyphicon glyphicon-plus"></span>
+                                                    </a>
+                                                </h4>
+                                            </div>
+
+                                            <div id="collapse_feedback" class="panel-collapse collapse">
+                                                <div class="panel-body" data-file-name="requests.php?type=feedback">
+                                                    Loading...
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php break;
+                                    case 'documents': ?>
+                                        <a href='?tab=documents'><li <?= $current_tab == 'documents' ? 'class="active"' : '' ?>>Customer Documents</li></a>
+                                        <?php break;
+                                    case 'meetings': ?>
+                                        <a href='?tab=meetings'><li <?= $current_tab == 'meetings' ? 'class="active"' : '' ?>>Agendas & Meetings</li></a>
+                                        <?php break;
+                                    case 'customer': ?>
+                                        <a href='?tab=customer'><li <?= $current_tab == 'customer' ? 'class="active"' : '' ?>>Information Requests</li></a>
+                                        <?php break;
+                                    case 'closed': ?>
+                                        <?php $date = date('Y-m-d',strtotime('-2month'));
+                                        $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`deleted`=1 AND `archived_date` > '$date', 1, 0)) `count` FROM `support` WHERE `businessid`='$user' OR '$user_category'  IN (".STAFF_CATS.")")); ?>
+                                        <div class="panel panel-default">
+                                            <div class="panel-heading mobile_load">
+                                                <h4 class="panel-title">
+                                                    <a data-toggle="collapse" data-parent="#mobile"href="#collapse_closed">
+                                                        Closed Requests - <?= $count_row['count'] ?><span class="glyphicon glyphicon-plus"></span>
+                                                    </a>
+                                                </h4>
+                                            </div>
+
+                                            <div id="collapse_closed" class="panel-collapse collapse">
+                                                <div class="panel-body" data-file-name="requests.php?type=closed">
+                                                    Loading...
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <?php break;
+                                    default:
+                                        foreach($ticket_types as $type) {
+                                            if(config_safe_str($type) == $tab_id) {
+                                                $count_row = mysqli_fetch_array(mysqli_query($dbc_support, "SELECT SUM(IF(`support_type`='".config_safe_str($type)."' AND `deleted`=0, 1, 0)) `count` FROM `support` WHERE `businessid`='$user' OR '$user_category'  IN (".STAFF_CATS.")")); ?>
+                                                <div class="panel panel-default">
+                                                    <div class="panel-heading mobile_load">
+                                                        <h4 class="panel-title">
+                                                            <a data-toggle="collapse" data-parent="#mobile"href="#collapse_<?= config_safe_str($type) ?>">
+                                                                <?= $type ?> - <?= $count_row['count'] ?><span class="glyphicon glyphicon-plus"></span>
+                                                            </a>
+                                                        </h4>
+                                                    </div>
+
+                                                    <div id="collapse_<?= config_safe_str($type) ?>" class="panel-collapse collapse">
+                                                        <div class="panel-body" data-file-name="requests.php?type=<?= config_safe_str($type) ?>">
+                                                            Loading...
+                                                        </div>
                                                     </div>
                                                 </div>
-                                            </div>
-                                        <?php }
-                                    }
-                                    break;
-                            }
-                        } ?>
-					<?php } ?>
-					<div class="clearfix"></div>
+                                            <?php }
+                                        }
+                                        break;
+                                }
+                            } ?>
+                        <?php } ?>
+                        <div class="clearfix"></div>
+                    </div>
 				</div>
 			</div>
 		</div>

@@ -1,6 +1,8 @@
 <?php error_reporting(0);
 include_once('../include.php');
-$ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs')); ?>
+$ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+$ticket_tabs_color = explode(',',get_config($dbc, 'ticket_tabs_color'));
+?>
 <script>
 $(document).ready(function() {
 	$('input,select').change(saveTypes);
@@ -15,6 +17,12 @@ function saveTypes() {
 	$('[name="ticket_tabs[]"]').each(function() {
 		type_list.push(this.value);
 	});
+
+	var color_list = [];
+	$('[name="ticket_tabs_color[]"]').each(function() {
+		color_list.push(this.value);
+	});
+
     var tile_list = [];
 	$('[name=ticket_type_tiles][value]:checked').each(function() {
 		tile_list.push(this.value);
@@ -24,6 +32,7 @@ function saveTypes() {
 		method: 'POST',
 		data: {
 			types: type_list,
+			color_lists: color_list,
 			tiles: ($('[name=ticket_type_tiles]').not('[value]').is(':checked') ? 'SHOW' : tile_list.join(',')),
 			default_ticket_type: $('[name=default_ticket_type]').val()
 		}
@@ -34,7 +43,7 @@ function addType() {
 	clone.find('input').val('').removeAttr('checked');
 	clone.find('input[type=checkbox]').closest('.form-checkbox').hide();
 	$('.type-option').last().after(clone);
-	
+
 	$('input').off('change').change(saveTypes);
 	$('[name="ticket_tabs[]"]').last().focus();
 }
@@ -48,12 +57,17 @@ function removeType(a) {
 </script>
 <span class="popover-examples"><a data-toggle="tooltip" data-original-title="Each of the below tabs of <?= TICKET_TILE ?> can become a label, a tab, and have specific options."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>
 <?php $type_tiles = get_config($dbc, 'ticket_type_tiles');
-foreach($ticket_tabs as $type) { ?>
+$i=0;
+foreach($ticket_tabs as $type) {
+    ?>
 	<div class="form-group type-option">
 		<label class="col-sm-3"><?= TICKET_NOUN ?> Tab:</label>
-		<div class="col-sm-6">
+		<div class="col-sm-4">
 			<input type="text" name="ticket_tabs[]" class="form-control" value="<?= $type ?>">
 		</div>
+        <div class="col-sm-1">
+                <input type="color" name="ticket_tabs_color[]" class="form-control" value="<?= $ticket_tabs_color[$i] ?>">
+        </div>
 		<div class="col-sm-3">
             <label class="form-checkbox any-width"><input name="ticket_type_tiles" type="checkbox" value="<?= config_safe_str($type) ?>" <?= (in_array(config_safe_str($type),explode(',',$type_tiles)) ? 'checked' : '') ?>> Create Tile</label>
 			<img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle">
@@ -62,7 +76,7 @@ foreach($ticket_tabs as $type) { ?>
 		</div>
 		<div class="clearfix"></div>
 	</div>
-<?php } ?>
+<?php $i++; } ?>
 <hr>
 <label class="col-sm-3"><span class="popover-examples"><a data-toggle="tooltip" data-original-title="Enabling this option will add additional tiles to the menus for all <?= TICKET_NOUN ?> tabs, which can have specific security and display only the <?= TICKET_TILE ?> of a given type."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span>Display Tiles for ALL <?= TICKET_NOUN ?> Tabs:</label>
 <label class="form-checkbox"><input name="ticket_type_tiles" type="checkbox" <?= ($type_tiles == 'SHOW' ? 'checked' : '') ?>> Include ALL <?= TICKET_NOUN ?> Tabs</label>

@@ -110,18 +110,35 @@ if (isset($_POST['submit'])) {
 	if(empty($_POST['fsid'])) {
 		$query_insert_site = "INSERT INTO `field_foreman_sheet` (`jobid`, `afe_number`, `additional_info`, `siteid`, `description`, `contactid`, `positionname`, `crew_reg_hour`, `crew_ot_hour`, `crew_travel_hour`, `equipmentid`, `equ_billing_rate`, `equ_hours`, `stockmat_desc`, `stockmat_qty`, `stockmat_up`, `stockmat_amount`, `comment`, `comment_by`, `today_date`, `sub_pay`, `supervisor_status`) VALUES	('$jobid', '$afe_number', '$additional_info', '$siteid', '$description', '$contactid', '$positionname', '$crew_reg_hour', '$crew_ot_hour', '$crew_travel_hour', '$equipmentid', '$equ_billing_rate', '$equ_hours', '$stockmat_desc', '$stockmat_qty', '$stockmat_up', '$stockmat_amount', '$comment', '$comment_by', '$today_date', '$sub_pay', '$supervisor_status')";
 		$result_insert_site	= mysqli_query($dbc, $query_insert_site);
-        $fsid = mysqli_insert_id($dbc);
+    $fsid = mysqli_insert_id($dbc);
+		$before_change = '';
+    $history = "field_foreman_sheet entry has been added. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 	} else {
 		$fsid = $_POST['fsid'];
 		$query_update_site = "UPDATE `field_foreman_sheet` SET `afe_number` = '$afe_number', `additional_info` = '$additional_info', `siteid` = '$siteid', `description` = '$description', `contactid`	= '$contactid', `positionname` = '$positionname', `crew_reg_hour` =	'$crew_reg_hour', `crew_ot_hour` = '$crew_ot_hour', `crew_travel_hour` = '$crew_travel_hour', `equipmentid` = '$equipmentid', `equ_billing_rate` = '$equ_billing_rate', `equ_hours` = '$equ_hours', `stockmat_desc` = '$stockmat_desc', `stockmat_qty` = '$stockmat_qty', `stockmat_up` = '$stockmat_up', `stockmat_amount` = '$stockmat_amount', `comment` = CONCAT(comment,'$comment'), `comment_by` = CONCAT(comment_by,'$comment_by'), `supervisor_status` = '$supervisor_status', `today_date` = '$today_date', `sub_pay` = '$sub_pay' WHERE `fsid` = '$fsid'";
 		$result_update_site	= mysqli_query($dbc, $query_update_site);
+		$before_change = '';
+    $history = "field_invoice entry has been added for fsid -> $fsid. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
         if($jobid > 0) {
 			$old_jobid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `jobid` FROM `field_foreman_sheet` WHERE `fsid`='$fsid'"))['jobid'];
+			$before_change = capture_before_change($dbc, 'field_foreman_sheet', 'jobid', 'fsid', $fsid);
             mysqli_query($dbc, "UPDATE `field_foreman_sheet` SET `jobid` = '$jobid' WHERE `fsid` = '$fsid'");
+	    $history = capture_after_change('jobid', $jobid);
+	    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 			if($jobid != $old_jobid) {
+				$before_change = capture_before_change($dbc, 'field_work_ticket', 'jobid', 'fsid', $fsid);
 				mysqli_query($dbc, "UPDATE `field_work_ticket` SET `jobid`='$jobid' WHERE `fsid`='$fsid'");
+				$history = capture_after_change('jobid', $jobid);
+	    	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 				mysqli_query($dbc, "UPDATE `field_po` LEFT JOIN `field_work_ticket` ON CONCAT(',',`field_work_ticket`.`fieldpoid`,',') LIKE CONCAT('%,',`field_po`.`fieldpoid`,',%') SET `field_po`.`jobid`='$jobid' WHERE `field_work_ticket`.`fsid`='$fsid'");
+				$before_change = '';
+			  $history = "field_invoice entry has been added for fsid -> $fsid. <br />";
+			  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 			}
         }
 	}
@@ -257,8 +274,16 @@ if (isset($_POST['submit_status'])) {
     $today_date= $_POST['current_date'];
 	$query_update_site = "UPDATE `field_foreman_sheet` SET `afe_number` = '$afe_number', `additional_info` = '$additional_info', `siteid` = '$siteid', `description` = '$description', `contactid`	= '$contactid', `positionname` = '$positionname', `crew_reg_hour` =	'$crew_reg_hour', `crew_travel_hour` =	'$crew_travel_hour', `crew_ot_hour` = '$crew_ot_hour', `equipmentid` = '$equipmentid', `equ_billing_rate` = '$equ_billing_rate', `equ_hours` = '$equ_hours', `stockmat_desc` = '$stockmat_desc', `stockmat_qty` = '$stockmat_qty', `stockmat_up` = '$stockmat_up', `stockmat_amount` = '$stockmat_amount', `comment` = CONCAT(comment,'$comment'), `comment_by` = CONCAT(comment_by,'$comment_by'), $who = '$status', `today_date` = '$today_date' WHERE `fsid` = '$fsid'";
 	$result_update_site	= mysqli_query($dbc, $query_update_site);
+
+	$before_change = '';
+  $history = "field_foreman_sheet entry has been added for fsid -> $fsid. <br />";
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
     if($jobid > 0) {
+				$before_change = capture_before_change($dbc, 'field_foreman_sheet', 'jobid', 'fsid', $fsid);
         mysqli_query($dbc, "UPDATE `field_foreman_sheet` SET `jobid` = '$jobid' WHERE `fsid` = '$fsid'");
+				$history = capture_after_change('jobid', $jobid);
+	    	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
     }
 
 	if($who == 'supervisor_status' && $status == 'Approved') {
@@ -311,11 +336,17 @@ if (isset($_POST['submit_status'])) {
 
                 $query_insert_payroll = "INSERT INTO `field_payroll` (`fsid`, `contactid`, `positionid`,`reg`, `ot`, `travel`, `sub`,`created_date`) VALUES ('$fsid', '$eid', '$pid', '$crh', '$coh', '$cth', '$sub', '$created_date')";
                 $result_insert_payroll	= mysqli_query($dbc, $query_insert_payroll);
+								$before_change = '';
+						    $history = "field_payroll entry has been added. <br />";
+						    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
             }
         }
 
+		$before_change = capture_before_change($dbc, 'field_foreman_sheet', 'office_status', 'fsid', $fsid);
 		$query_update_status = "UPDATE `field_foreman_sheet` SET office_status = 'Pending' WHERE `fsid` = '$fsid'";
 		$result_update_status	= mysqli_query($dbc, $query_update_status);
+		$history = capture_after_change('office_status', 'Pending');
+	  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 		$get_job =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT job_number, clientid, contactid FROM field_jobs WHERE jobid='$jobid'"));
 
@@ -337,14 +368,27 @@ if (isset($_POST['submit_status'])) {
 	}
 
 	if($who == 'supervisor_status' && $status == 'Rejected') {
+		$before_change = capture_before_change($dbc, 'field_foreman_sheet', 'supervisor_status', 'fsid', $fsid);
+
 		$query_update_status = "UPDATE `field_foreman_sheet` SET supervisor_status = '' WHERE `fsid` = '$fsid'";
 		$result_update_status	= mysqli_query($dbc, $query_update_status);
+
+		$history = capture_after_change('supervisor_status', '');
+	  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 		echo '<script type="text/javascript"> alert("Foreman Sheet is Rejected by Supervisor."); window.location.replace("add_field_foreman_sheet.php?jobid='.$jobid.'&fsid='.$fsid.'"); </script>';
 	}
 
 	if($who == 'office_status' && $status == 'Rejected') {
+		$before_change = capture_before_change($dbc, 'field_foreman_sheet', 'supervisor_status', 'fsid', $fsid);
+		$before_change .= capture_before_change($dbc, 'field_foreman_sheet', 'office_status', 'fsid', $fsid);
+
 		$query_update_status = "UPDATE `field_foreman_sheet` SET supervisor_status = 'Pending', office_status = '' WHERE `fsid` = '$fsid'";
 		$result_update_status	= mysqli_query($dbc, $query_update_status);
+
+		$history = capture_after_change('supervisor_status', 'Pending');
+		$history .= capture_after_change('office_status', '');
+	  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 		echo '<script type="text/javascript"> alert("Foreman Sheet is Rejected by Office."); window.location.replace("add_field_foreman_sheet.php?jobid='.$jobid.'&fsid='.$fsid.'"); </script>';
 	}
 
@@ -752,7 +796,7 @@ $(document).ready(function() {
             $('#edit_here_new_stockmat').append(clone);
             return false;
     });
-	
+
 	$('[name="contactid[]"]').off('change',updateCrewPosition).change(updateCrewPosition);
 
 	$('[id^=equrate]').change();
@@ -1179,7 +1223,7 @@ function job_select(sel) {
                                 if($sub_pay[$emp_loop] == 1) {
                                     $sp = 1;
                                 }
-								
+
 								$crew_rate = 0; ?>
 
 								<div class="form-group clearfix">
@@ -1207,7 +1251,7 @@ function job_select(sel) {
 											while($row = mysqli_fetch_array($query)) { ?>
 												<option data-rate="<?= $row['hourly'] ?>" <?php if ($cp == $row['position_id']) {
 													$crew_rate = $row['hourly'];
-													echo " selected='selected'"; 
+													echo " selected='selected'";
 												} ?> data-label="<?= $row['name'] ?>" value='<?php echo  $row['position_id']; ?>' ><?php echo $row['name']; ?></option>
 											<?php } ?>
 										</select>

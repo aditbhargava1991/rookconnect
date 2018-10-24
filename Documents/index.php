@@ -10,7 +10,7 @@ $(document).ready(function() {
 	$(window).resize(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').not('.show-on-mob .main-screen').is(':visible')) {
-			var available_height = window.innerHeight - $(footer).outerHeight() - $('.sidebar:visible').offset().top;
+			var available_height = window.innerHeight - $(footer).outerHeight() - $('.standard-body:visible').offset().top;
 			if(available_height > 200) {
 				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
@@ -38,9 +38,9 @@ include_once('document_settings.php');
 			<div class="tile-header standard-header">
                 <div class="pull-right settings-block"><?php
 	                if($config_access == 1) {
-	                    echo "<div class='pull-right gap-left'><a href='?tile_name=".$tile_name."&settings=tabs'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
+	                    echo "<div class='pull-right gap-left'><a href='?tile_name=".$tile_name."&settings=".(!empty($tile_name) ? $tile_name : 'tabs')."'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
 	                }
-                    if($edit_access == 1) {
+                    if($edit_access == 1 && ($dashboard_layout != 'tile' || !empty($_GET['tab']))) {
 						echo "<div class='pull-right gap-left'><a href='?tile_name=".$tile_name."&tab=".$_GET['tab']."&edit=' class='new-btn'><button class='btn brand-btn hide-titles-mob'>New ".$tab_type."</button></a></div>";
                     } ?>
                 </div>

@@ -11,7 +11,6 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 	if(vuaed_visible_function($dbc, 'ticket') > 0) {
 		$clickable_html .= 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"';
 	}
-	$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 
 	$dispatch_tile_ticket_card_fields = explode(',',get_config($dbc, 'dispatch_tile_ticket_card_fields'));
 
@@ -80,6 +79,15 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
 	}
 	$row_html .= '<div class="clearfix"></div>';
+	$row_html .= '<span class="bottom-right no-toggle" title="'.$ticket['status'].' as of '.$ticket['status_date'].($ticket['status_contact'] > 0 ? ' by '.get_contact($dbc, $ticket['status_contact']) : '').'">'.$ticket['status'].' '.date('H:i',strtotime($ticket['status_date'])).'</span>';
+    $row_html .= dispatch_delivery_hover_icons($dbc, $ticket, $stop_number, $clickable_html, $dispatch_tile_ticket_card_fields);
+
+	return $row_html;
+}
+
+function dispatch_delivery_hover_icons($dbc, $ticket, $stop_number, $clickable_html, $dispatch_tile_ticket_card_fields) {
+    $row_html = '';
+	$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 	if(in_array('camera',$dispatch_tile_ticket_card_fields)) {
 		$existing_photos = [];
 
@@ -217,7 +225,45 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 
 		$row_html .= '<img '.$clickable_html.' src="../img/icons/ROOK-reply-icon.png" class="no-slider inline-img dispatch-equipment-customer-notes '.$notes_class.'" onmouseover="display_customer_notes(this);" onmouseout="hide_customer_notes();">'.$notes_html;
 	}
-	$row_html .= '<span class="bottom-right">'.$ticket['status'].'</span>';
+    return $row_html;
+}
+function draw_svg_truck($ontime, $notontime, $ongoing) {
+	$total_stops = $ontime + $notontime + $ongoing;
 
-	return $row_html;
+	$curr_x = 62;
+	$ontime_polygon = '';
+	$notontime_polygon = '';
+	$ongoing_polygon = '';
+	if($ontime > 0) {
+		$width = ceil(($ontime / $total_stops) * 126);
+		if(($width + $curr_x) > 188) {
+			$width = 188 - $curr_x;
+		}
+		$ontime_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#00ff00;fill-rule:evenodd;"/>';
+		$curr_x += $width;
+	}
+	if($notontime > 0) {
+		$width = ceil(($notontime / $total_stops) * 126);
+		if(($width + $curr_x) > 188) {
+			$width = 188 - $curr_x;
+		}
+		$notontime_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#ff0000;fill-rule:evenodd;"/>';
+		$curr_x += $width;
+	}
+	if($ongoing > 0) {
+		$width = ceil(($ongoing / $total_stops) * 126);
+		if(($width + $curr_x) > 188) {
+			$width = 188 - $curr_x;
+		}
+		$ongoing_polygon = '<polygon points="'.$curr_x.',12 '.$curr_x.',66 '.($width+$curr_x).',66 '.($width+$curr_x).',12" stroke-linejoin="round" style="fill:#ddd;fill-rule:evenodd;"/>';
+		$curr_x += $width;
+	}
+	$truck_html = '<svg height="100" width="200">
+		<polygon points="40,30 25,55 10,65 10,85 182,85 182,68 60,68 60,30" stroke-linejoin="round" style="fill:#777;stroke:black;stroke-width:5;fill-rule:evenodd;"/>
+		<circle cx="40" cy="85" r="10" stroke="black" stroke-width="5" fill="white" />
+		<circle cx="155" cy="85" r="10" stroke="black" stroke-width="5" fill="white" />
+		<polygon points="60,10 60,68 190,68 190,10" stroke-linejoin="round" style="fill:white;stroke:black;stroke-width:5;fill-rule:evenodd;"/>'.
+		$ontime_polygon.$notontime_polygon.$ongoing_polygon.
+	'</svg>';
+	return $truck_html;
 }

@@ -34,6 +34,10 @@ if (isset($_POST['upload_doc'])) {
 
     $result_update_bid = mysqli_query($dbc, $query_update_bid);
 
+		$before_change = '';
+    $history = "field_po entry has been updated for fieldpoid -> $fieldpoid. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
     echo '<script type="text/javascript"> window.location.replace("field_jobs.php"); </script>';
 }
 
@@ -42,6 +46,11 @@ if((!empty($_GET['workticketid'])) && ($_GET['status'] == 'Approve')) {
 	$today_date = date('Y-m-d');
 	$query_update_site = "UPDATE `field_work_ticket` SET `status` = 'Approved', `date_received` = '$today_date' WHERE	`workticketid` = '$workticketid'";
 	$result_update_site	= mysqli_query($dbc, $query_update_site);
+
+	$before_change = '';
+	$history = "field_work_ticket entry has been updated for workticketid -> $workticketid. <br />";
+	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 	echo '<script type="text/javascript"> window.location.replace("field_jobs.php"); </script>';
 }
 
@@ -49,6 +58,11 @@ if((!empty($_GET['workticketid'])) && ($_GET['status'] == 'Revert')) {
 	$workticketid = $_GET['workticketid'];
 	$query_update_site = "UPDATE `field_work_ticket` SET `status` = 'Pending', `date_received` = '' WHERE	`workticketid` = '$workticketid'";
 	$result_update_site	= mysqli_query($dbc, $query_update_site);
+
+	$before_change = '';
+	$history = "field_work_ticket entry has been updated for workticketid -> $workticketid. <br />";
+	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 	echo '<script type="text/javascript"> window.location.replace("field_jobs.php"); </script>';
 }
 
@@ -98,14 +112,30 @@ if((!empty($_GET['jobid'])) && (!empty($_GET['action']))) {
 	$query_update_job = "UPDATE `field_jobs` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_job	= mysqli_query($dbc, $query_update_job);
 
+	$before_change = '';
+	$history = "field_jobs entry has been updated for jobid -> $jobid. <br />";
+	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 	$query_update_po = "UPDATE `field_po` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_po	= mysqli_query($dbc, $query_update_po);
+
+	$before_change = '';
+	$history = "field_po entry has been updated for jobid -> $jobid. <br />";
+	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 	$query_update_fs = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_fs	= mysqli_query($dbc, $query_update_fs);
 
+	$before_change = '';
+	$history = "field_foreman_sheet entry has been updated for jobid -> $jobid. <br />";
+	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 	$query_update_in = "UPDATE `field_invoice` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_in	= mysqli_query($dbc, $query_update_in);
+
+	$before_change = '';
+	$history = "field_invoice entry has been updated for jobid -> $jobid. <br />";
+	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 	header('Location: field_jobs.php');
 }

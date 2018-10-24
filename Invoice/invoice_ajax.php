@@ -1,4 +1,4 @@
-<?php 
+<?php
 include('../include.php');
 ob_clean();
 
@@ -201,9 +201,11 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0");echo "INSERT INTO `general_configuration` SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0";
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value' WHERE `name`='$name'");
 } else if($_GET['action'] == 'load_ticket_details') {
+	$value_config = ','.get_config($dbc, 'project_admin_fields').',';
 	$ticketid = $_POST['ticketid'];
 
 	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets`.*, SUM(`ticket_schedule`.`id`) `deliveries` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 AND IFNULL(`ticket_schedule`.`serviceid`,'') != '' WHERE `tickets`.`ticketid` = '$ticketid'"));
+	$total_service_price = 0;
 	if($ticket['ticketid'] > 0) { ?>
 		<?php if(!empty($ticket['serviceid']) || $ticket['deliveries'] > 0) { ?>
 			<div class="form-group clearfix hide-titles-mob">
@@ -260,6 +262,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
             }
             $price += ($fuel / $qty);
             $price -= (($dis_type == '%' ? $discount / 100 * $price_total : $discount) / $qty);
+            $total_service_price += $price;
             $service_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service'")); ?>
             <div class="dis_service form-group">
                 <div class="col-sm-3">
@@ -341,6 +344,39 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 				<input type="hidden" name="misc_ticketid[]" value="<?= $ticketid ?>">
 			</div>
 		<?php }
+        if(strpos($value_config, ',Additional KM Charge,') !== FALSE) {
+            $travel_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`hours_travel`) `travel_km` FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0"))['travel_km'];
+            $total_travel_km = $total_service_price * $travel_km;
+            if($total_travel_km > 0) {
+				if(!$misc_headings) {
+					$misc_headings = true; ?>
+					<div class="form-group clearfix hide-titles-mob">
+						<label class="col-sm-5 text-center">Product Name</label>
+						<label class="col-sm-3 text-center">Price</label>
+		                <label class="col-sm-1 text-center">Qty</label>
+		                <label class="col-sm-3 text-center">Total</label>
+					</div>
+				<?php }
+                $description = 'Additional KM Charge';
+                $qty = 1;
+                $price = $total_travel_km; ?>
+				<div class="dis_misc form-group">
+					<div class="col-sm-5">
+						<input type="text" readonly name="misc_item[]" value="<?= $description ?>" class="form-control misc_name">
+					</div>
+					<div class="col-sm-3">
+						<input type="text" readonly name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+					</div>
+					<div class="col-sm-1">
+						<input type="text" readonly name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+					</div>
+					<div class="col-sm-3">
+						<input type="text" readonly name="misc_total[]" value="<?= $price * $qty ?>" class="form-control misc_total">
+					</div>
+					<input type="hidden" name="misc_ticketid[]" value="<?= $ticketid ?>">
+				</div>
+            <?php }
+        }
 	}
 } else if($_GET['action'] == 'void_invoice') {
     $invoiceid = preg_replace('/[^0-9]/', '', $_POST['invoiceid']);
@@ -419,7 +455,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	}else{
 		$logo = dirname(__FILE__).'/'.$logo;
 	}
-	
+
 	$invoice_header = get_config($dbc, 'invoice_header');
 	if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_header_'.$point_of_sell['type']))) {
 	    $invoice_header = get_config($dbc, 'invoice_header_'.$point_of_sell['type']);
@@ -467,7 +503,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 							<table style="width:100%;"><tr><td colspan="6">BILL TO :</td></tr><tr><td colspan="6">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).($customer['mailing_address']!='' ? '<br>'.$customer['mailing_address']:'').($customer['city']!='' ? '<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code']:'').(decryptIt($customer['cell_phone'])!='' ? '<br>'.decryptIt($customer['cell_phone']):'').(decryptIt($customer['email_address'])!='' ? '<br>'.decryptIt($customer['email_address']):'').'</td></tr>
 							</table>
 						</td>
-						
+
 						<td colspan ="6" style="text-align:right;">
 							<table style="width:100%;"><tr><td align="right" colspan ="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td align="right"  colspan ="6">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
 							</table>
@@ -516,7 +552,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 						$html .= '<td style="text-align:right; " colspan="2" align="right">$'.number_format($amount,2).'</td>';
 					$html .= '</tr>';
 				}
-		        
+
 		        $returned_amt += $price * $returned;
 			}
 
@@ -670,7 +706,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 					$html .= $pdf_tax;
 					//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
 				}
-		        
+
 				$total_returned_amt = 0;
 		        if($returned_amt != 0) {
 					$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
@@ -678,7 +714,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		            $html .= '<tr><td align="right" width="90%" colspan="10"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$total_returned_amt.'</td></tr>';
 				}
 
-		        
+
 				$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Total</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
 				if($point_of_sell['deposit_paid'] > 0) {
 					$html .='<tr><td align="right" width="90%" colspan="10"><strong>Deposit Paid</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['deposit_paid'].'</td></tr>';
@@ -744,7 +780,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		$returned_amt = 0;
 		$num_rows = mysqli_num_rows($result);
 		$num_rows2 = mysqli_num_rows($result2);
-		
+
 		if($num_rows > 0 || $num_rows2 > 0) {
 			$j = $countItems;
 			while ( $row = mysqli_fetch_array ( $result ) ) {
@@ -925,7 +961,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 			$html .= $pdf_tax;
 			//$tax = $xml->addChild('tax', $pdf_tax);
 		}
-        
+
 		$total_returned_amt = 0;
         if($returned_amt != 0) {
 			$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);

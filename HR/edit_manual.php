@@ -88,68 +88,65 @@ if(isset($_POST['submit'])) {
 			}
 		}
 	}
-	$back_url = '?tile_name=".$tile."';
-	if(isset($_GET['back_url'])) {
-		$back_url = urldecode($_GET['back_url']);
-	}
+	$back_url = '?tile_name='.$tile.'&tab='.$_POST['submit_url'];
 	echo "<script> window.location.replace('".$back_url."'); </script>";
 } ?>
 <script>
-$(document).ready(function () {
-        $('#deselect_all').click(function () {
-            $('#assign_staff').val('').trigger("change");
-        });
-});
+    $(document).ready(function () {
+            $('#deselect_all').click(function () {
+                $('#assign_staff').val('').trigger("change");
+            });
+    });
 
-function changeCategory(category) {
-	$.ajax({
-		url: 'hr_ajax.php?action=set_category',
-		method: 'POST',
-		data: {
-			category: category
-		},
-		success: function(response) {
-			$('[name=heading_number]').html(response).trigger('change.select2');
-		}
-	});
-}
-function changeSection(section) {
-	$.ajax({
-		url: 'hr_ajax.php?action=set_manual_section',
-		method: 'POST',
-		data: {
-			section: section,
-			category: $('[name=category]').val()
-		},
-		success: function(response) {
-			response = response.split('#*#');
-			$('[name=heading]').val(response[0]);
-			$('[name=sub_heading_number]').html(response[1]).trigger('change.select2');
-		}
-	});
-}
-function changeSubSection(subsection) {
-	$.ajax({
-		url: 'hr_ajax.php?action=set_manual_subsection',
-		method: 'POST',
-		data: {
-			subsection: subsection,
-			category: $('[name=category]').val()
-		},
-		success: function(response) {
-			response = response.split('#*#');
-			$('[name=sub_heading]').val(response[0]);
-			$('[name=third_heading_number]').html(response[1]).trigger('change.select2');
-		}
-	});
-}
-function displayRecurringDueDate(chk) {
-	if($(chk).is(':checked')) {
-		$(chk).closest('.recurring_block').find('.recurring_due_date').show();
-	} else {
-		$(chk).closest('.recurring_block').find('.recurring_due_date').hide();
-	}
-}
+    function changeCategory(category) {
+        $.ajax({
+            url: 'hr_ajax.php?action=set_category',
+            method: 'POST',
+            data: {
+                category: category
+            },
+            success: function(response) {
+                $('[name=heading_number]').html(response).trigger('change.select2');
+            }
+        });
+    }
+    function changeSection(section) {
+        $.ajax({
+            url: 'hr_ajax.php?action=set_manual_section',
+            method: 'POST',
+            data: {
+                section: section,
+                category: $('[name=category]').val()
+            },
+            success: function(response) {
+                response = response.split('#*#');
+                $('[name=heading]').val(response[0]);
+                $('[name=sub_heading_number]').html(response[1]).trigger('change.select2');
+            }
+        });
+    }
+    function changeSubSection(subsection) {
+        $.ajax({
+            url: 'hr_ajax.php?action=set_manual_subsection',
+            method: 'POST',
+            data: {
+                subsection: subsection,
+                category: $('[name=category]').val()
+            },
+            success: function(response) {
+                response = response.split('#*#');
+                $('[name=sub_heading]').val(response[0]);
+                $('[name=third_heading_number]').html(response[1]).trigger('change.select2');
+            }
+        });
+    }
+    function displayRecurringDueDate(chk) {
+        if($(chk).is(':checked')) {
+            $(chk).closest('.recurring_block').find('.recurring_due_date').show();
+        } else {
+            $(chk).closest('.recurring_block').find('.recurring_due_date').hide();
+        }
+    }
 </script>
 <?php $field_config = explode(',',get_config($dbc, 'hr_fields'));
 $get_manual = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `manuals` WHERE `manualtypeid`='$manualid'"));
@@ -157,6 +154,11 @@ $fields = explode(',',$get_manual['fields']); ?>
 <div class='scale-to-fill has-main-screen hide-titles-mob'>
 	<div class='main-screen form-horizontal'>
 		<form class="form-horizontal" action="" method="POST" enctype="multipart/form-data">
+            <?php
+            if(!empty($_GET['tab'])) {
+                echo '<input type="hidden" name="submit_url" value="'.$_GET['tab'].'" />';
+            }
+            ?>
             <div class="standard-body-title">
                 <h3><?= $manualid > 0 ? 'Edit' : 'Create' ?> Manual</h3>
             </div>

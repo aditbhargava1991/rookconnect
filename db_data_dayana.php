@@ -308,6 +308,15 @@ mysqli_query($dbc, "ALTER TABLE `staff_documents_uploads` ADD `document_link_nam
 
 mysqli_query($dbc, "ALTER TABLE `marketing_material_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
 
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `days_per_week` INT(10) NULL AFTER `hours_of_operation`, ADD `hours_per_week` INT(10) NULL AFTER `days_per_week`");
+
+mysqli_query($dbc, "ALTER TABLE `invoice` ADD `customer_billing_status` VARCHAR(200) NULL DEFAULT 'Pending' AFTER `patient_payment_receipt`");
+
+
+mysqli_query($dbc, "ALTER TABLE `task_board` ADD `flag_label` VARCHAR(200) NULL AFTER `date_of_archival`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
+
+mysqli_query($dbc, "ALTER TABLE `project` ADD `classification1` VARCHAR(500) NULL AFTER `flag_label`");
 
     echo "Dayana's DB Changes Done<br />\n";
+
 ?>

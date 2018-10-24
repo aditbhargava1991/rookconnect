@@ -287,6 +287,7 @@ function show_hide_email() {
                         if (strpos($value_config, ','."total_price".',') !== FALSE) { echo '<th>Total Price</th>'; }
                         if (strpos($value_config, ','."payment_type".',') !== FALSE) { echo '<th>Payment Type</th>'; }
                         if (strpos($value_config, ','."delivery".',') !== FALSE) { echo '<th>Delivery/Shipping Type</th>'; }
+                        if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) { echo '<th>Customer Billing Status</th>'; }
                         if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) { echo '<th>Invoice PDF</th>'; }
                         if (strpos($value_config, ','."comment".',') !== FALSE) { echo '<th>Comment</th>'; }
                         if (strpos($value_config, ','."status".',') !== FALSE) { echo '<th>Status</th>'; }
@@ -316,7 +317,7 @@ function show_hide_email() {
                 echo "<tr>";
 
                 if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-                    echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : '<a href="add_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'">Edit '.$invoice['invoice_type'].'</a> #'). $invoice['invoiceid'].($invoice['invoiceid_src'] > 0 ? '<br />For Invoice #'.$invoice['invoiceid_src'] : '') . '</td>';
+                    echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : '<a href="create_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'">Edit '.$invoice['invoice_type'].'</a> #'). $invoice['invoiceid'].($invoice['invoiceid_src'] > 0 ? '<br />For Invoice #'.$invoice['invoiceid_src'] : '') . '</td>';
                 }
                 if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
                     echo '<td data-title="Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
@@ -333,6 +334,9 @@ function show_hide_email() {
                 if (strpos($value_config, ','."delivery".',') !== FALSE) {
                     echo '<td data-title="Delivery">' . $invoice['delivery_type'] . '</td>';
                 }
+                if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) {
+                    echo '<td data-title="Customer Billing Status">' . $invoice['customer_billing_status'] . '</td>';
+                }
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     echo '<td data-title="Invoice PDF">';
                     if(file_exists($invoice_pdf)) {
@@ -342,7 +346,7 @@ function show_hide_email() {
                         echo '<a target="_blank" href="download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
                     } else if($invoice['invoiceid_src'] > 0 && file_exists('Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
                         echo '<a target="_blank" href="Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
-                    } 
+                    }
                     echo '</td>';
                 }
                 if (strpos($value_config, ','."comment".',') !== FALSE) {

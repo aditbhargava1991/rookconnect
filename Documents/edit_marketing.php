@@ -168,6 +168,9 @@ $(document).ready(function() {
 
 <?php
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT marketing_material FROM field_config"));
+    if(empty($get_field_config['marketing_material'])) {
+        $get_field_config['marketing_material'] = 'Marketing Material Type,Category,Title,Uploader,Link';
+    }
     $value_config = ','.$get_field_config['marketing_material'].',';
 
     $marketing_material_type = '';

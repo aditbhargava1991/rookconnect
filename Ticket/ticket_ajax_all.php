@@ -541,6 +541,19 @@ if($_GET['action'] == 'add_pieces') {
 		}
 	}
 }
+if($_GET['action'] == 'no_bill') {
+    $billable = get_field_value('service_no_bill',$_POST['table'],$_POST['id_field'],$_POST['id']);
+    $billable = explode(',',$billable);
+    if($_POST['value'] > 0) {
+        $billable[] = $_POST['serviceid'];
+    } else {
+        $row = array_search($_POST['serviceid'],$billable);
+        if($row !== false) {
+            unset($billable[$row]);
+        }
+    }
+    set_field_value(implode(',',array_filter($billable)),'service_no_bill', $_POST['table'], $_POST['id_field'], $_POST['id']);
+}
 if($_GET['action'] == 'update_fields') {
 	$table_name = filter_var($_POST['table'],FILTER_SANITIZE_STRING);
 	$field_name = filter_var($_POST['field'],FILTER_SANITIZE_STRING);
@@ -613,6 +626,7 @@ if($_GET['action'] == 'update_fields') {
 			mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, `sort`, `warehouse_location`, `container`, `manifest_num`) SELECT `ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, (`sort` + 1), `warehouse_location`, `container`, `manifest_num` FROM `ticket_schedule` WHERE `ticketid` = '".$ticketid."' AND `deleted` = 0 ORDER BY `sort` DESC LIMIT 1");
 			echo 'created_unscheduled_stop';
 		}
+        $dbc->query("UPDATE `$table_name` SET `status_contact`='".$_SESSION['contactid']."' WHERE `$id_field`='$id'");
 	}
 	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
 		$value = date('Y-m-d '.TIME_FORMAT_SEC, strtotime($value));
@@ -725,6 +739,7 @@ if($_GET['action'] == 'update_fields') {
 		}
 		if($table_name == 'ticket_attached') {
 			mysqli_query($dbc, "UPDATE `$table_name` SET `date_stamp`='".date('Y-m-d')."' WHERE `$id_field`='$id'");
+			mysqli_query($dbc, "UPDATE `$table_name` SET `created_by`='{$_SESSION['contactid']}' WHERE `$id_field`='$id'");
 		} else {
 			mysqli_query($dbc, "UPDATE `$table_name` SET `created_by`='{$_SESSION['contactid']}' WHERE `$id_field`='$id'");
 			mysqli_query($dbc, "UPDATE `$table_name` SET `created_date`=CURRENT_TIMESTAMP WHERE `$id_field`='$id'");
@@ -756,12 +771,12 @@ if($_GET['action'] == 'update_fields') {
 		$append = filter_var(htmlentities($_POST['append_note']),FILTER_SANITIZE_STRING);
 		$dbc->query("UPDATE `ticket_attached` SET `notes`=CONCAT(IFNULL(`notes`,''),'$append') WHERE `id`='$id' AND `notes` NOT LIKE '%$append'");
 	}
-	if($table_name == 'ticket_attached' && $field_name == 'item_id' && $type == 'material') {
+	if($table_name == 'ticket_attached' && ($field_name == 'item_id' || $field_name == 'description') && $type == 'material') {
 		if($_POST['auto_checkin'] == 1) {
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `arrived` = 1 WHERE `id`='$id'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `arrived` = 1, `checked_in`=DATE_FORMAT(NOW(),'%H:%i:%s') WHERE `id`='$id'");
 		}
 		if($_POST['auto_checkout'] == 1) {
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `completed` = 1 WHERE `id`='$id'");
+			mysqli_query($dbc, "UPDATE `ticket_attached` SET `completed` = 1, `checked_out`=DATE_FORMAT(NOW(),'%H:%i:%s') WHERE `id`='$id'");
 		}
 	}
 	if($table_name == 'ticket_attached' && ($field_name == 'arrived' || $field_name == 'completed')) {
@@ -1472,22 +1487,33 @@ if($_GET['action'] == 'update_fields') {
 	}
 } else if($_GET['action'] == 'business_services_fetch') {
 	$businessid = filter_var($_GET['business'],FILTER_SANITIZE_STRING);
-    $serviceid = get_contact($dbc, $businessid, 'serviceid');
+    $template_list = get_contact($dbc, $businessid, 'service_templates');
+    $service_list = [];
+    foreach(explode(',',$template_list) as $templateid) {
+        if($templateid > 0) {
+            foreach(explode(',',get_field_value('serviceid','services_service_templates','templateid',$templateid)) as $service) {
+                $service_list[] = $service;
+            }
+        }
+    }
 	$rate_contact = get_config($dbc, 'rate_card_contact_'.$tab) ?: get_config($dbc, 'rate_card_contact');
 
 	$services = explode('**',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services` FROM `rate_card` WHERE `clientid` = '$businessid' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') ORDER BY `clientid`='$rate_contact' DESC"))['services']);
-	foreach($services as $service) {
-		$service = explode('#',$service);
-		if($service[0] ==  $serviceid) {
-			$row_price = $service[1];
-		}
+    foreach($service_list as &$serviceid) {
+        foreach($services as $service) {
+            $service = explode('#',$service);
+            if($service[0] ==  $serviceid) {
+                $serviceid .= 'FFM'.$row_price;
+            }
+        }
 	}
+    echo implode('#*#',$service_list);
 
-	$services = mysqli_query($dbc, "SELECT `serviceid`, `heading` FROM `services` WHERE `serviceid`= '$serviceid'");
+	/* $services = mysqli_query($dbc, "SELECT `serviceid`, `heading` FROM `services` WHERE `serviceid`= '$serviceid'");
 	while($service = mysqli_fetch_assoc($services)) {
 		//echo "<option data-rate-price='".$row_price."' value='".$serviceid."'>". get_services($dbc, $serviceid, 'heading')."</option>";
         echo $serviceid.'FFM'.$row_price;
-	}
+	} */
 } else if($_GET['action'] == 'addition') {
 	$ticketid = filter_var($_GET['src_id'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `category`, `businessid`, `clientid`, `siteid`, `location`, `location_address`, `location_google`, `address`, `google_maps`, `site_location`, `lsd`, `location_notes`, `projectid`, `afe_number`, `heading`) SELECT `ticket_type`, `category`, `businessid`, `clientid`, `siteid`, `location`, `location_address`, `location_google`, `address`, `google_maps`, `site_location`, `lsd`, `location_notes`, `projectid`, `afe_number`, CONCAT('Addition to ".TICKET_NOUN." #',`ticketid`,' - ',`heading`) FROM `tickets` WHERE `ticketid`='$ticketid'");
@@ -1635,6 +1661,7 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, $_POST['ticket_new_email_subject'], filter_var($_POST['ticket_new_email_subject_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, $_POST['ticket_new_email_body'], filter_var($_POST['ticket_new_email_body_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, $_POST['delivery_default_tabs'], filter_var($_POST['delivery_default_tabs_value'],FILTER_SANITIZE_STRING), 1);
+		set_config($dbc, $_POST['ticket_invoice_type'], filter_var($_POST['ticket_invoice_type_value'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING), 1);
 		set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING), 1);
@@ -1736,6 +1763,7 @@ if($_GET['action'] == 'update_fields') {
 		set_config($dbc, $_POST['ticket_new_email_subject'], filter_var($_POST['ticket_new_email_subject_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, $_POST['ticket_new_email_body'], filter_var($_POST['ticket_new_email_body_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, $_POST['delivery_default_tabs'], filter_var($_POST['delivery_default_tabs_value'],FILTER_SANITIZE_STRING));
+		set_config($dbc, $_POST['ticket_invoice_type'], filter_var($_POST['ticket_invoice_type_value'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'auto_archive_complete_tickets', filter_var($_POST['auto_archive_complete_tickets'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'delivery_km_service', filter_var($_POST['delivery_km_service'],FILTER_SANITIZE_STRING));
 		set_config($dbc, 'incomplete_inventory_reminder_email', filter_var($_POST['incomplete_inventory_reminder_email'],FILTER_SANITIZE_STRING));
@@ -1842,6 +1870,7 @@ if($_GET['action'] == 'update_fields') {
 } else if($_GET['action'] == 'ticket_types') {
 	// Save the settings for ticket dashboard fields
 	set_config($dbc, 'ticket_tabs', filter_var(implode(',',$_POST['types']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'ticket_tabs_color', filter_var(implode(',',$_POST['color_lists']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'ticket_type_tiles', filter_var($_POST['tiles'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'default_ticket_type', filter_var($_POST['default_ticket_type'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'ticket_status_list') {
@@ -2340,7 +2369,11 @@ if($_GET['action'] == 'update_fields') {
 	$ticketid = filter_var($_POST['ticketid'], FILTER_SANITIZE_STRING);
 	$identifier = filter_var($_POST['identifier'], FILTER_SANITIZE_STRING);
 	$id = filter_var($_POST['id'], FILTER_SANITIZE_STRING);
-	$dbc->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `ticketid`='$ticketid' AND `$identifier`='$id'");
+	if($table_name == 'tickets') {
+		$dbc->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `ticketid`='$ticketid'");
+	} else {
+		$dbc->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `ticketid`='$ticketid' AND `$identifier`='$id'");
+	}
 	mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Row #$id of $table_name updated: $field_name updated to $value)");
 } else if($_GET['action'] == 'quick_actions') {
 	$id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
@@ -2549,7 +2582,8 @@ if($_GET['action'] == 'update_fields') {
 	}
 } else if($_GET['action'] == 'list_customer_service_templates') {
 	$contact = filter_var($_GET['contactid'],FILTER_SANITIZE_STRING);
-	echo mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$contact'"))['serviceid'];
+    $template_list = explode(',',get_contact($dbc, $contact, 'service_templates'));
+	echo mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$contact' AND `templateid` IN ('".implode("','",$template_list)."') OR '".implode(',',$template_list)."' = ''"))['serviceid'];
 } else if($_GET['action'] == 'get_customer_service_templates') {
 	echo '<option></option>';
 	$clientid = $_GET['clientid'];

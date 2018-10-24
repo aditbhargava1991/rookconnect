@@ -68,6 +68,9 @@ if (isset($_POST['tasklist'])) {
     $task_external = filter_var($_POST['external'],FILTER_SANITIZE_STRING);
 	$project_milestone = filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING);
 	$project_milestone = str_replace(["FFMHASH","FFMSPACE","FFMEND"],["#"," ","&"],$project_milestone);
+    if($task_projectid > 0) {
+        $project_milestone = $task_milestone_timeline;
+    }
     if ( empty($task_milestone_timeline) && !empty($task_projectid) ) {
         $get_task_milestone = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT ppm.project_path_milestone, ppm.milestone FROM project_path_milestone ppm, project p WHERE p.projectid='$task_projectid' AND p.project_path=ppm.project_path_milestone"));
         $milestones_list = explode('#*#', $get_task_milestone['milestone']);
@@ -991,13 +994,16 @@ function track_icon_time(task) {
                 $task_updateddate = $get_task['updated_date'];
                 $task_updatedby = $get_task['updated_by'];
 
-                $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT board_security FROM task_board WHERE taskboardid='$task_board'"));
+                $get_taskboard = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM task_board WHERE taskboardid='$task_board'"));
                 $board_security = $get_taskboard['board_security'];
                 if($task_salesid > 0) {
                     $board_security = 'Sales';
                 }
                 if($task_projectid > 0) {
                     $board_security = 'Project';
+                }
+                if($board_security == 'Company') {
+                    $board_security = 'Shared';
                 }
 
                 /*
@@ -1013,8 +1019,8 @@ function track_icon_time(task) {
                 $task_projectid = $_GET['projectid'];
                 $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT `businessid`, `clientid`, `project_path` FROM `project` WHERE `projectid`='$task_projectid'"));
                 $task_businessid = $project['businessid'];
-                $task_contactid = $project['clientid'];
-                $task_path = $project['project_path'];
+                //$task_contactid = $project['clientid'];
+                //$task_path = $project['project_path'];
                 //$project_section_display = 'display:block;';
                 $board_security = 'Project';
 

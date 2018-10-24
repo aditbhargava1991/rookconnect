@@ -241,6 +241,7 @@ function tasksInit() {
 				url: "task_ajax_all.php?fill=tasklist&tasklistid="+taskid+"&table="+table+"&id_field="+id_field+"&task_milestone_timeline="+status,
 				dataType: "html",   //expect html to be returned
 				success: function(response){
+					location.reload();
 				}
 			});
 		}

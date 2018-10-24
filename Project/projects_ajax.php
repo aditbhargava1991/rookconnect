@@ -332,8 +332,9 @@ if($_GET['action'] == 'mark_favourite') {
 		mysqli_query($dbc, "INSERT INTO `$table` (`projectid`) VALUES ('$project')");
 		$id = mysqli_insert_id($dbc);
         if($table == 'tasklist' && $field == 'heading') {
+            $task_path = explode('|', $_POST['task_path'])[1];
             $default_task = get_config($dbc, 'task_default_status');
-            mysqli_query($dbc, "UPDATE `tasklist` SET `status` = '$default_task', `task_tododate`='".date('Y-m-d')."', `contactid`='".$_SESSION['contactid']."' WHERE `tasklistid`='$id'");
+            mysqli_query($dbc, "UPDATE `tasklist` SET `status` = '$default_task', `task_path` = '$task_path', `task_tododate`='".date('Y-m-d')."', `contactid`='".$_SESSION['contactid']."' WHERE `tasklistid`='$id'");
         }
 		if($type != '' && $type_field != '') {
 			mysqli_query($dbc, "UPDATE `$table` SET `$type_field`='$type' WHERE `$id_field`='$id'");
@@ -830,6 +831,7 @@ if($_GET['action'] == 'mark_favourite') {
 	$signature = filter_var($_POST['signature'], FILTER_SANITIZE_STRING);
 	$precedence = filter_var($_POST['precedence'], FILTER_SANITIZE_STRING);
 	$status = filter_var($_POST['status'], FILTER_SANITIZE_STRING);
+	$options = filter_var($_POST['options'], FILTER_SANITIZE_STRING);
 	$action_items = filter_var($_POST['action_items'], FILTER_SANITIZE_STRING);
 	$region = filter_var($_POST['region'], FILTER_SANITIZE_STRING);
 	$location = filter_var($_POST['location'], FILTER_SANITIZE_STRING);
@@ -838,7 +840,7 @@ if($_GET['action'] == 'mark_favourite') {
 	$staff = filter_var($_POST['staff'], FILTER_SANITIZE_STRING);
 	$unlocked_fields = filter_var($_POST['fields'], FILTER_SANITIZE_STRING);
 	$deleted = filter_var($_POST['deleted'], FILTER_SANITIZE_STRING);
-	$dbc->query("UPDATE `field_config_project_admin` SET `name`='$name', `contactid`='$contactid', `signature`='$signature', `precedence`='$precedence', `action_items`='$action_items', `region`='$region', `location`='$location', `classification`='$classification', `customer`='$customer', `staff`='$staff', `status`='$status', `unlocked_fields`='$unlocked_fields', `deleted`='$deleted'  WHERE `id`='$id'");
+	$dbc->query("UPDATE `field_config_project_admin` SET `name`='$name', `contactid`='$contactid', `signature`='$signature', `options`='$options', `precedence`='$precedence', `action_items`='$action_items', `region`='$region', `location`='$location', `classification`='$classification', `customer`='$customer', `staff`='$staff', `status`='$status', `unlocked_fields`='$unlocked_fields', `deleted`='$deleted'  WHERE `id`='$id'");
 	echo $id;
 } else if($_GET['action'] == 'approvals') {
 	$field = filter_var($_POST['field'],FILTER_SANITIZE_STRING);

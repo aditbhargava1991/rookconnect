@@ -252,7 +252,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$rows = 1;
 					$ticket_styling = '';
 					$calendar_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `calendar_color` FROM `contacts` WHERE `contactid` = '".$contact_id."'"))['calendar_color'];
-					if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+					if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+						$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+					} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 					} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 						$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';
@@ -358,7 +360,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				    if($ticket['is_recurrence'] == 1) {
 				    	$recurring_icon = "<img src='".WEBSITE_URL."/img/icons/recurring.png' style='width: 1.2em; margin: 0.1em;' class='pull-right' title='Recurring ".TICKET_NOUN."'>";
 				    }
-					$row_html .= ($ticket_view_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change ' : '').$calendar_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' ";
+					$row_html .= ($ticket_view_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change ' : '').$calendar_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 					$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$ticket_styling.$icon_background."'>";
 					$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>".$icon_img;
 					$row_html .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" style="width:1em;" border="0" alt=""> ';
@@ -535,10 +537,12 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				        $icon_img = '';
 				    	$icon_background = '';
 				    }
-				    $cur_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='combined_block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."'";
+				    $cur_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='combined_block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 				    $cur_html .= "style='border-bottom: 1px solid rgb(221,221,221);";
 					$delivery_color = get_delivery_color($dbc, $ticket['delivery_type']);
-					if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+					if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+						$cur_html .= ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+					} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$cur_html .= 'background-color:'.$calendar_completed_color[$status].';';
 					} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 						$cur_html .= 'background-color:'.$calendar_incomplete_color[$status].';';
@@ -642,10 +646,12 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			        $icon_img = '';
 			    	$icon_background = '';
 			    }
-				$row_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."' ";
+				$row_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 				$row_html .= "style='";
 				$delivery_color = get_delivery_color($dbc, $ticket['delivery_type']);
-				if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+				if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+					$row_html .= ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+				} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 					$row_html .= 'background-color:'.$calendar_completed_color[$status].';';
 				} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 					$row_html .= 'background-color:'.$calendar_incomplete_color[$status].';';
@@ -850,7 +856,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				}
 				$status_class = $status;
 				$calendar_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `calendar_color` FROM `contacts` WHERE `contactid` = '".$contact_id."'"))['calendar_color'];
-				if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+				if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+					$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+				} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 					$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 				} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 					$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';
@@ -957,7 +965,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			    if($ticket['is_recurrence'] == 1) {
 			    	$recurring_icon = "<img src='".WEBSITE_URL."/img/icons/recurring.png' style='width: 1.2em; margin: 0.1em;' class='pull-right' title='Recurring ".TICKET_NOUN."'>";
 			    }
-				$row_html .= ($ticket_view_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change' : '')."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."'' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' ";
+				$row_html .= ($ticket_view_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change' : '')."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."'' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 				$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$ticket_styling.$icon_background."'>";
 				$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>".$icon_img;
 				$row_html .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" style="width:1em;" border="0" alt=""> ';
@@ -1004,7 +1012,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			} else {
 				$checkmark_ticket = '';
 			}
-			if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+			if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+				$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+			} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 				$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 			} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 				$ticket_styling = 'background-color:'.$calendar_incomplete_color[$status].';';
@@ -1036,7 +1046,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 		        $icon_img = '';
 		    	$icon_background = '';
 		    }
-			$row_html .= "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/preview_ticket.php?action=view&ticketid=".$ticket['ticketid']."\"); return false'><div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks = '$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-timestamp='".date('Y-m-d H:i:s')."' ";
+			$row_html .= "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/preview_ticket.php?action=view&ticketid=".$ticket['ticketid']."\"); return false'><div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks = '$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 			$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$ticket_styling.$icon_background."'>";
 			$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>".$icon_img;
 			if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
