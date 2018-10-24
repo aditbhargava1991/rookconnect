@@ -42,6 +42,64 @@ if (isset($_POST['add_general'])) {
     } else {
         $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_address', '$company_address')");
     }
+    //All other company informaiton
+
+    $company_city = filter_var($_POST['company_city'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_city'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_city' WHERE name='company_city'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_city', '$company_city')");
+    }
+    $company_state_prov = filter_var($_POST['company_state_prov'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_state_prov'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_state_prov' WHERE name='company_state_prov'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_state_prov', '$company_state_prov')");
+    }
+    $company_zip_postal = filter_var($_POST['company_zip_postal'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_zip_postal'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_zip_postal' WHERE name='company_zip_postal'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_zip_postal', '$company_zip_postal')");
+    }
+    $company_fax = filter_var($_POST['company_fax'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_fax'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_fax' WHERE name='company_fax'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_fax', '$company_fax')");
+    }
+    $company_website = filter_var($_POST['company_website'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_website'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_website' WHERE name='company_website'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_website', '$company_website')");
+    }
+    $company_email = filter_var($_POST['company_email'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_email'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_email' WHERE name='company_email'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_email', '$company_email')");
+    }
+    $company_estimating_email = filter_var($_POST['company_estimating_email'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_estimating_email'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_estimating_email' WHERE name='company_estimating_email'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_estimating_email', '$company_estimating_email')");
+    }
+    $company_time_email = filter_var($_POST['company_time_email'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_time_email'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_time_email' WHERE name='company_time_email'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_time_email', '$company_time_email')");
+    }
+    $company_acct_email = filter_var($_POST['company_acct_email'],FILTER_SANITIZE_STRING);
+    if(mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE name='company_acct_email'"))['configid'] > 0) {
+        $result_update_employee = mysqli_query($dbc, "UPDATE `general_configuration` SET value = '$company_acct_email' WHERE name='company_acct_email'");
+    } else {
+        $result_insert_config = mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('company_acct_email', '$company_acct_email')");
+    }
+
+    //All other company informaiton
 
 	// Email Settings
     $value = filter_var($_POST['main_email_server'],FILTER_SANITIZE_STRING);
@@ -100,7 +158,7 @@ if (isset($_POST['add_general'])) {
 
 $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='setting_software_identity'"));
 $note = $notes['note'];
-    
+
 if ( !empty($note) ) { ?>
     <div class="notice double-gap-bottom popover-examples">
         <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
@@ -123,18 +181,82 @@ if ( !empty($note) ) { ?>
 		  <input name="company_name" placeholder="Fresh Focus Media Inc." type="text" value="<?php echo get_config($dbc, 'company_name'); ?>" class="form-control"/>
 		</div>
 	</div>
+
 	<div class="form-group">
-		<label for="fax_number"	class="col-sm-4	control-label">Company Phone Number:</label>
-		<div class="col-sm-8">
-		  <input name="company_phone_number" placeholder="Enter your Company Phone Number" type="text" value="<?php echo get_config($dbc, 'company_phone_number'); ?>" class="form-control"/>
-		</div>
-	</div>
-	<div class="form-group">
-		<label for="fax_number"	class="col-sm-4	control-label">Company Address:</label>
+		<label for="fax_number"	class="col-sm-4	control-label">Address:</label>
 		<div class="col-sm-8">
 		  <input name="company_address" placeholder="Enter your Company Address" type="text" value="<?php echo get_config($dbc, 'company_address'); ?>" class="form-control"/>
 		</div>
 	</div>
+
+
+
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">City:</label>
+		<div class="col-sm-8">
+		  <input name="company_city" placeholder="Enter your Company's City" type="text" value="<?php echo get_config($dbc, 'company_city'); ?>" class="form-control"/>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">State/Prov:</label>
+		<div class="col-sm-8">
+		  <input name="company_state_prov" placeholder="Enter your Company's State/Prov" type="text" value="<?php echo get_config($dbc, 'company_state_prov'); ?>" class="form-control"/>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Zip/Postal:</label>
+		<div class="col-sm-8">
+		  <input name="company_zip_postal" placeholder="Enter your Company's Zip/Postal" type="text" value="<?php echo get_config($dbc, 'company_zip_postal'); ?>" class="form-control"/>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Phone Number:</label>
+		<div class="col-sm-8">
+		  <input name="company_phone_number" placeholder="Enter your Company Phone Number" type="text" value="<?php echo get_config($dbc, 'company_phone_number'); ?>" class="form-control"/>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Fax:</label>
+		<div class="col-sm-8">
+		  <input name="company_fax" placeholder="Enter your Company Fax" type="text" value="<?php echo get_config($dbc, 'company_fax'); ?>" class="form-control"/>
+		</div>
+	</div>
+
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Website:</label>
+		<div class="col-sm-8">
+		  <input name="company_website" placeholder="Enter your Company Website" type="text" value="<?php echo get_config($dbc, 'company_website'); ?>" class="form-control"/>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Email:</label>
+		<div class="col-sm-8">
+		  <input name="company_email" placeholder="Enter your Company Email" type="text" value="<?php echo get_config($dbc, 'company_email'); ?>" class="form-control"/>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Estimating Email:<br /><em>Whose email should we use to contact you regarding setup and training of estimating?</em></label>
+		<div class="col-sm-8">
+		  <input name="company_estimating_email" placeholder="Enter your Company's Estimating Email" type="text" value="<?php echo get_config($dbc, 'company_estimating_email'); ?>" class="form-control"/>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Time Email:<br /><em>Whose email should we use to contact you regarding setup and training of timekeeping?</em></label>
+		<div class="col-sm-8">
+		  <input name="company_time_email" placeholder="Enter your Company's Time Email" type="text" value="<?php echo get_config($dbc, 'company_time_email'); ?>" class="form-control"/>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="fax_number"	class="col-sm-4	control-label">Acct. Email:<br /><em>Whose email should we use to contact you with LMN billing questions?</em></label>
+		<div class="col-sm-8">
+		  <input name="company_acct_email" placeholder="Enter your Company's Acct. Email" type="text" value="<?php echo get_config($dbc, 'company_acct_email'); ?>" class="form-control"/>
+		</div>
+	</div>
+
 	<h3>Email Settings</h3>
 	<div class="form-group">
 		<label class="col-sm-4	control-label">Email User Account:</label>
