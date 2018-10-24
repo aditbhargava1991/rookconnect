@@ -2206,11 +2206,12 @@ if($_GET['action'] == 'update_fields') {
 	$template = $_POST['template'];
 	if($template == 'template_a') {
 		$header = filter_var(htmlentities($_POST['header']),FILTER_SANITIZE_STRING);
+		$header_logo_align = filter_var(htmlentities($_POST['header_logo_align']),FILTER_SANITIZE_STRING);
 		$footer = filter_var(htmlentities($_POST['footer']),FILTER_SANITIZE_STRING);
 		$fields = filter_var(implode(',', json_decode($_POST['fields'])),FILTER_SANITIZE_STRING);
 
 		mysqli_query($dbc, "INSERT INTO `field_config_ticket_log` (`template`) SELECT 'template_a' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_log` WHERE `template` = 'template_a') num WHERE num.rows = 0");
-		mysqli_query($dbc, "UPDATE `field_config_ticket_log` SET `header` = '$header', `footer` = '$footer', `fields` = '$fields' WHERE `template` = 'template_a'");
+		mysqli_query($dbc, "UPDATE `field_config_ticket_log` SET `header` = '$header', `header_logo_align` = '$header_logo_align', `footer` = '$footer', `fields` = '$fields' WHERE `template` = 'template_a'");
 
 		if(!file_exists('download')) {
 	        mkdir('download', 0777, true);
