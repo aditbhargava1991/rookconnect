@@ -239,10 +239,10 @@ switch($_GET['tile']) {
             $details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `manuals` WHERE `manualtypeid`='".$id."'"));
         } else if($type == 'hr') {
             $details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `hr` WHERE `hrid`='".$id."'"));
-        }print_r($details);
+        }
         $heading = $details['third_heading'] != '' ? $details['third_heading_number'].' '.$details['third_heading'] : ($details['sub_heading'] != '' ? $details['sub_heading_number'].' '.$details['sub_heading'] : $details['heading_number'].' '.$details['heading']);
-        $subject = str_replace(['[CATEGORY]','[HEADING]'],[$details['category'],$heading],$details['email_subject']);
-        $body = html_entity_decode(str_replace(['[CATEGORY]','[HEADING]'],[$details['category'],$heading],$details['email_message']).'<p>Click <a href="'.WEBSITE_URL.'/HR/index.php?'.$type.'='.$assign['hrid'].'">here</a> to complete the '.($type == 'hr' ? 'form' : 'manual').'.</p>');
+        $subject = str_replace(['[CATEGORY]','[HEADING]'],[$details['category'],$heading],empty($details['email_subject']) ? 'Please Review this '.($type == 'hr' ? 'Form' : 'Manual') : $details['email_subject']);
+        $body = html_entity_decode(str_replace(['[CATEGORY]','[HEADING]'],[$details['category'],$heading],empty($details['email_message']) ? '<p>You have been assigned to complete a '.($type == 'hr' ? 'form' : 'manual').'. Please do so as soon as possible.</p>' : $details['email_message']).'<p>Click <a href="'.WEBSITE_URL.'/HR/index.php?'.$type.'='.$assign['hrid'].'">here</a> to complete the '.($type == 'hr' ? 'form' : 'manual').'.</p>');
 		break;
     default:
         $subject = $_GET['subject'];

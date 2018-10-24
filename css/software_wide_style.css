@@ -2667,6 +2667,12 @@ ul.select2-results__options {
     }
 }
 
+.hr.form-list .heading {
+    font-size:18px;
+}
+.hr.form-list .form {
+    padding-left:18px;
+}
 
 /* Tasks Tile */
 @media (max-width:767px) {
