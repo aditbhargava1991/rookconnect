@@ -159,7 +159,11 @@ function retrieve_summary_tab(equipmentid = '') {
 						return row['equipmentid'] == equipmentid;
 					});
 					if(item_row.length > 0) {
-						item_row[0] = response;
+						for(key in item_row[0]) {
+							if(key != undefined && response[key] != undefined) {
+								item_row[0][key] = response[key];
+							}
+						}
 					} else {
 						result_list['summary_tab'].push(response);
 					}
@@ -295,7 +299,11 @@ function retrieve_tickets(equipmentid = '') {
 						return row['equipmentid'] == equipmentid;
 					});
 					if(item_row.length > 0) {
-						item_row[0] = response;
+						for(key in item_row[0]) {
+							if(key != undefined && response[key] != undefined) {
+								item_row[0][key] = response[key];
+							}
+						}
 					} else {
 						result_list['equipment'].push(response);
 					}
@@ -387,9 +395,10 @@ function hide_summary() {
 	resize_blocks();
 	$('.dispatch-summary-icon').removeClass('dispatch-summary-active');
 }
-function retrieve_summary(img, equipmentid) {
+function retrieve_summary(img, equipmentid, keep_visible = 0) {
+	$('.dispatch-summary-icon').removeClass('dispatch-summary-active');
 	var date = $('[name="search_date"]').val();
-	if($('.dispatch-summary-group').is(':visible') && $('.dispatch-summary-group').data('equipment') == equipmentid) {
+	if($('.dispatch-summary-group').is(':visible') && $('.dispatch-summary-group').data('equipment') == equipmentid && keep_visible != 1) {
 		hide_summary();
 	} else {
 		$(img).find('.dispatch-summary-icon').addClass('dispatch-summary-active');
@@ -399,6 +408,16 @@ function retrieve_summary(img, equipmentid) {
 			$('.dispatch-equipment-button').each(function() {
 				equipment.push($(this).data('equipment'));
 			});
+		} else if(equipmentid == 'VISIBLE') {
+			if($('#summary_tab li').hasClass('active')) {
+				$('.dispatch-summary-tab:visible').each(function() {
+					equipment.push($(this).data('equipment'));
+				});
+			} else {
+				$('.dispatch-equipment-button.active').each(function() {
+					equipment.push($(this).data('equipment'));
+				});
+			}
 		} else {
 			equipment.push(equipmentid);
 		}
@@ -416,7 +435,11 @@ function retrieve_summary(img, equipmentid) {
 					return row['equipmentid'] == equipmentid;
 				});
 				if(item_row.length > 0) {
-					item_row[0] = response;
+					for(key in item_row[0]) {
+						if(key != undefined && response[key] != undefined) {
+							item_row[0][key] = response[key];
+						}
+					}
 				} else {
 					result_list['summary'].push(response);
 				}
@@ -692,6 +715,10 @@ function filter_equipment() {
 
 	initTooltips();
 	resize_blocks();
+
+	if($('.visible_summary').hasClass('dispatch-summary-active')) {
+		retrieve_summary($('.visible_summary').closest('a'), 'VISIBLE', 1);
+	}
 }
 function select_all_buttons(a) {
 	if($(a).is(':checked')) {

@@ -114,6 +114,7 @@ foreach ($ticket_statuses as $ticket_status) {
                     <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $dispatch_icon_legend.$ticket_status_legend ?></div>
                     <img src="../img/legend-icon.png" class="dispatch-legend-img">
                 </div>
+                <a href="" onclick="retrieve_summary(this, 'VISIBLE'); return false;"><img class="dispatch-summary-icon inline-img pull-right btn-horizontal-collapse no-toggle gap-right visible_summary" src="../img/icons/pie-chart.png" title="" data-original-title="View Summary"></a>
             </div>
             <div class="search-fields" style="padding: 1em; display: none;">
                 <h4>Search Filters</h4>
