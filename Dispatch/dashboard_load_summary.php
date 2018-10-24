@@ -86,7 +86,7 @@ foreach($equip_list as $equipment) {
 		}
 	}
 
-	$title_color = substr(md5(encryptIt($equipment['equipmentid'])), 0, 6);
+	$title_color = get_equipment_color($equipment['equipmentid']);
 
 	//Summary blocks
 	foreach(array_filter(array_unique($star_contacts)) as $star_contact) {
