@@ -30,6 +30,7 @@ foreach ($ticket_statuses as $ticket_status) {
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="../Dispatch/dashboard.js"></script>
+<script type="text/javascript" src="../Calendar/map_sorting.js"></script>
 
 <input type="hidden" name="group_regions" value="<?= $group_regions ?>">
 <input type="hidden" id="dispatch_auto_refresh" name="dispatch_auto_refresh" value="<?= $auto_refresh ?>">
