@@ -636,7 +636,7 @@ if($request_tab == 'new'): ?>
 			</div>
 		</div>
 		<div class="form-group col-sm-12">
-			<div class="pull-right">
+			<div class="pull-right gap-right gap-top">
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see closed requests from the past two months."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<a href="" class="btn brand-btn mobile-block">Display All</a>
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
@@ -649,7 +649,7 @@ if($request_tab == 'new'): ?>
 	</form>
 	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR `contactid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `deleted`=1 AND `archived_date` > '$date'".$search_string." ORDER BY `archived_date` DESC, `supportid` DESC");
     if(mysqli_num_rows($support_list) > 0) { ?>
-        <div class="has-dashboard dashboard-container">
+        <div class="has-dashboard dashboard-container gap-top">
             <div class="item-list">
                 <div class="info-block-header"><h4>Closed Support Requests</h4>
                     <div class="small">REQUESTS: <?= $support_list->num_rows ?></div>
@@ -795,7 +795,7 @@ if($request_tab == 'new'): ?>
 			</div>
 		</div>
 		<div class="form-group col-sm-12">
-			<div class="pull-right">
+			<div class="pull-right gap-right gap-top">
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see all active requests."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<a href="" class="btn brand-btn mobile-block">Display All</a>
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
@@ -809,7 +809,7 @@ if($request_tab == 'new'): ?>
 	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR `contactid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `support_type`='$request_tab' AND `deleted`=0".$search_string." ORDER BY `current_date` DESC, `supportid` DESC");
 	$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 	if(mysqli_num_rows($support_list) > 0) { ?>
-        <div class="has-dashboard dashboard-container">
+        <div class="has-dashboard dashboard-container gap-top">
             <div class="item-list">
                 <div class="info-block-header"><h4><?= $request_tab_name ?></h4>
                     <div class="small">REQUESTS: <?= $support_list->num_rows ?></div>
