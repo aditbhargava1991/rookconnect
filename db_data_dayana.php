@@ -317,6 +317,8 @@ mysqli_query($dbc, "ALTER TABLE `task_board` ADD `flag_label` VARCHAR(200) NULL 
 
 mysqli_query($dbc, "ALTER TABLE `project` ADD `classification1` VARCHAR(500) NULL AFTER `flag_label`");
 
+mysqli_query($dbc, "ALTER TABLE `equipment` ADD `favorite` INT(1) NOT NULL DEFAULT '0' AFTER `equipment_image`");
+
     echo "Dayana's DB Changes Done<br />\n";
 
 ?>
