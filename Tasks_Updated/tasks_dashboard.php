@@ -25,8 +25,8 @@ $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `co
 .new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
 .flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 0;top: 40px;z-index: 1;border: 2px solid #878787;}
 </style>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet"> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet">
 <script type="text/javascript" src="tasks.js"></script>
 <script>
 $(document).ready(function() {
