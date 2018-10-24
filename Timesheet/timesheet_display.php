@@ -297,7 +297,7 @@ var useProfileSig = function(chk) {
             $position_list = $_SERVER['DBC']->query("SELECT `position` FROM (SELECT `name` `position` FROM `positions` WHERE `deleted`=0 UNION SELECT `type_of_time` `position` FROM `time_cards` WHERE `deleted`=0) `list` WHERE IFNULL(`position`,'') != '' GROUP BY `position` ORDER BY `position`")->fetch_all();
         }
         if(!isset($ticket_list) && in_array('ticket_select',$value_config)) {
-            $ticket_list = $dbc->query("SELECT * FROM `tickets` WHERE `deleted` = 0 AND `status` != 'Archive'")->fetch_all(MYSQLI_ASSOC);
+            $ticket_list = $dbc->query("SELECT `ticketid`,`ticket_label`,`ticket_label_date`,`last_updated_time`,`projectid`,`ticket_type`,`main_ticketid`,`sub_ticket`,`heading`,`created_date`,`to_do_date`,`businessid`,`clientid`,`siteid`,`salesorderid`,`status` FROM `tickets` WHERE `deleted` = 0 AND `status` != 'Archive'")->fetch_all(MYSQLI_ASSOC);
         }
         if(!isset($task_list) && in_array('task_select',$value_config)) {
             $task_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `task_types` WHERE `deleted` = 0 ORDER BY `category`"),MYSQLI_ASSOC);
