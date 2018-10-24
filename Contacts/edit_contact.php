@@ -6,6 +6,9 @@ if($_GET['edit'] == $_SESSION['contactid']) {
 		$edit_access = 1;
 	}
 }
+if($_GET['category'] == '%') {
+	$_GET['category'] = '';
+}
 $current_type = ($contactid > 0 ? get_contact($dbc, $contactid, 'category') : ($_GET['category'] != '' ? $_GET['category'] : ''));
 $_GET['category'] = $current_type;
 $field_config = [];
@@ -266,6 +269,9 @@ function saveFieldMethod(field) {
         exit();
     }
     if(($('[name=contactid]').val() == 'new' || $('[name=contactid]').val() == '' || $('[name=contactid]').val() == undefined) && field.name == 'category') {
+    	<?php if(IFRAME_PAGE) { ?>
+			window.parent.$('.iframe_overlay iframe').off('load');
+		<?php } ?>
 		window.location.replace('?<?= IFRAME_PAGE ? 'mode=iframe&' : '' ?><?= $_GET['change'] == 'true' ? 'change=true&' : '' ?>profile=false&businessid=<?= $_GET['businessid'] ?>&category='+field.value+'&edit='+ $('[name=contactid]').val());
 		return;
 	} else if(($('[name=contactid]').val() == 'new' || $('[name=contactid]').val() == '' || $('[name=contactid]').val() == undefined) && field.name != 'category' && window.previous_field == undefined) {
