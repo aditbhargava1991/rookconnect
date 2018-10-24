@@ -23,6 +23,14 @@ $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `co
 			<img src="" class="inline-img"># <?php echo $row['employee_num']; ?>
 		</div>
 	<?php endif; ?>
+	<?php if(in_array('Position', $field_display)):
+		$position_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `positions` WHERE `position_id` = '{$row['position']}'"))['name'];
+		if(!empty($position_name)) { ?>
+			<div class="col-sm-6">
+				<img src="../img/job.png" class="inline-img"><?php echo $position_name; ?>
+			</div>
+		<?php } ?>
+	<?php endif; ?>
 	<?php if(in_array('License', $field_display) && $row['license'] != ''): ?>
 		<div class="col-sm-6">
 			<img src="" class="inline-img">Licence: <?php echo $row['license']; ?>
