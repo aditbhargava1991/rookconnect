@@ -450,6 +450,14 @@ if($num_rows7 > 0) {
 			$html .= '<th width="10%">Customer Code</th>';
 		}
          */
+		if(in_array('pro_number',$custom_ticket_fields)) {
+			$service_width_diff += 10;
+			$html .= '<th width="10%">Pro Number</th>';
+		}
+		if(in_array('volume',$custom_ticket_fields)) {
+			$service_width_diff += 10;
+			$html .= '<th width="10%">Volume</th>';
+		}
 		if(in_array('location',$custom_ticket_fields)) {
 			$service_width_diff += 10;
 			$html .= '<th width="10%">Location</th>';
@@ -493,27 +501,53 @@ if($num_rows7 > 0) {
 			$html .= '<td>'.$customer_code.'</td>';
 		}
         */
+        if(in_array('pro_number',$custom_ticket_fields)) {
+			$pro_numbers = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT `order_number` FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'order_number');
+			$html .= '<td>';
+                foreach ( $pro_numbers as $pro_number ) {
+                	if(!empty($pro_number)) {
+	                    $html .= $pro_number .'<br />';
+	                }
+                }
+            $html .= '</td>';
+        }
+        if(in_array('volume',$custom_ticket_fields)) {
+			$volumes = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT `volume` FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'order_number');
+			$html .= '<td>';
+                foreach ( $volumes as $volume ) {
+                	if(!empty($volume)) {
+	                    $html .= $volume .'<br />';
+	                }
+                }
+            $html .= '</td>';
+        }
 		if(in_array('location',$custom_ticket_fields)) {
-			$locations = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')))['locations'];
+			$locations = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'locations');
 			$html .= '<td>';
                 foreach ( $locations as $location ) {
-                    $html .= $location .'<br />';
+                	if(!empty($location)) {
+	                    $html .= $location .'<br />';
+	                }
                 }
             $html .= '</td>';
 		}
 		if(in_array('departure_location',$custom_ticket_fields)) {
-			$departure_locations = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Pick Up'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')))['locations'];
+			$departure_locations = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Pick Up'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'locations');
 			$html .= '<td>';
                 foreach ( $departure_locations as $departure_location ) {
-                    $html .= $departure_location .'<br />';
+                	if(!empty($departure_location)) {
+	                    $html .= $departure_location .'<br />';
+	                }
                 }
             $html .= '</td>';
 		}
 		if(in_array('destination',$custom_ticket_fields)) {
-			$destinations = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Drop Off'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')))['locations'];
+			$destinations = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Drop Off'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'locations')
 			$html .= '<td>';
                 foreach ( $destinations as $destination ) {
-                    $html .= $destination .'<br />';
+                	if(!empty($destination)) {
+	                    $html .= $destination .'<br />';
+	                }
                 }
             $html .= '</td>';
 		}
