@@ -360,6 +360,8 @@
 		$html .= '</table>';
 
 		$pdf->writeHTML($html, true, false, true, false, '');
+        $invoice_type = $get_invoice['type'];
+        include('../Invoice/pos_invoice_append_ticket.php');
 		$pdf->Output('download/invoice_'.$invoiceid.'.pdf', 'F');
 
 		$invoice_md5 .= md5_file("download/invoice_".$invoiceid.".pdf");
