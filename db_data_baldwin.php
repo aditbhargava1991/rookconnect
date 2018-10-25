@@ -1339,4 +1339,10 @@
     }
     //2018-10-24 - Ticket #9892 - Ticket Log PDF
 
+    //2018-10-25 - Task #7753 - SIN
+    if(!mysqli_query($dbc, "ALTER TABLE `contacts` CHANGE `sin` `sin` VARCHAR(100)")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-25 - Task #7753 - SIN
+
     echo "Baldwin's DB Changes Done<br />\n";
