@@ -36,11 +36,11 @@ $tickets = mysqli_fetch_all(mysqli_query($dbc, $all_tickets_sql),MYSQLI_ASSOC);
 
 foreach($tickets as $ticket) {
 	$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
-	$time_compare = $ticket['to_do_date'].(!empty($ticket['end_available']) ? date('H:i:s', strtotime($ticket['end_available'])) : (!empty($ticket['to_do_end_time']) ? date('H:i:s', strtotime($ticket['to_do_end_time'])) : date('H:i:s', strtotime($ticket['to_do_start_time']))));
-	$customer_notes['completed_time'] = empty(str_replace('0000-00-00 00:00:00','',$customer_notes['completed_time'])) ? date('Y-m-d H:i:s') : convert_timestamp_mysql($dbc, $completed_notes['completed_time']);
+	$time_compare = $ticket['to_do_date'].(!empty($ticket['end_available']) ? date('H:i:s', strtotime($ticket['end_available'])) : date('H:i:s', strtotime($ticket['to_do_start_time'].' + '.$delivery_timeframe_default.' hours')));
+	$customer_notes['completed_time'] = empty(str_replace('0000-00-00 00:00:00','',$customer_notes['completed_time'])) ? date('Y-m-d H:i:s') : convert_timestamp_mysql($dbc, $customer_notes['completed_time']);
 	if(strtotime($customer_notes['completed_time']) > strtotime($time_compare)) {
-		$summary_result['Not On Time']['count']++;
-		$summary_result['Not On Time']['label'] = 'Not On Time';
+		$summary_result['Out Of Window']['count']++;
+		$summary_result['Out Of Window']['label'] = 'Out Of Window';
 	} else if($customer_notes['completed'] == 1 && strtotime($customer_notes['completed_time']) <= strtotime($time_compare)) {
 		$summary_result['On Time']['count']++;
 		$summary_result['On Time']['label'] = 'On Time';
@@ -59,7 +59,7 @@ if($group_regions == 1) {
 	$region_label = ' ('.str_replace('*#*', ', ', $equipment['region']).')';
 }
 
-$truck_svg = draw_svg_truck($summary_result['On Time']['count'], $summary_result['Not On Time']['count'], $summary_result['Ongoing']['count']);
+$truck_svg = draw_svg_truck($summary_result['On Time']['count'], $summary_result['Out Of Window']['count'], $summary_result['Ongoing']['count']);
 $summary_html = '<div class="dispatch-summary-tab" data-equipment="'.$equipmentid.'" data-region=\''.json_encode($equip_regions).'\' data-location=\''.json_encode($equip_locations).'\' data-classification=\''.json_encode($equip_classifications).'\' '.$border_styling.'><div class="dispatch-summary-title" style="background-color: #'.$title_color.'"><a href="" onclick="summary_select_equipment(this); return false;"><b>'.$equipment['label'].'</b></a>'.$region_label.'</div><div class="dispatch-summary-tab-truck">'.$truck_svg.'</div><div class="dispatch-summary-tab-block"></div></div>';
 
 $ontime_summary_arr = [
@@ -69,8 +69,8 @@ $ontime_summary_arr = [
 		'color' => '#00ff00'
 	],
 	[
-		'label' => 'Not On Time',
-		'count' => empty($summary_result['Not On Time']['count']) ? 0 : $summary_result['Not On Time']['count'],
+		'label' => 'Out Of Window',
+		'count' => empty($summary_result['Out Of Window']['count']) ? 0 : $summary_result['Out Of Window']['count'],
 		'color' => '#ff0000'
 	],
 	[
