@@ -236,7 +236,7 @@ foreach($equip_list as $equipment) {
 		}
 	}
 
-	$title_color = substr(md5(encryptIt($equipment['equipmentid'])), 0, 6);
+	$title_color = get_equipment_color($equipment['equipmentid']);
 
 	if(get_config($dbc, 'dispatch_tile_hide_empty') != 1 || !empty($equipment_html)) {
 		if(empty($equipment_html)) {

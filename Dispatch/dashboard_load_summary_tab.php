@@ -56,7 +56,7 @@ foreach($tickets as $ticket) {
 	}
 }
 
-$title_color = substr(md5(encryptIt($equipment['equipmentid'])), 0, 6);
+$title_color = get_equipment_color($equipment['equipmentid']);
 
 $border_styling = '';
 

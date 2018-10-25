@@ -30,6 +30,7 @@ foreach ($ticket_statuses as $ticket_status) {
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="../Dispatch/dashboard.js"></script>
+<script type="text/javascript" src="../Calendar/map_sorting.js"></script>
 
 <input type="hidden" name="group_regions" value="<?= $group_regions ?>">
 <input type="hidden" id="dispatch_auto_refresh" name="dispatch_auto_refresh" value="<?= $auto_refresh ?>">
@@ -91,8 +92,8 @@ foreach ($ticket_statuses as $ticket_status) {
                 </ul>
             </li>
         <?php } ?>
-        <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment"><?= $equipment_label ?><span class="arrow"></span></a>
-            <ul class="collapse dispatch-equipment-buttons" id="collapse_equipment" style="overflow: hidden;"></ul>
+        <li class="sidebar-higher-level"><a class="cursor-hand <?= $summary_tab != 1 ? '' : 'collapsed' ?>" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment"><?= $equipment_label ?><span class="arrow"></span></a>
+            <ul class="collapse <?= $summary_tab != 1 ? 'in' : '' ?> dispatch-equipment-buttons" id="collapse_equipment" style="overflow: hidden;"></ul>
         </li>
         <li class="equip_active_li active_li sidebar-higher-level" data-accordion="collapse_equipment" style="display: none; padding-top: 0;">
             <ul class="collapse in" data-accordion="collapse_equipment"></ul>
@@ -114,6 +115,7 @@ foreach ($ticket_statuses as $ticket_status) {
                     <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $dispatch_icon_legend.$ticket_status_legend ?></div>
                     <img src="../img/legend-icon.png" class="dispatch-legend-img">
                 </div>
+                <a href="" onclick="retrieve_summary(this, 'VISIBLE'); return false;"><img class="dispatch-summary-icon inline-img pull-right btn-horizontal-collapse no-toggle gap-right visible_summary" src="../img/icons/pie-chart.png" title="" data-original-title="View Summary"></a>
             </div>
             <div class="search-fields" style="padding: 1em; display: none;">
                 <h4>Search Filters</h4>
