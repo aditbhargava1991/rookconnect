@@ -184,8 +184,12 @@ if(ucwords($category) == 'Vendors') {
 			<a href="?list=<?= $_GET['list'] ?>&status=archive" class="btn brand-btn <?= $status == 'archive' ? 'active_tab' : '' ?>">Archived</a>
 			-->
             <!-- <input type="submit" value="Filter" class="btn brand-btn" name="search_<?php //echo $category; ?>_submit"> -->
-			<button type="submit" value="<?= $category ?>" class="image-btn no-toggle" name="export_contacts" title="Export CSV"><img src="../img/icons/csv.png" width="30" /></button>
-			<input type="hidden" name="export_option" value="Contact Information">
+			
+			<?php if($_GET['list'] != 'summary') { ?>
+				<a href="?edit=new&category=<?= $category ?>" class="btn brand-btn pull-right">New <?= $category ?></a>
+				<button type="submit" value="<?= $category ?>" class="image-btn no-toggle" name="export_contacts" title="Export CSV"><img src="../img/icons/csv.png" width="30" /></button>
+				<input type="hidden" name="export_option" value="Contact Information">
+			<?php } ?>
 		</span>
 	</form>
 </div>
@@ -260,7 +264,7 @@ if ( !empty($note) ) { ?>
 						</div>
                         <?php } ?>
 					<div class="col-sm-6">
-						<img src="../img/person.PNG" class="inline-img dashboard-icon"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
+						<img src="../img/person.PNG" class="inline-img dashboard-icon"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
 					</div>
 					<?php if(in_array('Business', $field_display) && $row['businessid'] > 0): ?>
 						<div class="col-sm-6">
@@ -345,7 +349,7 @@ if ( !empty($note) ) { ?>
 						<img src="../img/setting.PNG" class="inline-img">
 						<?php if($edit_access > 0) {
 							echo '<a href="" onclick="statusChange(this); return false;" data-status="'.$row['status'].'" data-contactid="'.$row['contactid'].'">'.($row['status'] == 0 ? 'Activate' : 'Deactivate').'</a> | ';
-							echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">Edit</a> | ';
+							echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'">Edit</a> | ';
 							echo '<a href="" onclick="deleteContact(this); return false;" data-contactid="'.$row['contactid'].'">Archive</a>';
 						} else {
 							echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'">View</a>';

@@ -157,9 +157,6 @@ if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$ge
     $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
 }
 switch($invoice_design) {
-    case 1:
-        include('pos_invoice_1.php');
-        break;
     case 2:
         include('pos_invoice_2.php');
         break;
@@ -173,10 +170,10 @@ switch($invoice_design) {
         }
         break;
     case 5:
-        include ('pos_invoice_small.php');
+        include('pos_invoice_small.php');
         break;
     case 'service':
-        include ('pos_invoice_service.php');
+        include('pos_invoice_service.php');
         break;
     case 'pink':
         include ('pos_invoice_pink.php');
@@ -190,6 +187,10 @@ switch($invoice_design) {
     case 'cnt3':
         include ('pos_invoice_contractor_3.php');
         break;
+    case 'custom_ticket':
+        include ('pos_invoice_custom_ticket.php');
+        break;
+    case 1:
     default:
         include('pos_invoice_1.php');
         break;

@@ -21,7 +21,7 @@ if($current_page == 'daysheet.php') {
 $layout = get_config($dbc, 'timesheet_layout');
 $value_config = explode(',',get_field_config($dbc, 'time_cards'));
 if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array('total_hrs',$value_config)) {
-    $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+    $value_config = array_merge($value_config,['total_hrs']);
 }
 $timesheet_payroll_fields = ($current_page == 'payroll.php' ? ','.get_config($dbc, 'timesheet_payroll_fields').',' : ',,');
 $timesheet_comment_placeholder = get_config($dbc, 'timesheet_comment_placeholder');
@@ -139,7 +139,6 @@ var initLines = function() {
 }
 var checkTimeOverlaps = function() {
     <?php if(in_array('time_overlaps',$value_config)) { ?>
-        $('.timesheet_div table tr').css('background-color', '');
         var time_list = [];
         var date_list = [];
         $('.timesheet_div table').each(function() {
@@ -171,6 +170,10 @@ var checkTimeOverlaps = function() {
                         if((start_time.getTime() > start_time2.getTime() && start_time.getTime() < end_time2.getTime()) || (end_time.getTime() > start_time2.getTime() && end_time.getTime() < end_time2.getTime())) {
                             $(tr).css('background-color', 'red');
                             //$(tr).find('.overlap_time').css("display","block");
+                        } else if($(tr).data('background') != '' && $(tr).data('background') != undefined) {
+                            $(tr).css('background-color', $(tr).data('background'));
+                        } else {
+                            $(tr).css('background-color', '');
                         }
                     }
                 });
@@ -212,8 +215,7 @@ var useProfileSig = function(chk) {
             $vacation_taken = $year_to_date['VACA_HRS'];
             $sick_taken = $year_to_date['SICK_HRS']; ?>
             <td colspan="<?= $colspan ?>">Balance Forward Y.T.D.</td>
-            <?php if(in_array('total_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
-            <?php if(in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
+            <?php if(in_array('total_hrs',$value_config) || in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(in_array('start_day_tile_separate',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(in_array('direct_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(in_array('indirect_hrs',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
@@ -239,56 +241,55 @@ var useProfileSig = function(chk) {
             <?php if($timesheet_approval_initials == 1) { ?><td style='text-align:center;'></td><?php } ?>
             <?php if($timesheet_approval_date == 1) { ?><td style='text-align:center;'></td><?php } ?>
             <?php } ?>
-            <td colspan="<?= (in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0)) ?>"></td>
+            <th colspan="<?= (in_array('comment_box',$value_config) ? 1 : 0) + ($current_page != 'time_cards.php' ? 1 : (in_array('signature',$value_config) ? 1 : 0)) ?>"></th>
         </tr>
         <tr class='hidden-xs hidden-sm'>
-            <th style='text-align:center; vertical-align:bottom; width:<?= (in_array('editable_dates',$value_config) ? '15em;' : '7em;') ?>'><div>Date</div></th>
-            <?php if(in_array('schedule',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Schedule</div></th><?php } ?>
-            <?php if(in_array('scheduled',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Scheduled Hours</div></th><?php } ?>
-            <?php if(in_array('ticketid',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
-            <?php if(in_array('show_hours',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Hours</div></th><?php } ?>
-            <?php if(in_array('total_tracked_hrs',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Hours</div></th><?php } ?>
-            <?php if(in_array('start_time',$value_config) || in_array('start_time_editable',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>Start Time</div></th><?php } ?>
-            <?php if(in_array('end_time',$value_config) || in_array('end_time_editable',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom; width:10em;'><div>End Time</div></th><?php } ?>
-            <?php if(in_array('planned_hrs',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Planned<br />Hours</div></th><?php } ?>
-            <?php if(in_array('tracked_hrs',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom; width:9em;'><div>Tracked<br />Hours</div></th><?php } ?>
-            <?php if(in_array('total_tracked_time',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Total Tracked<br />Time</div></th><?php } ?>
-            <?php if(in_array('start_day_tile',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
-            <?php if(in_array('ticket_select',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:12em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
-            <?php if(in_array('task_select',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:12em;'><div>Task</div></th><?php } ?>
-            <?php if(in_array('position_select',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:12em;'><div>Position</div></th><?php } ?>
-            <?php if(in_array('total_tracked_hrs_task',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Time Tracked</div></th><?php } ?>
-            <!-- <?php if(in_array('total_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:6em;'><div>Hours</div></th><?php } ?> -->
-            <?php if(in_array('total_hrs',$value_config) || in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= in_array('payable_hrs',$value_config) ? 'Payable' : (in_array('total_hrs',$value_config) ? 'Total' : 'Regular') ?><br />Hours</div></th><?php } ?>
-            <?php if(in_array('start_day_tile_separate',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= $timesheet_start_tile ?></div></th><?php } ?>
-            <?php if(in_array('direct_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Direct<br />Hours</div></th><?php } ?>
-            <?php if(in_array('indirect_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Indirect<br />Hours</div></th><?php } ?>
-            <?php if(in_array('extra_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Extra<br />Hours</div></th><?php } ?>
-            <?php if(in_array('relief_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Relief<br />Hours</div></th><?php } ?>
-            <?php if(in_array('sleep_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Sleep<br />Hours</div></th><?php } ?>
-            <?php if(in_array('training_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Training<br />Hours</div></th><?php } ?>
-            <?php if(in_array('sick_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Sick Time<br />Adjustment</div></th><?php } ?>
-            <?php if(in_array('sick_used',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Sick Hrs.<br />Taken</div></th><?php } ?>
-            <?php if(in_array('stat_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Stat<br />Hours</div></th><?php } ?>
-            <?php if(in_array('stat_used',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Stat. Hrs.<br />Taken</div></th><?php } ?>
-            <?php if(in_array('vaca_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Vacation<br />Hours</div></th><?php } ?>
-            <?php if(in_array('vaca_used',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Vacation<br />Hrs. Taken</div></th><?php } ?>
-            <?php if(in_array('breaks',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Breaks</div></th><?php } ?>
-            <?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div><?= TICKET_NOUN ?></div></th><?php } ?>
-            <?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Expenses Owed</div></th><?php } ?>
-            <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage</div></th><?php } ?>
-            <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Rate</div></th><?php } ?>
-            <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom; width:2em;'><div>Mileage Total</div></th><?php } ?>
+            <th style='text-align:center; vertical-align:bottom;'><div style="min-width:<?= (in_array('editable_dates',$value_config) ? '9em;' : '6em;') ?>">Date</div></th>
+            <?php if(in_array('schedule',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:6em;">Schedule</div></th><?php } ?>
+            <?php if(in_array('scheduled',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:5em;">Scheduled Hours</div></th><?php } ?>
+            <?php if(in_array('ticketid',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:5em;"><?= TICKET_NOUN ?></div></th><?php } ?>
+            <?php if(in_array('show_hours',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:5em;">Hours</div></th><?php } ?>
+            <?php if(in_array('total_tracked_hrs',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:3.5em;">Total Tracked Hours</div></th><?php } ?>
+            <?php if(in_array('start_time',$value_config) || in_array('start_time_editable',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:6em;">Start Time</div></th><?php } ?>
+            <?php if(in_array('end_time',$value_config) || in_array('end_time_editable',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:6em;">End Time</div></th><?php } ?>
+            <?php if(in_array('planned_hrs',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:3.5em;">Planned Hours</div></th><?php } ?>
+            <?php if(in_array('tracked_hrs',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:3.5em;">Tracked Hours</div></th><?php } ?>
+            <?php if(in_array('total_tracked_time',$value_config)) {; ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:3.5em;">Total Tracked Time</div></th><?php } ?>
+            <?php if(in_array('start_day_tile',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;"><?= $timesheet_start_tile ?></div></th><?php } ?>
+            <?php if(in_array('ticket_select',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:10em;"><?= TICKET_NOUN ?></div></th><?php } ?>
+            <?php if(in_array('task_select',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:8em;">Task</div></th><?php } ?>
+            <?php if(in_array('position_select',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:8em;">Position</div></th><?php } ?>
+            <?php if(in_array('total_tracked_hrs_task',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:3.5em;">Time Tracked</div></th><?php } ?>
+            <?php if(in_array('total_hrs',$value_config) || in_array('reg_hrs',$value_config) || in_array('payable_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;"><?= in_array('payable_hrs',$value_config) ? 'Payable' : (in_array('total_hrs',$value_config) ? 'Total' : 'Regular') ?> Hours</div></th><?php } ?>
+            <?php if(in_array('start_day_tile_separate',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;"><?= $timesheet_start_tile ?></div></th><?php } ?>
+            <?php if(in_array('direct_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Direct Hours</div></th><?php } ?>
+            <?php if(in_array('indirect_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Indirect Hours</div></th><?php } ?>
+            <?php if(in_array('extra_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Extra Hours</div></th><?php } ?>
+            <?php if(in_array('relief_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Relief Hours</div></th><?php } ?>
+            <?php if(in_array('sleep_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Sleep Hours</div></th><?php } ?>
+            <?php if(in_array('training_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Training Hours</div></th><?php } ?>
+            <?php if(in_array('sick_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Sick Time Adjustment</div></th><?php } ?>
+            <?php if(in_array('sick_used',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Sick Hrs. Taken</div></th><?php } ?>
+            <?php if(in_array('stat_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Stat Hours</div></th><?php } ?>
+            <?php if(in_array('stat_used',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Stat. Hrs. Taken</div></th><?php } ?>
+            <?php if(in_array('vaca_hrs',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Vacation Hours</div></th><?php } ?>
+            <?php if(in_array('vaca_used',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Vacation Hrs. Taken</div></th><?php } ?>
+            <?php if(in_array('breaks',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Breaks</div></th><?php } ?>
+            <?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;"><?= TICKET_NOUN ?></div></th><?php } ?>
+            <?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Expenses Owed</div></th><?php } ?>
+            <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Mileage</div></th><?php } ?>
+            <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Mileage Rate</div></th><?php } ?>
+            <?php if(strpos($timesheet_payroll_fields, ',Mileage Total,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Mileage Total</div></th><?php } ?>
 
             <?php if($current_page != 'time_cards.php') { ?>
-            <?php if($timesheet_approval_status_comments == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Status</div></th><?php } ?>
-            <?php if($timesheet_approval_initials == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Approved By</div></th><?php } ?>
-            <?php if($timesheet_approval_date == 1) { ?><th style='text-align:center; vertical-align:bottom; width:5em;'><div>Approved Date</div></th><?php } ?>
+            <?php if($timesheet_approval_status_comments == 1) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:5em;">Status</div></th><?php } ?>
+            <?php if($timesheet_approval_initials == 1) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:5em;">Approved By</div></th><?php } ?>
+            <?php if($timesheet_approval_date == 1) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:5em;">Approved Date</div></th><?php } ?>
             <?php } ?>
 
-            <?php // if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div>Function</div></th><?php //} ?>
-            <?php if($current_page == 'time_cards.php' && in_array('signature',$value_config)) { ?><th style="width:6em;"><div>Parent/Guardian Signature</div></th><?php } ?>
-            <?php if($current_page != 'time_cards.php') { ?><th style="width:6em;"><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title=""
+            <?php // if(in_array('comment_box',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:6em;">Function</div></th><?php //} ?>
+            <?php if($current_page == 'time_cards.php' && in_array('signature',$value_config)) { ?><th><div style="min-width:5em;">Parent / Guardian Signature</div></th><?php } ?>
+            <?php if($current_page != 'time_cards.php') { ?><th><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title=""
                 data-original-title="Check the boxes on multiple lines, then click Sign and click <?= $current_page == 'payroll.php' ? 'Mark Paid' : 'Approve' ?>."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?= $current_page == 'payroll.php' ? 'Paid' : 'Approve' ?>
                 <?php if(in_array('approve_all', $value_config) && in_array($current_page, ['time_card_approvals_coordinator.php','time_card_approvals_manager.php'])) { ?><br><label><input type="checkbox" name="select_all_approve" onclick="approveAll(this);"> Select All<?php } ?></th><?php } ?>
         </tr>
@@ -361,7 +362,7 @@ var useProfileSig = function(chk) {
                         }
                     }
                 }
-                $hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? 'background-color:'.$mg_highlight.';' : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? 'background-color:'.$highlight.';' : ''));
+                $hl_colour = ($row['MANAGER'] > 0 && $mg_highlight != '#000000' && $mg_highlight != '' ? $mg_highlight : ($row['HIGHLIGHT'] > 0 && $highlight != '#000000' && $highlight != '' ? $highlight : ''));
                 $show_separator = 0;
                 $hrs = ['REG'=>$row['REG_HRS'],'DIRECT'=>$row['DIRECT_HRS'],'INDIRECT'=>$row['INDIRCET_HRS'],'EXTRA'=>$row['EXTRA_HRS'],'RELIEF'=>$row['RELIEF_HRS'],'SLEEP'=>$row['SLEEP_HRS'],'SICK_ADJ'=>$row['SICK_ADJ'],
                     'SICK'=>$row['SICK_HRS'],'STAT_AVAIL'=>$row['STAT_AVAIL'],'STAT'=>$row['STAT_HRS'],'VACA_AVAIL'=>$row['VACA_AVAIL'],'VACA'=>$row['VACA_HRS'],'BREAKS'=>$row['BREAKS']];
@@ -547,7 +548,7 @@ var useProfileSig = function(chk) {
             foreach($position_list as $position) {
                 $position_options .= '<option '.($position[0] == $time_type ? 'selected' : '').' value="'.$position[0].'">'.$position[0].'</option>';
             }
-            echo '<tr style="'.$hl_colour.'" class="'.($show_separator==1 && !in_array('total_per_day',$value_config) ? 'theme-color-border-bottom' : '').'">
+            echo '<tr style="'.(empty($hl_colour) ? '' : 'background-color:'.$hl_colour.';').'" data-background="'.$hl_colour.'" class="'.($show_separator==1 && !in_array('total_per_day',$value_config) ? 'theme-color-border-bottom' : '').'">
                 <input type="hidden" name="date" value="'.$date.'">
                 <input type="hidden" name="staff" value="'.$search_staff.'">
                 <input type="hidden" name="siteid" value="'.$search_site.'">

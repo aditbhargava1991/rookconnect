@@ -518,6 +518,28 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		}
 	}
 
+	//Estimate Mode Fields
+	if($_GET['estimate_mode'] == 1) {
+		$value_config_all = $value_config;
+		$value_config = ','.get_config($dbc, 'ticket_estimate_fields').',';
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_estimate_fields_'.$ticket_type).',';
+		}
+		if(empty(trim($value_config,','))) {
+			$value_config = $value_config_all;
+		} else {
+			foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+				if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+					$value_config .= ','.$action_mode_ignore_field;
+				}
+			}
+			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+		}
+        foreach($estimate_mode_restrict as $remove_field) {
+            $value_config = str_replace($remove_field.',','',$value_config);
+        }
+	}
+
 	//Overview Fields
 	if($_GET['overview_mode'] == 1) {
 		$value_config_all = $value_config;
@@ -623,7 +645,19 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 		$strict_view = 1;
 	}
-	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
+	if((isset($_GET['intake_key']) && !($ticketid > 0)) || $_GET['estimate_mode'] > 0) {
+		$access_project = true;
+		$access_staff = true;
+		$access_contacts = true;
+		$access_waitlist = true;
+		$access_staff_checkin = true;
+		$access_all_checkin = true;
+		$access_medication = true;
+		$access_complete = true;
+		$access_services = true;
+		$access_all = true;
+		$access_any = true;
+    } else if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
 		$access_project = false;
 		$access_staff = false;
 		$access_contacts = false;

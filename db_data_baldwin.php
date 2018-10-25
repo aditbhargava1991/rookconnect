@@ -1333,4 +1333,10 @@
     }
     //2018-10-22 - Ticket #9920 - Ticket Types
 
+    //2018-10-24 - Ticket #9892 - Ticket Log PDF
+    if(!mysqli_query($dbc, "ALTER TABLE `field_config_ticket_log` ADD `header_logo_align` VARCHAR(100) AFTER `header_logo`")) {
+        echo "Error: ".mysqli_error($dbc)."<br />\n";
+    }
+    //2018-10-24 - Ticket #9892 - Ticket Log PDF
+
     echo "Baldwin's DB Changes Done<br />\n";
