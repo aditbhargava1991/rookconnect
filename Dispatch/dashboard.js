@@ -224,30 +224,43 @@ function load_summary_tab(equipmentid) {
 
 	if(stop_count > 0 && $('#summary_tab li').hasClass('active')) {
 		var group_exists = $('.dispatch-summary-tab[data-equipment="'+equipmentid+'"]');
-		if(group_exists.length > 0) {
-			$(group_exists).remove();
-		}
-
 		var prev_equip = '';
 		var next_equip = '';
+		var prev_equip_search = '';
+		var next_equip_search = '';
+		if(group_exists.length > 0) {
+			var prev_equip = $(group_exists).prev('.dispatch-summary-tab').data('equipment');
+			var next_equip = $(group_exists).next('.dispatch-summary-tab').data('equipment');
+			if(prev_equip > 0) {
+				prev_equip_search = $(group_exists).prev('.dispatch-summary-tab');
+			}
+			if(next_equip > 0) {
+				next_equip_search = $(group_exists).next('.dispatch-summary-tab');
+			}
+		}
 		if($('.dispatch-summary-tab').length > 0) {
-			$('.dispatch-summary-tab').each(function() {
-				if($(this).data('latest-updated-time') > item_row[0]['latest_updated_time']) {
-					prev_equip = this;
-				} else if($(this).data('latest-updated-time') < item_row[0]['latest_updated_time']) {
-					next_equip = this;
-				}
-				if(prev_equip != '' && next_equip != '') {
-					return;
+			$('.dispatch-summary-tab').not(group_exists).each(function() {
+				if($(this).data('latest-updated-time') > item_row[0]['latest_updated_time'] && ($(this).data('latest-updated-time') < $(prev_equip_search).data('latest-updated-time') || prev_equip_search == '')) {
+					prev_equip_search = this;
+					prev_equip = $(prev_equip_search).data('equipment');
+				} else if($(this).data('latest-updated-time') < item_row[0]['latest_updated_time'] && ($(this).data('latest-updated-time') > $(next_equip_search).data('latest-updated-time') || next_equip_search == '')) {
+					next_equip_search = this;
+					next_equip = $(prev_equip_search).data('equipment');
 				}
 			});
 		}
-		if(prev_equip != '' && item_row[0]['latest_updated_time'] > 0) {
-			$(prev_equip).after(item_row[0]['html']);
-		} else if(next_equip != '' && item_row[0]['latest_updated_time'] > 0) {
-			$(next_equip).before(item_row[0]['html']);
+
+		if(group_exists.length > 0 && prev_equip == $(group_exists).prev('.dispatch-summary-tab').data('equipment') && next_equip == $(group_exists).next('.dispatch-summary-tab').data('equipment')) {
+			$(group_exists).replaceWith(item_row[0]['html']);
 		} else {
-			$('.dispatch-summary-tab-list').append(item_row[0]['html']);
+			$(group_exists).remove();
+			if(prev_equip > 0 && item_row[0]['latest_updated_time'] > 0) {
+				$('.dispatch-summary-tab[data-equipment="'+prev_equip+'"]').after(item_row[0]['html']);
+			} else if(next_equip > 0 && item_row[0]['latest_updated_time'] > 0) {
+				$('.dispatch-summary-tab[data-equipment="'+next_equip+'"]').before(item_row[0]['html']);
+			} else {
+				$('.dispatch-summary-tab-list').append(item_row[0]['html']);
+			}
 		}
 
 		var block = $('.dispatch-summary-tab[data-equipment="'+equipmentid+'"] .dispatch-summary-tab-block');
