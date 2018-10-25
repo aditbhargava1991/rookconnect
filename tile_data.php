@@ -11,6 +11,7 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 	}
 	if(((tile_visible($dbc, $tile) || (is_array($tile_name) && tile_visible($dbc, $tile.'_'.$sub_tile, ROLE, $tile))) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket_group' && $sub_tile != '' && tile_visible($dbc, 'ticket_tile_'.$sub_tile, ROLE, 'ticket'))) {
 		switch($tile) {
+			case 'start_day_button': return ['link'=>'Timesheet/start_day.php','name'=>START_DAY]; break;
 			case 'admin_settings': return ['link'=>'admin_software_config.php','name'=>'Admin Settings']; break;
 			case 'software_config': return ['link'=>'Settings/settings.php','name'=>'Settings']; break;
 			case 'security': return ['link'=>"Security/security.php",'name'=>'Security']; break;

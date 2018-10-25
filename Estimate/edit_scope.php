@@ -148,19 +148,19 @@ function rem_scope(img) {
 	block.find('[name=deleted]').val(1).change();
 	block.hide();
 }
-function saveFieldMethod() {
-	if(this.value == 'CUSTOM') {
-		$(this).closest('.form-group').find('div[class^=col-sm-]').show();
-		$(this).closest('.col-sm-12').hide();
-		$(this).closest('.form-group').find('input').focus();
+function saveFieldMethod(field) {
+	if(field.value == 'CUSTOM') {
+		$(field).closest('.form-group').find('div[class^=col-sm-]').show();
+		$(field).closest('.col-sm-12').hide();
+		$(field).closest('.form-group').find('input').focus();
 		doneSaving();
-	} else if($(this).is('[data-table]')) {
-		var result = this.value;
-		var name = this.name;
+	} else if($(field).is('[data-table]')) {
+		var result = field.value;
+		var name = field.name;
 		if(name.substr(-2) == '[]') {
 			result = [];
 			$('[name="'+name+'"]').each(function() {
-				result.push(this.value);
+				result.push(field.value);
 			});
 		}
 		$.ajax({
@@ -168,12 +168,12 @@ function saveFieldMethod() {
 			method: 'POST',
 			dataType: 'html',
 			data: {
-				id: $(this).data('id'),
-				id_field: $(this).data('id-field'),
-				table: $(this).data('table'),
+				id: $(field).data('id'),
+				id_field: $(field).data('id-field'),
+				table: $(field).data('table'),
 				field: name.replace('[]',''),
 				value: result,
-				estimate: $(this).data('estimate')
+				estimate: $(field).data('estimate')
 			},
 			success: function(response) {
 				console.log(response);
@@ -201,14 +201,24 @@ function add_line() {
     
     <div class="scale-to-fill has-main-screen hide-titles-mob"><?php
         $scope_list = [];
-        $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
-        $scope_name = '';
-        if(mysqli_num_rows($query) > 0) {
-            while($row = mysqli_fetch_array($query)) {
-                $scope_list[config_safe_str($row[0])] = $row[0];
+        $add_est_scope = false;
+        foreach(explode(',',$estimate['estimatetype']) as $est_type) {
+            if(strpos($est_type,'ticket_est_') === 0) {
+                $scope_list[$est_type] = substr($est_type,11).' Scope';
+            } else {
+                $add_est_scope = true;
             }
-        } else {
-            $scope_list['scope_1'] = 'Scope 1';
+        }
+        if($add_est_scope) {
+            $query = mysqli_query($dbc, "SELECT `scope_name` FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `deleted`=0 GROUP BY IFNULL(`scope_name`,'') ORDER BY MIN(`sort_order`)");
+            $scope_name = '';
+            if(mysqli_num_rows($query) > 0) {
+                while($row = mysqli_fetch_array($query)) {
+                    $scope_list[config_safe_str($row[0])] = $row[0];
+                }
+            } else {
+                $scope_list['scope_1'] = 'Scope 1';
+            }
         }
         
         if(count($scope_list) < 2) {
@@ -233,7 +243,27 @@ function add_line() {
             <!--<div class="standard-body-title"><h3>Estimate Scope <a href="estimate_scope_edit.php?estimateid=<?= $estimateid ?>&scope=<?= $_GET['status'] ?>" onclick="overlayIFrameSlider(this.href, '75%', true, false, 'auto', true); return false;"><img class="inline-img smaller" src="../img/icons/ROOK-edit-icon.png"></a></h3></div>-->
             <div id="no-more-tables"><?php
                 foreach($scope_list as $scope_id => $scope) {
-                    include('edit_headings.php');
+                    if(strpos($scope_id,'ticket_est_') === 0) {
+                        $get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND `estimateid` > 0");
+                        if($get_ticket->num_rows > 0) {
+                            $get_ticket = $get_ticket->fetch_assoc();
+                            $ticketid = $get_ticket['ticketid'];
+                        } else {
+                            $dbc->query("INSERT INTO `tickets` (`ticket_type`,`status`,`estimateid`,`businessid`,`clientid`,`siteid`,`afe_number`,`heading`) SELECT '".config_safe_str(substr($scope_id,11))."','ffm_est_ticket',`estimateid`,`businessid`,`clientid`,`siteid`,`afe_number`,`estimate_name` FROM `estimate` WHERE `estimateid` > 0 AND `estimateid`='$estimateid'");
+                            $ticketid = $dbc->insert_id;
+                            $get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+                        }
+                        $force_readonly = true;
+                        $_GET['calendar_view'] = 'true';
+                        $_GET['estimate_mode'] = 1;
+                        $_GET['ticket_type'] = config_safe_str(substr($scope_id,11));
+                        $_GET['edit'] = $_GET['ticketid'] = $ticketid; ?>
+                        <a href="../Ticket/edit_tickets.php?edit=<?= $ticketid ?>&estimate_mode=1" onclick="overlayIFrameSlider(this.href+'&calendar_view=true', 'auto', true, false); return false;"><h4><?= substr($scope_id,11) ?> Details<img class="inline-img" src="../img/icons/ROOK-edit-icon.png"></h4></a>
+                        <?php include('../Ticket/edit_tickets.php');
+                        $_GET['edit'] = $estimateid;
+                    } else {
+                        include('edit_headings.php');
+                    }
                 } ?>
             </div>
             <?php //include('edit_summary.php'); ?>

@@ -891,6 +891,10 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'sign_in_time', 'admin'); ?>
                                     </tr>
                                     <tr>
+                                        <td data-title="Comment"><?= START_DAY ?></td>
+                                        <?php echo tile_config_function($dbc, 'start_day_button', 'admin'); ?>
+                                    </tr>
+                                    <tr>
                                         <td data-title="Comment">Time Clock</td>
                                         <?php echo tile_config_function($dbc, 'punch_card', 'admin'); ?>
                                     </tr>

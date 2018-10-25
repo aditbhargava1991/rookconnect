@@ -1,10 +1,10 @@
-<?php if(!empty($_POST['send_follow_up_email']) || !empty($_GET['send_follow_up_email'])) {
-	foreach(array_merge($_POST['send_follow_up_email'],[$_GET['send_follow_up_email']]) as $send_email) {
+<?php if(!empty($_POST['send_follow_up_email'])) {
+	foreach($_POST['send_follow_up_email'] as $send_email) {
 		$send_email = explode('.',$send_email);
-		if($send_email[1] > 0) {
-			if($send_email[0] == 'm') {
+		if($send_email[1] > 0 && $send_email[2] > 0) {
+			if($send_email[0] == 'manual') {
 				$assign = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `manuals_staff` WHERE `manualstaffid`='".$send_email[1]."'"));
-				$staff = $assign['staffid'];
+				$staff = $send_email[2];
 				$to = get_email($dbc, $staff);
 				if($to != '') {
 					$manual = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `manuals` WHERE `manualtypeid`='".$assign['manualtypeid']."'"));
@@ -15,9 +15,9 @@
 						send_email('', $to, '', '', $subject, $body, '');
 					} catch(Exception $e) { }
 				}
-			} else if($send_email[0] == 'h') {
+			} else if($send_email[0] == 'hr') {
 				$assign = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `hr_attendance` WHERE `hrattid`='".$send_email[1]."'"));
-				$staff = $assign['staffid'];
+				$staff = $send_email[2];
 				$to = get_email($dbc, $staff);
 				if($to != '') {
 					$form = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `hr` WHERE `hrid`='".$assign['hrid']."'"));
@@ -84,7 +84,7 @@
         }
         ?>
 		<div class="form-group col-sm-6 col-xs-12">
-			<label class="col-sm-4 control-label">Staff:</label>
+			<label class="col-sm-4">Staff:</label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a Staff Member..." name="contactid" class="chosen-select-deselect form-control" width="380">
 				  <option value=""></option>
@@ -97,7 +97,7 @@
 		</div>
 
 		<div class="form-group col-sm-6 col-xs-12">
-			<label class="col-sm-4 col-xs-4 control-label">Category:</label>
+			<label class="col-sm-4 col-xs-4">Category:</label>
 			  <div class="col-sm-8 col-xs-8">
 					<select data-placeholder="Select a Category" name="category" class="chosen-select-deselect form-control" width="380">
 					  <option value=""></option>
@@ -109,7 +109,7 @@
 		</div>
 
 		<div class="form-group col-sm-6 col-xs-12">
-			<label class="col-sm-4 col-xs-4 control-label">Heading:</label>
+			<label class="col-sm-4 col-xs-4">Heading:</label>
 			  <div class="col-sm-8 col-xs-8">
 					<select data-placeholder="Select a Heading..." name="heading" class="chosen-select-deselect form-control" width="380">
 					  <option value=""></option>
@@ -124,7 +124,7 @@
 		</div>
 
 		<div class="form-group col-sm-6 col-xs-12">
-			<label class="col-sm-4 col-xs-4 control-label">Status:</label>
+			<label class="col-sm-4 col-xs-4">Status:</label>
 			  <div class="col-sm-8 col-xs-8">
 					<select data-placeholder="Select a Status..." name="status" class="chosen-select-deselect form-control" width="380">
 					  <option value=""></option>
@@ -135,14 +135,14 @@
 		</div>
 
 		<div class="form-group col-sm-6 col-xs-12">
-			<label class="col-sm-4 col-xs-4 control-label">Start Date:</label>
+			<label class="col-sm-4 col-xs-4">Start Date:</label>
 			<div class="col-sm-8 col-xs-8">
 				<input name="s_start_date" type="text" class="datepicker form-control" value="<?php echo $s_start_date; ?>" style="width:100%;">
 			</div>
 		</div>
 
 		<div class="form-group col-sm-6 col-xs-12">
-			<label class="col-sm-4 col-xs-4 control-label">End Date:</label>
+			<label class="col-sm-4 col-xs-4">End Date:</label>
 			<div class="col-sm-8 col-xs-8">
 				<input name="s_end_date" type="text" class="datepicker form-control" value="<?php echo $s_end_date; ?>" style="width:100%;">
 			</div>
@@ -154,12 +154,12 @@
         </div>
 		<div class="clearfix"></div>
 		
-		<span class="pull-right">
+		<span class="pull-right gap-top">
             <img src="<?php echo WEBSITE_URL;?>/img/block/red.png" width="23" height="23" border="0" alt=""> Deadline Passed
             <img src="<?php echo WEBSITE_URL;?>/img/block/green.png" width="23" height="23" border="0" alt=""> Deadline Today
         </span>
 		
-		<?php $sql = "SELECT * FROM (SELECT CONCAT('m.',`manuals`.`manualtypeid`) `id`, 0 `user_form_id`, `manualstaffid` `entry`, `category`, CONCAT(`heading_number`,' ',`heading`) `heading`, CONCAT(`sub_heading_number`,' ',`sub_heading`) `sub_heading`, CONCAT(`third_heading_number`,' ',`third_heading`) `third_heading`, `manuals_staff`.`staffid`, `deadline`, `done`, `today_date`, 'manual' `formtype` FROM `manuals_staff` LEFT JOIN `manuals` ON `manuals_staff`.`manualtypeid`=`manuals`.`manualtypeid` UNION SELECT CONCAT('h.',`hr`.`hrid`) `id`, `hr`.`user_form_id`, `fieldlevelriskid` `entry`, `category`, CONCAT(`heading_number`,' ',`heading`) `heading`, CONCAT(`sub_heading_number`,' ',`sub_heading`) `sub_heading`, CONCAT(`third_heading_number`,' ',`third_heading`) `third_heading`, `hr_attendance`.`assign_staffid` `staffid`, `deadline`, `done`, '' `today_date`, `hr`.`form` `formtype` FROM `hr_attendance` LEFT JOIN `hr` ON `hr_attendance`.`hrid`=`hr`.`hrid`) `hr_list` WHERE `category` != ''";
+		<?php $sql = "SELECT * FROM (SELECT 'manual' `type`, `manuals`.`manualtypeid` `id`, 0 `user_form_id`, `manualstaffid` `entry`, `category`, CONCAT(`heading_number`,' ',`heading`) `heading`, CONCAT(`sub_heading_number`,' ',`sub_heading`) `sub_heading`, CONCAT(`third_heading_number`,' ',`third_heading`) `third_heading`, `manuals_staff`.`staffid`, `deadline`, `done`, `today_date`, 'manual' `formtype` FROM `manuals_staff` LEFT JOIN `manuals` ON `manuals_staff`.`manualtypeid`=`manuals`.`manualtypeid` UNION SELECT 'hr' `type`, `hr`.`hrid` `id`, `hr`.`user_form_id`, `fieldlevelriskid` `entry`, `category`, CONCAT(`heading_number`,' ',`heading`) `heading`, CONCAT(`sub_heading_number`,' ',`sub_heading`) `sub_heading`, CONCAT(`third_heading_number`,' ',`third_heading`) `third_heading`, `hr_attendance`.`assign_staffid` `staffid`, `deadline`, `done`, '' `today_date`, `hr`.`form` `formtype` FROM `hr_attendance` LEFT JOIN `hr` ON `hr_attendance`.`hrid`=`hr`.`hrid`) `hr_list` WHERE `category` != ''";
 		if($contactid > 0) {
 			$sql .= " AND `staff`='$contactid'";
 		}
@@ -181,10 +181,14 @@
 		if($s_end_date != '') {
 			$sql .= " AND `deadline` <= '$s_end_date'";
 		}
-		$query = mysqli_query($dbc, $sql);
+        $pageNum = $_GET['page'] > 0 ? filter_var($_GET['page'],FILTER_SANITIZE_STRING) : 1;
+        $rowsPerPage = $_GET['pagerows'] > 0 ? filter_var($_GET['pagerows'],FILTER_SANITIZE_STRING) : 25;
+		$query = mysqli_query($dbc, $sql." LIMIT ".(($pageNum - 1) * $rowsPerPage).", ".$rowsPerPage);
 		$today = date('Y-m-d');
+        $rows_sql = str_replace("SELECT * FROM", "SELECT COUNT(*) `numrows` FROM", $sql);
+        display_pagination($dbc, $rows_sql, $pageNum, $rowsPerPage, true, 25);
 		if(mysqli_num_rows($query) > 0) { ?>
-			<div id='no-more-tables'>
+			<div id='no-more-tables' class="col-sm-12">
 				<table class='table table-bordered'>
 					<tr class="hidden-xs hidden-sm">
 						<th>Staff</th>
@@ -205,12 +209,13 @@
 							<td data-title="Sub Section"><?= $row['sub_heading'] ?></td>
 							<td data-title="Deadline"><?= $row['deadline'] ?></td>
 							<td data-title="Status"><?= $row['done'] > 0 ? '<img src="../img/checkmark.png" class="inline-img">' : ($row['deadline'] >= $today ? '<img src="../img/block/green.png" class="inline-img">' : '<img src="../img/block/red.png" class="inline-img">') ?></td>
-							<td data-title="Reminder"><?= $row['done'] == 0 ? '<a href="?tile_name='.$tile.'&reports=view&send_follow_up_email='.$row['id'].'">Send Now</a> <label class="form-checkbox-any"><input type="checkbox" name="send_follow_up_email[]" value="'.$row['id'].'"> Send</label>' : '<a href="'.($row['formtype'] == 'manual' ? 'download/'.config_safe_str(trim(trim($row['third_heading']) == '' ? (trim($row['sub_heading']) == '' ? $row['heading'] : substr_replace($row['sub_heading'],'',strpos($row['sub_heading'],' '),1)) : $row['third_heading']).'_'.str_replace('-','_',$row['today_date'])).'.pdf' : hr_link($dbc, $row['formtype'], $row['user_form_id'], $row['entry'])).'">'.($row['today_date'] != '' ? $row['today_date'] : 'Complete').'<img class="inline-img" src="../img/pdf.png"></a>' ?></td>
+							<td data-title="Reminder"><?= $row['done'] == 0 ? '<a href="../quick_action_email.php?tile=hr&type='.$row['type'].'&id='.$row['id'].'&staff='.$row['staffid'].'" onclick="overlayIFrameSlider(this.href, \'auto\', true, true); return false;"><img src="../img/icons/ROOK-email-icon.png" class="inline-img cursor-hand no-toggle gap-bottom" title="Send Email Now"></a> <label class="form-checkbox no-pad any-width"><input type="checkbox" name="send_follow_up_email[]" value="'.$row['type'].'.'.$row['id'].'.'.$row['staffid'].'"> Send</label>' : '<a href="'.($row['formtype'] == 'manual' ? 'download/'.config_safe_str(trim(trim($row['third_heading']) == '' ? (trim($row['sub_heading']) == '' ? $row['heading'] : substr_replace($row['sub_heading'],'',strpos($row['sub_heading'],' '),1)) : $row['third_heading']).'_'.str_replace('-','_',$row['today_date'])).'.pdf' : hr_link($dbc, $row['formtype'], $row['user_form_id'], $row['entry'])).'">'.($row['today_date'] != '' ? $row['today_date'] : 'Complete').'<img class="inline-img" src="../img/pdf.png"></a>' ?></td>
 						</tr>
 					<?php } ?>
 				</table>
 			</div>
-		<?php } else {
+            <?php display_pagination($dbc, $rows_sql, $pageNum, $rowsPerPage, true, 25);
+        } else {
 			echo "<h3>No Results Found</h3>";
 		} ?>
 		</form>
