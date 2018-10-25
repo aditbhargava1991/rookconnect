@@ -583,14 +583,27 @@ if($_GET['action'] == 'update_fields') {
 	if($ticket_type == '') {
 		$ticket_type = get_config($dbc, 'default_ticket_type');
 	}
+    $status_change = false;
 	if(!empty($ticket_type)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
+        $ticket_status = get_field_value('status','tickets','ticketid',$ticketid);
+        $status_list = explode(',',get_config($dbc, 'ticket_status'));
+        if(!in_array($ticket_status, $status_list)) {
+            $new_status = get_config($dbc, 'ticket_default_status_'.$ticket_type);
+            if(empty($new_status)) {
+                $new_status = get_config($dbc, 'ticket_defaul_status');
+            }
+            if(!empty($new_status)) {
+                $status_change = true;
+                set_field_value($new_status, 'status', 'tickets', 'ticketid', $ticketid);
+            }
+        }
 	}
 	if(strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '') {
 		$_POST['date'] = $get_ticket['to_do_date'];
 	}
 
-	if($field_name == 'status') {
+	if($field_name == 'status' || $status_change) {
 		$current_history_value = mysqli_fetch_assoc(mysqli_query($dbc, "select history from tickets where ticketid = $id"));
 		$current_history = $current_history_value['history'];
 		$changer = get_contact($dbc, $_SESSION['contactid']);
