@@ -243,7 +243,7 @@ do {
 				<?php } ?>
 				<?php if($field_sort_field == 'Staff Check In' && strpos($value_config,',Staff Check In,') !== FALSE) { ?>
 					<div class="col-sm-2" style="<?= strpos($value_config,',Staff Check In,') === FALSE ? 'display: none;' : '' ?>">
-						<div class="<?= $access_staff_checkin == TRUE || $staff['item_id'] == $_SESSION['contactid'] ? 'toggleSwitch staffSwitch mobile-lg' : '' ?>" style="margin-top: -1em;">
+						<div class="<?= $access_staff_checkin == TRUE || $staff['item_id'] == $_SESSION['contactid'] ? 'toggleSwitch staffSwitch mobile-lg' : '' ?>">
 							<input type="hidden" name="checkin_id[]" value="<?= $staff['item_id'] ?>">
 							<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $staff['id'] ?>" data-id-field="id" value="<?= $staff['arrived'] ?>" class="toggle" <?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 'data-no-toggle-off="1"' : '' ?>>
 							<span style="<?= $staff['arrived'] > 0 && (!empty($staff['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img on_img"> Not Checked In</span>

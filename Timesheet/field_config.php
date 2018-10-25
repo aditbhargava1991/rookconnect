@@ -240,7 +240,7 @@ if($_GET['tab'] == 'approvals') {
 			} else {
 				$get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
 				$value_config = ','.$get_field_config[$value['config_field']].',';
-				if(strpos($value_config,',reg_hrs,') === FALSE && strpos($value_config,',direct_hrs,') === FALSE && strpos($value_config,',payable_hrs,') === FALSE && !in_array($layout, ['ticket_task','position_dropdown'])) {
+				if(strpos($value_config,',total_hrs,') === FALSE && strpos($value_config,',reg_hrs,') === FALSE && strpos($value_config,',direct_hrs,') === FALSE && strpos($value_config,',payable_hrs,') === FALSE && !in_array($layout, ['ticket_task','position_dropdown'])) {
 					$value_config .= 'reg_hrs,extra_hrs,relief_hrs,sleep_hrs,sick_hrs,sick_used,stat_hrs,stat_used,vaca_hrs,vaca_used,';
 				}
 			}

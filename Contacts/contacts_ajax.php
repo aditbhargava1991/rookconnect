@@ -1079,6 +1079,10 @@ if($_GET['action'] == 'update_url_send_email') {
 	echo (empty($error) ? 'Successfully sent.' : $error);
 }
 
+if($_GET['action'] == 'get_contact_name') {
+	echo $contact_name = array_shift(sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$_GET['contactid']."'")))['full_name'];
+}
+
 function copy_data($dbc, $contactid, $other_contactid) {
 	$contacts_tables = ['contacts','contacts_cost','contacts_dates','contacts_description','contacts_medical','contacts_upload'];
 

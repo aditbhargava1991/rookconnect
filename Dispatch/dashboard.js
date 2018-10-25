@@ -61,6 +61,7 @@ function resize_blocks() {
 
 	$('.dispatch-equipment-group').css('min-height', 0);
 	height_diff = $(window).height() - $('.standard-body-content').offset().top - $('footer:visible').height() - ($('.double-scroller').outerHeight() * 2);
+
 	if($('.standard-body-content').width() < 768) {
 		block_width = 'calc(100% - 1em)';
 	} else if($('.standard-body-content').width() < 1280) {
@@ -152,7 +153,7 @@ function retrieve_summary_tab(equipmentid = '') {
 		summary_list.push(next_item);
 	} else {
 		still_loading_summary = true;
-		loadingOverlayShow('.standard-body', $('.standard-body').height() + 20, $('.standard-body').width() + 20);
+		loadingOverlayShow('.standard-body');
 		var date = $('[name="search_date"]').val();
 		if(equipmentid != undefined && equipmentid != '') {
 			$.ajax({
@@ -264,7 +265,6 @@ function load_summary_tab(equipmentid) {
 		};
 		var ontime_chart = new google.visualization.BarChart($(block)[0]);
 	    ontime_chart.draw(ontime_data, ontime_options);
-
 	    if(all_chart_data['summary_tab'] == undefined) {
 	    	all_chart_data['summary_tab'] = [];
 	    }
@@ -310,7 +310,7 @@ function retrieve_tickets(equipmentid = '') {
 		loading_list.push(next_item);
 	} else {
 		still_loading_item = true;
-		loadingOverlayShow('.standard-body', $('.standard-body').height() + 20, $('.standard-body').width() + 20);
+		loadingOverlayShow('.standard-body');
 		var date = $('[name="search_date"]').val();
 		if(equipmentid != undefined && equipmentid != '') {
 			$.ajax({
@@ -430,7 +430,7 @@ function retrieve_summary(img, equipmentid, keep_visible = 0) {
 		hide_summary();
 	} else {
 		$(img).find('.dispatch-summary-icon').addClass('dispatch-summary-active');
-		loadingOverlayShow('.standard-body', $('.standard-body').height() + 20, $('.standard-body').width() + 20);
+		loadingOverlayShow('.standard-body');
 		var equipment = [];
 		if(equipmentid == 'ALL') {
 			$('.dispatch-equipment-button').each(function() {
