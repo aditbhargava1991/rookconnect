@@ -2846,7 +2846,6 @@ if($_GET['action'] == 'update_fields') {
 			$validate_errors[] = "No repeat days selected";
 		}
 		if($validated) {
-			//If validated, get the first 10 recurring dates and send it as a response so the user can verify that the dates are correct
 			$ongoing_recurrence = false;
 			if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
 				$sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
@@ -2854,6 +2853,13 @@ if($_GET['action'] == 'update_fields') {
 				$ongoing_recurrence = true;
 			}
 			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
+			if(empty($recurring_dates)) {
+				$validated = false;
+				$validate_errors[] = "No dates found in recurrence range";
+			}
+		}
+		//If validated, get the first 10 recurring dates and send it as a response so the user can verify that the dates are correct
+		if($validated) {
 			$validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date.($ongoing_recurrence ? " ongoing" : " until ".$end_date).". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
 			$result = [success=>true, message=>$validate_message, first_date=>array_shift($recurring_dates)];
 		} else {
@@ -2865,6 +2871,10 @@ if($_GET['action'] == 'update_fields') {
 		$ticketid = $_POST['ticketid'];
 
 		if($ticketid > 0) {
+			if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
+				$sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
+				$end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
+			}
 			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
 			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
 
@@ -2872,7 +2882,7 @@ if($_GET['action'] == 'update_fields') {
 				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 				$main_ticketid = $ticket['main_ticketid'];
 				mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
-				mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND (`to_do_date` >= '$create_starting_at' OR IFNULL(`to_do_date`,'0000-00-00') = '0000-00-00') AND `ticketid` != '$ticketid'");
+				mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND (`to_do_date` >= '$create_starting_at' OR IFNULL(NULLIF(`to_do_date`,'0000-00-00'),'') = '') AND `ticketid` != '$ticketid'");
 				mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
 			}
 
