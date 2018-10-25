@@ -36,11 +36,15 @@ function set_form_action() {
 			<div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>"></div>
 		</div>
 		<div class="form-group col-sm-5">
-			<label class="col-sm-4">Staff:</label>
+			<label class="col-sm-4"><?= $contact_type == 'staff' ? 'Staff' : VENDOR_TILE ?>:</label>
 			<div class="col-sm-8">
-				<select data-placeholder="Select a Staff..." name="therapist" class="chosen-select-deselect form-control">
+				<select data-placeholder="Select <?= $contact_type == 'staff' ? 'Staff' : VENDOR_TILE ?>..." name="therapist" class="chosen-select-deselect form-control">
 					<option value=""></option>
-					<?php $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`=1 AND deleted=0 AND status=1"),MYSQLI_ASSOC));
+					<?php if($contact_type == 'vendor') {
+                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN ('Staff') AND ".STAFF_CATS_HIDE_QUERY." AND `status`=1 AND deleted=0 AND status=1"),MYSQLI_ASSOC));
+                    } else {
+                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN ('Staff') AND ".STAFF_CATS_HIDE_QUERY." AND `status`=1 AND deleted=0 AND status=1"),MYSQLI_ASSOC));
+                    }
 					foreach($query as $rowid) {
 						echo "<option ".($rowid == $therapist ? 'selected' : '')." value='$rowid'>".get_contact($dbc, $rowid)."</option>";
 					} ?>
