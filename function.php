@@ -603,6 +603,8 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return 'Sales Leads';
 		} else if($name == 'ticket_archive_status') {
 			return 'Archive#*#Archived';
+		} else if($name == 'estimate_tabs') {
+			return get_config($dbc, 'project_tabs');
 		} else if($name == 'cust_support_tab_list') {
             $value = ['services','scrum','new','feedback'];
             foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_tab) {

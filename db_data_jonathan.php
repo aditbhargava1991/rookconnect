@@ -460,7 +460,7 @@
 		}
         // Ticket 9873
 
-    // October 22, 2018 - Ticket 9919
+        // October 22, 2018 - Ticket 9919
 		if(!mysqli_query($dbc, "ALTER TABLE `field_config_project_admin` ADD `options` TEXT AFTER `status`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
@@ -480,6 +480,12 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9827
+
+        // October 24, 2018 - Ticket 9140
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `estimateid` INT(11) UNSIGNED NOT NULL AFTER `projectid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9140
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
