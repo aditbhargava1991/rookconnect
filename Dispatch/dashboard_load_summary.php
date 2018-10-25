@@ -72,11 +72,11 @@ foreach($equip_list as $equipment) {
 		$summary_result['status_summary'][$ticket['status']]['status'] = $ticket['status'];
 
 		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
-		$time_compare = $ticket['to_do_date'].(!empty($ticket['end_available']) ? date('H:i:s', strtotime($ticket['end_available'])) : (!empty($ticket['to_do_end_time']) ? date('H:i:s', strtotime($ticket['to_do_end_time'])) : date('H:i:s', strtotime($ticket['to_do_start_time']))));
+		$time_compare = $ticket['to_do_date'].(!empty($ticket['end_available']) ? date('H:i:s', strtotime($ticket['end_available'])) : date('H:i:s', strtotime($ticket['to_do_start_time'].' + '.$delivery_timeframe_default.' hours')));
 		$customer_notes['completed_time'] = empty(str_replace('0000-00-00 00:00:00','',$customer_notes['completed_time'])) ? date('Y-m-d H:i:s') : convert_timestamp_mysql($dbc, $customer_notes['completed_time']);
-		if(strtotime($customer_notes['completed_time']) > strtotime($time_compare)) {
-			$summary_result['ontime_summary']['Not On Time']['count']++;
-			$summary_result['ontime_summary']['Not On Time']['label'] = 'Not On Time';
+		if(strtotime($customer_notes['completed_time']) > strtotime($time_compare) && strtotime(date('Y-m-d H:i:s')) > strtotime($time_compare)) {
+			$summary_result['ontime_summary']['Out Of Window']['count']++;
+			$summary_result['ontime_summary']['Out Of Window']['label'] = 'Out Of Window';
 		} else if($customer_notes['completed'] == 1 && strtotime($customer_notes['completed_time']) <= strtotime($time_compare)) {
 			$summary_result['ontime_summary']['On Time']['count']++;
 			$summary_result['ontime_summary']['On Time']['label'] = 'On Time';
@@ -138,8 +138,8 @@ $ontime_summary_arr = [
 		'color' => '#00ff00'
 	],
 	[
-		'label' => 'Not On Time',
-		'count' => empty($summary_result['ontime_summary']['Not On Time']['count']) ? 0 : $summary_result['ontime_summary']['Not On Time']['count'],
+		'label' => 'Out Of Window',
+		'count' => empty($summary_result['ontime_summary']['Out Of Window']['count']) ? 0 : $summary_result['ontime_summary']['Out Of Window']['count'],
 		'color' => '#ff0000'
 	],
 	[
