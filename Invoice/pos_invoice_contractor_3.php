@@ -390,6 +390,8 @@ if (!file_exists('download')) {
 // echo $html;error_reporting(E_ALL);
 //if(empty($posid) && !empty($invoiceid)) {
 	$pdf->writeHTML($html, true, false, true, false, '');
+    $invoice_type = $point_of_sell['type'];
+    include('../Invoice/pos_invoice_append_ticket.php');
 	$pdf->Output('download/invoice_'.$invoiceid.$edited.'.pdf', 'F');
 /* } else {
 	$pdf->writeHTML($html, true, false, true, false, '');

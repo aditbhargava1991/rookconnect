@@ -409,4 +409,6 @@ if ( !file_exists('download') ) {
 }
 
 $pdf->writeHTML($html, true, false, true, false, '');
+$invoice_type = $get_invoice['type'];
+include('../Invoice/pos_invoice_append_ticket.php');
 $pdf->Output('download/invoice_'.$invoiceid.'.pdf', 'F');
