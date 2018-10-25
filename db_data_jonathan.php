@@ -520,6 +520,20 @@
 		set_config($dbc, 'update_project_admin_notes', 1);
 	}
     // Ticket 9873
+    
+    // Ticket 9491
+	if(get_config($dbc, 'update_start_day') < 1) {
+		// October 25, 2018
+        if(!empty(get_config($dbc, 'timesheet_start_tile'))) {
+            if(!mysqli_query($dbc, "INSERT INTO `tile_security` (`tile_name`, `admin_enabled`, `user_enabled`) VALUES ('start_day_button',1,1)")) {
+                echo "Error: ".mysqli_error($dbc)."<br />\n";
+            }
+        } else {
+            set_config($dbc, 'timesheet_start_tile', 'Start Day');
+        }
+		set_config($dbc, 'update_start_day', 1);
+	}
+    // Ticket 9491
 	
 	echo "Jonathan's DB Changes Done<br />\n";
 ?>
