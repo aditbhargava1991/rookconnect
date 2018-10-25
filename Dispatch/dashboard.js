@@ -241,9 +241,9 @@ function load_summary_tab(equipmentid) {
 				}
 			});
 		}
-		if(prev_equip != '') {
+		if(prev_equip != '' && item_row[0]['latest_updated_time'] > 0) {
 			$(prev_equip).after(item_row[0]['html']);
-		} else if(next_equip != '') {
+		} else if(next_equip != '' && item_row[0]['latest_updated_time'] > 0) {
 			$(next_equip).before(item_row[0]['html']);
 		} else {
 			$('.dispatch-summary-tab-list').append(item_row[0]['html']);
