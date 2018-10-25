@@ -315,12 +315,6 @@ function go_to_dashboard(target) {
 			//	}
 			//}
 			?>
-			<?php if(START_DAY != '') { ?>
-			<tr data-dashboard='<?= (in_array('start_day_button', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment"><?= START_DAY ?></td>
-				<?php echo security_tile_config_function('start_day_button', get_privileges_staff($dbc, 'start_day_button',$level), 0, $level_url); ?>
-			</tr>
-			<?php } ?>
 			<?php if(strpos($on_security, ',archiveddata,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('archiveddata', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Archived Data</td>
@@ -614,6 +608,12 @@ function go_to_dashboard(target) {
 			<tr data-dashboard='<?= (in_array('sign_in_time', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Sign In</td>
 				<?php echo security_tile_config_function('sign_in_time', get_privileges_staff($dbc, 'sign_in_time',$level), 1, $level_url); ?>
+			</tr>
+			<?php } ?>
+			<?php if(strpos($on_security, ',start_day_button,') !== FALSE) { ?>
+			<tr data-dashboard='<?= (in_array('start_day_button', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Comment"><?= START_DAY ?></td>
+				<?php echo security_tile_config_function('start_day_button', get_privileges_staff($dbc, 'start_day_button',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if(strpos($on_security, ',punch_card,') !== FALSE) { ?>
