@@ -387,22 +387,22 @@ function show_hide_email() {
                     echo '<td data-title="Customer Billing Status">' . $invoice['customer_billing_status'] . '</td>';
                 }
                 echo '<td data-title="Invoice">';
-                echo 'Invoice#'.$invoice['invoiceid'].'</br>';
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     if(file_exists($invoice_pdf)) {
-                        echo '<a class="pull-left" target="_blank" href="'.$invoice_pdf.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a>';
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].'<img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a>';
+                    }
+                    echo '<br /><div class="clearfix"></div>';
+                    foreach(glob('download/invoice_'.$invoice['invoiceid'].'_*') as $i => $invoice_pdf) {
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice '.TICKET_TILE.' Details PDF'.($i > 0 ? ' #'.($i+1) : '').' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice '.TICKET_TILE.' Details" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
                     }
 
-                    /*
-                    if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a class="pull-left" target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'"><img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a>';
-                    }
-                    */
                     if($invoice['invoiceid_src'] > 0 && file_exists('download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="'.'download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                        echo '<a target="_blank" href="'.'download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
                     } else if($invoice['invoiceid_src'] > 0 && file_exists('Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="'.'Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                        echo '<a target="_blank" href="'.'Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
                     }
+                } else {
+                    echo 'Invoice #'.$invoice['invoiceid'];
                 }
                 if($invoiceLayout=='cnt1'){
                     if (strpos($xsl_xml_value_config, ','."invoice_xsl".',') !== FALSE) {

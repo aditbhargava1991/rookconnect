@@ -501,4 +501,6 @@ if (!file_exists('download')) {
 }
 
 $pdf->writeHTML($html, true, false, true, false, '');
+$invoice_type = $point_of_sell['type'];
+include('../Invoice/pos_invoice_append_ticket.php');
 $pdf->Output('download/invoice_'.$invoiceid.'.pdf', 'F');

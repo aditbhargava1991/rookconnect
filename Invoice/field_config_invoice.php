@@ -61,6 +61,7 @@ if (isset($_POST['submit'])) {
 
         //Customizable Ticket Fields
         set_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_custom_ticket_fields']),FILTER_SANITIZE_STRING));
+        set_config($dbc, 'invoice_ticket_append_qty_'.config_safe_str($invoice_type), filter_var($_POST['invoice_ticket_append_qty'],FILTER_SANITIZE_STRING));
         //Customizable Ticket Fields
 
         //Customizable Ticket Service Columns
@@ -186,6 +187,7 @@ if (isset($_POST['submit'])) {
 
         //Customizable Ticket Fields
         set_config($dbc, 'invoice_custom_ticket_fields', filter_var(implode(',', $_POST['invoice_custom_ticket_fields']),FILTER_SANITIZE_STRING));
+        set_config($dbc, 'invoice_ticket_append_qty', filter_var($_POST['invoice_ticket_append_qty'],FILTER_SANITIZE_STRING));
         //Customizable Ticket Fields
 
         //Customizable Ticket Service Columns
@@ -483,7 +485,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="gap-top">
                             <div class="form-group">
-                                <label for="fax_number" class="col-sm-4 control-label">Tile Name:<br /><em>Enter the name you would like the POS Advanced tile to be labelled as.</em></label>
+                                <label for="fax_number" class="col-sm-4">Tile Name:<br /><em>Enter the name you would like the POS Advanced tile to be labelled as.</em></label>
                                 <div class="col-sm-8">
                                     <input name="pos_advanced_tile" type="text" value="<?= $pos_advanced_tile ?>" class="form-control"/>
                                 </div>
@@ -491,7 +493,7 @@ if(!empty($invoice_types)) { ?>
                         </div>
 
                         <div class="form-group">
-                            <label for="fax_number" class="col-sm-4 control-label">Tile Noun:<br /><em>Enter the name you would like individual <?= POS_ADVANCE_TILE ?> to be labelled as.</em></label>
+                            <label for="fax_number" class="col-sm-4">Tile Noun:<br /><em>Enter the name you would like individual <?= POS_ADVANCE_TILE ?> to be labelled as.</em></label>
                             <div class="col-sm-8">
                                 <input name="pos_advanced_noun" type="text" value="<?= $pos_advanced_noun ?>" class="form-control"/>
                             </div>
@@ -584,7 +586,7 @@ if(!empty($invoice_types)) { ?>
 
 					<?php $invoice_design = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_design_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_design_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_design')) : get_config($dbc, 'invoice_design')); ?>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Select Invoice Design:</label>
+						<label class="col-sm-4">Select Invoice Design:</label>
 						<div class="col-sm-8">
 							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '1') { echo 'checked'; } ?> type="radio" name="invoice_design" value="1">
 								Layout 1<br /><a target="_blank" href="../img/invoice_design1.png"><img src="../img/invoice_design1.png" width="100" height="100" border="0" alt=""></a></label>
@@ -614,7 +616,7 @@ if(!empty($invoice_types)) { ?>
                     <?php $invoice_custom_ticket_fields = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket_fields')) : get_config($dbc, 'invoice_custom_ticket_fields'));
                     $invoice_custom_ticket_fields = explode(',', $invoice_custom_ticket_fields); ?>
                     <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
-                        <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Fields:</label>
+                        <label class="col-sm-4">Customizable <?= TICKET_NOUN ?> Options:</label>
                         <div class="col-sm-8">
 
                             <div class="row">
@@ -636,15 +638,22 @@ if(!empty($invoice_types)) { ?>
                                 <div class="col-sm-4">
                                     <label class="form-checkbox"><input <?= (in_array('delivery_group',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="delivery_group"> Group by Delivery</label>
                                 </div>
+                                <div class="col-sm-4">
+                                    <label class="form-checkbox"><input <?= (in_array('append_ticket',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="append_ticket"> Append <?= TICKET_NOUN ?> PDF to Invoice</label>
+                                </div>
                             </div>
 
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4">Append <?= TICKET_TILE ?> in Groups of:<br /><em>If there are several <?= TICKET_TILE ?>, there will be no more than this number appended to the invoice. After it hits this number, the <?= TICKET_TILE ?> will be split into their own PDF.</em></label>
+                        <div class="col-sm-8"><input type="number" min="1" step="1" class="form-control" name="invoice_ticket_append_qty" value="<?= get_config($dbc, 'invoice_ticket_append_qty'.(empty($_GET['type']) ? '' : '_'.config_safe_str($_GET['type']))) ?>"></div>
                     </div>
 
 
                     <?php $invoice_custom_ticket = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket')) : get_config($dbc, 'invoice_custom_ticket')); ?>
                     <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
-                        <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Service Columns:
+                        <label class="col-sm-4">Customizable <?= TICKET_NOUN ?> Service Columns:
                             <span class="popover-examples list-inline">&nbsp;
                             <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This will display each of the selected Service as columns. Any services that are not selected will be under the All Other Services column."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
                             </span>
@@ -701,7 +710,7 @@ if(!empty($invoice_types)) { ?>
 
                     <?php $logo = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_logo_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_logo_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_logo')) : get_config($dbc, 'invoice_logo')); ?>
                     <div class="form-group">
-                    <label for="file[]" class="col-sm-4 control-label">Upload Logo:
+                    <label for="file[]" class="col-sm-4">Upload Logo:
                     <span class="popover-examples list-inline">&nbsp;
                     <a href="#job_file" data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
                     </span>
@@ -720,7 +729,7 @@ if(!empty($invoice_types)) { ?>
 
                     <?php $invoice_header = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_header_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_header_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_header')) : get_config($dbc, 'invoice_header')); ?>
                     <div class="form-group">
-                    <label for="company_name" class="col-sm-4 control-label">Header:</label>
+                    <label for="company_name" class="col-sm-4">Header:</label>
                     <div class="col-sm-8">
                         <textarea name="invoice_header" rows="5" cols="50" class="form-control"><?php echo $invoice_header; ?></textarea>
                     </div>
@@ -728,7 +737,7 @@ if(!empty($invoice_types)) { ?>
 
                     <?php $invoice_footer = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_footer_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_footer_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_footer')) : get_config($dbc, 'invoice_footer')); ?>
                     <div class="form-group">
-                    <label for="company_name" class="col-sm-4 control-label">Footer for Customer and Third Party Invoices:</label>
+                    <label for="company_name" class="col-sm-4">Footer for Customer and Third Party Invoices:</label>
                     <div class="col-sm-8">
                         <textarea name="invoice_footer" rows="5" cols="50" class="form-control"><?php echo $invoice_footer; ?></textarea>
                     </div>
@@ -736,7 +745,7 @@ if(!empty($invoice_types)) { ?>
 
                     <?php $invoice_unpaid_footer = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_unpaid_footer_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_unpaid_footer_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_unpaid_footer')) : get_config($dbc, 'invoice_unpaid_footer')); ?>
                     <div class="form-group">
-                    <label for="company_name" class="col-sm-4 control-label">Footer for Unpaid Third Party Invoices:</label>
+                    <label for="company_name" class="col-sm-4">Footer for Unpaid Third Party Invoices:</label>
                     <div class="col-sm-8">
                         <textarea name="invoice_unpaid_footer" rows="5" cols="50" class="form-control"><?php echo $invoice_unpaid_footer; ?></textarea>
                     </div>
@@ -886,7 +895,7 @@ if(!empty($invoice_types)) { ?>
                     <div class="panel-body">
 
                         <div class="form-group">
-                        <label for="company_name" class="col-sm-4 control-label"><h4>MVA Claim Max $ for Inventory</h4></label>
+                        <label for="company_name" class="col-sm-4"><h4>MVA Claim Max $ for Inventory</h4></label>
                         <div class="col-sm-8">
                           <input name="mva_claim_price" value="<?php echo get_config($dbc, 'mva_claim_price'); ?>" type="text" class="form-control">
                         </div>
@@ -1086,7 +1095,7 @@ if(!empty($invoice_types)) { ?>
     				<div class="panel-body">
 
     					<div class="form-group">
-    						<label for="office_country" class="col-sm-4 control-label">Payment Type Options:<br><em>(separate by a comma)</em></label>
+    						<label for="office_country" class="col-sm-4">Payment Type Options:<br><em>(separate by a comma)</em></label>
     						<div class="col-sm-8">
     							<?php $invoice_payment_types = explode(',',get_config($dbc, 'invoice_payment_types')); ?>
     							<label class="form-checkbox"><input <?= (in_array('Pay Now',$invoice_payment_types) ? 'checked' : '') ?> type="checkbox" name="invoice_payment_types[]" value="Pay Now"> Pay Now</label>
