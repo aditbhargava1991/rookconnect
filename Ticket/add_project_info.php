@@ -210,7 +210,7 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI AFE', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>AFE#:</label>
 				<div class="col-sm-8">
-					<input type="text" name="afe_number" id="clientid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['afe_number'] ?>">
+					<input type="text" name="afe_number" id="clientid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI AFE', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['afe_number'] ?>">
 				</div>
 			</div>
 		<?php } ?>
@@ -440,7 +440,7 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['agentid'],',') > 0 || $get_ticket['agentid'] == '' ? 'display:none;' : '' ?>">
-					<input type="text" name="agentid" class="form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['agentid'] > 0 ? '' : $get_ticket['agentid'] ?>">
+					<input type="text" name="agentid" class="form-control <?php echo (in_array('PI Agent', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['agentid'] > 0 ? '' : $get_ticket['agentid'] ?>">
 					<label class="form-checkbox"><input checked type="checkbox" name="one_time" onchange="if(!this.checked) { $(this).closest('.form-group').find('.select-div').show(); $(this).closest('.manual-div').hide(); }"> One Time Only <?= $contact_category ?></label>
 				</div>
 			</div>
@@ -466,7 +466,7 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['notifyid'],',') > 0 || $get_ticket['notifyid'] == '' ? 'display:none;' : '' ?>">
-					<input type="text" name="notifyid" class="form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= (!empty($contact_category) ? $contact_category : '%') ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['notifyid'] > 0 ? '' : $get_ticket['notifyid'] ?>">
+					<input type="text" name="notifyid" class="form-control <?php echo (in_array('PI Notify Party', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= (!empty($contact_category) ? $contact_category : '%') ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['notifyid'] > 0 ? '' : $get_ticket['notifyid'] ?>">
 					<label class="form-checkbox"><input checked type="checkbox" name="one_time" onchange="if(!this.checked) { $(this).closest('.form-group').find('.select-div').show(); $(this).closest('.manual-div').hide(); }"> One Time Only <?= $contact_category ?></label>
 				</div>
 			</div>
@@ -491,7 +491,7 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['banid'],',') > 0 || $get_ticket['banid'] == '' ? 'display:none;' : '' ?>">
-					<input type="text" name="banid" class="form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['banid'] > 0 ? '' : $get_ticket['banid'] ?>">
+					<input type="text" name="banid" class="form-control <?php echo (in_array('PI Ban', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['banid'] > 0 ? '' : $get_ticket['banid'] ?>">
 					<label class="form-checkbox"><input checked type="checkbox" name="one_time" onchange="if(!this.checked) { $(this).closest('.form-group').find('.select-div').show(); $(this).closest('.manual-div').hide(); }"> One Time Only <?= $contact_category ?></label>
 				</div>
 			</div>
@@ -516,7 +516,7 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 				  </div>
 				<div class="col-sm-8 manual-div" style="<?= trim($get_ticket['vendorid'],',') > 0 || $get_ticket['vendorid'] == '' ? 'display:none;' : '' ?>">
-					<input type="text" name="vendorid" class="form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['vendorid'] > 0 ? '' : $get_ticket['vendorid'] ?>">
+					<input type="text" name="vendorid" class="form-control <?php echo (in_array('PI Vendor', $value_mandatory_config) ? 'required' : ''); ?>" data-one-time="true" data-category="<?= $contact_category ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $get_ticket['vendorid'] > 0 ? '' : $get_ticket['vendorid'] ?>">
 					<label class="form-checkbox"><input checked type="checkbox" name="one_time" onchange="if(!this.checked) { $(this).closest('.form-group').find('.select-div').show(); $(this).closest('.manual-div').hide(); }"> One Time Only <?= $contact_category ?></label>
 				</div>
 			</div>
