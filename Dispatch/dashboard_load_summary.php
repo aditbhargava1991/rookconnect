@@ -74,7 +74,7 @@ foreach($equip_list as $equipment) {
 		$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
 		$time_compare = $ticket['to_do_date'].(!empty($ticket['end_available']) ? date('H:i:s', strtotime($ticket['end_available'])) : date('H:i:s', strtotime($ticket['to_do_start_time'].' + '.$delivery_timeframe_default.' hours')));
 		$customer_notes['completed_time'] = empty(str_replace('0000-00-00 00:00:00','',$customer_notes['completed_time'])) ? date('Y-m-d H:i:s') : convert_timestamp_mysql($dbc, $customer_notes['completed_time']);
-		if(strtotime($customer_notes['completed_time']) > strtotime($time_compare)) {
+		if(strtotime($customer_notes['completed_time']) > strtotime($time_compare) && strtotime(date('Y-m-d H:i:s')) > strtotime($time_compare)) {
 			$summary_result['ontime_summary']['Out Of Window']['count']++;
 			$summary_result['ontime_summary']['Out Of Window']['label'] = 'Out Of Window';
 		} else if($customer_notes['completed'] == 1 && strtotime($customer_notes['completed_time']) <= strtotime($time_compare)) {

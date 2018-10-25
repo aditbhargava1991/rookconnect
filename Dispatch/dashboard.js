@@ -228,7 +228,7 @@ function load_summary_tab(equipmentid) {
 	var ontime_data = google.visualization.arrayToDataTable(ontime_arr);
 	var ontime_options = {
         chartArea:{ top: 0 },
-		height: 100,
+		height: 110,
 		legend: { position: 'none' }
 	};
 	var ontime_chart = new google.visualization.BarChart($(block)[0]);
