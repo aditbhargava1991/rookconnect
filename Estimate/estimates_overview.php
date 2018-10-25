@@ -269,116 +269,142 @@ function remove_follow_up(elem) {
         </div><!-- .row -->
 		<div class="col-sm-12">
 			<h4><?= rtrim(ESTIMATE_TILE, 's') ?> Scope:</h4><?php
-            $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `rate_card`, `scope_name`, `heading`, `sort_order`");
-			$heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
-			if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
-				$heading_order[] = 'Detail***Scope Detail';
-			}
-			if(in_array('Scope Billing',$config) && !in_array_starts('Billing Frequency',$heading_order)) {
-				$heading_order[] = 'Billing Frequency***Billing Frequency';
-			}
-			$col_width = 0;
-			foreach($heading_order as $order_info) {
-				$order_info = explode('***',$order_info);
-				// Count each column in use, and count description as four times wider
-				switch($order_info[0]) {
-					case 'Description':
-						$col_width += 3;
-					case 'UOM':
-					case 'Quantity':
-					case 'Estimate Price':
-					case 'Total':
-						$col_width += 1;
-						break;
-				}
-			}
-			$col_width = 1 / ($col_width + 1) * 100;
+            $ticket_scope = false;
+            foreach(explode(',',$estimate['estimatetype']) as $est_type) {
+                if(strpos($est_type,'ticket_est_') === 0) {
+                    $ticket_scope = true;
+                }
+            }
+            if($ticket_scope) {
+                $get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `deleted`=0 AND `estimateid`='$estimateid' AND `estimateid` > 0");
+                if($get_ticket->num_rows > 0) {
+                    $get_ticket = $get_ticket->fetch_assoc();
+                    $ticketid = $get_ticket['ticketid'];
+                } else {
+                    $dbc->query("INSERT INTO `tickets` (`ticket_type`,`status`,`estimateid`,`businessid`,`clientid`,`siteid`,`afe_number`,`heading`) SELECT '".config_safe_str(substr($scope_id,11))."','ffm_est_ticket',`estimateid`,`businessid`,`clientid`,`siteid`,`afe_number`,`estimate_name` FROM `estimate` WHERE `estimateid` > 0 AND `estimateid`='$estimateid'");
+                    $ticketid = $dbc->insert_id;
+                    $get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+                }
+                $force_readonly = true;
+                $_GET['calendar_view'] = 'true';
+                $_GET['estimate_mode'] = 1;
+                $_GET['ticket_type'] = config_safe_str(substr($scope_id,11));
+                $_GET['edit'] = $_GET['ticketid'] = $ticketid;
+                include('../Ticket/edit_tickets.php');
+                $_GET['edit'] = $estimateid;
+                
+            } else {
+                $scope = mysqli_query($dbc, "SELECT * FROM `estimate_scope` WHERE `estimateid`='$estimateid' AND `src_table` != '' AND (`src_id` > 0 OR `description` != '') AND `deleted`=0 ORDER BY `rate_card`, `scope_name`, `heading`, `sort_order`");
+                $heading_order = explode('#*#', get_config($dbc, 'estimate_field_order'));
+                if(in_array('Scope Detail',$config) && !in_array_starts('Detail',$heading_order)) {
+                    $heading_order[] = 'Detail***Scope Detail';
+                }
+                if(in_array('Scope Billing',$config) && !in_array_starts('Billing Frequency',$heading_order)) {
+                    $heading_order[] = 'Billing Frequency***Billing Frequency';
+                }
+                $col_width = 0;
+                foreach($heading_order as $order_info) {
+                    $order_info = explode('***',$order_info);
+                    // Count each column in use, and count description as four times wider
+                    switch($order_info[0]) {
+                        case 'Description':
+                            $col_width += 3;
+                        case 'UOM':
+                        case 'Quantity':
+                        case 'Estimate Price':
+                        case 'Total':
+                            $col_width += 1;
+                            break;
+                    }
+                }
+                $col_width = 1 / ($col_width + 1) * 100;
 
-			$exchange_rate_list = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
-			$us_rate = $exchange_rate_list['observations'][count($exchange_rate_list['observations']) - 1]['FXUSDCAD']['v']; ?>
-			<div id="no-more-tables" class="responsive-table table_resize">
-                <div style="overflow-x: auto;">
-    				<table class="table table-bordered">
-    					<tr class="hidden-xs hidden-sm">
-    						<th>Heading</th>
-    						<?php foreach($heading_order as $order_info) {
-    							$order_info = explode('***',$order_info);
-    							switch($order_info[0]) {
-    								case 'Description':
-    									echo "<th style='width:".($col_width * 4)."%;'>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
-    									break;
-    								case 'UOM':
-    								case 'Quantity':
-    								case 'Estimate Price':
-    								case 'Total':
-    									echo "<th style='width:$col_width%;'>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
-    									break;
-    							}
-    						} ?>
-    					</tr>
-    					<?php while($scope_line = mysqli_fetch_assoc($scope)) {
-    						$scope_description = $scope_line['description'];
-    						if($scope_line['src_table'] == 'equipment' && $scope_line['src_id'] > 0) {
-    							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`make`,''),' ',IFNULL(`model`,''),' ',IFNULL(`label`,''),' ',IFNULL(`unit_number`,'')) label FROM `equipment` WHERE `equipmentid`='{$scope_line['src_id']}'"))['label'];
-    						} else if($scope_line['src_table'] == 'inventory' && $scope_line['src_id'] > 0) {
-    							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`product_name`,''),' ',IFNULL(`name`,''),' ',IFNULL(`part_no`,'')) label FROM `inventory` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
-    						} else if($scope_line['src_table'] == 'labour' && $scope_line['src_id'] > 0) {
-    							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`labour_type`,''),' ',IFNULL(`category`,''),' ',IFNULL(`heading`,''),' ',IFNULL(`name`,'')) label FROM `labour` WHERE `labourid`='{$scope_line['src_id']}'"))['label'];
-    						} else if($scope_line['src_table'] == 'material' && $scope_line['src_id'] > 0) {
-    							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`sub_category`,''),' ',IFNULL(`name`,'')) label FROM `material` WHERE `materialid`='{$scope_line['src_id']}'"))['label'];
-    						} else if($scope_line['src_table'] == 'position' && $scope_line['src_id'] > 0) {
-    							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` label FROM `positions` WHERE `position_id`='{$scope_line['src_id']}'"))['label'];
-    						} else if($scope_line['src_table'] == 'products' && $scope_line['src_id'] > 0) {
-    							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`heading`,'')) label FROM `products` WHERE `productid`='{$scope_line['src_id']}'"))['label'];
-    						} else if($scope_line['src_table'] == 'services' && $scope_line['src_id'] > 0) {
-    							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`heading`,'')) label FROM `services` WHERE `serviceid`='{$scope_line['src_id']}'"))['label'];
-    						} else if($scope_line['src_table'] == 'vpl' && $scope_line['src_id'] > 0) {
-    							$scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
-    						} else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
-    							$scope_description = get_contact($dbc, $scope_line['src_id']);
-    						}
-    						if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
-    							if($us_rate_no_auto == 'true') {
-    								$scope_line['price'] = $scope_line['cost'];
-    								$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
-    							} else {
-    								$scope_line['price'] = $scope_line['cost'] * $us_rate;
-    								$scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
-    							}
-    						}
-    						if($scope_line['pricing'] == 'usd_cpu' && $us_rate_no_auto == 'true') {
-    							$scope_line['price'] .= ' USD';
-    							$scope_line['cost'] .= ' USD';
-    							$scope_line['retail'] .= ' USD';
-    						}
-    						?>
-    						<tr>
-    							<td data-title="Heading"><?= $scope_line['heading'] ?></td>
-    							<?php foreach($heading_order as $order_info) {
-    								$order_info = explode('***',$order_info);
-    								switch($order_info[0]) {
-    									case 'Description':
-    										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.html_entity_decode($scope_description).'</td>';
-    										break;
-    									case 'UOM':
-    										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? $scope_line['uom'] : '').'</td>';
-    										break;
-    									case 'Quantity':
-    										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? round($scope_line['qty'],2) : '').'</td>';
-    										break;
-    									case 'Estimate Price':
-    										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? '$'.$scope_line['price'] : '').'</td>';
-    										break;
-    									case 'Total':
-    										echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? '$'.$scope_line['retail'] : '').'</td>';
-    										break;
-    								}
-    							} ?>
-    						</tr>
-    					<?php } ?>
-    				</table>
+                $exchange_rate_list = json_decode(file_get_contents('https://www.bankofcanada.ca/valet/observations/group/FX_RATES_DAILY/json'), TRUE);
+                $us_rate = $exchange_rate_list['observations'][count($exchange_rate_list['observations']) - 1]['FXUSDCAD']['v']; ?>
+                <div id="no-more-tables" class="responsive-table table_resize">
+                    <div style="overflow-x: auto;">
+                        <table class="table table-bordered">
+                            <tr class="hidden-xs hidden-sm">
+                                <th>Heading</th>
+                                <?php foreach($heading_order as $order_info) {
+                                    $order_info = explode('***',$order_info);
+                                    switch($order_info[0]) {
+                                        case 'Description':
+                                            echo "<th style='width:".($col_width * 4)."%;'>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
+                                            break;
+                                        case 'UOM':
+                                        case 'Quantity':
+                                        case 'Estimate Price':
+                                        case 'Total':
+                                            echo "<th style='width:$col_width%;'>".(empty($order_info[1]) ? $order_info[0] : $order_info[1])."</th>";
+                                            break;
+                                    }
+                                } ?>
+                            </tr>
+                            <?php while($scope_line = mysqli_fetch_assoc($scope)) {
+                                $scope_description = $scope_line['description'];
+                                if($scope_line['src_table'] == 'equipment' && $scope_line['src_id'] > 0) {
+                                    $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`make`,''),' ',IFNULL(`model`,''),' ',IFNULL(`label`,''),' ',IFNULL(`unit_number`,'')) label FROM `equipment` WHERE `equipmentid`='{$scope_line['src_id']}'"))['label'];
+                                } else if($scope_line['src_table'] == 'inventory' && $scope_line['src_id'] > 0) {
+                                    $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),': ',IFNULL(`product_name`,''),' ',IFNULL(`name`,''),' ',IFNULL(`part_no`,'')) label FROM `inventory` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
+                                } else if($scope_line['src_table'] == 'labour' && $scope_line['src_id'] > 0) {
+                                    $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`labour_type`,''),' ',IFNULL(`category`,''),' ',IFNULL(`heading`,''),' ',IFNULL(`name`,'')) label FROM `labour` WHERE `labourid`='{$scope_line['src_id']}'"))['label'];
+                                } else if($scope_line['src_table'] == 'material' && $scope_line['src_id'] > 0) {
+                                    $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`sub_category`,''),' ',IFNULL(`name`,'')) label FROM `material` WHERE `materialid`='{$scope_line['src_id']}'"))['label'];
+                                } else if($scope_line['src_table'] == 'position' && $scope_line['src_id'] > 0) {
+                                    $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` label FROM `positions` WHERE `position_id`='{$scope_line['src_id']}'"))['label'];
+                                } else if($scope_line['src_table'] == 'products' && $scope_line['src_id'] > 0) {
+                                    $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`heading`,'')) label FROM `products` WHERE `productid`='{$scope_line['src_id']}'"))['label'];
+                                } else if($scope_line['src_table'] == 'services' && $scope_line['src_id'] > 0) {
+                                    $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`heading`,'')) label FROM `services` WHERE `serviceid`='{$scope_line['src_id']}'"))['label'];
+                                } else if($scope_line['src_table'] == 'vpl' && $scope_line['src_id'] > 0) {
+                                    $scope_description = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IFNULL(`category`,''),' ',IFNULL(`product_name`,'')) label FROM `vendor_price_list` WHERE `inventoryid`='{$scope_line['src_id']}'"))['label'];
+                                } else if($scope_line['src_table'] != 'miscellaneous' && $scope_line['src_id'] > 0) {
+                                    $scope_description = get_contact($dbc, $scope_line['src_id']);
+                                }
+                                if($scope_line['pricing'] == 'usd_cpu' && !($scope_line['price'] > 0)) {
+                                    if($us_rate_no_auto == 'true') {
+                                        $scope_line['price'] = $scope_line['cost'];
+                                        $scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
+                                    } else {
+                                        $scope_line['price'] = $scope_line['cost'] * $us_rate;
+                                        $scope_line['retail'] = $scope_line['qty'] * $scope_line['price'];
+                                    }
+                                }
+                                if($scope_line['pricing'] == 'usd_cpu' && $us_rate_no_auto == 'true') {
+                                    $scope_line['price'] .= ' USD';
+                                    $scope_line['cost'] .= ' USD';
+                                    $scope_line['retail'] .= ' USD';
+                                }
+                                ?>
+                                <tr>
+                                    <td data-title="Heading"><?= $scope_line['heading'] ?></td>
+                                    <?php foreach($heading_order as $order_info) {
+                                        $order_info = explode('***',$order_info);
+                                        switch($order_info[0]) {
+                                            case 'Description':
+                                                echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.html_entity_decode($scope_description).'</td>';
+                                                break;
+                                            case 'UOM':
+                                                echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? $scope_line['uom'] : '').'</td>';
+                                                break;
+                                            case 'Quantity':
+                                                echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? round($scope_line['qty'],2) : '').'</td>';
+                                                break;
+                                            case 'Estimate Price':
+                                                echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? '$'.$scope_line['price'] : '').'</td>';
+                                                break;
+                                            case 'Total':
+                                                echo '<td data-title="'.(empty($order_info[1]) ? $order_info[0] : $order_info[1]).'">'.($scope_line['src_table'] != 'notes' ? '$'.$scope_line['retail'] : '').'</td>';
+                                                break;
+                                        }
+                                    } ?>
+                                </tr>
+                            <?php } ?>
+                        </table>
+                    </div>
                 </div>
-			</div>
+            <?php } ?>
 		</div>
         <hr />
 
@@ -414,13 +440,23 @@ function remove_follow_up(elem) {
 			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Edit</a>
 			<?php if($estimate['projectid'] > 0) { ?>
 				<a href="../Project/projects.php?edit=<?= $estimate['projectid'] ?>" class="btn brand-btn"><?= PROJECT_NOUN.' #'.$estimate['projectid'] ?></a>
-			<?php } else { ?>
+			<?php } else if($estimate['estimatetype'] != 'one_time_est_type' && strpos($estimate['estimatetype'],'ticket_est_') !== 0) { ?>
 				<a href="convert_to_project.php?estimate=<?= $estimateid ?>" class="btn brand-btn">Create <?= PROJECT_NOUN ?></a>
 				<a href="convert_to_project.php?estimate=<?= $estimateid ?>" onclick="attach_to_project();$(this).hide();return false;" class="btn brand-btn">Attach to <?= PROJECT_NOUN ?></a>
 			<?php } ?>
-			<a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Copy <?= ESTIMATE_TILE ?></a>
-			<a onclick="createTemplate(); return false;" class="btn brand-btn">Create Template from <?= ESTIMATE_TILE ?></a>
-		<?php } ?>
+            <?php if($estimate['estimatetype'] != 'one_time_est_type' && strpos($estimate['estimatetype'],'ticket_est_') !== 0) { ?>
+                <a href="?edit=<?= $estimateid ?>" class="btn brand-btn">Copy <?= ESTIMATE_TILE ?></a>
+                <a onclick="createTemplate(); return false;" class="btn brand-btn">Create Template from <?= ESTIMATE_TILE ?></a>
+            <?php } ?>
+		<?php }
+        if(strpos($estimate['estimatetype'],'ticket_est_') === 0 && vuaed_visible_function($dbc, 'tickets')) {
+            $ticket = $dbc->query("SELECT `ticketid`, `status`, `ticket_type` FROM `tickets` WHERE `estimateid`='$estimateid' AND `deleted`=0 AND `estimateid` > 0")->fetch_assoc();
+            if($ticket['ticketid'] > 0 && $ticket['status'] == 'ffm_est_ticket') { ?>
+                <a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="$.get('estimates_ajax.php', { action: 'activate_ticket', ticketid: '<?= $ticket['ticketid'] ?>', type: '<?= $ticket['ticket_type'] ?>' }, function() { overlayIFrameSlider('../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>&calendar_view=true','auto',true,false); }); return false;" class="btn brand-btn">Create <?= TICKET_NOUN ?></a>
+            <?php } else if($ticket['ticketid'] > 0) { ?>
+                <a href="../Ticket/index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;" class="btn brand-btn">Edit <?= TICKET_NOUN ?></a>
+            <?php } ?>
+        <?php } ?>
 
         <?php $pdf_styles = mysqli_query($dbc, "SELECT `pdfsettingid`,`style_name`,`style` FROM `estimate_pdf_setting` WHERE `estimateid` IS NULL AND `deleted`=0 ORDER BY `style_name`");
         if(empty($_GET['style'])) {
@@ -436,7 +472,7 @@ function remove_follow_up(elem) {
 		<a target="_blank" href="estimate_pdf_output.php?edit=<?= $estimateid ?>&style=<?= $_GET['style'] ?>&email=send" class="btn brand-btn pull-right">Email PDF</a>
 
         <!-- <a href="?edit=<?= $estimateid ?>" class="pull-right btn brand-btn">Email PDF</a> -->
-		<?php if(!($estimate['projectid'] > 0)) { ?>
+		<?php if(!($estimate['projectid'] > 0) && $estimate['estimatetype'] != 'one_time_est_type' && strpos($estimate['estimatetype'],'ticket_est_') !== 0) { ?>
 			<div class="select-project" style="display:none;">
 				<select name="attach_to_project" data-placeholder="Select a <?= PROJECT_NOUN ?>" class="chosen-select-deselect"><option></option>
 					<?php $projects = mysqli_query($dbc, "SELECT `projectid`, `project_name` FROM `project` WHERE `deleted`=0");
@@ -447,6 +483,6 @@ function remove_follow_up(elem) {
 				<button onclick="attach_to_project(); return false;" class="btn brand-btn pull-right">Confirm</button>
 				<br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br /><br />
 			</div>
-		<?php } ?>
+		<?php }  ?>
 	</div>
 </div>
