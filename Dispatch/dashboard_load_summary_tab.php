@@ -5,6 +5,9 @@ ob_clean();
 
 $daily_date = $_POST['date'];
 $equipmentid = $_POST['equipmentid'];
+$completed_tickets = 0;
+$total_tickets = 0;
+$latest_updated_time = 0;
 
 $equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label, `region` FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
 
@@ -35,9 +38,16 @@ $all_tickets_sql = "SELECT `tickets`.*, `ticket_schedule`.`id` `stop_id`, IFNULL
 $tickets = mysqli_fetch_all(mysqli_query($dbc, $all_tickets_sql),MYSQLI_ASSOC);
 
 foreach($tickets as $ticket) {
+	$total_tickets++;
+	if(in_array($ticket['status'],$calendar_checkmark_status)) {
+		$completed_tickets++;
+	}
 	$customer_notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `src_table` = 'customer_approve' AND `line_id` = '".$ticket['stop_id']."' AND `deleted` = 0"));
+	if(strtotime($customer_notes['completed_time']) > $latest_updated_time) {
+		$latest_updated_time = strtotime($customer_notes['completed_time']);
+	}
 	$time_compare = $ticket['to_do_date'].(!empty($ticket['end_available']) ? date('H:i:s', strtotime($ticket['end_available'])) : (!empty($ticket['to_do_end_time']) ? date('H:i:s', strtotime($ticket['to_do_end_time'])) : date('H:i:s', strtotime($ticket['to_do_start_time']))));
-	$customer_notes['completed_time'] = empty(str_replace('0000-00-00 00:00:00','',$customer_notes['completed_time'])) ? date('Y-m-d H:i:s') : convert_timestamp_mysql($dbc, $completed_notes['completed_time']);
+	$customer_notes['completed_time'] = empty(str_replace('0000-00-00 00:00:00','',$customer_notes['completed_time'])) ? date('Y-m-d H:i:s') : convert_timestamp_mysql($dbc, $customer_notes['completed_time']);
 	if(strtotime($customer_notes['completed_time']) > strtotime($time_compare)) {
 		$summary_result['Not On Time']['count']++;
 		$summary_result['Not On Time']['label'] = 'Not On Time';
@@ -60,7 +70,7 @@ if($group_regions == 1) {
 }
 
 $truck_svg = draw_svg_truck($summary_result['On Time']['count'], $summary_result['Not On Time']['count'], $summary_result['Ongoing']['count']);
-$summary_html = '<div class="dispatch-summary-tab" data-equipment="'.$equipmentid.'" data-region=\''.json_encode($equip_regions).'\' data-location=\''.json_encode($equip_locations).'\' data-classification=\''.json_encode($equip_classifications).'\' '.$border_styling.'><div class="dispatch-summary-title" style="background-color: #'.$title_color.'"><a href="" onclick="summary_select_equipment(this); return false;"><b>'.$equipment['label'].'</b></a>'.$region_label.'</div><div class="dispatch-summary-tab-truck">'.$truck_svg.'</div><div class="dispatch-summary-tab-block"></div></div>';
+$summary_html = '<div class="dispatch-summary-tab" data-equipment="'.$equipmentid.'" data-region=\''.json_encode($equip_regions).'\' data-location=\''.json_encode($equip_locations).'\' data-classification=\''.json_encode($equip_classifications).'\' data-latest-updated-time="'.$latest_updated_time.'" '.$border_styling.'><a href="" onclick="summary_select_equipment(this); return false;"><div class="dispatch-summary-title" style="background-color: #'.$title_color.'"><b>'.$equipment['label'].'</b>'.$region_label.' - Completed '.$completed_tickets.' of '.$total_tickets.' '.TICKET_TILE.'</div></a><a href="" onclick="summary_select_equipment(this); return false;"><div class="dispatch-summary-tab-truck">'.$truck_svg.'</div></a><div class="dispatch-summary-tab-block"></div></div>';
 
 $ontime_summary_arr = [
 	[
@@ -83,6 +93,7 @@ $ontime_summary_arr = [
 $result_list = [
 	'equipmentid'=>$equipment['equipmentid'],
 	'ontime_summary'=>$ontime_summary_arr,
-	'html'=>$summary_html
+	'html'=>$summary_html,
+	'latest_updated_time'=>$latest_updated_time
 ];
 echo json_encode($result_list);
