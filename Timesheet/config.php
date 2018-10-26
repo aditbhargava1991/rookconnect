@@ -170,6 +170,7 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Vacation Taken', 'hidden', 'vaca_used'),
 			array('Breaks', 'hidden', 'breaks'),
 			array('View '.TICKET_NOUN, 'hidden', 'view_ticket'),
+			array('Hourly Compensation', 'hidden', 'compensation'),
 			array('Comments', 'hidden', 'comment_box'),
 			array('Parent/Guardian Signature', 'signature', 'signature'),
 
@@ -971,8 +972,8 @@ function get_pdf_options($dbc, $styling = '', $timesheet_tab = '') {
 		}
 	} else {
 		$value_config = explode(',',get_field_config($dbc, 'time_cards'));
-		if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array('total_hrs',$value_config)) {
-		    $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+		if(!in_array('total_hrs',$value_config) && !in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array('total_hrs',$value_config)) {
+		    $value_config = array_merge($value_config,['total_hrs']);
 		}
 	}
 	$timesheet_payroll_fields = '';

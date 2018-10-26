@@ -1,8 +1,9 @@
 <?php include_once('../include.php');
 include_once('config.php');
 ob_clean();
+$status_clause = " AND `tickets`.`status` NOT IN ('ffm_est_ticket')";
 if(get_config($dbc, 'ticket_exclude_archive') == 'true') {
-	$status_clause = " AND `tickets`.`status` NOT IN ('Archive','Archived') ";
+	$status_clause .= " AND `tickets`.`status` NOT IN ('Archive','Archived') ";
 }
 $ticket_sort = ' ORDER BY `tickets`.`ticketid` DESC';
 switch(get_config($dbc, 'ticket_sorting')) {
@@ -19,8 +20,6 @@ $ticket_group = '';
 $revisions = 0;
 $file_name = '';
 $ticket_type = filter_var($_POST['ticket_type'],FILTER_SANITIZE_STRING);
-if($ticket_type == 'ticket') {
-}
 if(strpos($ticket_type,'ticket_') !== FALSE) {
 	$ticket_filter = " AND '".substr($ticket_type,7)."' IN (IFNULL(NULLIF(`tickets`.`ticket_type`,''),'other'),'')";
 } else if(strpos($ticket_type,'form_') !== FALSE) {

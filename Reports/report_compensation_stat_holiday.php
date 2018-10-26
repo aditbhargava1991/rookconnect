@@ -50,6 +50,7 @@ foreach(explode(',',$comp_inv_list['inventoryids']) as $key => $current_inventor
 	$stat_base_inventory += $base_pay[1] / 100 * $total_price;
 }
 $grand_stat_total += $stat_base_inventory;
+$grand_stat_total += array_sum($invoice_summary_total);
 
 // Total Stat
 $total_active = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(DISTINCT((str_to_date(substr(appoint_date,1,10),'%Y-%m-%d')))) AS total_active FROM booking WHERE therapistsid = '$therapistid' AND type != 'I' AND type != 'E' AND type != 'P' AND type != 'Q' AND type != 'R' AND type != '' AND ((str_to_date(substr(appoint_date,1,10),'%Y-%m-%d')) >= '".$stat_start."' AND (str_to_date(substr(appoint_date,1,10),'%Y-%m-%d')) <= '".$stat_end."')"));

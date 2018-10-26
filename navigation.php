@@ -286,7 +286,7 @@ if(!isset($_SESSION['fullscreen'])) {
                             <li class="hide-header-footer">
                                 <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" class="no-toggle" title="Hide Header &amp; Footer" data-placement="bottom" /></div>
                             </li>
-                            <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15 no-toggle" title="Logout" data-placement="bottom" /></a></li>
+                            <li><a class="logout-button" href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="no-toggle" title="Logout" data-placement="bottom" /></a></li>
                         </ul>
                     <?php } ?>
                     <ul class="nav navbar-nav scale-to-fill" style="overflow: hidden;">
@@ -311,11 +311,11 @@ if(!isset($_SESSION['fullscreen'])) {
                                 <li class="pull-left"><?php include('Notification/newsboard.php'); ?></li>
                             <?php } ?>
                             <?php if(tile_visible($dbc, 'calendar_rook')): ?>
-                                <li class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="inline-img white-color no-toggle" title="Calendar" data-placement="bottom"></a></li>
+                                <li class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="white-color no-toggle" title="Calendar" data-placement="bottom"></a></li>
                             <?php endif; ?>
                             <?php if($_SESSION['contactid'] > 0) { ?>
                                 <li class="pull-left"><?php include('Notification/alert_software.php'); ?></li>
-                                <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on"  style='display:none; position: relative; top: 5px;'  width="50px"></a></p></li>
+                                <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" class="no-toggle" title="Info i Toggle" data-placement="bottom"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on" style='display:none; position: relative; top: 5px;'  width="50px"></a></p></li>
                                 <li class="scale-to-fill">
                                     <script>
                                     <?php // Get Search Categories

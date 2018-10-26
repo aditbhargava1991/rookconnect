@@ -70,6 +70,13 @@ if(isset($_POST['update'])) {
 	} else {
 		$columns = ['po'=>1,'vendor'=>1,'line'=>1,'qty'=>1,'manual_qty'=>1,'site'=>1,'notes'=>1];
 	}
+	if(in_array('mark_unused',$manifest_fields)) {
+		foreach($_POST['mark_unused'] as $line_id) {
+			if($line_id > 0) {
+				mysqli_query($dbc, "UPDATE `ticket_attached` SET `used` = 0 WHERE `id` = '$line_id'");
+			}
+		}
+	}
 	foreach($_POST['include'] as $i => $line_id) {
 		if($line_id > 0) {
 			$row = $dbc->query("SELECT `tickets`.`ticket_label`,IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid`,IFNULL(`ticket_attached`.`weight`,'') `weight`,IFNULL(`ticket_attached`.`weight_units`,'') `weight_units` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
@@ -332,8 +339,9 @@ $col_count = 2; ?>
 						<div style="display:inline-block;max-width:5em;"><input type="number" min="0" value="<?= count(explode(',',$ticket['piece_id'])) ?>" class="form-control" readonly></div>
 						<div style="display:none;">
 							<?php foreach(explode(',',$ticket['piece_id']) as $i => $piece) { ?>
-								<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" checked onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length);">Piece #<?= $dbc->query("SELECT COUNT(*) FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND (`pieces`.`po_num` < `ticket_attached`.`po_num` OR (`ticket_attached`.`po_num`=`pieces`.`po_num` AND (`pieces`.`po_line` < `ticket_attached`.`po_line` OR (`ticket_attached`.`po_line` = `pieces`.`po_line` AND `pieces`.`id` < `ticket_attached`.`id`))))")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
+								<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" checked onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length); if($(this).is(':checked')) { $(this).closest('td').find('[name=\'mark_unused[]\']').prop('disabled',true); } else { $(this).closest('td').find('[name=\'mark_unused[]\']').prop('disabled',false); }">Piece #<?= $dbc->query("SELECT COUNT(*) FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND (`pieces`.`po_num` < `ticket_attached`.`po_num` OR (`ticket_attached`.`po_num`=`pieces`.`po_num` AND (`pieces`.`po_line` < `ticket_attached`.`po_line` OR (`ticket_attached`.`po_line` = `pieces`.`po_line` AND `pieces`.`id` < `ticket_attached`.`id`))))")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
 							<?php } ?>
+							<input type="hidden" name="mark_unused[]" value="<?= $piece ?>" disabled>
 						</div>
 					</td><?php } ?>
 				<?php if(in_array('weight',$manifest_fields)) { ?><td data-title="Weight">
