@@ -624,7 +624,7 @@ function saveFieldMethod(field) {
 					$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
 						address_validation = response.split('|');
                         setTimeout(function() {
-                            validate_address(block);
+                            validate_address(address_validation, block);
                         }, 250);
 					});
 				}
@@ -1130,24 +1130,24 @@ function saveFieldMethod(field) {
 	});
 }
 
-function validate_address(block) {
+function validate_address(address, block) {
     if(delay_notify) {
         setTimeout(function() {
-            validate_address(block);
+            validate_address(address, block);
         }, 250);
         return;
     }
     delay_notify = true;
-    if(address_validation.join('') != '' && (address_validation[0] != block.find('[name=address]').val() || address_validation[1] != block.find('[name=city]').val() || address_validation[2] != block.find('[name=postal_code]').val()) && (use_google_suggest === true || confirm('We suggest the following corrections to your address: '+address_validation.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.'))) {
-        block.find('[name=address]').val(address_validation[0]).change();
-        block.find('[name=city]').val(address_validation[1]).change();
-        block.find('[name=postal_code]').val(address_validation[2]).change();
+    if(address.join('') != '' && (address[0] != block.find('[name=address]').val() || address[1] != block.find('[name=city]').val() || address[2] != block.find('[name=postal_code]').val()) && (use_google_suggest === true || confirm('We suggest the following corrections to your address: '+address.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.'))) {
+        block.find('[name=address]').val(address[0]).change();
+        block.find('[name=city]').val(address[1]).change();
+        block.find('[name=postal_code]').val(address[2]).change();
         use_google_suggest = true;
         suggest_from_google = false;
         setTimeout(function() {
             suggest_from_google = true;
         }, 15000);
-    } else if(address_validation.join('') == '' && use_google_suggest != 'no_update') {
+    } else if(address.join('') == '' && use_google_suggest != 'no_update') {
         alert('The address provided may not be valid. It will not be found in Google Maps.');
         use_google_suggest = 'no_update';
     }
