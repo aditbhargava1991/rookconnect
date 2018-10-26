@@ -31,6 +31,7 @@ if($_GET['map_action'] == 'pickup_delivery') {
 		<iframe class="google-map" src="https://www.google.com/maps/embed/v1/directions?key=<?= EMBED_MAPS_KEY ?>&origin=<?= urlencode($start) ?><?= count($waypoints) > 0 ? '&waypoints='.urlencode(implode('|',$waypoints)) : '' ?>&destination=<?= urlencode($destination) ?>&mode=driving" allowfullscreen>
 		</iframe>
 		<?php $excess_km_serviceid = get_config($dbc, 'delivery_km_service');
+        $access_services = check_subtab_persmission($dbc, 'ticket', ROLE, 'services');
 		if($excess_km_serviceid > 0 && $access_services === true) {
 			$max_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `max_km` FROM `contacts_cost` LEFT JOIN `tickets` ON `tickets`.`businessid`=`contacts_cost`.`contactid` WHERE `ticketid`='$ticketid'"))['max_km'];
 			if($max_km > 0) {
