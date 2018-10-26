@@ -20,10 +20,18 @@ $edit_access = vuaed_visible_function($dbc, $security_folder);
 $config_access = config_visible_function($dbc, $security_folder);
 
 $row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$_GET['contactid']."'"));
+$bg_color = '';
+if($row['flag_label'] == '' && $row['flag_colour'] != '') {
+    $bg_color = "background-color: #".$row['flag_colour'];
+}
 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts_dashboard FROM field_config_contacts WHERE tile_name = '".$folder_name."' AND tab='".$row['category']."' AND accordion IS NULL UNION SELECT contacts_dashboard FROM `field_config_contacts` WHERE tile_name='".$folder_name."'"));
 $field_display = explode(",",$get_field_config['contacts_dashboard']); ?>
 
-<div class="dashboard-item set-relative">
+<div class="dashboard-item set-relative" style="<?= $bg_color ?>">
+	<?php if($row['flag_label'] != '') { ?>
+        <span class="block-label flag-label-block" style="font-weight: bold; background-color: <?php echo '#'.$row['flag_colour']; ?>">Flagged: <?= $row['flag_label'] ?></span>
+	<?php } ?>
+
     <?php if(!empty($_GET['search_contacts']) || !empty($_POST['search_'.$category])) { ?>
 		<div class="col-sm-6">
 			<?php echo '<b>'.$row['category'].'</b>'; ?>
@@ -121,6 +129,19 @@ $field_display = explode(",",$get_field_config['contacts_dashboard']); ?>
 			echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'">View</a>';
 		} ?>
 	</div>
+    <div class="clearfix"></div>
+    <?php
+    echo '<span class="action-icons gap-top" style="width: 40%;" data-task="'.$row['contactid'].'">';
+    $quick_actions = explode(',',get_config($dbc, 'contact_quick_action_icons'));
+
+    echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+    echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
+    ?>
+    <input type="color" class="color_picker" onchange="choose_color(this); return false;" id="color_<?=$row['contactid']?>" data-taskid="<?=$row['contactid']?>" name="color_<?=$row['contactid']?>" style="display:none;" />
+    <?php
+    echo '</span>';
+
+    ?>
 	<div class="clearfix"></div>
     <div class="set-favourite">
 		<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE): ?>

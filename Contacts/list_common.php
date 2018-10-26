@@ -161,7 +161,7 @@ $heading = ucwords($category);
 if(ucwords($category) == 'Vendors') {
     $heading = VENDOR_TILE;
 }
-?>ROOK
+?>
 <div class="contact_content" <?= $hide_contacts ? 'style="display: none;"' : '' ?>>
 	<div class="standard-dashboard-body-title">
 		<h3 class="gap-left"><span class="title_label">Summary</span>
@@ -239,6 +239,34 @@ if(ucwords($category) == 'Vendors') {
 	}
 	.dashboard-icon { margin-right:8px; width:18px; }
 	</style>
+	<script type="text/javascript">
+
+	function flag_item_manual(task) {
+	       contactid = $(task).parents('span').data('task');
+
+	       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=contacts&id='+contactid, 'auto', false, false);
+	}
+
+	function highlight_item(sel) {
+	    var task_id = $(sel).parents('span').data('task');
+	    $('#color_'+task_id).click();
+	}
+
+	function choose_color(sel) {
+		var contactid = $(sel).parents('span').data('task');
+	    var contactcolor = sel.value;
+		var contactcolor = contactcolor.replace("#", "");
+
+		$.ajax({    //create an ajax request to load_page.php
+			type: "GET",
+			url: "../Contacts/contacts_ajax.php?action=contact_highlight&contactid="+contactid+'&contactcolor='+contactcolor,
+			dataType: "html",   //expect html to be returned
+			success: function(response){
+				location.reload();
+			}
+		});
+	}
+	</script>
 	<div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
 	<div class="standard-dashboard-body-content">
 		<div class="contact_list" style="margin:0; display: none;">
