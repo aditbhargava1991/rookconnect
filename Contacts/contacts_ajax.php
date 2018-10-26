@@ -4,6 +4,11 @@ error_reporting(0);
 checkAuthorised();
 ob_clean();
 
+if($_GET['action'] == 'setting_quick_icon') {
+    $tab_list = $_GET['tab_list'];
+	set_config($dbc, 'contact_quick_action_icons', filter_var($tab_list,FILTER_SANITIZE_STRING));
+}
+
 if($_GET['action'] == 'contact_fields') {
 	$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
 	$fields = filter_var($_POST['field_list'],FILTER_SANITIZE_STRING);

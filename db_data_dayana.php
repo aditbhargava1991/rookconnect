@@ -317,7 +317,13 @@ mysqli_query($dbc, "ALTER TABLE `task_board` ADD `flag_label` VARCHAR(200) NULL 
 
 mysqli_query($dbc, "ALTER TABLE `project` ADD `classification1` VARCHAR(500) NULL AFTER `flag_label`");
 
+
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `flag_colour` VARCHAR(20) NULL AFTER `update_url_expiry`");
+
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `flag_label` VARCHAR(500) NULL AFTER `flag_colour`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
+
 mysqli_query($dbc, "ALTER TABLE `equipment` ADD `favorite` INT(1) NOT NULL DEFAULT '0' AFTER `equipment_image`");
+
 
     echo "Dayana's DB Changes Done<br />\n";
 

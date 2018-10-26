@@ -160,6 +160,13 @@ if(isset($_POST['submit'])) {
             ?>
             <?php break;
 
+        case 'contacts':
+            $contactid = $id;
+            mysqli_query($dbc, "UPDATE `contacts` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `contactid`='$id'");
+            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$contactid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+            ?>
+            <?php break;
+
         case 'equipment':
             $checklistid = $id;
             mysqli_query($dbc, "UPDATE `equipment` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `equipmentid`='$id'");
@@ -221,6 +228,9 @@ if(isset($_POST['submit'])) {
         break;
     case 'common_checklist_flag':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist` WHERE `checklistid`='$id'")->fetch_assoc();
+        break;
+    case 'contacts':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `contacts` WHERE `contactid`='$id'")->fetch_assoc();
         break;
 
     default:
