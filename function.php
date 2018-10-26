@@ -915,7 +915,7 @@ function set_field_value($value, $field_name, $table_name, $id_field, $id) {
 	}
 
 	// Set the matching value
-	if(!$_SERVER['DBC']->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `$id_field`='$id'")) {
+	if(!$_SERVER['DBC']->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `$id_field`='$id' AND `$id_field` NOT IN (0,'')")) {
 		return "<!--Unable to update $field_name in $table_name to $value. Please review the request ($id_field: $id).-->";
 	} else {
 		return "<!--Successfully updated $field_name in $table_name to $value.-->";
@@ -939,7 +939,7 @@ function get_field_value($field_name, $table_name, $id_field, $id) {
 	}
 
 	// Get the first matching value, and decrypt it if necessary
-	if(!($values = $_SERVER['DBC']->query("SELECT $field_name FROM `$table_name` WHERE `$id_field`='$id'"))) {
+	if(!($values = $_SERVER['DBC']->query("SELECT $field_name FROM `$table_name` WHERE `$id_field`='$id' AND `$id_field` NOT IN (0,'')"))) {
 		return "<!--Unable to retrieve $field_name from $table_name. Please review the request ($id_field: $id).-->";
 	} else {
 		$values = $values->fetch_assoc();
