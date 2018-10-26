@@ -58,10 +58,10 @@ if($_GET['map_action'] == 'pickup_delivery') {
 					$excess_km = round($kms - $max_km);
 				} ?>
 				<script>
-                setTimeout(excess_km, 250);
+                setTimeout(excess_km, 1000);
                 function excess_km() {
                     if(delay_notify) {
-                        setTimeout(excess_km, 250);
+                        setTimeout(excess_km, 1000);
                         return;
                     }
                     delay_notify = true;
@@ -89,7 +89,7 @@ if($_GET['map_action'] == 'pickup_delivery') {
                                 ticket_excess_confirm = false;
                             }
                             delay_notify = false;
-                        }, 1000);
+                        }, 250);
                     } else {
                         delay_notify = false;
                     }
