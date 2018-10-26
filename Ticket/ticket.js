@@ -625,7 +625,7 @@ function saveFieldMethod(field) {
 						address_validation = response.split('|');
                         setTimeout(function() {
                             validate_address(address_validation, block);
-                        }, 250);
+                        }, 1000);
 					});
 				}
 			} else if(field_name == 'type' && table_name == 'ticket_schedule') {
@@ -1134,7 +1134,7 @@ function validate_address(address, block) {
     if(delay_notify) {
         setTimeout(function() {
             validate_address(address, block);
-        }, 250);
+        }, 1000);
         return;
     }
     delay_notify = true;
