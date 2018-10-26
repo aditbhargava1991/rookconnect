@@ -14,7 +14,7 @@ $invoice_ux = FOLDER_NAME.'_ux';
 $pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Point of Sale#*#Point of Sale');
 
 $pos_advanced_tile = $pos_advance_tile_name[0] ?: 'Point of Sale';
-$pos_advanced_noun = 'Point of Sale';
+$pos_advanced_noun = $pos_advance_tile_name[1] ?: 'Point of Sale';
 
 if (isset($_POST['submit'])) {
     set_config($dbc, 'invoice_dashboard_xsl_xml'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_dashboard_xsl_xml']),FILTER_SANITIZE_STRING));

@@ -170,6 +170,7 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Vacation Taken', 'hidden', 'vaca_used'),
 			array('Breaks', 'hidden', 'breaks'),
 			array('View '.TICKET_NOUN, 'hidden', 'view_ticket'),
+			array('Hourly Compensation', 'hidden', 'compensation'),
 			array('Comments', 'hidden', 'comment_box'),
 			array('Parent/Guardian Signature', 'signature', 'signature'),
 
