@@ -162,7 +162,7 @@ $fields = explode(',',$get_manual['fields']); ?>
             <div class="standard-body-title">
                 <h3><?= $manualid > 0 ? 'Edit' : 'Create' ?> Manual</h3>
             </div>
-            <div class="standard-body-content">
+            <div class="standard-body-content pad-10">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Category:</label>
                     <div class="col-sm-8">
@@ -303,22 +303,43 @@ $fields = explode(',',$get_manual['fields']); ?>
                 <?php } ?>
 
                 <?php if (in_array('Staff',$field_config)) { ?>
-                    <div class="form-group clearfix completion_date">
-                        <label class="col-sm-4 control-label text-right">Assign Staff:</label>
-                        <div class="col-sm-8"><!--<?= "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status > 0" ?>-->
-                            <select id = "assign_staff" name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control" multiple width="380">
-                                <?php
-                                foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status > 0")) as $row) {
-                                    if (!empty(trim($get_manual['assign_staff'],','))) { ?>
-                                        <option <?= (strpos(','.$get_manual['assign_staff'].',', ','.$row['contactid'].',') !== FALSE) ? 'selected' : '' ?> value="<?= $row['contactid']; ?>"><?= $row['first_name'].' '.$row['last_name']; ?></option><?php
-                                    } else { ?>
-                                        <option selected value="<?= $row['contactid']; ?>"><?= $row['first_name'].' '.$row['last_name']; ?></option><?php
-                                    }
-                                } ?>
-                            </select>
-                            <button id="deselect_all" type="button">Deselect All</button>
+                    <script>
+                    function add_staff(img) {
+                        var block = $(img).closest('.form-group');
+                        destroyInputs();
+                        var clone = block.clone();
+                        clone.find('select').val('');
+                        block.after(clone);
+                        initInputs();
+                        initTooltips();
+                    }
+                    function rem_staff(img) {
+                        if($('[name="assign_staff[]"]').length <= 1) {
+                            add_staff(img);
+                        }
+                        $(img).closest('.form-group').remove();
+                        initTooltips();
+                    }
+                    </script>
+                    <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status > 0"));
+                    foreach(empty(trim($get_manual['assign_staff'],',')) ? array_column($staff_list,'contactid') : array_unique(explode(',',$get_manual['assign_staff'])) as $distinct_staffid) { ?>
+                        <div class="form-group clearfix completion_date">
+                            <div class="pull-right" style="width:5em;">
+                                <img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand no-toggle" title="Assign Additional Staff" onclick="add_staff(this);">
+                                <img src="../img/remove.png" class="inline-img cursor-hand no-toggle" title="Remove Staff" onclick="rem_staff(this);">
+                            </div>
+                            <div class="scale-to-fill">
+                                <label class="col-sm-4 control-label text-right">Assign Staff:</label>
+                                <div class="col-sm-8"><!--<?= "SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND status > 0" ?>-->
+                                    <select id = "assign_staff" name="assign_staff[]" data-placeholder="Choose a Staff Member..." class="chosen-select-deselect form-control">
+                                        <?php foreach($staff_list as $row) { ?>
+                                            <option <?= ($row['contactid'] == $distinct_staffid) ? 'selected' : '' ?> value="<?= $row['contactid']; ?>"><?= $row['full_name']; ?></option><?php
+                                        } ?>
+                                    </select>
+                                </div>
+                            </div>
                         </div>
-                    </div>
+                    <?php } ?>
                 <?php } ?>
 
                 <?php if (in_array('Review Deadline',$field_config)) { ?>
@@ -386,8 +407,8 @@ $fields = explode(',',$get_manual['fields']); ?>
                         <div class="col-sm-8"><textarea name="email_message"><?= html_entity_decode($get_manual['email_message']) ?></textarea></div>
                     </div>
                 <?php } ?>
-                <button class="pull-right btn brand-btn" name="submit" value="email">Send Email</button>
                 <button class="pull-right btn brand-btn" name="submit" value="">Submit</button>
+                <button class="pull-right btn brand-btn" name="submit" value="email">Send Email</button>
                 <div class="clearfix"></div>
             </div>
 		</form>

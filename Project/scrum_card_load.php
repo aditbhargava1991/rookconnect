@@ -10,7 +10,7 @@
 //$(document).ready(function(){
 	//$('.demo_cpicker').colorpicker();
 //});
-
+</script>
 <script src="../Project/project.js"></script>
 <script>
 $(document).ready(function(){
@@ -335,16 +335,16 @@ if($type == 'Ticket') {
             </div>
 		</div>
 	</div>
-	
+
 	<input type="color" style="display:none" id="colorpickerbtn_<?php echo $item['tasklistid']?>" value="<?php echo '#'.$item['flag_colour']?>">
-	
+
 	<script>
 	var theInput = document.getElementById("colorpickerbtn_<?php echo $item['tasklistid']?>");
 	theInput.addEventListener("input", function() {
 		flag_item('<?php echo $item['tasklistid']?>',theInput.value);
 	}, false);
 	</script>
-	
+
     <?php
     $task_statuses = explode(',',get_config($dbc, 'task_status'));
     $status_complete = $task_statuses[count($task_statuses) - 1];
@@ -366,7 +366,8 @@ if($type == 'Ticket') {
 		(in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Reply">' : '').
 		(in_array('time',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" class="inline-img time-icon" title="Add Time">' : '').
 		(in_array('timer',$quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '').
-		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '').'</span>';
+		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '').
+		'<span title="Sync to Scrum Board" onclick="sync('.$item['tasklistid'].'); return false;"><img src="../img/icons/ROOK-sync-icon.png" title="Sync to Scrum Board" class="inline-img no-toggle" title="Sync" onclick="return false;"></span></span>';
 
     $actions .= '<input type="color" onchange="choose_color(this); return false;" class="color_picker" id="color_'.$item['tasklistid'].'"" name="color_'.$item['tasklistid'].'" style="display:none;" value="#f6b73c" />';
 
@@ -554,3 +555,15 @@ if($type == 'Ticket') {
 	</div>
 	<div class="clearfix"></div>
 </li>
+<script>
+function sync(tasklistid) {
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "../Tasks_Updated/task_ajax_all.php?fill=is_sync&tasklistid="+tasklistid,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+			location.reload();
+		}
+	});
+}
+</script>

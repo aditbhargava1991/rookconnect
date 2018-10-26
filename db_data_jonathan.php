@@ -460,7 +460,7 @@
 		}
         // Ticket 9873
 
-    // October 22, 2018 - Ticket 9919
+        // October 22, 2018 - Ticket 9919
 		if(!mysqli_query($dbc, "ALTER TABLE `field_config_project_admin` ADD `options` TEXT AFTER `status`")) {
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
@@ -471,6 +471,21 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9720
+
+        // October 23, 2018 - Ticket 9827
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `status_date` DATETIME AFTER `status`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `status_contact` INT(11) UNSIGNED NOT NULL DEFAULT 0 AFTER `status_date`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9827
+
+        // October 24, 2018 - Ticket 9140
+		if(!mysqli_query($dbc, "ALTER TABLE `tickets` ADD `estimateid` INT(11) UNSIGNED NOT NULL AFTER `projectid`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9140
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
@@ -520,6 +535,20 @@
 		set_config($dbc, 'update_project_admin_notes', 1);
 	}
     // Ticket 9873
+    
+    // Ticket 9491
+	if(get_config($dbc, 'update_start_day') < 1) {
+		// October 25, 2018
+        if(!empty(get_config($dbc, 'timesheet_start_tile'))) {
+            if(!mysqli_query($dbc, "INSERT INTO `tile_security` (`tile_name`, `admin_enabled`, `user_enabled`) VALUES ('start_day_button',1,1)")) {
+                echo "Error: ".mysqli_error($dbc)."<br />\n";
+            }
+        } else {
+            set_config($dbc, 'timesheet_start_tile', 'Start Day');
+        }
+		set_config($dbc, 'update_start_day', 1);
+	}
+    // Ticket 9491
 	
 	echo "Jonathan's DB Changes Done<br />\n";
 ?>

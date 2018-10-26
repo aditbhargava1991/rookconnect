@@ -86,7 +86,7 @@ foreach($equip_list as $equipment) {
 		}
 	}
 
-	$title_color = substr(md5(encryptIt($equipment['equipmentid'])), 0, 6);
+	$title_color = get_equipment_color($equipment['equipmentid']);
 
 	//Summary blocks
 	foreach(array_filter(array_unique($star_contacts)) as $star_contact) {
@@ -119,7 +119,9 @@ $equipmentid = $_POST['equipmentid'];
 
 $border_styling = '';
 $label = 'All';
-if($equipmentid != 'ALL') {
+if($equipmentid == 'VISIBLE') {
+	$label = 'Visible';
+} else if($equipmentid != 'ALL') {
 	$title_color = substr(md5(encryptIt($equipmentid)), 0, 6);
 	$border_styling = 'style="border: 3px solid #'.$title_color.'"';
 	$label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"))['label'];
