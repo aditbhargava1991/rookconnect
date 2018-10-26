@@ -184,7 +184,7 @@ if(ucwords($category) == 'Vendors') {
 			<a href="?list=<?= $_GET['list'] ?>&status=archive" class="btn brand-btn <?= $status == 'archive' ? 'active_tab' : '' ?>">Archived</a>
 			-->
             <!-- <input type="submit" value="Filter" class="btn brand-btn" name="search_<?php //echo $category; ?>_submit"> -->
-			
+
 			<?php if($_GET['list'] != 'summary') { ?>
 				<a href="?edit=new&category=<?= $category ?>" class="btn brand-btn pull-right">New <?= $category ?></a>
 				<button type="submit" value="<?= $category ?>" class="image-btn no-toggle" name="export_contacts" title="Export CSV"><img src="../img/icons/csv.png" width="30" /></button>
@@ -249,6 +249,26 @@ function flag_item_manual(task) {
        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=contacts&id='+contactid, 'auto', false, false);
 }
 
+function highlight_item(sel) {
+    var task_id = $(sel).parents('span').data('task');
+    $('#color_'+task_id).click();
+}
+
+function choose_color(sel) {
+	var contactid = $(sel).parents('span').data('task');
+    var contactcolor = sel.value;
+	var contactcolor = contactcolor.replace("#", "");
+
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "../Contacts/contacts_ajax.php?action=contact_highlight&contactid="+contactid+'&contactcolor='+contactcolor,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+			location.reload();
+		}
+	});
+}
+
 </script>
 
 <div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
@@ -269,7 +289,12 @@ function flag_item_manual(task) {
 			<?php foreach($contact_sort as $id): ?>
 				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))];
                 ?>
-				<div class="dashboard-item set-relative">
+                <?php
+                $bg_color = '';
+                if($row['flag_label'] == '' && $row['flag_colour'] != '') {
+                    $bg_color = "background-color: #".$row['flag_colour'];
+                } ?>
+				<div class="dashboard-item set-relative" style='<?php echo $bg_color; ?>'>
                         <?php if($row['flag_label'] != '') { ?>
                         <span class="block-label flag-label-block" style="font-weight: bold; background-color: <?php echo '#'.$row['flag_colour']; ?>">Flagged: <?= $row['flag_label'] ?></span>
                         <?php } ?>
@@ -377,7 +402,10 @@ function flag_item_manual(task) {
                     $quick_actions = explode(',',get_config($dbc, 'contact_quick_action_icons'));
 
                     echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-
+                    echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
+                    ?>
+                    <input type="color" class="color_picker" onchange="choose_color(this); return false;" id="color_<?=$row['contactid']?>" data-taskid="<?=$row['contactid']?>" name="color_<?=$row['contactid']?>" style="display:none;" />
+                    <?php
                     echo '</span>';
 
                     ?>
