@@ -78,7 +78,7 @@ function blankPDFForm() {
 	</div>
 	<div class="row">
 		<div class="main-screen">
-			<div class="tile-header standard-header" style="<?= IFRAME_PAGE ? 'display:none;' : '' ?>">
+			<div class="tile-header standard-header" style="<?= IFRAME_PAGE ? 'display:none;' : '' ?> background-color: #<?php echo get_config($dbc, 'color_ticket'); ?>">
                 <div class="pull-right settings-block"><?php
                 	if(!isset($_GET['intake_key'])) {
 	                    if($security['config'] > 0) {

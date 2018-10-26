@@ -54,13 +54,27 @@ $(document).ready(function() {
 		$(this).attr('style', 'height:'+maxHeight+'px !important;');
 	});
 });
+
+function choose_tile_color(sel) {
+	var tile_id = sel.id;
+    var tilecolor = sel.value;
+	var tilecolor = tilecolor.replace("#", "");
+
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "settings_ajax.php?fill=tile_highlight_color&tile_id="+tile_id+'&tilecolor='+tilecolor,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+		}
+	});
+}
 </script>
 
 <form name="form_tile_order" method="post" action="" class="form-inline" role="form"><?php
-    
+
     $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='setting_tile_sort_order'"));
     $note = $notes['note'];
-        
+
     if ( !empty($note) ) { ?>
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
@@ -88,7 +102,8 @@ $(document).ready(function() {
 				if(is_array($tile)) {
 					$tile_value = $tile[0].'#*#'.$tile[1];
 				}
-				echo '<li class="ui-state-default" id="'.$tile_value.'"><span style="cursor:pointer; font-size: 1em;">'.$tile_info['name'].'<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>';
+                $tile_color = get_config($dbc, 'color_'.$tile_value);
+				echo '<li class="ui-state-default" id="'.$tile_value.'"><span style="cursor:pointer; font-size: 1em;">'.$tile_info['name'].'<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span><input type="color" onchange="choose_tile_color(this); return false;" class="color_picker pull-right" id="color_'.$tile_value.'"" name="color_'.$tile_value.'" style="margin-right: 20px;" value = "#'.$tile_color.'" /></li>';
 			}
 		}
 
