@@ -138,7 +138,8 @@ function show_hide_email() {
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">Today's Invoices</h3>
-    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" />
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Search" onclick="view_search()"> </div>
     <div class="clearfix"></div>
 </div>
 
@@ -207,7 +208,7 @@ function show_hide_email() {
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
 
-        <div class="search-group double-gap-top">
+        <div class="search-group hidden double-gap-top">
             <div class="row">
                 <div class="col-sm-12">
                     <div class="row">
