@@ -1497,6 +1497,7 @@ footer#footer { margin:0; padding:0; }
     .nav_icons_mobile { background-color:#999; display:none; margin:-20px auto 20px auto; position:relative; z-index:1000; }
         .nav_icons_mobile div.pull-left { display:flex; flex-direction:row; }
             .nav_icons_mobile div.pull-left .alert-button { position:relative; }
+                .nav_icons_mobile div.pull-left .alert-button img { height:auto; width:25px; }
             .nav_icons_mobile div.pull-left .id-circle { font-size:0.85em; height:30px; margin:14px 7px 0 0; width:30px; }
 }
 @media(min-width:768px) {
