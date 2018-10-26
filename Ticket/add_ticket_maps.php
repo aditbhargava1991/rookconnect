@@ -58,31 +58,40 @@ if($_GET['map_action'] == 'pickup_delivery') {
 					$excess_km = round($kms - $max_km);
 				} ?>
 				<script>
-				var excess_km = <?= $excess_km ?>;
-				var max_km = '<?= $max_km ?>';
-				var total_km = <?= $kms ?>;
-				var current_excess = 0;
-				$('[data-table=tickets][name=serviceid]').filter(function() { return this.value == '<?= $excess_km_serviceid ?>'; }).each(function() {
-					current_excess = $(this).closest('.multi-block').find('[name=service_qty]').first().val();
-				});
-				if(ticket_excess_confirm && excess_km != current_excess && excess_km > 0) {
-                    setTimeout(function() {
-                        if(confirm('The estimated distance of <?= $total_km ?> is over the <?= BUSINESS_CAT ?> allowed KM of <?= $max_km ?> by <?= $excess_km ?>. Would you like to update the Extra KM quantity to this amount?')) {
-                            setSave();
-                            if($('[data-table=tickets][name=serviceid]').filter(function() { return this.value == '<?= $excess_km_serviceid ?>'; }).length == 0) {
-                                if($('[data-table=tickets][name=serviceid]').filter(function() { return this.value == ''; }).length == 0) {
-                                    addMulti($('[data-table=tickets][name=serviceid]').get(0));
+                setTimeout(excess_km, 250);
+                function excess_km() {
+                    if(delay_notify) {
+                        setTimeout(excess_km, 250);
+                        return;
+                    }
+                    delay_notify = true;
+                    var excess_km = <?= $excess_km ?>;
+                    var max_km = '<?= $max_km ?>';
+                    var total_km = <?= $kms ?>;
+                    var current_excess = 0;
+                    $('[data-table=tickets][name=serviceid]').filter(function() { return this.value == '<?= $excess_km_serviceid ?>'; }).each(function() {
+                        current_excess = $(this).closest('.multi-block').find('[name=service_qty]').first().val();
+                    });
+                    if(ticket_excess_confirm && excess_km != current_excess && excess_km > 0) {
+                        setTimeout(function() {
+                            if(confirm('The estimated distance of <?= $total_km ?> is over the <?= BUSINESS_CAT ?> allowed KM of <?= $max_km ?> by <?= $excess_km ?>. Would you like to update the Extra KM quantity to this amount?')) {
+                                setSave();
+                                if($('[data-table=tickets][name=serviceid]').filter(function() { return this.value == '<?= $excess_km_serviceid ?>'; }).length == 0) {
+                                    if($('[data-table=tickets][name=serviceid]').filter(function() { return this.value == ''; }).length == 0) {
+                                        addMulti($('[data-table=tickets][name=serviceid]').get(0));
+                                    }
+                                    $('[data-table=tickets][name=serviceid]').filter(function() { return this.value == ''; }).val('<?= $excess_km_serviceid ?>').change();
                                 }
-                                $('[data-table=tickets][name=serviceid]').filter(function() { return this.value == ''; }).val('<?= $excess_km_serviceid ?>').change();
+                                $('[data-table=tickets][name=serviceid]').filter(function() { return this.value == '<?= $excess_km_serviceid ?>'; }).each(function() {
+                                    $(this).closest('.multi-block').find('[data-table=tickets][name=service_qty]').first().val(excess_km).change();
+                                });
+                            } else if(ticket_excess_confirm && excess_km != current_excess && excess_km > 0) {
+                                ticket_excess_confirm = false;
                             }
-                            $('[data-table=tickets][name=serviceid]').filter(function() { return this.value == '<?= $excess_km_serviceid ?>'; }).each(function() {
-                                $(this).closest('.multi-block').find('[data-table=tickets][name=service_qty]').first().val(excess_km).change();
-                            });
-                        } else if(ticket_excess_confirm && excess_km != current_excess && excess_km > 0) {
-                            ticket_excess_confirm = false;
-                        }
-                    }, 250);
-				}
+                            delay_notify = false;
+                        }, 1000);
+                    }
+                }
 				</script>
 			<?php }
 		}
