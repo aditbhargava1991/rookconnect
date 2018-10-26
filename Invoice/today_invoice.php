@@ -340,12 +340,17 @@ function show_hide_email() {
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     echo '<td data-title="Invoice PDF">';
                     if(file_exists($invoice_pdf)) {
-                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].'<img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a>';
                     }
+                    echo '<br /><div class="clearfix"></div>';
+                    foreach(glob('download/invoice_'.$invoice['invoiceid'].'_*') as $i => $invoice_pdf) {
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice '.TICKET_TILE.' Details PDF'.($i > 0 ? ' #'.($i+1) : '').' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice '.TICKET_TILE.' Details" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
+                    }
+
                     if($invoice['invoiceid_src'] > 0 && file_exists('download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                        echo '<a target="_blank" href="'.'download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
                     } else if($invoice['invoiceid_src'] > 0 && file_exists('Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br />';
+                        echo '<a target="_blank" href="'.'Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
                     }
                     echo '</td>';
                 }

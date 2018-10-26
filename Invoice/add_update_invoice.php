@@ -810,6 +810,15 @@ if($invoice_mode != 'Adjustment') {
     }
 
     if($invoice_type != 'Saved') {
+        //Compensation Rate - Tickets
+        $ticket_comp = $dbc->query("SELECT `comp_fee` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='ticket' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31')")->fetch_assoc()['comp_percent'];
+        if($ticket_comp > 0) {
+            foreach(array_filter(array_unique(explode(',',$service_ticket.','.$misc_ticket))) as $ticketid) {
+                $query_insert_invoice = "INSERT INTO `invoice_compensation` (`invoiceid`, `contactid`, `item_type`, `item_id`, `fee`, `admin_fee`, `comp_percent`, `compensation`, `service_date`) VALUES ('$invoiceid', '$therapistsid', 'ticket', '$ticketid', '$ticket_comp', '0', '100', '$ticket_comp', '$today_date')";
+                $result_insert_invoice = mysqli_query($dbc, $query_insert_invoice);
+            }
+        }
+        
         //Compensation - Services
 		foreach($invoice_lines as $query) {
 			mysqli_query($dbc, str_replace('INVOICEID',$invoiceid,$query));
@@ -817,8 +826,9 @@ if($invoice_mode != 'Adjustment') {
 		$service_all = explode(',',$serviceid);
 		$service_all_fee = explode(',',$fee);
 		$service_all_pro_bono = explode(',',$service_pro_bono);
+		$service_ticket = explode(',',$service_ticketid);
 		foreach($service_all as $s_row => $sid) {
-			if($sid != '') {
+			if($sid != '' && (empty($service_ticket[$s_row]) || empty($ticket_comp))) {
 				$f = $service_all_fee[$s_row];
 				$result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT r.admin_fee, s.gst_exempt FROM services s, company_rate_card r WHERE s.serviceid='$sid' AND s.serviceid = r.serviceid AND '$today_date' >= r.start_date AND ('$today_date' <= r.end_date OR IFNULL(r.end_date,'0000-00-00') = '0000-00-00')"));
                 $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='services' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];
@@ -848,8 +858,9 @@ if($invoice_mode != 'Adjustment') {
 			}
 		}
 		//Compensation - Miscellaneous
+		$misc_ticket = explode(',',$misc_ticketid);
 		foreach(explode(',',$misc_items) as $i => $misc) {
-			if($misc != '') {
+			if($misc != '' && (empty($misc_ticket[$s_row]) || empty($ticket_comp))) {
 				$comp_total = explode(',',$misc_price)[$i];
                 $comp_qty = explode(',',$misc_qty)[$i];
                 $comp_rate = $dbc->query("SELECT `comp_percent` FROM `rate_compensation` LEFT JOIN `rate_card` ON `rate_compensation`.`rate_card`=`rate_card`.`ratecardid` WHERE `rate_card`.`clientid`='$therapistsid' AND `rate_card`.`clientid` > 0 AND `rate_card`.`deleted`=0 AND `rate_card`.`on_off` > 0 AND `rate_compensation`.`item_type`='misc' AND `rate_compensation`.`deleted`=0 AND '$service_date' BETWEEN IFNULL(`rate_card`.`start_date`,'0000-00-00') AND IFNULL(NULLIF(`rate_card`.`end_date`,'0000-00-00'),'9999-12-31') UNION SELECT '100' `comp_percent`")->fetch_assoc()['comp_percent'];

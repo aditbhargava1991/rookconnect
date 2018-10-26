@@ -55,9 +55,6 @@ if (isset($_POST['submit_btn'])) {
     }
 
 	switch($invoice_design) {
-		case 1:
-			include('pos_invoice_1.php');
-			break;
 		case 2:
 			include('pos_invoice_2.php');
 			break;
@@ -91,6 +88,10 @@ if (isset($_POST['submit_btn'])) {
         case 'custom_ticket':
             include ('pos_invoice_custom_ticket.php');
             break;
+		case 1:
+        default:
+			include('pos_invoice_1.php');
+			break;
 	}
 
     if($_POST['survey'] != '') {
@@ -122,8 +123,7 @@ if (isset($_POST['submit_btn'])) {
             window.open("download/invoice_'.$invoiceid.'.pdf", "fullscreen=yes");
             </script>';
         }
-        </script>
-    <?php }
+    }
 
     mysqli_close($dbc); //Close the DB Connection
 }

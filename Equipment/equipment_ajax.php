@@ -330,7 +330,7 @@ else if($_GET['fill'] == 'quick_action_settings') {
 	    $query_insert_config = "INSERT INTO `field_config_equipment` (`flag_colours`, `flag_names`) VALUES ('$colours', '$flag_names')";
 	    $result_insert_config = mysqli_query($dbc, $query_insert_config);
 	}
-	
+
 }
 if($_GET['fill'] == 'equipmentflag') {
     $item_id = $_POST['id'];
@@ -341,5 +341,16 @@ if($_GET['fill'] == 'equipmentflag') {
     $new_colour = ($colour_key === FALSE ? $colour_list[0] : ($colour_key + 1 < count($colour_list) ? $colour_list[$colour_key + 1] : ''));
     $result = mysqli_query($dbc, "UPDATE `equipment` SET `flag_colour`='$new_colour' WHERE `equipmentid` = '$item_id'");
     echo $new_colour;
+}
+if($_GET['fill'] == 'equipmentfavorite') {
+    $item_id = $_POST['id'];
+    $type = $_POST['type'];
+    $favorite = mysqli_fetch_array(mysqli_query($dbc, "SELECT `favorite` FROM equipment WHERE equipmentid = '$item_id'"))['favorite'];
+    if($favorite == 1) {
+        $set_favorite = 0;
+    } else {
+        $set_favorite = 1;
+    }
+    $result = mysqli_query($dbc, "UPDATE `equipment` SET `favorite`='$set_favorite' WHERE `equipmentid` = '$item_id'");
 }
 ?>

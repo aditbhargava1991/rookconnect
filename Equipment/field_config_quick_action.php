@@ -24,7 +24,7 @@ function saveGroups() {
 	});
 }
 </script>
-<?php $quick_action_icons = explode(',',get_config($dbc, 'equipment_quick_action_icons')); 
+<?php $quick_action_icons = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
 $get_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equipment`"));
 $flag_colours = $get_config['flag_colours'];
 $flag_names = explode('#*#', $get_config['flag_names']);
@@ -34,6 +34,8 @@ $flag_names = explode('#*#', $get_config['flag_names']);
 	<div class="col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('preview',$quick_action_icons) ? 'checked' : '' ?> value="preview"> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"> View</label>
 		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('edit',$quick_action_icons) ? 'checked' : '' ?> value="edit"> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"> Edit</label>
+		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('favorite',$quick_action_icons) ? 'checked' : '' ?> value="favorite"> <img class="inline-img" src="../img/icons/ROOK-star-icon.png">Favorite </label>
+
 		<label class="form-checkbox" onClick="$('[name^=quick_action_icons][value=flag_manual]').removeAttr('checked');" ><input type="checkbox" name="quick_action_icons[]" <?= !in_array('flag_manual',$quick_action_icons) && in_array('flag',$quick_action_icons) ? 'checked' : '' ?> value="flag"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Flag</label>
 		<label onClick="$('[name^=quick_action_icons][value=flag]').removeAttr('checked');" class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('flag_manual',$quick_action_icons) ? 'checked' : '' ?> value="flag_manual"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Manually Flag with Label</label>
 		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('reminder',$quick_action_icons) ? 'checked' : '' ?> value="reminder"> <img class="inline-img" src="../img/icons/ROOK-reminder-icon.png"> Reminders</label>

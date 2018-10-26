@@ -133,8 +133,8 @@ if(isset($_POST['custom_form'])) {
 										}
 									}
 									break;
-								case 'ticket_label':
-									$value = get_ticket_label($dbc, $get_ticket);
+								case 'get_ticket_label':
+									$value = get_ticket_label($dbc, $get_ticket, null, null, $values[1]);
 									break;
 								case 'ticket':
 									$value = $get_ticket[$values[1]];

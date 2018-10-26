@@ -659,7 +659,8 @@ if($_GET['fill'] == 'add_milestone_item') {
             echo '<span style="display:inline-block; text-align:center; width:11%" title="Reply" onclick="send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;"></span>';
             echo '<span style="display:inline-block; text-align:center; width:11%" title="Add Time" onclick="add_time(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" style="height:1.5em;" onclick="return false;"></span>';
             echo '<span style="display:inline-block; text-align:center; width:11%" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-            echo '</span>';
+						echo '<span style="display:inline-block; text-align:center; width:11%" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-sync-icon.png" style="height:1.5em;" onclick="return false;"></span>';
+						echo '</span>';
             echo '<input type="text" name="reply_'.$row['tasklistid'].'" style="display:none;" class="form-control" />';
             echo '<input type="text" name="task_time_'.$row['tasklistid'].'" style="display:none;" class="form-control timepicker" />';
             echo '<input type="text" name="reminder_'.$row['tasklistid'].'" style="display:none;" class="form-control datepicker" />';
