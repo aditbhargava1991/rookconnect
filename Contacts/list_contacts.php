@@ -1,6 +1,8 @@
 <script>
 var contact_type = '';
 $(document).ready(function() {
+	retrieveContacts();
+	loadContacts();
 	$('.panel-heading').off('click').click(loadPanel);
 	$(window).resize(function() {
 		var available_height = window.innerHeight - $('footer:visible').outerHeight() - ($('.main-screen .main-screen').offset() == undefined ? 0 : $('.main-screen .main-screen').offset().top);
@@ -18,6 +20,21 @@ $(document).ready(function() {
     });
 
 });
+var ajax_loads = [];
+var contact_list = [];
+var result_list = [];
+var current_contact_search_key = '';
+function retrieveContacts() {
+	$.ajax({
+		url: '../Contacts/contacts_load_list.php',
+		data: { folder: '<?= FOLDER_NAME ?>' },
+		method: 'POST',
+		success: function(response) {
+			console.log(response);
+			// contact_list = JSON.parse(response);
+		}
+	});
+}
 function loadPanel() {
 	var panel = $(this).closest('.panel').find('.panel-body');
 	$.ajax({
