@@ -367,7 +367,7 @@ function flag_item_manual(task) {
 							echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'">View</a>';
 						} ?>
 					</div>
-
+                    <div class="clearfix"></div>
                     <?php
                     echo '<span class="action-icons gap-top" style="width: 40%;" data-task="'.$row['contactid'].'">';
                     $quick_actions = explode(',',get_config($dbc, 'contact_quick_action_icons'));
