@@ -12,16 +12,16 @@ $sales_noun = SALES_NOUN;
 
 switch($_GET['tab']) {
 
-	case 'fields':
+	/*case 'fields':
         $page_title = "Fields";
         $include_file = 'field_config_fields.php';
 		break;
 	case 'dashboards':
         $page_title = "Dashboards";
         $include_file = 'field_config_dashboards.php';
-		break;
+		break;*/
 	case 'accordion':
-        $page_title = "Accordion";
+        $page_title = "accordion";
         $include_file = 'field_config_accordion.php';
 		break;
 	case 'lead_source':
@@ -101,10 +101,10 @@ function resizeScreen() {
                         <a href="?tab=general"><li <?= $_GET['tab'] == 'general' ? 'class="active"' : '' ?>><?= SALES_TILE ?> Settings</li></a>
                         -->
                         <a href="?tab=tile"><li <?= $_GET['tab'] == 'tile' ? 'class="active"' : '' ?>>Tile Settings</li></a>
-                        <a href="?tab=fields"><li <?= $_GET['tab'] == 'fields' ? 'class="active"' : '' ?>>Fields</li></a>
-                        <a href="?tab=dashboards"><li <?= $_GET['tab'] == 'dashboards' ? 'class="active"' : '' ?>> Dashboards</li></a>
+                        <!--<a href="?tab=fields"><li <?= $_GET['tab'] == 'fields' ? 'class="active"' : '' ?>>Fields</li></a>
+                        <a href="?tab=dashboards"><li <?= $_GET['tab'] == 'dashboards' ? 'class="active"' : '' ?>> Dashboards</li></a>-->
                         <a href="?tab=actions"><li <?= $_GET['tab'] == 'actions' ? 'class="active"' : '' ?>>Quick Action Icons</li></a>
-                       <a href="?tab=accordion"><li <?= $_GET['tab'] == 'accordion' ? 'class="active"' : '' ?>>Accordion</li></a>
+                       <a href="?tab=accordion"><li <?= $_GET['tab'] == 'accordion' ? 'class="active"' : '' ?>>Fields</li></a>
                         <a href="?tab=lead_source"><li <?= $_GET['tab'] == 'lead_source' ? 'class="active"' : '' ?>>Lead Source</li></a>
                         <a href="?tab=next_action"><li <?= $_GET['tab'] == 'next_action' ? 'class="active"' : '' ?>>Next Action</li></a>
                         <a href="?tab=lead_status"><li <?= $_GET['tab'] == 'lead_status' ? 'class="active"' : '' ?>>Lead Status</li></a>
