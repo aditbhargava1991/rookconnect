@@ -79,7 +79,7 @@ function dispatch_ticket_label($dbc, $ticket, $stop_number) {
 		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
 	}
 	$row_html .= '<div class="clearfix"></div>';
-	$row_html .= '<span class="bottom-right">'.$ticket['status'].'</span>';
+	$row_html .= '<span class="bottom-right no-toggle" title="'.$ticket['status'].' as of '.$ticket['status_date'].($ticket['status_contact'] > 0 ? ' by '.get_contact($dbc, $ticket['status_contact']) : '').'">'.$ticket['status'].' '.date('H:i',strtotime($ticket['status_date'])).'</span>';
     $row_html .= dispatch_delivery_hover_icons($dbc, $ticket, $stop_number, $clickable_html, $dispatch_tile_ticket_card_fields);
 
 	return $row_html;
@@ -266,4 +266,19 @@ function draw_svg_truck($ontime, $notontime, $ongoing) {
 		$ontime_polygon.$notontime_polygon.$ongoing_polygon.
 	'</svg>';
 	return $truck_html;
+}
+function get_equipment_color($equipmentid) {
+	$color = substr(md5(encryptIt($equipmentid)), 0, 6);
+
+	$r = hexdec(substr($color,0,2));
+	$g = hexdec(substr($color,2,2));
+	$b = hexdec(substr($color,4,2));
+	$yiq = (($r*299)+($g*587)+($b*114))/1000;
+
+	if($yiq >= 128) {
+		$darken_percentage = 255 - $yiq;
+		$color = darken_color($color, $darken_percentage);
+	}
+
+	return $color;
 }

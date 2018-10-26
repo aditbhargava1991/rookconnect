@@ -56,9 +56,6 @@ if(!mysqli_query($dbc, "ALTER TABLE `field_jobs_history` CHANGE `history_id` `hi
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
-
-
-
 if(!mysqli_query($dbc, "CREATE TABLE `newsboard_tag` ( `newsboard_tagid` INT NOT NULL AUTO_INCREMENT ,
                         `boardid` INT(11) NOT NULL , `newsboardid` INT(11) NOT NULL ,
                         `staff` TEXT NOT NULL , PRIMARY KEY (`newsboard_tagid`))"))
@@ -66,6 +63,16 @@ if(!mysqli_query($dbc, "CREATE TABLE `newsboard_tag` ( `newsboard_tagid` INT NOT
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
-
+if(!mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `is_sync` BOOLEAN DEFAULT 0")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
 echo "<br> ======Jenish's db changes Done======<br>";
+
+$task_status_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(*) as task_status_count FROM `general_configuration` where name = 'task_scrum_status'"));
+if($task_status_count['task_status_count'] == 0) {
+  if(!mysqli_query($dbc, "INSERT INTO `general_configuration`(`name`, `value`) VALUES('task_scrum_status', 'To Do,Information Gathering,Scheduled/To Do,Done,To Be Scheduled,On Hold,Scheduled/To Do,Doing Today,Internal QA,QA Dev Needed,Customer QA,Waiting On Customer')")) {
+    echo "Error: ".mysqli_error($dbc)."<br />\n";
+  }
+}
+
 ?>

@@ -236,7 +236,7 @@ include ('../include.php');
                         </li>
 						<?php $regions = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
 						if(count($regions) > 0) { ?>
-							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['r'],$locations) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_region">Region<span class="arrow"></span></a>
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['r'],$locations) ? '' : 'collapsed' ?> <?= isset($_GET['r']) ? 'active' : '' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_region">Region<span class="arrow"></span></a>
 								<ul id="collapse_region" class="panel-collapse collapse <?= !empty($_GET['r']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $regions as $region ) {
@@ -248,7 +248,7 @@ include ('../include.php');
 						<?php } ?>
 						<?php $locations =  array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `con_locations` SEPARATOR ',') FROM `field_config_contacts`"))[0])));
 						if(count($locations) > 0) { ?>
-							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['l'],$locations) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_location">Location<span class="arrow"></span></a>
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['l'],$locations) ? '' : 'collapsed' ?> <?= isset($_GET['l']) ? 'active' : '' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_location">Location<span class="arrow"></span></a>
 								<ul id="collapse_location" class="panel-collapse collapse <?= !empty($_GET['l']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $locations as $location ) {
@@ -260,7 +260,7 @@ include ('../include.php');
 						<?php } ?>
 						<?php $classifications = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_classification'"))[0])));
 						if(count($classifications) > 0) { ?>
-							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['c'],$classifications) ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
+							<li class="sidebar-higher-level"><a class="<?= in_array($_GET['c'],$classifications) ? '' : 'collapsed' ?> <?= isset($_GET['c']) ? 'active' : '' ?> cursor-hand" data-toggle="collapse" data-parent="#dashboard_sidebar" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
 								<ul id="collapse_classification" class="panel-collapse collapse <?= !empty($_GET['c']) ? 'in' : '' ?>"><?php
 									// Get Lead Statuses added in Settings->Lead Status accordion
 									foreach ( $classifications as $classification ) {

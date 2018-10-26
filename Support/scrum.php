@@ -10,6 +10,19 @@ while($status_count = $ticket_count->fetch_assoc()) {
         }
     }
 }
+$sql = "SELECT `status`, COUNT(*) `tasklist` FROM `tasklist` WHERE `tasklistid` > 0 AND `deleted`=0 AND `status` NOT IN ('Archive') and is_sync = 1 GROUP BY `status`";
+$tasklist_count = $dbc_support->query($sql);
+$tasklist_list = explode(',',get_config($dbc_support,'task_scrum_status'));
+$status_tasklist_counts = [];
+while($status_tasklist_count = $tasklist_count->fetch_assoc()) {
+    foreach($tasklist_list as $i => $status) {
+        if($status == $status_tasklist_count['status']) {
+            $status_tasklist_counts[$i] = ['status' => $status, 'count' => $status_tasklist_count['tasklist']];
+        }
+    }
+}
+
+ksort($status_tasklist_counts);
 ksort($status_counts); ?>
 <script>
 $(document).ready(function() {
@@ -56,6 +69,25 @@ function setDoubleScroll() {
                         Internal QA Date: <?= $row['internal_qa_date'] ?><br />
                         Estimated Completion Date: <?= $row['deliverable_date'] ?>
                     </span></li>
+                <?php } ?>
+            </ul>
+        </div>
+    <?php } ?>
+    <?php foreach($status_tasklist_counts as $status_count) { ?>
+        <div class="dashboard-list item_list" style="margin-bottom: -10px;">
+            <div class="info-block-header"><h4><?= $status_count['status'] ?></h4>
+                <div class="small">Active: <?= $status_count['count'] ?></div>
+            </div>
+            <ul class="dashboard-list">
+                <?php $tasklist_list = $dbc_support->query("SELECT * FROM `tasklist` WHERE `tasklistid` > 0 AND `deleted`=0 AND `is_sync`=1 AND `status`='".$status_count['status']."'");
+                while($row = mysqli_fetch_array($tasklist_list)) { ?>
+                    <li class="dashboard-item " data-id="9" data-table="tickets" data-name="milestone_timeline" data-id-field="ticketid" data-colour="" style=""><span>
+                        <span>
+                          Task #<?= $row['tasklistid'] ?> - <?= $row['heading'] ?><br>
+                          Task Created Date : <?= $row['created_date'] ?><br>
+                          Task To-Do Date : <?= $row['task_tododate'] ?>
+                        </span>
+                    </li>
                 <?php } ?>
             </ul>
         </div>

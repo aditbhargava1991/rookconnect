@@ -596,6 +596,10 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'sign_in_time'); ?>
                                     </tr>
                                     <tr>
+                                        <td data-title="Comment"><?= START_DAY ?></td>
+                                        <?php echo tile_config_function($dbc, 'start_day_button'); ?>
+                                    </tr>
+                                    <tr>
                                         <td data-title="Comment">Time Clock</td>
                                         <?php echo tile_config_function($dbc, 'punch_card'); ?>
                                     </tr>

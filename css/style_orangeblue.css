@@ -5244,18 +5244,27 @@ div.software_search_results a, .text-blue, .sidebar h3 a, .default-color { color
 .sidebar-higher-level a.cursor-hand.active {
   background-color: #dc6a2e !important;
 }
-.sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
+.sidebar-higher-level ul li.active.blue,
+.sidebar-higher-level ul li.active.blue a,
+.sidebar-higher-level ul li.active.blue span,
+.sidebar-higher-level ul li.sidebar-higher-level a.active,
+.tile-sidebar .sidebar-higher-level ul li.active,
+.tile-sidebar .sidebar-higher-level ul li.active a,
+.tile-sidebar .sidebar-higher-level ul li.active span {
   color:#dc6a2e !important;
   background-color:#fff !important;
 }
-li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
+li.sidebar-lower-level.active,
+li.sidebar-lower-level.active span,
+.tile-sidebar ul li.sidebar-higher-level ul li a.active {
   background-color: #fff !important;
   color: #dc6a2e !important;
 }
 .block-panels .panel-heading.active {
   background-color: #dc6a2e !important;
 }
-.block-panels .panel-heading.active a {
+.block-panels .panel-heading.active a,
+.tile-sidebar .sidebar-higher-level a.active:hover {
   color: #fff !important;
 }
 .theme-color-icon {
