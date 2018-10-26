@@ -235,12 +235,13 @@ if (isset($_POST['submit'])) {
     foreach($_POST['comp_item'] as $i => $comp_item) {
         $comp_item = filter_var($comp_item,FILTER_SANITIZE_STRING);
         $comp_rate = filter_var($_POST['comp_percent'][$i],FILTER_SANITIZE_STRING);
+        $comp_fee = filter_var($_POST['comp_fee'][$i],FILTER_SANITIZE_STRING);
         $comp_id = filter_var($_POST['comp_id'][$i],FILTER_SANITIZE_STRING);
         $deleted = filter_var($_POST['comp_deleted'][$i],FILTER_SANITIZE_STRING);
         if($comp_id > 0) {
-            $dbc->query("UPDATE `rate_compensation` SET `rate_card`='$ratecardid', `item_type`='$comp_item', `comp_percent`='$comp_rate', `deleted`='$deleted' WHERE `id`='$comp_id'");
+            $dbc->query("UPDATE `rate_compensation` SET `rate_card`='$ratecardid', `item_type`='$comp_item', `comp_percent`='$comp_rate', `comp_fee`='$comp_fee', `deleted`='$deleted' WHERE `id`='$comp_id'");
         } else if(!empty($comp_item) && !empty($comp_rate)) {
-            $dbc->query("INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$deleted')");
+            $dbc->query("INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, comp_fee`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$comp_fee', '$deleted')");
         }
     }
 

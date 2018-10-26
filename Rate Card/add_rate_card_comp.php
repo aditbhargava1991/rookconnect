@@ -17,9 +17,12 @@ function remComp(img) {
 <div class="form-group">
     <div class="col-sm-12">
         <div class="form-group hide-titles-mob">
-            <label class="col-sm-6 text-center">Compensation for Item</label>
-            <label class="col-sm-4 text-center">Compensation Rate (%)</label>
-            <label class="col-sm-2 text-center"></label>
+            <div class="pull-right" style="width:5em;">&nbsp;</div>
+            <div class="scale-to-fill">
+                <label class="col-sm-6 text-center">Compensation for Item</label>
+                <label class="col-sm-3 text-center">Compensation Rate (%)</label>
+                <label class="col-sm-3 text-center">Compensation Amt ($)</label>
+            </div>
             <div class="clearfix"></div>
         </div>
 
@@ -36,7 +39,7 @@ function remComp(img) {
                 <div class="scale-to-fill">
                     <div class="col-sm-6">
                         <label class="show-on-mob">Compensation for Item:</label>
-                        <select name="comp_item[]" class="chosen-select-deselect" data-placeholder="Select Compensation Item"><option />
+                        <select name="comp_item[]" class="chosen-select-deselect" data-placeholder="Select Compensation Item" onchange="if(this.value == 'ticket') { $(this).closest('.form-group').find('[name^=comp_percent]').prop('readonly',true); $(this).closest('.form-group').find('[name^=comp_fee]').prop('readonly',false); } else { $(this).closest('.form-group').find('[name^=comp_percent]').prop('readonly',false); $(this).closest('.form-group').find('[name^=comp_fee]').prop('readonly',true); }"><option />
                             <option value="services" <?= $comp_row['item_type'] == 'services' ? 'selected' : '' ?>>Services</option>
                             <option value="inventory" <?= $comp_row['item_type'] == 'inventory' ? 'selected' : '' ?>><?= INVENTORY_TILE ?></option>
                             <option value="product" <?= $comp_row['item_type'] == 'product' ? 'selected' : '' ?>>Product</option>
@@ -53,9 +56,13 @@ function remComp(img) {
                             <option value="km" <?= $comp_row['item_type'] == 'km' ? 'selected' : '' ?>>Per KM</option>
                         </select>
                     </div>
-                    <div class="col-sm-6">
+                    <div class="col-sm-3">
                         <label class="show-on-mob">Compensation Rate (%):</label>
-                        <input name="comp_percent[]" type="number" min=0 max=100 step="any" class="form-control" value="<?= $comp_row['comp_percent'] ?>" />
+                        <input name="comp_percent[]" <?= $comp_row['item_type'] == 'ticket' ? 'readonly' : '' ?> type="number" min=0 max=100 step="any" class="form-control" value="<?= $comp_row['comp_percent'] ?>" />
+                    </div>
+                    <div class="col-sm-3">
+                        <label class="show-on-mob">Compensation Amount ($):</label>
+                        <input name="comp_fee[]" <?= $comp_row['item_type'] == 'ticket' ? '' : 'readonly' ?> type="number" min=0 max=100 step="any" class="form-control" value="<?= $comp_row['comp_fee'] ?>" />
                     </div>
                 </div>
                 <div class="clearfix"></div>
