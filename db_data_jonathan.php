@@ -486,6 +486,12 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9140
+
+        // October 26, 2018 - Ticket 9488
+		if(!mysqli_query($dbc, "ALTER TABLE `rate_compensation` ADD `comp_fee` DECIMAL(10,2) AFTER `comp_percent`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9488
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }
