@@ -134,9 +134,9 @@ function disableClient(chk) {
 </script>
 <div class="container">
 	<div class="row">
-		<?php $security = get_security($dbc, 'timesheet');
+		<?php $security = get_security($dbc, 'start_day_button');
         if($security['config'] > 0) {
-            echo '<a href="field_config.php?tab=day_tracking&from_url=start_day.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
+            echo '<a href="field_config_start_day.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
         } ?>
 		<form class="form-horizontal" action="" method="POST">
 			<?php $timer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start`, `type_of_time`, `day_tracking_type` FROM `time_cards` WHERE `type_of_time` IN ('day_tracking') AND `timer_start` > 0 AND `deleted`=0 AND `staff`='".$_SESSION['contactid']."'")); ?>

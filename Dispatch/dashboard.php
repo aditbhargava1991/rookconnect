@@ -30,6 +30,7 @@ foreach ($ticket_statuses as $ticket_status) {
 ?>
 <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
 <script type="text/javascript" src="../Dispatch/dashboard.js"></script>
+<script type="text/javascript" src="../Calendar/map_sorting.js"></script>
 
 <input type="hidden" name="group_regions" value="<?= $group_regions ?>">
 <input type="hidden" id="dispatch_auto_refresh" name="dispatch_auto_refresh" value="<?= $auto_refresh ?>">
@@ -40,11 +41,15 @@ foreach ($ticket_statuses as $ticket_status) {
 
 <div id="accordion" class="tile-sidebar sidebar sidebar standard-collapsible">
     <ul>
-        <?php if($summary_tab == 1) { ?>
+        <?php $equipment_view_parent = "#accordion";
+        if($summary_tab == 1) {
+            $equipment_view_parent = "#collapse_equipment_view"; ?>
             <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;"><li class="active blue">Summary</li></a>
+            <li class="sidebar-higher-level highest_level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment_view"><?= $equipment_label ?> View<span class="arrow"></span></a>
+                <ul class="collapse" id="collapse_equipment_view" style="overflow: hidden;">
         <?php } ?>
         <?php if(in_array('region',$search_fields) && !$is_customer) { ?>
-            <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_region">Region<span class="arrow"></span></a>
+            <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="<?= $equipment_view_parent ?>" data-toggle="collapse" data-target="#collapse_region">Region<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_region" style="overflow: hidden;">
                     <?php foreach($allowed_regions as $region) { ?>
                         <a href="" data-region="<?= $region ?>" data-activevalue="<?= $region ?>" onclick="filter_sidebar(this); return false;"><li><?= $region ?></li></a>
@@ -60,7 +65,7 @@ foreach ($ticket_statuses as $ticket_status) {
             </li>
         <?php } ?>
         <?php if(in_array('location',$search_fields) && !$is_customer) { ?>
-            <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_location">Location<span class="arrow"></span></a>
+            <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="<?= $equipment_view_parent ?>" data-toggle="collapse" data-target="#collapse_location">Location<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_location" style="overflow: hidden;">
                     <?php foreach($allowed_locations as $location) { ?>
                         <a href="" data-location="<?= $location ?>" data-activevalue="<?= $location ?>" onclick="filter_sidebar(this); return false;"><li><?= $location ?></li></a>
@@ -76,7 +81,7 @@ foreach ($ticket_statuses as $ticket_status) {
             </li>
         <?php } ?>
         <?php if(in_array('classification',$search_fields) && !$is_customer) { ?>
-            <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
+            <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="<?= $equipment_view_parent ?>" data-toggle="collapse" data-target="#collapse_classification">Classification<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_classification" style="overflow: hidden;">
                     <?php foreach($allowed_classifications as $i => $classification) { ?>
                         <a href="" data-region='<?= json_encode($classification_regions[$i]) ?>' data-classification="<?= $classification ?>" data-activevalue="<?= $classification ?>" onclick="filter_sidebar(this); return false;"><li><?= $classification ?></li></a>
@@ -91,12 +96,16 @@ foreach ($ticket_statuses as $ticket_status) {
                 </ul>
             </li>
         <?php } ?>
-        <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment"><?= $equipment_label ?><span class="arrow"></span></a>
-            <ul class="collapse dispatch-equipment-buttons" id="collapse_equipment" style="overflow: hidden;"></ul>
+        <li class="sidebar-higher-level"><a class="cursor-hand <?= $summary_tab != 1 ? '' : 'collapsed' ?>" data-parent="<?= $equipment_view_parent ?>" data-toggle="collapse" data-target="#collapse_equipment"><?= $equipment_label ?><span class="arrow"></span></a>
+            <ul class="collapse <?= $summary_tab != 1 ? 'in' : '' ?> dispatch-equipment-buttons" id="collapse_equipment" style="overflow: hidden;"></ul>
         </li>
         <li class="equip_active_li active_li sidebar-higher-level" data-accordion="collapse_equipment" style="display: none; padding-top: 0;">
             <ul class="collapse in" data-accordion="collapse_equipment"></ul>
         </li>
+        <?php if($summary_tab == 1) { ?>
+                </ul>
+            </li>
+        <?php } ?>
     </ul>
 </div>
 
@@ -114,6 +123,7 @@ foreach ($ticket_statuses as $ticket_status) {
                     <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $dispatch_icon_legend.$ticket_status_legend ?></div>
                     <img src="../img/legend-icon.png" class="dispatch-legend-img">
                 </div>
+                <a href="" onclick="retrieve_summary(this, 'VISIBLE'); return false;"><img class="dispatch-summary-icon inline-img pull-right btn-horizontal-collapse no-toggle gap-right visible_summary" src="../img/icons/pie-chart.png" title="" data-original-title="View Summary"></a>
             </div>
             <div class="search-fields" style="padding: 1em; display: none;">
                 <h4>Search Filters</h4>

@@ -16,14 +16,15 @@ if (isset($_POST['add_board'])) {
 
     if ( isset($_POST['new_newsboard_board']) && !empty($_POST['new_newsboard_board']) ) {
         $new_newsboard_board = filter_var($_POST['new_newsboard_board'],FILTER_SANITIZE_STRING);
-        mysqli_query($dbc, "INSERT INTO `newsboard_boards` (`board_name`, `shared_staff`) VALUES ('$new_newsboard_board', ',$contactid,')");
+        $query = "INSERT INTO `newsboard_boards` (`board_name`, `shared_staff`) VALUES ('$new_newsboard_board', ',$contactid,')";
+        mysqli_query($dbc, $query);
         $newsboard_board = mysqli_insert_id($dbc);
     } else {
         $newsboard_board = preg_replace('/[^0-9]/', '', $_POST['newsboard_board']);
     }
 
     $board_name_query = '';
-    if ( isset($_POST['board_name']) ) {
+    if (isset($newsboard_board) && $newsboard_board == 0 && isset($_POST['board_name']) ) {
         $board_name_query = ", `board_name`='". filter_var($_POST['board_name'],FILTER_SANITIZE_STRING) ."'";
     }
 

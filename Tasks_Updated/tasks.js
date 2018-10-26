@@ -333,3 +333,14 @@ function removeStaff(button) {
     $(button).closest('div#taskid_'+taskid).remove();
     $('div.add_staff').first().find('[name="task_userid[]"]').change();
 }
+
+function sync(tasklistid) {
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=is_sync&tasklistid="+tasklistid,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+			location.reload();
+		}
+	});
+}

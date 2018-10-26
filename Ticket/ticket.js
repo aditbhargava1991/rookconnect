@@ -9,6 +9,7 @@ ticket_reloading_service_checklist = '';
 finishing_ticket = false;
 var current_business = 0;
 var reload_services = false;
+var delay_notify = false;
 $(document).ready(function() {
 	// Mark fields manually set as manual
 	$('input').keyup(function() {
@@ -623,20 +624,8 @@ function saveFieldMethod(field) {
 					$.post('ticket_ajax_all.php?action=validate_address', { address: block.find('[name=address]').val(), city: block.find('[name=city]').val(), postal: block.find('[name=postal_code]').val() }, function(response) {
 						address_validation = response.split('|');
                         setTimeout(function() {
-                            if(address_validation.join('') != '' && (address_validation[0] != block.find('[name=address]').val() || address_validation[1] != block.find('[name=city]').val() || address_validation[2] != block.find('[name=postal_code]').val()) && (use_google_suggest === true || confirm('We suggest the following corrections to your address: '+address_validation.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.'))) {
-                                block.find('[name=address]').val(address_validation[0]).change();
-                                block.find('[name=city]').val(address_validation[1]).change();
-                                block.find('[name=postal_code]').val(address_validation[2]).change();
-                                use_google_suggest = true;
-                                suggest_from_google = false;
-                                setTimeout(function() {
-                                    suggest_from_google = true;
-                                }, 15000);
-                            } else if(address_validation.join('') == '' && use_google_suggest != 'no_update') {
-                                alert('The address provided may not be valid. It will not be found in Google Maps.');
-                                use_google_suggest = 'no_update';
-                            }
-                        }, 250);
+                            validate_address(address_validation, block);
+                        }, 1000);
 					});
 				}
 			} else if(field_name == 'type' && table_name == 'ticket_schedule') {
@@ -898,9 +887,9 @@ function saveFieldMethod(field) {
 						if($('#calendar_view').val() == 'true' && $('#new_ticket_from_calendar').val() == '1') {
 							window.parent.$('[name="calendar_iframe"]').off('load');
 							window.parent.$('[name="calendar_iframe"]').attr('src','../blank_loading_page.php');
-							window.parent.overlayIFrameSlider('../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
+							window.parent.overlayIFrameSlider('../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 						} else if($('#calendar_view').val() == 'true') {
-							var new_url = '../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
+							var new_url = '../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 							setTimeout(function() { reloadSidebarOnSaved(new_url); }, 250);
 						} else {
 							var new_url = '?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
@@ -1141,6 +1130,30 @@ function saveFieldMethod(field) {
 	});
 }
 
+function validate_address(address, block) {
+    if(delay_notify) {
+        setTimeout(function() {
+            validate_address(address, block);
+        }, 1000);
+        return;
+    }
+    delay_notify = true;
+    if(address.join('') != '' && (address[0] != block.find('[name=address]').val() || address[1] != block.find('[name=city]').val() || address[2] != block.find('[name=postal_code]').val()) && (use_google_suggest === true || confirm('We suggest the following corrections to your address: '+address.join(', ')+'. Would you like to use this suggestion? Using the current address may fail to display in Google Maps.'))) {
+        block.find('[name=address]').val(address[0]).change();
+        block.find('[name=city]').val(address[1]).change();
+        block.find('[name=postal_code]').val(address[2]).change();
+        use_google_suggest = true;
+        suggest_from_google = false;
+        setTimeout(function() {
+            suggest_from_google = true;
+        }, 15000);
+    } else if(address.join('') == '' && use_google_suggest != 'no_update') {
+        alert('The address provided may not be valid. It will not be found in Google Maps.');
+        use_google_suggest = 'no_update';
+    }
+    delay_notify = false;
+}
+
 function reloadOnSaved(url) {
 	if(current_fields.length == 0) {
 		no_verify = true;
@@ -1341,7 +1354,7 @@ function saveMethod(field) {
 				$('[name=contactid]').val(','+staff_ids.join(',')+',').change();
 			} else if(['address','city','postal_code','sort'].indexOf(field_name) >= 0) {
 				$.ajax({
-					url: 'add_ticket_maps.php?map_action=pickup_delivery&action_mode='+$('#action_mode').val(),
+					url: 'add_ticket_maps.php?map_action=pickup_delivery&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 					method: 'POST',
 					data: {
 						ticketid: ticketid
@@ -1558,7 +1571,7 @@ function saveMethod(field) {
 						if($('#calendar_view').val() == 'true') {
 							window.parent.$('[name="calendar_iframe"]').off('load');
 							window.parent.$('[name="calendar_iframe"]').attr('src','../blank_loading_page.php');
-							window.parent.overlayIFrameSlider('../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
+							window.parent.overlayIFrameSlider('../Ticket/index.php?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+'&calendar_view=true&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val()+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 						} else {
 							no_verify = true;
 							window.location.replace('?from='+from_url+new_ticket_url+'&ticketid='+current_ticketid+'&edit='+current_ticketid+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
@@ -1844,7 +1857,7 @@ function reload_checkin_checkin() {
 	console.log('checkin');
 	destroyInputs($('#collapse_ticket_checkin,#tab_section_ticket_checkin'));
 	$.ajax({
-		url: '../Ticket/add_ticket_checkin.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_ticket_checkin.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('#collapse_ticket_checkin .panel-body,#tab_section_ticket_checkin').html(response);
@@ -1858,7 +1871,7 @@ function reload_checkin_checkout() {
 	console.log('checkout');
 	destroyInputs($('#collapse_ticket_checkout,#tab_section_ticket_checkout'));
 	$.ajax({
-		url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('#collapse_ticket_checkout .panel-body,#tab_section_ticket_checkout').html(response);
@@ -1885,7 +1898,7 @@ function reload_checkin_staff_checkout() {
 	console.log('staff_checkout');
 	destroyInputs($('#collapse_ticket_checkout_staff,#tab_section_ticket_checkout_staff'));
 	$.ajax({
-		url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&staffcheckout=true',
+		url: '../Ticket/add_ticket_checkout.php?folder='+folder_name+'&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&staffcheckout=true'+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('#collapse_ticket_checkout_staff .panel-body,#tab_section_ticket_checkout_staff').html(response);
@@ -1899,7 +1912,7 @@ function reload_summary() {
 	if(!finishing_ticket) {
 		destroyInputs($('#collapse_summary,#tab_section_ticket_summary'));
 		$.ajax({
-			url: '../Ticket/add_ticket_summary.php?folder='+folder_name+'&ticketid='+ticketid+'&date='+$('[name=load_for_date]').val()+'&action_mode='+$('#action_mode').val(),
+			url: '../Ticket/add_ticket_summary.php?folder='+folder_name+'&ticketid='+ticketid+'&date='+$('[name=load_for_date]').val()+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 			dataType: 'html',
 			success: function(response) {
 				$('#collapse_summary .panel-body,#tab_section_ticket_summary').html(response);
@@ -1914,7 +1927,7 @@ function reload_summary() {
 function reload_documents() {
 	destroyInputs($('.document_table'));
 	$.ajax({
-		url: '../Ticket/add_ticket_view_documents.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_ticket_view_documents.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('.document_table').html(response);
@@ -1925,7 +1938,7 @@ function reload_documents() {
 }
 function reload_project_documents() {
 	$.ajax({
-		url: '../Ticket/add_ticket_view_documents.php?doc_type=project&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_ticket_view_documents.php?doc_type=project&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('.project_doc_table').html(response);
@@ -1934,7 +1947,7 @@ function reload_project_documents() {
 }
 function reload_contact_documents() {
 	$.ajax({
-		url: '../Ticket/add_ticket_view_documents.php?doc_type=contact&ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_ticket_view_documents.php?doc_type=contact&ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('.contact_doc_table').html(response);
@@ -1961,7 +1974,7 @@ function reload_customer_images() {
 }
 function reload_related() {
 	$.ajax({
-		url: '../Ticket/ticket_connected_list.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/ticket_connected_list.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('.connected_table').html(response);
@@ -1970,7 +1983,7 @@ function reload_related() {
 }
 function reload_delivery() {
 	$.ajax({
-		url: '../Ticket/add_ticket_delivery.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_ticket_delivery.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('#tab_section_ticket_delivery').html(response);
@@ -1983,7 +1996,7 @@ function reload_delivery() {
 function reload_service_checklist() {
 	destroyInputs($('.service_checklist'));
 	$.ajax({
-		url: '../Ticket/add_view_ticket_service_checklist.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_view_ticket_service_checklist.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('.service_checklist').html(response);
@@ -1999,7 +2012,7 @@ function reload_service_checklist() {
 function reload_hidden_services() {
 	destroyInputs($('.hidden_services'));
 	$.ajax({
-		url: '../Ticket/add_ticket_info_service.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&reload_hidden_services=1',
+		url: '../Ticket/add_ticket_info_service.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&reload_hidden_services=1'+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('.hidden_services').html(response);
@@ -2075,7 +2088,7 @@ function reload_needed_notes() {
 }
 function reload_notes(type, target) {
 	$.ajax({
-		url: '../Ticket/add_ticket_view_notes.php?ticketid='+ticketid+'&note_type='+type+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_ticket_view_notes.php?ticketid='+ticketid+'&note_type='+type+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$(target).html(response);
@@ -2085,7 +2098,7 @@ function reload_notes(type, target) {
 }
 function reload_attached_image() {
 	$.ajax({
-		url: '../Ticket/add_ticket_view_attached_image.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val(),
+		url: '../Ticket/add_ticket_view_attached_image.php?ticketid='+ticketid+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val(),
 		dataType: 'html',
 		success: function(response) {
 			$('.attached_image').html(response);
@@ -2104,7 +2117,7 @@ function reload_inventory() {
 	reload_sidebar();
 }
 function reload_sidebar() {
-	$('.tile-sidebar ul').load('../Ticket/edit_sidebar.php?ticketid='+ticketid+($('#action_mode').val() != '' ? '&action_mode='+$('#action_mode').val() : ''), function() {
+	$('.tile-sidebar ul').load('../Ticket/edit_sidebar.php?ticketid='+ticketid+($('#action_mode').val() != '' ? '&action_mode='+$('#action_mode').val() : '')+'&estimate_mode='+$('#estimate_mode').val(), function() {
 		$('.tile-sidebar ul').first().find('.standard-collapsible-link').closest('a').remove();
 		$('.tile-sidebar ul').first().prepend('<a href="" onclick="collapseStandardSidebar(); return false;"><li class="standard-collapsible-link"><h5><< Hide Menu</h5></li></a>');
 		$('[data-tab-target]').click(function() {
@@ -2429,7 +2442,7 @@ function addition() {
 			if($('#calendar_view').val() == 'true') {
 				window.parent.$('[name="calendar_iframe"]').off('load');
 				window.parent.$('[name="calendar_iframe"]').attr('src','../blank_loading_page.php');
-				window.parent.overlayIFrameSlider('../Ticket/index.php?ticketid='+response+'&edit='+response+'&calendar_view=true&action_mode='+$('#action_mode').val());
+				window.parent.overlayIFrameSlider('../Ticket/index.php?ticketid='+response+'&edit='+response+'&calendar_view=true&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val());
 			} else {
 				window.location.href = '?ticketid='+response+'&edit='+response+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 			}
@@ -2966,7 +2979,7 @@ function add_staff_task(checkin) {
 							if($('#calendar_view').val() == 'true') {
 								window.parent.$('[name="calendar_iframe"]').off('load');
 								window.parent.$('[name="calendar_iframe"]').attr('src','../blank_loading_page.php');
-								window.parent.overlayIFrameSlider('../Ticket/index.php?edit='+extra_id+'&ticketid='+extra_id+'&from='+from_url+'&calendar_view=true&action_mode='+$('#action_mode').val());
+								window.parent.overlayIFrameSlider('../Ticket/index.php?edit='+extra_id+'&ticketid='+extra_id+'&from='+from_url+'&calendar_view=true&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val());
 							} else {
 								window.location.href = '?edit='+extra_id+'&ticketid='+extra_id+'&from='+from_url+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 							}
@@ -3351,7 +3364,7 @@ function initLocks() {
 function addNote(type, btn, force_allow = 0) {
 	if(ticketid > 0) {
 		$(btn).nextAll().find('.ticket_comments,.extra_billing').first().addClass('reload');
-		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&comment='+type+'&action_mode='+$('#action_mode').val()+'&force_allow='+force_allow,'75%',false,true);
+		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&comment='+type+'&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val()+'&force_allow='+force_allow,'75%',false,true);
 	} else {
 		alert('Please create the '+ticket_name+' before adding notes.');
 	}
@@ -3369,7 +3382,7 @@ function addContactNote(btn, clientid = '', force_allow = 0) {
 		clientid = $('#clientid').val();
 	}
 	if(clientid > 0) {
-		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&contact_note=1&action_mode='+$('#action_mode').val()+'&clientid='+clientid+'&force_allow='+force_allow,'75%',false,true);
+		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&contact_note=1&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val()+'&clientid='+clientid+'&force_allow='+force_allow,'75%',false,true);
 	} else {
 		alert('Please select a Contact before adding notes.');
 	}
@@ -3379,7 +3392,7 @@ function addSiteNote(btn, siteid = '', force_allow = 0) {
 		siteid = $('#siteid').val();
 	}
 	if(siteid > 0) {
-		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&contact_note=1&action_mode='+$('#action_mode').val()+'&clientid='+siteid+'&force_allow='+force_allow,'75%',false,true);
+		overlayIFrameSlider('../Ticket/edit_ticket_tab.php?ticketid='+ticketid+'&edit='+ticketid+'&tab=ticket_comment&contact_note=1&action_mode='+$('#action_mode').val()+'&estimate_mode='+$('#estimate_mode').val()+'&clientid='+siteid+'&force_allow='+force_allow,'75%',false,true);
 	} else {
 		alert('Please select a Site before adding notes.');
 	}

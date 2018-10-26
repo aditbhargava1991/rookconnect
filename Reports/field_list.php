@@ -136,7 +136,8 @@ $marketing_reports = [
 $compensation_reports = [
 	'Adjustment Compensation'=>['report_compensation_adjustments.php','Adjustment Compensation','Adjustment Compensation','compensation_adjust'],
 	'Hourly Compensation'=>['report_hourly_compensation.php','Hourly Compensation','Hourly Compensation','compensation_hourly'],
-	'Therapist Compensation'=>['report_compensation.php','Therapist Compensation','Therapist Compensation','compensation_pt'],
+	'Staff Compensation'=>['report_compensation.php','Staff Compensation','Therapist Compensation','compensation_pt'],
+	'Vendor Compensation'=>['report_compensation_vendor.php','Vendor Compensation','Vendor Compensation','compensation_vendor'],
 	'Statutory Holiday Pay Breakdown'=>['report_stat_holiday_pay.php','Statutory Holiday Pay Breakdown','Statutory Holiday Pay Breakdown','compensation_statutory_breakdown'],
 	'Timesheet Payroll'=>['report_compensation_timesheet_payroll.php','Time Sheet Payroll','Timesheet Payroll','timesheet_payroll']
 ];

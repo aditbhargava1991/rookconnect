@@ -180,4 +180,5 @@ if (isset($_POST['printapptpdf'])) {
         </div>
 
         <?php $invoicetype = "'New','Refund','Adjustment'";
+        $contact_type = 'staff';
 		 include('compensation_display.php'); ?>

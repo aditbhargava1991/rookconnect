@@ -25,8 +25,8 @@ $dbc->query("UPDATE `taskboard_seen` SET `seen_date`=CURRENT_TIMESTAMP WHERE `co
 .new_task_box { border:1px solid #ACA9A9; margin:6px !important; padding:10px !important; }
 .flag_color_box{background-color: #fff;padding: 10px;min-width: 250px;position: absolute;left: 0;top: 40px;z-index: 1;border: 2px solid #878787;}
 </style>
-<!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet"> -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/js/bootstrap-colorpicker.js"></script>
+<link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-colorpicker/2.5.3/css/bootstrap-colorpicker.css" rel="stylesheet">
 <script type="text/javascript" src="tasks.js"></script>
 <script>
 $(document).ready(function() {
@@ -1113,6 +1113,7 @@ function addIntakeForm(btn) {
 
                                         echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="quick_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+																				echo in_array('timer', $quick_actions) ? '<span title="Sync to Scrum Board" onclick="sync('.$row['tasklistid'].'); return false;"><img src="../img/icons/ROOK-sync-icon.png" title="Sync to Scrum Board" class="inline-img no-toggle" title="Sync" onclick="return false;"></span>' : '';
                                         ?>
 
 									    <img class="inline-img no-toggle" title="History" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>&tasklistid=<?=$row['tasklistid']?>','auto',true,true);" src="../img/icons/eyeball.png">

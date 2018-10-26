@@ -49,7 +49,7 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		}
 		$salesorderid = filter_var($csv[0],FILTER_SANITIZE_STRING);
         if($current_order != $salesorderid && $current_order != '' && $date != '' && $ticketid > 0) {
-            $dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','warehouse','".$date."','".$to_do_end_time."','".$business_name."','".$bus_address."','".$bus_city."','".$bus_postal_code."','".$current_order."','$default_status')");
+            $dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','warehouse','".$date."','".$to_do_start_time."','".$to_do_start_time."','".$business_name."','".$bus_address."','".$bus_city."','".$bus_postal_code."','".$current_order."','$default_status')");
         }
 		$order_number = filter_var($csv[2],FILTER_SANITIZE_STRING);
 		$client_name = filter_var($csv[3],FILTER_SANITIZE_STRING);
@@ -60,24 +60,23 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 		$est_time = filter_var($csv[14],FILTER_SANITIZE_STRING);
 		$date = empty($to_do_date) ? $date : $to_do_date;
 		if($salesorderid == $current_order) {
-
-			$to_do_start_time = date('H:i',strtotime($to_do_start_time) + $duration * ceil((strtotime($est_time) - strtotime('00:00')) / $duration));
-            $to_do_end_time = date('H:i',strtotime($to_do_start_time) + strtotime($est_time) - strtotime('00:00'));
+            $to_do_start_time = $to_do_end_time;
+            $to_do_end_time = date('H:i',strtotime($to_do_start_time) + (empty($est_time) ? 300 : strtotime($est_time) - strtotime('00:00')));
 
 			echo "<!--Same Ticket...";
 		} else {
 			$current_order = $salesorderid;
-			$to_do_start_time = $warehouse_start_time;
+			$to_do_start_time = date('H:i',strtotime($warehouse_start_time));
 
-            $to_do_end_time = date('H:i',strtotime($to_do_start_time) + strtotime($est_time) - strtotime('00:00'));
+            $to_do_end_time = date('H:i',strtotime($to_do_start_time) + (empty($est_time) ? 300 : strtotime($est_time) - strtotime('00:00')));
 			echo "<!--INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`, `created_by`, `ticket_label`, `ticket_label_date`, `heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$salesorderid','".$_SESSION['contactid']."','$business_name - $salesorderid',NOW(),'$business_name - $salesorderid')";
 			$dbc->query("INSERT INTO `tickets` (`ticket_type`,`businessid`,`region`,`classification`, `salesorderid`, `created_by`, `ticket_label`, `ticket_label_date`, `heading`) VALUES ('$ticket_type','$businessid','$region','$classification','$salesorderid','".$_SESSION['contactid']."','$business_name - $salesorderid',NOW(),'$business_name - $salesorderid')");
 
 			$ticketid = $dbc->insert_id;
 			$ticket_list[] = $ticketid;
 			$dbc->query("INSERT INTO `ticket_history` (`ticketid`,`userid`,`src`,`description`) VALUES ($ticketid,".$_SESSION['contactid'].",'optimizer','Sleep Country macro imported ".TICKET_NOUN." $ticketid')");
-            $dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','warehouse','".$date."','".$warehouse_start_time."','".$business_name."','".$bus_address."','".$bus_city."','".$bus_postal_code."','".$current_order."','$default_status')");
-            $to_do_start_time = date('H:i', strtotime($to_do_start_time) + 300);
+            $dbc->query("INSERT INTO `ticket_schedule` (`ticketid`,`type`,`to_do_date`,`to_do_start_time`,`to_do_end_time`,`client_name`,`address`,`city`,`postal_code`,`order_number`,`status`) VALUES ('$ticketid','warehouse','".$date."','".$warehouse_start_time."','".$warehouse_start_time."','".$business_name."','".$bus_address."','".$bus_city."','".$bus_postal_code."','".$current_order."','$default_status')");
+            $to_do_start_time = date('H:i', strtotime($to_do_end_time) + 300);
 		}
         $to_do_end_time = date('H:i', strtotime($to_do_start_time) + ($service_est_time > 0 ? $service_est_time * 3600 : 1800));
 		$start_available = $to_do_start_time;
@@ -102,6 +101,9 @@ if(isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) {
 if((isset($_POST['upload_file']) && !empty($_FILES['csv_file']['tmp_name'])) || $_GET['access'] == 'prior') {
     if(empty($date) && !empty($_GET['date'])) {
         $date = $_GET['date'];
+    }
+    if(empty($ticket_type) && !empty($_GET['ticket_type'])) {
+        $ticket_type = $_GET['ticket_type'];
     } ?>
     <script src="../Calendar/map_sorting.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= DIRECTIONS_KEY ?>"></script>

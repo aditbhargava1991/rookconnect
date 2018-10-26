@@ -39,6 +39,8 @@ if (isset($_POST['add_tickets'])) {
     set_config($dbc, 'calendar_ticket_card_fields_summary', $calendar_ticket_card_fields_summary);
     $calendar_ticket_card_fields_summary_deleted = filter_var(implode(',',$_POST['calendar_ticket_card_fields_summary_deleted']), FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_card_fields_summary_deleted', $calendar_ticket_card_fields_summary_deleted);
+    $calendar_ticket_staff_summary_fields = filter_var(implode(',',$_POST['calendar_ticket_staff_summary_fields']), FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_staff_summary_fields', $calendar_ticket_staff_summary_fields);
     $calendar_ticket_status_icon = filter_var($_POST['calendar_ticket_status_icon'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_status_icon', $calendar_ticket_status_icon);
 
@@ -248,6 +250,13 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
                         <?php foreach($ticket_label_fields as $label_key => $label_field) { ?>
                             <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields_summary_deleted[]" value="<?= $label_key ?>" <?= in_array($label_key, $calendar_ticket_card_fields) ? 'checked' : '' ?>> <?= $label_field ?></label>
                         <?php } ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="checkmark_tickets" class="col-sm-4 control-label">Information to display on Staff Summary tabs:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_staff_summary_fields = explode(',',get_config($dbc, 'calendar_ticket_staff_summary_fields')); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_staff_summary_fields[]" value="client" <?= in_array('client', $calendar_ticket_staff_summary_field) ? 'checked' : '' ?>> Client</label>
                     </div>
                 </div>
             </div>

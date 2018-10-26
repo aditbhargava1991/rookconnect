@@ -225,7 +225,7 @@ $fields = explode(',',$get_hr['fields']); ?>
             <div class="standard-body-title">
                 <h3><?= $hrid > 0 ? 'Edit' : 'Create' ?> Form</h3>
             </div>
-            <div class="standard-body-content">
+            <div class="standard-body-content pad-10">
                 <div class="form-group">
                     <label class="col-sm-4 control-label">Form:</label>
                     <div class="col-sm-8">
@@ -281,8 +281,8 @@ $fields = explode(',',$get_hr['fields']); ?>
                     </div>
                 </div>
                 <?php include('hr_config.php'); ?>
-                <button class="pull-right btn brand-btn" name="submit" value="email">Send Email</button>
                 <button class="pull-right btn brand-btn" name="submit" value="">Submit</button>
+                <button class="pull-right btn brand-btn" name="submit" value="email">Send Email</button>
                 <div class="clearfix"></div>
             </div>
 		</form>

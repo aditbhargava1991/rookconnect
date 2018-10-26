@@ -151,7 +151,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
             <table class="table table-bordered table-striped">
                 <tr class="hidden-sm hidden-xs">
                     <th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?> (Click to View)</th>
-                    <th>Date</th>
+                    <th style="min-width: 7em;">Date</th>
                     <?php if(strpos($value_config, ',Customer,') !== FALSE) { ?>
                         <th>Customer</th>
                     <?php } ?>
@@ -244,7 +244,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                             $services_cost[$row_num] = [];
                             foreach(explode(',',$sched_line['serviceid']) as $i => $service) {
                                 if($service > 0) {
-                                    $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
+                                    $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0 WHERE `services`.`serviceid`='$service'")->fetch_assoc();
                                     $service_rate = 0;
                                     foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                                         $service_cust_rate = explode('#',$service_cust_rate);
@@ -278,7 +278,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                     $ticket_no_bill = explode(',',get_field_value('service_no_bill','tickets','ticketid',$ticket['ticketid']));
                     foreach(explode(',',$ticket['serviceid']) as $i => $service) {
                         if($service > 0) {
-                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' WHERE `services`.`serviceid`='$service' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0")->fetch_assoc();
+                            $service = $dbc->query("SELECT `services`.`serviceid`, `services`.`heading`, `rate`.`cust_price` FROM `services` LEFT JOIN `company_rate_card` `rate` ON `services`.`serviceid`=`rate`.`item_id` AND `rate`.`tile_name` LIKE 'Services' AND `start_date` < DATE(NOW()) AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') > DATE(NOW()) AND `cust_price` > 0 WHERE `services`.`serviceid`='$service'")->fetch_assoc();
                             $service_rate = 0;
                             foreach(explode('**',$cust_rate_card['services']) as $service_cust_rate) {
                                 $service_cust_rate = explode('#',$service_cust_rate);
@@ -292,6 +292,15 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                             $services_cost[$row_num + 1][] = $billable > 0 ? number_format(($qty[$i] > 0 ? $qty[$i] : 1) * ($service_rate > 0 ? $service_rate : $service['cust_price']),2) : '0.00';
                         }
 					}
+                    foreach($services_cost_num as $cost_details) {
+                        if(is_array($cost_details)) {
+                            foreach($cost_details as $cost_amt) {
+                                $total_cost += $cost_amt;
+                            }
+                        } else {
+                            $total_cost += $cost_amt;
+                        }
+                    }
                     for($i = 0; $i < $row_num || $i == 0; $i++) { ?>
                         <tr>
                             <?php if($i == 0) { ?>
@@ -307,10 +316,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                             <?php if(strpos($value_config, ',Status Summary,') !== FALSE) { ?>
                                 <td data-title="Status" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= strpos($value_config,',Delivery Rows,') !== false ? $status_list[$i] : implode('<br />',$status_list) ?></td>
                             <?php } ?>
-                            <?php if(strpos($value_config, ',Services,') !== FALSE) {
-                                foreach($services_cost_num[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num + 1] as $cost_amt) {
-                                    $total_cost += $cost_amt;
-                                } ?>
+                            <?php if(strpos($value_config, ',Services,') !== FALSE) { ?>
                                 <td data-title="Services" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= implode('<br />',$services[strpos($value_config, ',Delivery Rows,') !== FALSE ? $i : $row_num + 1]) ?></td>
                             <?php } ?>
                             <?php if(strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
@@ -326,10 +332,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
                                 <td data-title="Additional KM Charge" <?= ($i == $row_num - 1 || $row_num == 0) && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?>><?= number_format($total_travel_km,2) ?></td>
                             <?php } ?>
                             <?php if($i == 0) { ?>
-                                <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Services,') !== FALSE) {
-                                    foreach($services_cost_num[$row_num + 1] as $cost_amt) {
-                                        $total_cost += $cost_amt;
-                                    } ?>
+                                <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Services,') !== FALSE) { ?>
                                     <td data-title="<?= TICKET_NOUN ?> Services" <?= $i == 0 && strpos($value_config,',Delivery Rows,') !== false ? 'class="theme-color-border-bottom"' : '' ?> <?= strpos($value_config,',Delivery Rows,') !== false ? 'rowspan="'.($row_num > 0 ? $row_num : 1).'"' : '' ?>><?= implode('<br />',$services[$row_num + 1]) ?></td>
                                 <?php } ?>
                                 <?php if(strpos($value_config, ',Delivery Rows,') !== FALSE && strpos($value_config, ',Sub Totals per Service,') !== FALSE) { ?>
