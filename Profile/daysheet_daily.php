@@ -94,62 +94,9 @@ $(document).ready(function () {
         if($daysheet_styling != 'card') {
             echo '<ul id="reminders_daily">';
         }
+        $reminders_list = mysqli_fetch_all($reminders_list,MYSQLI_ASSOC);
         foreach ($reminders_list as $daysheet_reminder) {
-            $reminder_label = '';
-            if ($daysheet_reminder['type'] == 'reminder') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `reminders` WHERE `reminderid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_url = get_reminder_url($dbc, $reminder, 1);
-                $slider = 1;
-                if(empty($reminder_url)) {
-                    $slider = 0;
-                    $reminder_url = get_reminder_url($dbc, $reminder);
-                }
-                if(!empty($reminder_url)) {
-                    if($slider == 1) {
-                        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.$reminder_url.'\'); return false;">'.$reminder['subject'].'</a>';
-                    } else {
-                        $reminder_label = '<a href="'.$reminder_url.'">'.$reminder['subject'].'</a>';
-                    }
-                } else {
-                    $reminder_label = '<div class="daysheet-span">'.$reminder['subject'].'</div>';
-                }
-            } else if ($daysheet_reminder['type'] == 'sales') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$reminder['salesid'].'\'); return false;" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'sales_order') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order` WHERE `posid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Sales Order/index.php?p=preview&id='.$reminder['posid'].'" style="color: black;">Follow Up '.SALES_ORDER_NOUN.': '.($reminder['name'] != '' ? $reminder['name'] : SALES_ORDER_NOUN.' #'.$reminder['posid']).'</a>';
-            } else if ($daysheet_reminder['type'] == 'sales_order_temp') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order_temp` WHERE `sotid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Sales Order/order.php?p=details&sotid='.$reminder['sotid'].'" style="color: black;">Follow Up '.SALES_ORDER_NOUN.': '.($reminder['name'] != '' ? $reminder['name'] : SALES_ORDER_NOUN.' Form #'.$reminder['sotid']).'</a>';
-            } else if ($daysheet_reminder['type'] == 'estimate') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ea`.*, `e`.`estimate_name` FROM `estimate_actions` AS `ea` JOIN `estimate` AS `e` ON (`ea`.`estimateid`=`e`.`estimateid`) WHERE `ea`.`id` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="../Estimate/estimates.php?view='.$reminder['estimateid'].'" style="color: black;">Follow Up Estimate: '.$reminder['estimate_name'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'project') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `pa`.*, `p`.`project_name` FROM `project_actions` AS `pa` JOIN `project` AS `p` ON (`pa`.`projectid`=`p`.`projectid`) WHERE `pa`.`id` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'project_followup') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'certificate') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `certificate` WHERE `certificateid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Certificate/edit_certificate.php?edit='.$reminder['certificateid'].'\'); return false;" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'alert') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `alerts` WHERE `alertid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="'.$reminder['alert_link'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Alert: '.$reminder['alert_text'].' - '.$reminder['alert_link'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'incident_report') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'equipment_followup') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Follow Up Equipment ('.$reminder['category'].' #'.$reminder['unit_number'].'): Next Service Date coming up on '.$reminder['next_service_date'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'equipment_service') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Equipment Service Reminder ('.$reminder['category'].' #'.$reminder['unit_number'].'): Service Date scheduled for '.$reminder['next_service_date'].'</a>';
-            } else if ($daysheet_reminder['type'] == 'incident_report_flag') {
-                $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
-                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Flagged '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].(!empty($reminder['flag_label']) ? ' - '.$reminder['flag_label'] : '').'</a>';
-            }
+            $reminder_label = daysheet_get_reminder($dbc, $daysheet_reminder);
             if(!empty($reminder_label)) {
                 if($daysheet_styling == 'card') {
                     echo '<div class="col-xs-12 daysheet_row"><div class="col-xs-2" style="max-width: 35px;"><input style="position: relative; vertical-align: middle; top: 10px; height: 20px; width: 20px;" type="checkbox" name="daysheet_reminder" value="'.$daysheet_reminder['daysheetreminderid'].'" '.($daysheet_reminder['done'] == 1 ? 'checked="checked"' : '').'></div><div class="col-xs-10 block-group-daysheet"><span '.($daysheet_reminder['done'] == 1 ? 'style="text-decoration: line-through;"' : '').'>'.$reminder_label.'</span></div></div>';

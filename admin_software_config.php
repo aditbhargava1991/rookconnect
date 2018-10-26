@@ -891,6 +891,10 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'sign_in_time', 'admin'); ?>
                                     </tr>
                                     <tr>
+                                        <td data-title="Comment"><?= START_DAY ?></td>
+                                        <?php echo tile_config_function($dbc, 'start_day_button', 'admin'); ?>
+                                    </tr>
+                                    <tr>
                                         <td data-title="Comment">Time Clock</td>
                                         <?php echo tile_config_function($dbc, 'punch_card', 'admin'); ?>
                                     </tr>
@@ -1094,10 +1098,6 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'client_documentation', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Client Documents</td>
-                                        <?php echo tile_config_function($dbc, 'client_documents', 'admin'); ?>
-                                    </tr>
-                                    <tr>
                                         <td data-title="Comment">Contracts</td>
                                         <?php echo tile_config_function($dbc, 'contracts', 'admin'); ?>
                                     </tr>
@@ -1110,11 +1110,7 @@ checkAuthorised();
                                         <?php echo tile_config_function($dbc, 'day_program', 'admin'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Documents</td>
-                                        <?php echo tile_config_function($dbc, 'documents', 'admin'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Documents">Documents (Updated)</td>
+                                        <td data-title="Documents">Documents</td>
                                         <?php echo tile_config_function($dbc, 'documents_all', 'admin'); ?>
                                     </tr>
                                     <tr>
@@ -1128,10 +1124,6 @@ checkAuthorised();
                                     <tr>
                                         <td data-title="Daily Log Notes">Individual Service Plan (ISP)</td>
                                         <?php echo tile_config_function($dbc, 'individual_support_plan', 'admin'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Internal Documents</td>
-                                        <?php echo tile_config_function($dbc, 'internal_documents', 'admin'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Charts">Charts</td>
@@ -1148,10 +1140,6 @@ checkAuthorised();
                                     <tr>
                                         <td data-title="Daily Log Notes">Social Story</td>
                                         <?php echo tile_config_function($dbc, 'social_story', 'admin'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Staff Documents">Staff Documents</td>
-                                        <?php echo tile_config_function($dbc, 'staff_documents', 'admin'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Treatment Charts">Treatment Charts</td>
@@ -1251,10 +1239,6 @@ checkAuthorised();
                                         <td data-title="Comment">Intake Form</td>
                                         <?php echo tile_config_function($dbc, 'intake', 'admin'); ?>
                                     </tr>
-									<tr>
-										<td data-title="Comment">Marketing Material</td>
-										<?php echo tile_config_function($dbc, 'marketing_material', 'admin'); ?>
-									</tr>
 									<tr>
 										<td data-title="Comment">Sales</td>
 										<?php echo tile_config_function($dbc, 'sales', 'admin'); ?>

@@ -70,6 +70,13 @@ if(isset($_POST['update'])) {
 	} else {
 		$columns = ['po'=>1,'vendor'=>1,'line'=>1,'qty'=>1,'manual_qty'=>1,'site'=>1,'notes'=>1];
 	}
+	if(in_array('mark_unused',$manifest_fields)) {
+		foreach($_POST['mark_unused'] as $line_id) {
+			if($line_id > 0) {
+				mysqli_query($dbc, "UPDATE `ticket_attached` SET `used` = 0 WHERE `id` = '$line_id'");
+			}
+		}
+	}
 	foreach($_POST['include'] as $i => $line_id) {
 		if($line_id > 0) {
 			$row = $dbc->query("SELECT `tickets`.`ticket_label`,IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`,`origin`.`vendor`,`ticket_attached`.`po_line`,`ticket_attached`.`notes`,`inventory`.`inventoryid`,IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`,IFNULL(`ticket_attached`.`siteid`,`tickets`.`siteid`) `siteid`,IFNULL(`ticket_attached`.`weight`,'') `weight`,IFNULL(`ticket_attached`.`weight_units`,'') `weight_units` FROM `ticket_attached` LEFT JOIN `inventory` ON `ticket_attached`.`src_table`='inventory' AND `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `tickets` ON `ticket_attached`.`ticketid`=`tickets`.`ticketid` LEFT JOIN `ticket_schedule` `origin` ON `tickets`.`ticketid`=`origin`.`ticketid` AND `origin`.`type`='origin' WHERE `ticket_attached`.`id`='$line_id'")->fetch_assoc();
@@ -160,7 +167,8 @@ if(isset($_POST['update'])) {
 		if($siteid > 0) {
 			$site_notes = html_entity_decode($dbc->query("SELECT `notes` FROM `contacts_description` WHERE `contactid`='$siteid'")->fetch_assoc()['notes']);
 		}
-		foreach($lines as $i => $row) {
+		$i = 0;
+		foreach($lines as $key => $row) {
 			if(in_array('group pieces po',$manifest_fields)) {
 				$row['file'] = implode('<br />', array_unique(array_filter($row['file'])));
 				$row['vendor'] = implode('<br />', array_unique(array_filter($row['vendor'])));
@@ -187,6 +195,7 @@ if(isset($_POST['update'])) {
 				'.(in_array('notes',$manifest_fields) && $columns['notes'] > 0 ? '<td data-title="NOTES" style="text-align:center;">'.html_entity_decode($row['notes']).'</td>' : '').'
 			</tr>
 			<tr style="background-color:'.($i % 2 == 0 ? $row_colour_1 : $row_colour_2).'"><td style="font-size:5px;" colspan="'.$col_count.'">&nbsp;</td></tr>';
+			$i++;
 		}
 		$html .= '<tr style="border-top: 1px solid black;">
 			'.(in_array('file',$manifest_fields) ? '<td style="border-top: 1px solid black;"></td>' : '').'
@@ -238,7 +247,7 @@ if(isset($_POST['update'])) {
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('manifest/manifest_'.$manifestid.'_'.$revision.'.pdf', 'F');
 	echo "<script>
-	window.open('manifest/manifest_".$manifestid."_".$revision.".pdf');
+	window.top.open('manifest/manifest_".$manifestid."_".$revision.".pdf', '_blank');
 	window.location.replace('?tile_name=".$_GET['tile_name']."&tab=manifest&site=recent');
 	</script>";
 	// echo $html;
@@ -303,7 +312,7 @@ $col_count = 2; ?>
 	<table class="table table-bordered">
 		<tr class="hidden-sm hidden-xs">
 			<?php if(in_array('file',$manifest_fields)) { $col_count++; ?><th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?></th><?php } ?>
-			<th><?= SITES_CAT ?></th>
+			<?php if(in_array('site',$manifest_fields)) { ?><th><?= SITES_CAT ?></th><?php } ?>
 			<?php if(in_array('po',$manifest_fields)) { $col_count++; ?><th>PO</th><?php } ?>
 			<?php if(in_array('line',$manifest_fields)) { $col_count++; ?><th>Line Item</th><?php } ?>
 			<?php if(in_array('vendor',$manifest_fields)) { $col_count++; ?><th>Vendor / Shipper</th><?php } ?>
@@ -316,9 +325,13 @@ $col_count = 2; ?>
 		<?php foreach($line_item as $i => $item) {
 			$ticket = $dbc->query("SELECT `tickets`.`ticketid`, `tickets`.`ticket_label`, IF(`ticket_attached`.`siteid` IN ('0','',',,') OR `ticket_attached`.`siteid` IS NULL,IF(`piece`.`siteid` IN ('0','',',,') OR `piece`.`siteid` IS NULL,`tickets`.`siteid`,`piece`.`siteid`),`ticket_attached`.`siteid`) `siteid`, `ticket_attached`.`id`, `ticket_attached`.`notes`, IFNULL(`inventory`.`quantity`,`ticket_attached`.`qty`) `qty`, ".(in_array('group pieces po',$manifest_fields) ? "IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) `po_num`" : "GROUP_CONCAT(DISTINCT IFNULL(NULLIF(`ticket_attached`.`po_num`,''),`tickets`.`purchase_order`) SEPARATOR '#*#') `po_num`").", `ticket_attached`.`po_line`, `ticket_schedule`.`vendor`, GROUP_CONCAT(`ticket_attached`.`id` SEPARATOR ',') `piece_id`, GROUP_CONCAT(`ticket_attached`.`piece_type` SEPARATOR '#*#') `piece_types` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `inventory` ON `ticket_attached`.`item_id`=`inventory`.`inventoryid` LEFT JOIN `ticket_attached` `piece` ON `ticket_attached`.`line_id`=`piece`.`id` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`type`='origin' WHERE `ticket_attached`.`id`='$item'")->fetch_assoc();?>
 			<tr>
-				<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
-				<td data-title="<?= SITES_CAT ?>"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $siteid ?>', '75%', true, true); return false;"><?= $manifest_label ?></a></td>
-				<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO"><a href="line_item_views.php?po=<?= $ticket['po_num'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $ticket['po_num'] ?></a></td><?php } ?>
+				<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?<?= $current_tile ?>edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
+				<?php if(in_array('site',$manifest_fields)) { ?><td data-title="<?= SITES_CAT ?>"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $siteid ?>', '75%', true, true); return false;"><?= $manifest_label ?></a></td><?php } ?>
+				<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO">
+					<?php foreach(explode('#*#',$ticket['po_num']) as $po_num) { ?>
+						<a href="line_item_views.php?po=<?= $po_num ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $po_num ?></a><br />
+					<?php } ?>
+				</td><?php } ?>
 				<?php if(in_array('line',$manifest_fields)) { ?><td data-title="Line Item"><?= empty($ticket['po_line']) ? 'N/A' : $ticket['po_line'] ?></td><?php } ?>
 				<?php if(in_array('vendor',$manifest_fields)) { ?><td data-title="Vendor / Shipper"><?= $ticket['vendor'] > 0 ? '<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit='.$ticket['vendor'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">'.get_contact($dbc, $ticket['vendor'], 'name_company').'</a>' : '<a href="?edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(\'edit_ticket_tab.php?ticketid='.$ticket['ticketid'].'&tab=ticket_transport_origin\',\'auto\',true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img"></a>' ?></td><?php } ?>
 				<?php if(in_array('manual qty',$manifest_fields)) { ?><td data-title="Qty"><input type="number" placeholder="Available: <?= round($ticket['qty']+$qty[$i],3) ?>" name="qty[]" class="form-control" min="0" max="<?= $ticket['qty']+$qty[$i] > 0 ? $ticket['qty']+$qty[$i] : 0 ?>" value="<?= $qty[$i] ?>"></td><?php } ?>
@@ -326,8 +339,9 @@ $col_count = 2; ?>
 						<div style="display:inline-block;max-width:5em;"><input type="number" min="0" value="<?= count(explode(',',$ticket['piece_id'])) ?>" class="form-control" readonly></div>
 						<div style="display:none;">
 							<?php foreach(explode(',',$ticket['piece_id']) as $i => $piece) { ?>
-								<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" checked onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length);">Piece #<?= $dbc->query("SELECT COUNT(*) FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND (`pieces`.`po_num` < `ticket_attached`.`po_num` OR (`ticket_attached`.`po_num`=`pieces`.`po_num` AND (`pieces`.`po_line` < `ticket_attached`.`po_line` OR (`ticket_attached`.`po_line` = `pieces`.`po_line` AND `pieces`.`id` < `ticket_attached`.`id`))))")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
+								<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" checked onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length); if($(this).is(':checked')) { $(this).closest('td').find('[name=\'mark_unused[]\']').prop('disabled',true); } else { $(this).closest('td').find('[name=\'mark_unused[]\']').prop('disabled',false); }">Piece #<?= $dbc->query("SELECT COUNT(*) FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND (`pieces`.`po_num` < `ticket_attached`.`po_num` OR (`ticket_attached`.`po_num`=`pieces`.`po_num` AND (`pieces`.`po_line` < `ticket_attached`.`po_line` OR (`ticket_attached`.`po_line` = `pieces`.`po_line` AND `pieces`.`id` < `ticket_attached`.`id`))))")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
 							<?php } ?>
+							<input type="hidden" name="mark_unused[]" value="<?= $piece ?>" disabled>
 						</div>
 					</td><?php } ?>
 				<?php if(in_array('weight',$manifest_fields)) { ?><td data-title="Weight">
@@ -364,8 +378,8 @@ $col_count = 2; ?>
 			</tr>
 			<?php while($ticket = $new_lines->fetch_assoc()) { ?>
 				<tr class="new_row" style="display:none;">
-					<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
-					<td data-title="<?= SITES_CAT ?>"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $siteid ?>', '75%', true, true); return false;"><?= $manifest_label ?></a></td>
+					<?php if(in_array('file',$manifest_fields)) { ?><td data-title="<?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?>"><?php if($tile_security['edit'] > 0) { ?><a href="index.php?<?= $current_tile ?>edit=<?= $ticket['ticketid'] ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,true); return false;"><?= get_ticket_label($dbc, $ticket) ?></a><?php } else { echo get_ticket_label($dbc, $ticket); } ?></td><?php } ?>
+					<?php if(in_array('site',$manifest_fields)) { ?><td data-title="<?= SITES_CAT ?>"><a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $siteid ?>', '75%', true, true); return false;"><?= $manifest_label ?></a></td><?php } ?>
 					<?php if(in_array('po',$manifest_fields)) { ?><td data-title="PO"><a href="line_item_views.php?po=<?= $ticket['po_num'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><?= $ticket['po_num'] ?></a></td><?php } ?>
 					<?php if(in_array('line',$manifest_fields)) { ?><td data-title="Line Item"><?= empty($ticket['po_line']) ? 'N/A' : $ticket['po_line'] ?></td><?php } ?>
 					<?php if(in_array('vendor',$manifest_fields)) { ?><td data-title="Vendor / Shipper"><?= $ticket['vendor'] > 0 ? '<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit='.$ticket['vendor'].'" onclick="overlayIFrameSlider(this.href,\'auto\',true,true); return false;">'.get_contact($dbc, $ticket['vendor'], 'name_company').'</a>' : '<a href="?edit='.$ticket['ticketid'].'" onclick="overlayIFrameSlider(\'edit_ticket_tab.php?ticketid='.$ticket['ticketid'].'&tab=ticket_transport_origin\',\'auto\',true); return false;"><img src="../img/icons/ROOK-add-icon.png" class="inline-img"></a>' ?></td><?php } ?>
@@ -374,7 +388,7 @@ $col_count = 2; ?>
 							<div style="display:inline-block;max-width:5em;"><input type="number" min="0" value="0" class="form-control" readonly></div>
 							<div style="display:none;">
 								<?php foreach(explode(',',$ticket['piece_id']) as $i => $piece) { ?>
-									<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length);">Piece #<?= $dbc->query("SELECT COUNT(*) FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND (`pieces`.`po_num` < `ticket_attached`.`po_num` OR (`ticket_attached`.`po_num`=`pieces`.`po_num` AND (`pieces`.`po_line` < `ticket_attached`.`po_line` OR (`ticket_attached`.`po_line` = `pieces`.`po_line` AND `pieces`.`id` < `ticket_attached`.`id`))))")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
+									<label class="form-checkbox"><input type="checkbox" name="include[]" value="<?= $piece ?>" onchange="$(this).closest('td').find('[type=number]').val($(this).closest('td').find(':checked').length);">Piece #<?= $dbc->query("SELECT COUNT(*) count FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND `pieces`.`id` < `ticket_attached`.`id`")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i] ?></label>
 								<?php } ?>
 							</div>
 						</td><?php } ?>
@@ -391,7 +405,7 @@ $col_count = 2; ?>
 								$weight[] = $inv_weight.' '.$inv_weight_units[$id];
 							}
 							$weight = implode(', ', $weight); ?>
-							Piece #<?= $dbc->query("SELECT COUNT(*) FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND (`pieces`.`po_num` < `ticket_attached`.`po_num` OR (`ticket_attached`.`po_num`=`pieces`.`po_num` AND (`pieces`.`po_line` < `ticket_attached`.`po_line` OR (`ticket_attached`.`po_line` = `pieces`.`po_line` AND `pieces`.`id` < `ticket_attached`.`id`))))")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i].' - '.$weight ?><br />
+							Piece #<?= $dbc->query("SELECT COUNT(*) count FROM `ticket_attached` LEFT JOIN `ticket_attached` `pieces` ON `ticket_attached`.`ticketid`=`pieces`.`ticketid` WHERE `ticket_attached`.`id`='$piece' AND `pieces`.`deleted`=0 AND `pieces`.`id` < `ticket_attached`.`id`")->fetch_assoc()['count']+1 ?>: <?= explode('#*#',$ticket['piece_types'])[$i].' - '.$weight ?><br />
 						<?php } ?>
 					</td><?php } ?>
 					<?php if(in_array('notes',$manifest_fields)) { ?><td data-title="Notes"><?= $site_notes ?><input type="text" name="notes" data-table="ticket_attached" data-id="<?= $ticket['id'] ?>" data-multi-id="<?= $ticket['piece_id'] ?>" data-id-field="id" class="form-control" value="<?= strip_tags(html_entity_decode($ticket['notes'])) ?>"></td><?php } ?>

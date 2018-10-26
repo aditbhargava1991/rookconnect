@@ -77,7 +77,7 @@ function change_type() {
 		contact_type = $('[name="contact_type"]').val()+'*#*'+$('[name="security_level"]').val();
 		loadPanel();
 	<?php } else { ?>
-		window.location.href = 'index.php?settings=field_security&security_level='+security_level;
+		window.location.href = 'index.php?settings=field_security&security_level='+security_level+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 	<?php } ?>
 }
 $(document).on('change', 'select[name="security_level"]', function() { change_type(); });

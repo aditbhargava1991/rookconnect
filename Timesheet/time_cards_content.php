@@ -9,8 +9,8 @@ if(!empty($_GET['export'])) {
 	$layout = get_config($dbc, 'timesheet_layout');
 	$timesheet_time_format = get_config($dbc, 'timesheet_time_format');
 	$value_config = explode(',',get_field_config($dbc, 'time_cards'));
-	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array($layout, ['ticket_task','position_dropdown'])) {
-		$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+	if(!in_array('total_hrs',$value_config) && !in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array($layout, ['ticket_task','position_dropdown'])) {
+		$value_config = array_merge($value_config,['total_hrs']);
 	}
 	if(!empty($_GET['value_config'])) {
 		$value_config = explode(',',$_GET['value_config']);
@@ -787,7 +787,6 @@ if(isset($_GET['export']) && $_GET['export']=='csv') {
 
 $value = $config['settings']['Choose Fields for Time Sheets Dashboard'];
 ?>
-
 <script type="text/javascript" src="../Timesheet/timesheet.js"></script>
 <script type="text/javascript">
 function viewTicket(a) {
@@ -862,8 +861,8 @@ function addSignature(chk) {
 	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
 
 	$value_config = explode(',',get_field_config($dbc, 'time_cards'));
-	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
-		$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+	if(!in_array('total_hrs',$value_config) && !in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
+		$value_config = array_merge($value_config,['total_hrs']);
 	}
 	include('../Timesheet/pay_period_dates.php'); ?>
 
@@ -997,6 +996,21 @@ function addSignature(chk) {
 
 	<div class="pull-right" style="height:1.5em; margin:0.5em;"><a target="_blank" href="../Timesheet/time_cards.php?export=pdf&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a>
 	- <a href="../Timesheet/time_cards.php?export=csv&search_site=<?php echo $search_site; ?>&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" class="no-toggle" title="CSV" /></a></div>
+    <?php
+    $highlight = get_config($dbc, 'timesheet_highlight');
+    $mg_highlight = get_config($dbc, 'timesheet_manager');
+
+    $timesheet_legend = '<b>Color Code:</b><br>';
+        $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: red;"></div>Overlapping Time Conflict</label><br />';
+        $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: '.$mg_highlight.';"></div>Edit by Manager</label><br />';
+        $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: '.$highlight.';"></div>Edit by User</label><br />';
+    ?>
+
+    <div class="block-button offset-right-10 dispatch-legend-block pull-right" style="position: relative;">
+        <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $timesheet_legend ?></div>
+        <img src="../img/legend-icon.png" class="dispatch-legend-img">
+    </div>
+
 	<div class="clearfix"></div>
 
     <form name="timesheet" method="POST" action="add_time_cards.php">

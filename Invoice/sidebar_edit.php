@@ -30,7 +30,7 @@ $(document).ready(function() {
 <?php if(in_array('misc_items',$field_config) || in_array('unbilled_tickets',$field_config)) { ?>
     <a href="#inv_misc"><li>Miscellaneous</li></a>
 <?php } ?>
-<?php if(in_array('unbilled_tickets',$field_config)) { ?>
+<?php if(in_array_starts('unbilled_tickets',$field_config)) { ?>
     <a href="#inv_tickets"><li><?= TICKET_TILE ?></li></a>
 <?php } ?>
 <a href="#inv_summary"><li>Summary</li></a>

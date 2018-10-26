@@ -3,16 +3,21 @@ $(document).ready(function() {
 	$('.panel-heading').click(loadPanel);
 });
 function loadPanel() {
-	$('.panel-body').html('Loading...');
 	body = $(this).closest('.panel').find('.panel-body');
-	$.ajax({
-		url: $(body).data('file'),
-		method: 'POST',
-		response: 'html',
-		success: function(response) {
-			$(body).html(response);
-		}
-	});
+    if($(body).data('file') !== undefined) {
+        $('.panel-body').html('Loading...');
+        $.ajax({
+            url: $(body).data('file'),
+            method: 'POST',
+            response: 'html',
+            success: function(response) {
+                $(body).html(response);
+                loadingOverlayHide();
+            }
+        });
+    } else {
+        loadingOverlayHide();
+    }
 }
 </script>
 <div id='settings_accordions' class='sidebar show-on-mob panel-group block-panels col-xs-12'>
@@ -76,6 +81,21 @@ function loadPanel() {
 			</div>
 		</div>
 	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_subtab_groups">
+					Teams<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_subtab_groups" class="panel-collapse collapse">
+			<div class="panel-body" data-file="field_config_groups.php">
+				Loading...
+			</div>
+		</div>
+	</div>
 </div>
 <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
 	<ul>
@@ -90,6 +110,7 @@ function loadPanel() {
 		<a href="?settings=contacts"><li class="<?= $_GET['settings'] == 'contacts' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> <?= CONTACTS_TILE ?></li></a>
 		<a href="?settings=quick"><li class="<?= $_GET['settings'] == 'quick' ? 'active blue' : '' ?>">Quick Action Icons</li></a>
 		<a href="?settings=administration"><li class="<?= $_GET['settings'] == 'administration' ? 'active blue' : '' ?>">Administration</li></a>
+		<a href="?settings=groups"><li class="<?= $_GET['settings'] == 'groups' ? 'active blue' : '' ?>">Teams</li></a>
 	</ul>
 </div>
 <?php switch($_GET['settings']) {
@@ -122,6 +143,9 @@ function loadPanel() {
 		break;
 	case 'administration':
 		$body_title = 'Administration';
+		break;
+	case 'groups':
+		$body_title = 'Teams';
 		break;
 } ?>
 <div class="scale-to-fill has-main-screen hide-titles-mob">
@@ -157,6 +181,9 @@ function loadPanel() {
 				break;
 			case 'mandatory_fields':
 				include('field_config_mandatory_fields.php');
+				break;
+			case 'groups':
+				include('field_config_groups.php');
 				break;
 			default:
 				include('field_config_fields.php');

@@ -247,4 +247,18 @@ if($_GET['fill'] == 'update_ticket_status') {
         $result_update_employee = mysqli_query($dbc, $query_update_employee);
 		echo $query_update_employee;
 }
+
+if($_GET['fill'] == 'send_email') {
+    $commid = $_GET['commid'];
+    $comm_query = "select `from_email`, `from_name`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff` from email_communication where email_communicationid=$commid";
+    $comm_result = mysqli_fetch_assoc(mysqli_query($dbc, $comm_query));
+    $from_email = $comm_result['from_email'];
+    $from_name = $comm_result['from_name'];
+    $meeting_arr_email = explode(",", $comm_result['to_contact']);
+    $meeting_cc_arr_email = explode(",", $comm_result['cc_contact']);
+    $subject = $comm_result['subject'];
+    $from_name = $comm_result['from_name'];
+    $send_body = $comm_result['email_body'];
+    send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $subject, $send_body);
+}
 ?>

@@ -8,6 +8,13 @@ checkAuthorised('dispatch'); ?>
 <script type="text/javascript" src="../Dispatch/field_config.js"></script>
 
 <div class="form-group">
+    <label class="col-sm-4 control-label">Enable Summary Tab:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_summary_tab = get_config($dbc, 'dispatch_tile_summary_tab'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_summary_tab" <?= $dispatch_tile_summary_tab == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
     <label class="col-sm-4 control-label">Equipment Category:</label>
     <div class="col-sm-8">
         <?php 
@@ -34,6 +41,13 @@ checkAuthorised('dispatch'); ?>
     </div>
 </div>
 <div class="form-group">
+    <label class="col-sm-4 control-label">Group Equipment by Region:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_group_regions = get_config($dbc, 'dispatch_tile_group_regions'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_group_regions" <?= $dispatch_tile_group_regions == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
     <label class="col-sm-4 control-label">Combine Warehouse Stops:</label>
     <div class="col-sm-8">
         <?php $dispatch_tile_combine_warehouse = get_config($dbc, 'dispatch_tile_combine_warehouse'); ?>
@@ -48,6 +62,13 @@ checkAuthorised('dispatch'); ?>
     </div>
 </div>
 <div class="form-group">
+    <label class="col-sm-4 control-label">Don't Count Warehouse As Delivery Stop:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_dont_count_warehouse = get_config($dbc, 'dispatch_tile_dont_count_warehouse'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_dont_count_warehouse" <?= $dispatch_tile_dont_count_warehouse == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
     <label class="col-sm-4 control-label">Toggle All Equipment With <?= TICKET_TILE ?> When Changing Dates:</label>
     <div class="col-sm-8">
         <?php $dispatch_tile_reset_active = get_config($dbc, 'dispatch_tile_reset_active'); ?>
@@ -59,6 +80,13 @@ checkAuthorised('dispatch'); ?>
     <div class="col-sm-8">
         <?php $dispatch_tile_hide_empty = get_config($dbc, 'dispatch_tile_hide_empty'); ?>
         <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_hide_empty" <?= $dispatch_tile_hide_empty == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-4 control-label">Auto Refresh Data After Inactivity Time:</label>
+    <div class="col-sm-8"><?php
+        $dispatch_tile_auto_refresh = get_config($dbc, 'dispatch_tile_auto_refresh'); ?>
+        <input type="text" name="dispatch_tile_auto_refresh" class="timepicker form-control" value="<?= $dispatch_tile_auto_refresh ?>">
     </div>
 </div>
 <div class="form-group">
@@ -96,6 +124,19 @@ checkAuthorised('dispatch'); ?>
         $dispatch_tile_search_fields = explode(',',get_config($dbc, 'dispatch_tile_search_fields'));
         foreach($ticket_label_fields as $label_key => $label_field) { ?>
             <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_search_fields[]" value="<?= $label_key ?>" <?= in_array($label_key, $dispatch_tile_search_fields) ? 'checked' : '' ?>> <?= $label_field ?></label>
+        <?php } ?>
+    </div>
+</div>
+<div class="form-group">
+    <label class="col-sm-4 control-label">Equipment Fields:</label>
+    <div class="col-sm-8">
+        <?php $ticket_label_fields = [
+            'view_map'=>'View Map',
+            'next_stop'=>'Next Stop'
+        ];
+        $dispatch_tile_equipment_fields = explode(',',get_config($dbc, 'dispatch_tile_equipment_fields'));
+        foreach($ticket_label_fields as $label_key => $label_field) { ?>
+            <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_equipment_fields[]" value="<?= $label_key ?>" <?= in_array($label_key, $dispatch_tile_equipment_fields) ? 'checked' : '' ?>> <?= $label_field ?></label>
         <?php } ?>
     </div>
 </div>

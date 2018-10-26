@@ -64,7 +64,7 @@ if(isset($_POST['submit'])) {
     foreach(array_filter(explode(',',$_POST['to_other'])) as $to_other) {
         $to_other = trim($to_other);
         if(filter_var($to_other,FILTER_VALIDATE_EMAIL)) {
-            $all_emails[] = get_email($dbc, $to_other);
+            $all_emails[] = $to_other;
         }
     }
 
@@ -91,7 +91,7 @@ if(isset($_POST['submit'])) {
             }
         }
     }
-    foreach(array_filter(explode(',',$_POST['to_staff'])) as $user) {
+    foreach(array_filter(explode(',',$_POST['to_other'])) as $user) {
         $user = trim($user);
         if(filter_var($user,FILTER_VALIDATE_EMAIL)) {
             $body = str_replace(['[STAFF_NAME]'],[$user],$body);
@@ -230,6 +230,20 @@ switch($_GET['tile']) {
 		$body = "This is a reminder about a ".PROJECT_TILE.".<br />\n<br />
                 <a href='".WEBSITE_URL."/Project/projects.php?edit=$id&tile_name=project'>Click here</a> to see the ".PROJECT_TILE.".<br />\n<br />";
 		break;
+	case 'hr':
+		$type = $_GET['type'];
+		$id = $_GET['id'];
+		$assigned_staff = $_GET['staff'];
+        $details = [];
+        if($type == 'manual') {
+            $details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `manuals` WHERE `manualtypeid`='".$id."'"));
+        } else if($type == 'hr') {
+            $details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `hr` WHERE `hrid`='".$id."'"));
+        }
+        $heading = $details['third_heading'] != '' ? $details['third_heading_number'].' '.$details['third_heading'] : ($details['sub_heading'] != '' ? $details['sub_heading_number'].' '.$details['sub_heading'] : $details['heading_number'].' '.$details['heading']);
+        $subject = str_replace(['[CATEGORY]','[HEADING]'],[$details['category'],$heading],empty($details['email_subject']) ? 'Please Review this '.($type == 'hr' ? 'Form' : 'Manual') : $details['email_subject']);
+        $body = html_entity_decode(str_replace(['[CATEGORY]','[HEADING]'],[$details['category'],$heading],empty($details['email_message']) ? '<p>You have been assigned to complete a '.($type == 'hr' ? 'form' : 'manual').'. Please do so as soon as possible.</p>' : $details['email_message']).'<p>Click <a href="'.WEBSITE_URL.'/HR/index.php?'.$type.'='.$assign['hrid'].'">here</a> to complete the '.($type == 'hr' ? 'form' : 'manual').'.</p>');
+		break;
     default:
         $subject = $_GET['subject'];
 		$body = $_GET['body'];
@@ -259,7 +273,7 @@ switch($_GET['tile']) {
                         <?php $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
                         foreach($staff_list as $staff) {
                             if(!empty($staff['full_name']) && $staff['full_name'] != '-') { ?>
-                                <option value="<?= $staff['contactid']; ?>"><?= $staff['full_name'] ?></option>
+                                <option <?= $staff['contactid'] == $assigned_staff ? 'selected' : '' ?> value="<?= $staff['contactid']; ?>"><?= $staff['full_name'] ?></option>
                             <?php }
                         } ?>
                     </select>

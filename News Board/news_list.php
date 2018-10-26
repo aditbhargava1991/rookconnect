@@ -6,7 +6,7 @@
  * Query Variables Accepted: board, tag, type
  * Scripts on index.php
  */
- 
+
 include('../include.php');
 include('../database_connection_htg.php');
 
@@ -38,7 +38,10 @@ if ( $board->num_rows > 0 ) {
             </h3>
             <?php if ( vuaed_visible_function($dbc, 'newsboard') == 1 ) { ?>
                 <div class="pull-right">
-                        <span class="header-icon"><img src="../img/icons/ROOK-trash-icon.png" alt="Archive" title="Archive News Board" class="cursor-hand no-toggle double-gap-top gap-right archive_board" /></span>
+                  <span title="Tag Staff" onclick="quick_tag_staff('<?= $url_boardid ?>'); return false;">
+                    <img src="../img/icons/ROOK-tag-icon.png" title="Tag Staff" style="width:30%" class="cursor-hand no-toggle double-gap-top gap-right" onclick="return false;">
+                  </span>
+                  <span class="header-icon"><img src="../img/icons/ROOK-trash-icon.png" alt="Archive" title="Archive News Board" class="cursor-hand no-toggle double-gap-top gap-right" /></span>
                 </div>
             <?php } ?>
             <div class="clearfix"></div>
@@ -59,13 +62,37 @@ if ( $board->num_rows > 0 ) {
                         if ( !empty($row['document_link']) ) {
                             echo '<div class="nb-img"><a href="index.php?board='.$url_boardid.'&tag='.$url_tag.'&news='.$row['newsboardid'].'&type='.$url_type.'"><img src="download/'.$row['document_link'].'" /></a></div>';
                         } ?>
+                        <?php
+                        $roles = explode(",", $_SESSION['role']);
+                        if(in_array('super', $roles) || in_array('admin', $roles)) {
+                          echo '<span class="action-icons full-width">
+                            <span title="Tag Staff" onclick="quick_tag_staff('.$url_boardid.','.$row["newsboardid"].'); return false;">
+                              <img src="../img/icons/ROOK-tag-icon.png" title="Tag Staff" class="inline-img no-toggle" onclick="return false;">
+                            </span>
+                          </span>';
+                        }
+                        else {
+                          $session_contact = $_SESSION['contactid'];
+                          $boardid = $url_boardid;
+                          $newsboardid = $row['newsboardid'];
+                          $select_query = "SELECT staff from newsboard_tag where boardid=$boardid and newsboardid=$newsboardid";
+                          $select_newsboard = explode(",", mysqli_fetch_assoc(mysqli_query($dbc, $select_query))['staff']);
+                          if(in_array($session_contact, $select_newsboard)) {
+                            echo '<span class="action-icons full-width">
+                              <span title="Untag Yourself" onclick="untag_yourself('.$url_boardid.','.$row["newsboardid"].','.$session_contact.'); return false;">
+                                <img src="../img/icons/ROOK-tag-icon.png" title="Untag Yourself" class="inline-img no-toggle" onclick="return false;">
+                              </span>
+                            </span>';
+                          }
+                        }
+                        ?>
                     </div>
                 </div><?php
             }
         } else {
             echo '<h4>No records found.</h4>';
         }
-    
+
     } else {
         echo '<h4>Select a News Board to view news items.</h4>';
     } ?>
@@ -74,3 +101,25 @@ if ( $board->num_rows > 0 ) {
 <?php if ( isset($_GET['mobile']) && $_GET['mobile'] == 'yes' ) {
     die();
 } ?>
+<script>
+function quick_tag_staff(boardid, newsboardid = '') {
+  if(newsboardid == '') {
+    overlayIFrameSlider('tag_staff.php?tile=tasks&boardid='+boardid, 'auto', false, false);
+  }
+  else {
+    overlayIFrameSlider('tag_staff.php?tile=tasks&boardid='+boardid+'&newsboardid='+newsboardid, 'auto', false, false);
+  }
+}
+
+function untag_yourself(boardid, newsboardid, contactid) {
+  confirm("Are you sure, you want to untag yourself from this post ?");
+  $.ajax({
+      type: 'GET',
+      dataType: 'html',
+      url: 'news_ajax_all.php?fill=untag&boardid='+boardid+'&newsboardid='+newsboardid+'&contactid='+contactid,
+      success: function(response) {
+          window.reload();
+      }
+  });
+}
+</script>

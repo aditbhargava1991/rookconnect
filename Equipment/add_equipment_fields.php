@@ -354,9 +354,59 @@ function filterClassifications() {
 <?php $temp_value = 'Serial #'; ?>
 <?php if (strpos($value_config, ','."Serial #".',') !== FALSE) { ?>
 <div class="form-group">
-<label for="phone_number" class="col-sm-4 control-label"><?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? '<span class="text-red">* </span>' : ''); ?>Serial #<span class="brand-color">*</span>:</label>
+<label for="phone_number" class="col-sm-4 control-label"><?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? '<span class="text-red">* </span>' : ''); ?>Serial #:</label>
 <div class="col-sm-8">
   <input name="serial_number" type="text" value="<?php echo $serial_number; ?>" class="<?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? 'mandatory' : ''); ?> form-control"/>
+</div>
+</div>
+<?php } ?>
+
+<?php $temp_value = 'Part Serial'; ?>
+<?php if (strpos($value_config, ','."Part Serial".',') !== FALSE) { ?>
+<script>
+function add_serial_number(btn) {
+    var part = $(btn).closest('.part_group').clone();
+    part.find('input').val('');
+    $(btn).closest('.part_group').after(part);
+    initTooltips();
+}
+function rem_serial_number(btn) {
+    if($('.part_group').length <= 1) {
+        add_serial_number(btn);
+    }
+    $(btn).closest('.part_group').remove();
+    initTooltips();
+}
+</script>
+<div class="form-group">
+<label for="phone_number" class="col-sm-4 control-label"><?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? '<span class="text-red">* </span>' : ''); ?>Parts / Engine Serial #:</label>
+<div class="col-sm-8">
+    <label class="pull-right" style="width:5em;"><img src="../img/empty.png"></label>
+    <div class="scale-to-fill hide-titles-mob">
+        <label class="col-sm-7 text-center">Part Description</label>
+        <label class="col-sm-5 text-center">Serial #</label>
+    </div>
+    <div class="clearfix"></div>
+    <?php $part_serial_names = explode('#*#', $part_serial_names);
+    foreach(explode('#*#',$part_serials) as $i => $part_serial) { ?>
+        <div class="part_group form-group">
+            <div class="pull-right" style="width:5em;">
+                <img src="../img/remove.png" class="pull-right cursor-hand inline-img no-toggle" title="Remove Part Serial #" onclick="rem_serial_number(this);">
+                <img src="../img/icons/ROOK-add-icon.png" class="pull-right cursor-hand inline-img no-toggle" title="Add Part Serial #" onclick="add_serial_number(this);">
+            </div>
+            <div class="scale-to-fill">
+                <div class="col-sm-7">
+                    <label class="show-on-mob">Part Description:</label>
+                    <input name="part_serial_names[]" type="text" value="<?php echo $part_serial_names[$i]; ?>" class="<?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? 'mandatory' : ''); ?> form-control"/>
+                </div>
+                <div class="col-sm-5">
+                    <label class="show-on-mob">Serial #:</label>
+                    <input name="part_serials[]" type="text" value="<?php echo $part_serial; ?>" class="<?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? 'mandatory' : ''); ?> form-control"/>
+                </div>
+            </div>
+            <div class="clearfix"></div>
+        </div>
+    <?php } ?>
 </div>
 </div>
 <?php } ?>

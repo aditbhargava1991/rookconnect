@@ -1,4 +1,4 @@
-<?php 
+<?php
 include('../include.php');
 ob_clean();
 
@@ -201,9 +201,11 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0");echo "INSERT INTO `general_configuration` SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0";
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value' WHERE `name`='$name'");
 } else if($_GET['action'] == 'load_ticket_details') {
+	$value_config = ','.get_config($dbc, 'project_admin_fields').',';
 	$ticketid = $_POST['ticketid'];
 
 	$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `tickets`.*, SUM(`ticket_schedule`.`id`) `deliveries` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 AND IFNULL(`ticket_schedule`.`serviceid`,'') != '' WHERE `tickets`.`ticketid` = '$ticketid'"));
+	$total_service_price = 0;
 	if($ticket['ticketid'] > 0) { ?>
 		<?php if(!empty($ticket['serviceid']) || $ticket['deliveries'] > 0) { ?>
 			<div class="form-group clearfix hide-titles-mob">
@@ -260,6 +262,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
             }
             $price += ($fuel / $qty);
             $price -= (($dis_type == '%' ? $discount / 100 * $price_total : $discount) / $qty);
+            $total_service_price += $price;
             $service_details = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service'")); ?>
             <div class="dis_service form-group">
                 <div class="col-sm-3">
@@ -341,6 +344,39 @@ if(!empty($_GET['action']) && $_GET['action'] == 'invoice_values') {
 				<input type="hidden" name="misc_ticketid[]" value="<?= $ticketid ?>">
 			</div>
 		<?php }
+        if(strpos($value_config, ',Additional KM Charge,') !== FALSE) {
+            $travel_km = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`hours_travel`) `travel_km` FROM `ticket_attached` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0"))['travel_km'];
+            $total_travel_km = $total_service_price * $travel_km;
+            if($total_travel_km > 0) {
+				if(!$misc_headings) {
+					$misc_headings = true; ?>
+					<div class="form-group clearfix hide-titles-mob">
+						<label class="col-sm-5 text-center">Product Name</label>
+						<label class="col-sm-3 text-center">Price</label>
+		                <label class="col-sm-1 text-center">Qty</label>
+		                <label class="col-sm-3 text-center">Total</label>
+					</div>
+				<?php }
+                $description = 'Additional KM Charge';
+                $qty = 1;
+                $price = $total_travel_km; ?>
+				<div class="dis_misc form-group">
+					<div class="col-sm-5">
+						<input type="text" readonly name="misc_item[]" value="<?= $description ?>" class="form-control misc_name">
+					</div>
+					<div class="col-sm-3">
+						<input type="text" readonly name="misc_price[]" value="<?= $price ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_price">
+					</div>
+					<div class="col-sm-1">
+						<input type="text" readonly name="misc_qty[]" value="<?= $qty ?>" onchange="setThirdPartyMisc(this); countTotalPrice()" class="form-control misc_qty">
+					</div>
+					<div class="col-sm-3">
+						<input type="text" readonly name="misc_total[]" value="<?= $price * $qty ?>" class="form-control misc_total">
+					</div>
+					<input type="hidden" name="misc_ticketid[]" value="<?= $ticketid ?>">
+				</div>
+            <?php }
+        }
 	}
 } else if($_GET['action'] == 'void_invoice') {
     $invoiceid = preg_replace('/[^0-9]/', '', $_POST['invoiceid']);
@@ -426,7 +462,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	}else{
 		$logo = dirname(__FILE__).'/'.$logo;
 	}
-	
+
 	$invoice_header = get_config($dbc, 'invoice_header');
 	if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_header_'.$point_of_sell['type']))) {
 	    $invoice_header = get_config($dbc, 'invoice_header_'.$point_of_sell['type']);
@@ -453,6 +489,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	$stripAddress = html_entity_decode($invoice_header, ENT_QUOTES, "UTF-8");
 
 	if($_GET['format']=='xsl'){
+
 		ini_set('display_errors', 1);
 		ini_set('display_startup_errors', 1);
 		error_reporting(E_ALL);
@@ -539,6 +576,36 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		$objPHPExcel->getActiveSheet()->getStyle('K16:L16')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 
 		$excelRowNumber = 17;
+
+		//$html .= '<p style="text-align:left;">Box 2052, Sundre, AB, T0M 1X0<br>Phone: 403-638-4030<br>Fax: 403-638-4001<br>Email: info@highlandprojects.com<br>Work Ticket# : </p>';
+		if($point_of_sell['invoice_date'] !== '') {
+			$tdduedate = '<td>'.date('Y-m-d', strtotime($roww['invoice_date'] . "+30 days")).'</td>';
+			$thduedate = '<td>Due Date</td>';
+		} else { $tdduedate = ''; $thduedate = ''; }
+		$html .= '<table style="width:100%;" id="invoiceData">
+					<tr>
+						<td style="text-align:left;">
+							<table style="width:100%;"><tr><td colspan="6">BILL TO :</td></tr><tr><td colspan="6">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).($customer['mailing_address']!='' ? '<br>'.$customer['mailing_address']:'').($customer['city']!='' ? '<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code']:'').(decryptIt($customer['cell_phone'])!='' ? '<br>'.decryptIt($customer['cell_phone']):'').(decryptIt($customer['email_address'])!='' ? '<br>'.decryptIt($customer['email_address']):'').'</td></tr>
+							</table>
+						</td>
+
+						<td colspan ="6" style="text-align:right;">
+							<table style="width:100%;"><tr><td align="right" colspan ="6">INVOICE # : '.$invoiceid.'</td></tr><tr><td align="right"  colspan ="6">INVOICE DATE : '.$point_of_sell['invoice_date'].'<br>DUE DATE : '.$point_of_sell['due_date'].'</td></tr>
+							</table>
+						</td>
+					</tr>
+				</table>';
+
+		$html .= '<br /><table border="1px" style="width:100%; padding:3px; border:1px solid grey;">
+				<tr nobr="true"><td style="text-align:center;" colspan="4">ORDERED BY</td><td style="text-align:center;" colspan="4">P.O. NO.</td><td style="text-align:center;" colspan="4">Area</tr>
+		<tr><td style="text-align:center;" colspan="4">'.SALESPERSON.'</td><td style="text-align:center;" colspan="4">'.$point_of_sell['po_num'].'</td><td style="text-align:center;" colspan="4">'.$point_of_sell['area'].'</td></tr>
+		</table><br />';
+
+		$html .= '<table border="0x" style="width:100%;padding:3px;">
+			<tr nobr="true" style="color:black;  width:22%; border:1px solid grey;">';
+
+		$html .= '<th colspan="2" align="left">TICKET NO.</th><th colspan="2" align="left">LOCATION</th><th colspan="2" align="left">DESCRIPTION</th><th colspan="2" align="left">HRS - QTY</th><th colspan="2" align="left">RATE</th><th colspan="2" align="right">AMOUNT</th></tr>';
+
 		// START INVENTORY & MISC PRODUCTS
 		$result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'inventory' AND item_id IS NOT NULL");
 		$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'misc product'");
@@ -575,7 +642,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 
 					$excelRowNumber++;
 				}
-		        
+
 		        $returned_amt += $price * $returned;
 			}
 
@@ -752,12 +819,33 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 			$excelRowNumber++;
 		}
 
+
 		if ( !empty($couponid) || $coupon_value!=0 ) {
 			$objPHPExcel->getActiveSheet()->mergeCells('A'.$excelRowNumber.':J'.$excelRowNumber.'')->setCellValue('A'.$excelRowNumber.'', $objWizard->toRichTextObject('<b>Coupon Value</b>'));
 			$objPHPExcel->getActiveSheet()->getStyle('A'.$excelRowNumber.':J'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
 
 			$objPHPExcel->getActiveSheet()->mergeCells('K'.$excelRowNumber.':L'.$excelRowNumber.'')->setCellValue('K'.$excelRowNumber.'', $objWizard->toRichTextObject('$'.$point_of_sell['coupon_value']));
 			$objPHPExcel->getActiveSheet()->getStyle('K'.$excelRowNumber.':L'.$excelRowNumber.'')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
+
+				if($pdf_tax != '') {
+					$html .= $pdf_tax;
+					//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
+				}
+
+				$total_returned_amt = 0;
+		        if($returned_amt != 0) {
+					$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
+		            $total_returned_amt = $returned_amt + ($returned_amt * $total_tax_rate);
+		            $html .= '<tr><td align="right" width="90%" colspan="10"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$total_returned_amt.'</td></tr>';
+				}
+
+
+				$html .= '<tr><td align="right" width="90%" colspan="10"><strong>Total</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
+				if($point_of_sell['deposit_paid'] > 0) {
+					$html .='<tr><td align="right" width="90%" colspan="10"><strong>Deposit Paid</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['deposit_paid'].'</td></tr>';
+					$html .='<tr><td align="right" width="90%" colspan="10"><strong>Updated Total</strong></td><td align="right" border="1" width="10%" style="" colspan="2">$'.$point_of_sell['updatedtotal'].'</td></tr>';
+				}
+
 
 			$excelRowNumber++;
 		}
@@ -927,7 +1015,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 		$returned_amt = 0;
 		$num_rows = mysqli_num_rows($result);
 		$num_rows2 = mysqli_num_rows($result2);
-		
+
 		if($num_rows > 0 || $num_rows2 > 0) {
 			$j = $countItems;
 			while ( $row = mysqli_fetch_array ( $result ) ) {
@@ -1111,7 +1199,7 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 				$taxCount++;
 			}
 		}
-        
+
 		$total_returned_amt = 0;
         if($returned_amt != 0) {
 			$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);

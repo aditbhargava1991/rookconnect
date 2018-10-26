@@ -108,7 +108,7 @@
 	<h3><?= PROJECT_NOUN ?> Documents</h3>
 	<div class="notice double-gap-top double-gap-bottom popover-examples">
 		<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL ?>/img/info.png" class="wiggle-me" width="25"></div>
-		<div class="col-sm-11"><span class="notice-name">NOTE: </span>Add and view all documents and links added to this project. Multiple documents can be selected by clicking on the Browse button, and then clicking on Ctrl button while selecting the files. Multiple links can be added pressing Enter key after typing each link. Documents and Links are auto saved when you select/type them.</div>
+		<div class="col-sm-11"><span class="notice-name">NOTE: </span>Add and view all documents and links added to this project.</div>
 		<div class="clearfix"></div>
 	</div>
 	<div id="no_more_tables">
@@ -150,7 +150,7 @@
 			<?php } ?>
             </table>
         <?php } else { ?>
-            <a href="" class="btn brand-btn pull-left" onclick="$('.add_doc').show(); return false;">Add Document or Link</a>
+            <a href="" class="btn brand-btn pull-left" onclick="$('.add_doc').show(); $(this).hide(); return false;">Add Document or Link</a>
         <?php } ?>
 	</div>
 	<?php if($security['edit'] > 0) { ?>
@@ -190,7 +190,7 @@
                 </div>
                 <a href="" class="btn brand-btn pull-right" onclick="saveLink(); return false;">Save Link</a>
             </div>
-            <?php $row_sales_docs_query = mysqli_query($dbc, "SELECT salesdocid, document_type, document FROM sales_document WHERE salesid='$salesid'");
+            <?php $row_sales_docs_query = mysqli_query($dbc, "SELECT salesdocid, document_type, document FROM sales_document WHERE salesid='$salesid' AND `salesid` > 0 AND `deleted`=0");
             if ($row_sales_docs_query->num_rows>0) {
                 echo '<ul>';
                 while ($row_sales_doc=mysqli_fetch_assoc($row_sales_docs_query)) { ?>

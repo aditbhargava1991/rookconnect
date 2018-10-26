@@ -3,7 +3,7 @@
 Dashboard
 */
 include_once('../include.php');
-error_reporting(0);
+error_reporting();
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 $get_ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND '$ticketid' > 0"));
 $ticket_type = $get_ticket['ticket_type'];
@@ -90,7 +90,7 @@ $titles = [
 							if($name == '' || $name == '-') {
 								$name = 'Admin';
 							} ?>
-							<td data-title="Date"><?= $ticket['created_date'] ?></td>
+							<td data-title="Date"><?= convert_timestamp_mysql($dbc, $ticket['created_date'], true) ?></td>
 							<td data-title="User"><?= $name ?></td>
 							<td data-title="Description"><?= TICKET_NOUN ?> Created</td>
 						</tr>
@@ -106,11 +106,21 @@ $titles = [
 								$description = $history['description'];
 							} ?>
 							<tr>
-								<td data-title="Date"><?= $history['date'] ?></td>
+								<td data-title="Date"><?= convert_timestamp_mysql($dbc, $history['date'], true) ?></td>
 								<td data-title="User"><?= $name ?></td>
 								<td data-title="Description"><?= html_entity_decode($description); ?></td>
 							</tr>
 						<?php } ?>
+						<tr>
+							<?php $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `created_by`, `created_date` FROM `tickets` WHERE `ticketid`='$ticketid' AND `ticketid` > 0"));
+							$name = get_contact($dbc, $ticket['created_by']);
+							if($name == '' || $name == '-') {
+								$name = 'Admin';
+							} ?>
+							<td data-title="Date"><?= $ticket['created_date'] ?></td>
+							<td data-title="User"><?= $name ?></td>
+							<td data-title="Description"><?= TICKET_NOUN ?> Created</td>
+						</tr>
 					</table>
 	        	<?php } else {
 	        		echo '<div class="customer_div">';
@@ -132,7 +142,7 @@ $titles = [
     	<?php } ?>
 	</div>
 </div>
-<?php 
+<?php
 function get_ticket_block($dbc, $ticket, $history_fields) {
 	$html = '';
 	$field_exists = false;
@@ -156,6 +166,6 @@ function get_ticket_block($dbc, $ticket, $history_fields) {
 			<div class="col-sm-12">Notes: '.$notes_html.'</div>';
 	}
 
-	$html = '<div class="block-group"><a style="color:black !important;" href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'"><b style="margin-top: 0;">'.get_ticket_label($dbc, $ticket).'</a></b>'.$html.'<div class="clearfix"></div></div>';
+	$html = '<div class="block-group"><a style="color:black !important;" href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'"><b style="margin-top: 0;">'.get_ticket_label($dbc, $ticket).'</a></b>'.$html.'<div class="clearfix"></div></div>';
 	return $html;
 }

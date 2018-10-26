@@ -23,14 +23,29 @@ $(document).ready(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').is(':visible')) {
 			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
+            var note_height = '';
+            var note_height_project = '';
+            if ( $('.standard-dashboard-body-title .notice').is(':visible') ) {
+                note_height = -10;
+                note_height_project = 15;
+            } else {
+                note_height = 25;
+                note_height_project = 50;
+            }
 			if(available_height > 200) {
-				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
+				$('.main-screen .main-screen, .has-main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
 				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
-                $('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
+                //$('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
+                $('#scrum_tickets').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title:visible').outerHeight() - $('.standard-body-title:visible').outerHeight() - $('.dashboard_heading').outerHeight() - $('footer:visible').outerHeight() + note_height);
+                $('.has-dashboard.dashboard-container.ui-sortable').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title:visible').outerHeight() - $('.standard-body-title').outerHeight() - $('footer:visible').outerHeight() + note_height_project);
+                $('.scrollable_unit').outerHeight($('#scrum_tickets').outerHeight() - $('.info-block-header').outerHeight() - 25);
+                $('.has-dashboard.dashboard-container.ui-sortable').css({'padding-bottom':'0', 'padding-top':'8px'});
+                $('.has-dashboard .dashboard-list').css({'margin-bottom':'-10px', 'overflow-y':'hidden'});
+                $('.has-dashboard .dashboard-list ul.dashboard-list').css('overflow-y','scroll');
 			}
-            var sidebar_height = $('.tile-sidebar').outerHeight(true);
-            $('.has-main-screen .main-screen').css('min-height', sidebar_height);
+            //var sidebar_height = $('.tile-sidebar').outerHeight(true);
+            //$('.has-main-screen .main-screen').css('min-height', sidebar_height);
 		}
 	}).resize();
 
@@ -125,8 +140,14 @@ function popUpClosed() {
 		<div class="main-screen">
 			<div class="tile-header">
                 <div class="pull-right settings-block">
+                    <?php
+                    $taskboardid = 0;
+                    if(!empty($_GET['category']) && $_GET['category'] != 'All') {
+                        $taskboardid = $_GET['category'];
+                    }
+                    ?>
                     <div class="pull-right gap-left"><a href="field_config_project_manage.php?category=how_to"><img src="<?= WEBSITE_URL ?>/img/icons/settings-4.png" class="settings-classic wiggle-me" width="30" /></a></div>
-                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add <?= TASK_NOUN ?> Board</button></a></div>
+                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>&taskboardid=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add <?= TASK_NOUN ?> Board</button></a></div>
                     <!-- <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?category=<?=$_GET['category']?>&tab=<?=$_GET['tab']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div> -->
 
                     <?php
@@ -162,7 +183,7 @@ function popUpClosed() {
                     $heading = 'Summary';
                 }
                 ?>
-                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_TILE ?> : </a><?php echo $heading;?></h1></div>
+                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_TILE ?>: </a><?php echo $heading;?></h1></div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
 
@@ -389,7 +410,8 @@ function popUpClosed() {
                                 echo '<ul id="my_tasks" class="top-ul collapse '.(trim($_GET['tab']) == 'Private' ? 'in' : '').'">';
                                     while ( $row_mytasks=mysqli_fetch_assoc($result_mytasks) ) {
 
-                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row_mytasks['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row_mytasks['taskboardid']}' AND tb.board_security='Private' AND tl.created_by = (". $_SESSION['contactid'] .") AND tl.deleted=0 AND tb.deleted=0"));
+                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row_mytasks['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row_mytasks['taskboardid']}' AND tb.board_security='Private' AND (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND tl.deleted=0 AND tb.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00')"));
+
                                         $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
                                         echo '<a href="?category='. $row_mytasks['taskboardid'] .'&tab='. $row_mytasks['board_security'] .'">
@@ -463,10 +485,12 @@ function popUpClosed() {
 									echo '<ul id="board_'.$tab.'" class="top-ul collapse '.(trim($_GET['tab']) == $tab ? 'in' : '').'">';
 										$result = sort_contacts_query($dbc->query("SELECT `sales`.`salesid`, `contacts`.`first_name`, `contacts`.`last_name`, `bus`.`name`, IFNULL(`taskboard_seen`.`seen_date`,'0000-00-00') `seen` FROM `sales` LEFT JOIN `contacts` ON `sales`.`contactid`=`contacts`.`contactid` LEFT JOIN `contacts` `bus` ON `sales`.`businessid`=`bus`.`contactid` LEFT JOIN `taskboard_seen` ON `taskboard_seen`.`taskboardid`=`sales`.`salesid` AND `taskboard_seen`.`tab`='sales' WHERE `sales`.`deleted`=0"));
 										foreach($result as $row) {
-											$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.salesid='{$row['salesid']}' AND tl.deleted=0"));
+											$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.salesid='{$row['salesid']}' AND tl.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND task_milestone_timeline = ''"));
 											$task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
-											echo '<a href="?category='. $row['salesid'] .'&tab='.$tab.'"><li class="'.($_GET['category']==$row['salesid'] && $_GET['tab'] == $tab ? 'active' : '').'">'.$row['name'].($row['name'] != '' && $row['first_name'].$row['last_name'] != '' ? ': ' : '').$row['first_name'].' '.$row['last_name'].'<span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
+                                            if($row['name'] != '' || $row['first_name'] != '') {
+											    echo '<a href="?category='. $row['salesid'] .'&tab='.$tab.'"><li class="'.($_GET['category']==$row['salesid'] && $_GET['tab'] == $tab ? 'active' : '').'">'.$row['name'].($row['name'] != '' && $row['first_name'].$row['last_name'] != '' ? ': ' : '').$row['first_name'].' '.$row['last_name'].'<span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
+                                            }
 										}
 									echo '</ul>';
 								echo '</li>';
@@ -474,7 +498,7 @@ function popUpClosed() {
                             } else if ( $security == 'Company' ) { // Shared Task
                                 $result = mysqli_query($dbc, "SELECT `task_board`.`taskboardid`, `board_name`, `board_security`, `company_staff_sharing`, IFNULL(`seen_date`,'0000-00-00') `seen` FROM `task_board` LEFT JOIN `taskboard_seen` ON `task_board`.`taskboardid`=`taskboard_seen`.`taskboardid` AND `taskboard_seen`.`contactid`='{$_SESSION['contactid']}' AND IFNULL(`taskboard_seen`.`tab`,'$tab') = '$tab' WHERE `board_security`='". $security ."' AND `company_staff_sharing` LIKE '%,". $contactid .",%' AND `deleted`=0");
 
-                                if ( $result->num_rows > 0 ) {
+                                // if ( $result->num_rows > 0 ) {
                                     if ( $task_name=='Company Tasks' ) {
                                         $task_name = 'Shared '.TASK_TILE;
                                     }
@@ -482,7 +506,7 @@ function popUpClosed() {
                                     $shared_task_staff = '';
 
                                     while ( $row=mysqli_fetch_assoc($result) ) {
-                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.task_milestone_timeline<>'' AND tl.deleted=0 AND tb.deleted=0"));
+                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.deleted=0 AND tb.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.task_path >0"));
 
                                         $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
@@ -515,7 +539,7 @@ function popUpClosed() {
 
                                         echo '</ul>';
                                     echo '</li>';
-                                }
+                                //}
 
                             } else if($security == 'path') { // Project Tasks
                                 echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == $tab ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#board1_'.$tab.'" data-parent="#desktop_accordions" href="javascript:void(0);">'.PROJECT_NOUN. ' '.TASK_TILE.'<span class="arrow"></span></a>';
@@ -530,6 +554,10 @@ function popUpClosed() {
                                 while ( $row=mysqli_fetch_assoc($result) ) {
                                     $projectid = $row['projectid'];
 
+								    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.projectid='$projectid' AND tl.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00')"));
+
+                                    $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
+
                                     echo '<li class="sidebar-higher-level"><a class="'.(trim($_GET['tab'])==$tab && trim($_GET['edit'])==$projectid ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#shared_boards_'.$projectid.'">'.$row['project_name'].' <span class="arrow"></span></a>';
 
                                     $project_path = $row['project_path'];
@@ -542,9 +570,9 @@ function popUpClosed() {
                                         echo '<a href="?category='. $projectid .'&tab=path&pathid=I|'.$projectpathid.'&edit='.$projectid.'">';
 
                                         $ex_projectpathid = explode('|',$_GET['pathid']);
-                                        echo '<li data-target="#board923_'.$project_path.'" class="sidebar-lower-level  '.(($ex_projectpathid[1]==$projectpathid) && (trim($_GET['edit'])==$projectid) ? 'active' : 'collapsed').'" style="padding-left: 50px;">'. $main_path;
+                                        echo '<li data-target="#board923_'.$project_path.'" class="sidebar-lower-level  '.(($ex_projectpathid[1]==$projectpathid) && (trim($_GET['edit'])==$projectid) ? 'active' : 'collapsed').'">'. $main_path;
 
-                                        echo '</li></a>';
+                                        echo '<span class="pull-right pad-right">'. $task_count .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
 
                                     }
                                     echo '</ul>';
@@ -567,7 +595,7 @@ function popUpClosed() {
                                     echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == $tab ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#board_'.$tab.'" data-parent="#desktop_accordions" href="javascript:void(0);">'. $task_name .'<span class="arrow"></span></a>';
                                         echo '<ul id="board_'.$tab.'" class="top-ul collapse '.(trim($_GET['tab']) == $tab ? 'in' : '').'">';
                                             while ( $row=mysqli_fetch_assoc($result) ) {
-                                                $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.task_milestone_timeline<>'' AND tl.deleted=0 AND tb.deleted=0"));
+                                                $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.deleted=0 AND tb.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00')"));
                                                 $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
                                                 echo '<a href="?category='. $row['taskboardid'] .'&tab='.$tab.'"><li class="'.($_GET['category']==$row['taskboardid'] ? 'active' : '').'">'. $row['board_name'] .'<span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
@@ -591,7 +619,7 @@ function popUpClosed() {
 
             <div class="main-content-screen scale-to-fill has-main-screen hide-titles-mob">
                 <div class="loading_overlay" style="display:none;"><div class="loading_wheel"></div></div>
-                <div class="main-screen standard-dashboard-body override-main-screen form-horizontal">
+                <div class="main-screen standard-dashboard-body override-main-screen form-horizontal no-overflow">
 
                     <div class="standard-dashboard-body-title"><?php
                         $url_cat = filter_var($_GET['category'], FILTER_VALIDATE_INT);

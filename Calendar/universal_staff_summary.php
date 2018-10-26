@@ -158,7 +158,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 	                            if(!empty($region_colours[$region_line])) {
 	                                $color_styling = $region_colours[$region_line];
 	                            }
-	                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right;"></span>';
+	                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
 	                            echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-activevalue='".$region."' data-region='".$region."'>".$region.$color_box."</div></a>";
 	                        } ?>
 	                        </div>

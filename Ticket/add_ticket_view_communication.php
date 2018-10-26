@@ -11,7 +11,7 @@ if(isset($_GET['ticketid']) && empty($ticketid)) {
 }
 
 if($communication_method == 'email') {
-	$msgs = mysqli_query($dbc, "SELECT * FROM `email_communication` WHERE `ticketid`='$ticketid' AND `communication_type`='$communication_type' AND `deleted`=0");
+	$msgs = mysqli_query($dbc, "SELECT * FROM `email_communication` WHERE `ticketid`='$ticketid' AND `communication_type`='$communication_type' AND `deleted`=0 ORDER BY `email_communicationid` DESC");
 }
 $msg_count = mysqli_num_rows($msgs);
 $msg_table = '<a href="" target="_blank" class="pull-right no-toggle" title="Download Communication Log PDF"><img src="'.WEBSITE_URL.'/img/pdf.png" class="inline-img"></a><div class="clearfix"></div>';

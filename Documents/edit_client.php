@@ -91,20 +91,22 @@ if (isset($_POST['add_client_documents'])) {
 
     for($i = 0; $i < count($_FILES['upload_document']['name']); $i++) {
         $document = str_replace(',','',htmlspecialchars($_FILES["upload_document"]["name"][$i], ENT_QUOTES));
+        $document_link_name = filter_var($_POST["document_link_name"][$i],FILTER_SANITIZE_STRING);
 
         if($document != '') {
             move_uploaded_file($_FILES["upload_document"]["tmp_name"][$i], "download/".$_FILES["upload_document"]["name"][$i]) ;
 
-            $query_insert_client_doc = "INSERT INTO `client_documents_uploads` (`client_documentsid`, `type`, `document_link`) VALUES ('$client_documentsid', 'Document', '$document')";
+            $query_insert_client_doc = "INSERT INTO `client_documents_uploads` (`client_documentsid`, `type`, `document_link`, `document_link_name`) VALUES ('$client_documentsid', 'Document', '$document', '$document_link_name')";
             $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
         }
     }
 
     for($i = 0; $i < count($_POST['support_link']); $i++) {
         $support_link = $_POST['support_link'][$i];
+        $support_link_name = filter_var($_POST["support_link_name"][$i],FILTER_SANITIZE_STRING);
 
         if($support_link != '') {
-            $query_insert_client_doc = "INSERT INTO `client_documents_uploads` (`client_documentsid`, `type`, `document_link`) VALUES ('$client_documentsid', 'Link', '$support_link')";
+            $query_insert_client_doc = "INSERT INTO `client_documents_uploads` (`client_documentsid`, `type`, `document_link`, `document_link_name`) VALUES ('$client_documentsid', 'Link', '$support_link', '$support_link_name')";
             $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
         }
     }
@@ -166,6 +168,9 @@ $(document).ready(function() {
 
 <?php
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT client_documents FROM field_config"));
+    if(empty($get_field_config['client_documents'])) {
+        $get_field_config['client_documents'] = 'Client Documents Type,Category,Title,Uploader,Link';
+    }
     $value_config = ','.$get_field_config['client_documents'].',';
 
     $client_documents_type = '';
@@ -382,18 +387,30 @@ $(document).ready(function() {
 					} else {
 						$download_link = 'download/'.$row['document_link'];
 					}
-                    echo '<li><a href="'.$download_link.'" target="_blank">'.$row['document_link'].'</a> - <a href="?tile_name='.$tile_name.'&tab='.$_GET['tab'].'&certuploadid='.$certuploadid.'&edit='.$client_documentsid.'"> Delete</a></li>';
+                    echo '<li><a href="'.$download_link.'" target="_blank">'.$row['document_link_name'].' : '.$row['document_link'].'</a> - <a href="?tile_name='.$tile_name.'&tab='.$_GET['tab'].'&certuploadid='.$certuploadid.'&edit='.$client_documentsid.'"> Delete</a></li>';
                     echo '</ul>';
                 }
             }
         }
         ?>
+        <div class="form-group clearfix">
+            <div class="col-sm-5">
+                Attchment
+            </div>
+            <div class="col-sm-5">
+                Name
+            </div>
+        </div>
+
         <div class="enter_cost additional_doc clearfix">
             <div class="clearfix"></div>
 
             <div class="form-group clearfix">
                 <div class="col-sm-5">
-                    <input name="upload_document[]" multiple type="file" data-filename-placement="inside" class="form-control" />
+                    <input name="upload_document[]" type="file" data-filename-placement="inside" class="form-control" />
+                </div>
+                <div class="col-sm-5">
+                    <input name="document_link_name[]" type="text" class="form-control" />
                 </div>
             </div>
 
@@ -412,7 +429,7 @@ $(document).ready(function() {
 <?php if (strpos($value_config, ','."Link".',') !== FALSE) {
 ?>
 <div class="form-group">
-    <label for="additional_note" class="col-sm-4 control-label">Link(s):<br><em>(e.g. - https://www.google.com)</em>
+    <label for="additional_note" class="col-sm-4 control-label">Link(s):<br><em>(e.g. - http://www.google.com)</em>
     </label>
     <div class="col-sm-8">
         <?php
@@ -425,19 +442,30 @@ $(document).ready(function() {
                 while($row = mysqli_fetch_array($result)) {
                     $certuploadid = $row['certuploadid'];
                     echo '<ul>';
-                    echo '<li><a target="_blank" href=\''.$row['document_link'].'\'">Link '.$link_no.'</a> - <a href="?tile_name='.$tile_name.'&tab='.$_GET['tab'].'&certuploadid='.$certuploadid.'&edit='.$client_documentsid.'"> Delete</a></li>';
+                    echo '<li><a target="_blank" href=\''.$row['document_link'].'\'">'.$row['document_link_name'] .' : Link  '.$link_no.'</a> - <a href="?tile_name='.$tile_name.'&tab='.$_GET['tab'].'&certuploadid='.$certuploadid.'&edit='.$client_documentsid.'"> Delete</a></li>';
                     echo '</ul>';
                     $link_no++;
                 }
             }
         }
         ?>
+    <div class="form-group clearfix">
+        <div class="col-sm-5">
+            Link
+        </div>
+        <div class="col-sm-5">
+            Name
+        </div>
+    </div>
         <div class="enter_cost additional_link clearfix">
             <div class="clearfix"></div>
 
             <div class="form-group clearfix">
                 <div class="col-sm-5">
-                    <input name="support_link[]" type="text" class="form-control">
+                    <input name="support_link[]" type="text" placeholder="Full URL including http:// or https://" class="form-control">
+                </div>
+                <div class="col-sm-5">
+                    <input name="support_link_name[]" type="text" class="form-control">
                 </div>
             </div>
 

@@ -371,7 +371,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	<?php }
 	if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS))) {
 		ob_clean();
-		header('Location: index.php');
+		header('Location: index.php'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']));
 		exit();
 	} ?>
 	<script>
@@ -518,6 +518,28 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		}
 	}
 
+	//Estimate Mode Fields
+	if($_GET['estimate_mode'] == 1) {
+		$value_config_all = $value_config;
+		$value_config = ','.get_config($dbc, 'ticket_estimate_fields').',';
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_estimate_fields_'.$ticket_type).',';
+		}
+		if(empty(trim($value_config,','))) {
+			$value_config = $value_config_all;
+		} else {
+			foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+				if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+					$value_config .= ','.$action_mode_ignore_field;
+				}
+			}
+			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+		}
+        foreach($estimate_mode_restrict as $remove_field) {
+            $value_config = str_replace($remove_field.',','',$value_config);
+        }
+	}
+
 	//Overview Fields
 	if($_GET['overview_mode'] == 1) {
 		$value_config_all = $value_config;
@@ -623,7 +645,19 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 		$strict_view = 1;
 	}
-	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
+	if((isset($_GET['intake_key']) && !($ticketid > 0)) || $_GET['estimate_mode'] > 0) {
+		$access_project = true;
+		$access_staff = true;
+		$access_contacts = true;
+		$access_waitlist = true;
+		$access_staff_checkin = true;
+		$access_all_checkin = true;
+		$access_medication = true;
+		$access_complete = true;
+		$access_services = true;
+		$access_all = true;
+		$access_any = true;
+    } else if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
 		$access_project = false;
 		$access_staff = false;
 		$access_contacts = false;
@@ -755,7 +789,17 @@ if(!empty($_GET['endtime'])) {
 	$to_do_end_time = $_GET['endtime'];
 }
 
-$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = '".$sort_field."'"))['accordion_name'];
+$acc_label_id = $sort_field;
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_destination') {
+    $acc_label_id = 'Transport Destination';
+}
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_origin') {
+    $acc_label_id = 'Transport Origin';
+}
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_details') {
+    $acc_label_id = 'Transport Carrier';
+}
+$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = '".$acc_label_id."'"))['accordion_name'];
 if(!empty($renamed_accordion)) {
 	$acc_label = $renamed_accordion;
 }

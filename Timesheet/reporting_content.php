@@ -247,6 +247,8 @@ function viewTicket(a) {
 
                 <?php } ?>
 
+                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/excel_reporting.php?export=excel&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/POS_XSL.png" style="height:100%; margin:0;" class="no-toggle" title="Excel" /></a>
+
     			<!--
                 - <a href="<?= WEBSITE_URL ?>/Timesheet/time_cards.php?export=csv" title="CSV"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" /></a>
                 -->
@@ -271,6 +273,9 @@ function viewTicket(a) {
             echo get_egs_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$search_staff);
         } else {
             echo get_hours_report($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, '', $config['hours_types']);
+        }
+        if(in_array('summary',explode(',',get_config($dbc, 'timesheet_report_options')))) {
+            echo get_hours_report_summary($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, '', $config['hours_types']);
         }
         ?>
 

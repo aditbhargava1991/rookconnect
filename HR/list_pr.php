@@ -72,7 +72,7 @@ $num_rows = mysqli_num_rows($result);
         <div class="clearfix"></div>
         <div class="standard-body-content" style="padding: 1.5em;">
             <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-                <div class="col-sm-5">
+                <div class="col-sm-6">
                     <label class="col-sm-12">Form:
                         <div class="col-sm-8 pull-right"><select name="select_form" class="chosen-select-deselect form-control">
                             <option></option>
@@ -93,12 +93,12 @@ $num_rows = mysqli_num_rows($result);
                         </select></div>
                     </label>
                 </div>
-                <div class="col-sm-5">
+                <div class="col-sm-6">
                     <label class="col-sm-12">Since:
                         <div class="col-sm-8 pull-right"><input type="text" name="select_date" class="form-control datepicker" value="<?= $select_date ?>"></div>
                     </label>
                 </div>
-                <div class="col-sm-2">
+                <div class="pull-right gap">
                     <p style="font-size: 0.6em;"></p>
                     <button type="submit" name="search_pr" class="btn brand-btn">Submit</button>
                     <button type="submit" name="search_all" class="btn brand-btn">Display All</button>

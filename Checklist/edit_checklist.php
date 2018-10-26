@@ -23,7 +23,7 @@ if (isset($_POST['tasklist'])) {
 		$client_projectid = substr($projectid,1);
 		$projectid = '';
 	}
-    if($projectid = '') {
+    if($projectid == '') {
 		$projectid = 0;
     }
     $project_milestone = filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING);
@@ -142,12 +142,12 @@ if (isset($_POST['tasklist'])) {
 
         insert_day_overview($dbc, $_SESSION['contactid'], 'Checklist', date('Y-m-d'), '', 'Updated Checklist '.$checklist_name, $checklistid);
     }
-    if(!empty($_POST['project_milestone'])) {
-        mysqli_query($dbc, "UPDATE `checklist` SET `project_milestone` = '".filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
-        if(!($projectid > 0)) {
-            mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
-        }
-    }
+    // if(!empty($_POST['project_milestone'])) {
+    //     mysqli_query($dbc, "UPDATE `checklist` SET `project_milestone` = '".filter_var($_POST['project_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+    //     if(!($projectid > 0)) {
+    //         mysqli_query($dbc, "UPDATE `checklist` SET `projectid` = '".filter_var($_POST['projectid_from_path'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
+    //     }
+    // }
     if(!empty($_POST['sales_milestone'])) {
         mysqli_query($dbc, "UPDATE `checklist` SET `sales_milestone` = '".filter_var($_POST['sales_milestone'],FILTER_SANITIZE_STRING)."' WHERE `checklistid` = '$checklistid'");
     }
@@ -419,10 +419,10 @@ function removeNewRow2(button) {
 
         echo '<input type="hidden" id="from" name="from" value="project" />';
     }
-    if(!empty($_GET['project_milestone'])) {
-        echo '<input type="hidden" name="project_milestone" value="'.urldecode($_GET['project_milestone']).'">';
-        echo '<input type="hidden" name="projectid_from_path" value="'.$_GET['projectid'].'">';
-    }
+    // if(!empty($_GET['project_milestone'])) {
+    //     echo '<input type="hidden" name="project_milestone" value="'.urldecode($_GET['project_milestone']).'">';
+    //     echo '<input type="hidden" name="projectid_from_path" value="'.$_GET['projectid'].'">';
+    // }
     if(!empty($_GET['salesid'])) {
         echo '<input type="hidden" name="salesid" value="'.$_GET['salesid'].'">';
     }
@@ -766,7 +766,7 @@ function removeNewRow2(button) {
 										foreach($project_tabs as $item) {
 											$project_vars[] = preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)));
 										}
-										$query = mysqli_query($dbc,"SELECT * FROM (SELECT projectid, projecttype, project_name FROM project WHERE businessid= '$businessid' AND deleted=0 UNION SELECT CONCAT('C',`projectid`), 'Client Project', `project_name` FROM `client_project` WHERE `deleted`=0) PROJECTS ORDER BY project_name");
+										$query = mysqli_query($dbc,"SELECT * FROM (SELECT projectid, projecttype, project_name FROM project WHERE (businessid= '$businessid' || (`projectid` = '$projectid' AND '$projectid' > 0)) AND deleted=0 UNION SELECT CONCAT('C',`projectid`), 'Client Project', `project_name` FROM `client_project` WHERE `deleted`=0) PROJECTS ORDER BY project_name");
 										while($row = mysqli_fetch_array($query)) {
 											if(substr($row['projectid'],0,1) == 'C') {
 												echo "<option ".($client_projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>Client Project: ".$row['project_name'].'</option>';

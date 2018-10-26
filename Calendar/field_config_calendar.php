@@ -511,6 +511,7 @@ if (isset($_POST['add_tab'])) {
 	} else {
 		$scheduling_new_ticket_button = '';
 	}
+	set_config($dbc, 'scheduling_restrict_ticket_types', implode(',',$_POST['scheduling_restrict_ticket_types']));
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_new_ticket_button' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_new_ticket_button') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_new_ticket_button."' WHERE `name`='scheduling_new_ticket_button'");
 	if (!empty($_POST['scheduling_offline'])) {
@@ -594,6 +595,13 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_combine_pickup' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_combine_pickup') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_combine_pickup."' WHERE `name`='scheduling_combine_pickup'");
+	if (!empty($_POST['scheduling_dont_count_warehouse'])) {
+		$scheduling_dont_count_warehouse = $_POST['scheduling_dont_count_warehouse'];
+	} else {
+		$scheduling_dont_count_warehouse = '';
+	}
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'scheduling_dont_count_warehouse' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='scheduling_dont_count_warehouse') num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$scheduling_dont_count_warehouse."' WHERE `name`='scheduling_dont_count_warehouse'");
 	if (!empty($_POST['scheduling_combine_time'])) {
 		$scheduling_combine_time = $_POST['scheduling_combine_time'];
 	} else {
@@ -850,6 +858,9 @@ if (isset($_POST['add_tab'])) {
 	}
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'ticket_use_all_tickets' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_use_all_tickets') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$ticket_use_all_tickets."' WHERE `name`='ticket_use_all_tickets'");
+	set_config($dbc, 'ticket_sidebar_filters', implode(',',$_POST['ticket_sidebar_filters']));
+	set_config($dbc, 'ticket_restrict_ticket_types', implode(',',$_POST['ticket_restrict_ticket_types']));
+	set_config($dbc, 'ticket_use_equipment', $_POST['ticket_use_equipment']);
 	if (!empty($_POST['ticket_staff_split_security'])) {
 		$ticket_staff_split_security = $_POST['ticket_staff_split_security'];
 	} else {
@@ -2245,6 +2256,16 @@ function deleteLogo(logo) {
 								</div>
 							</div>
 							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will restrict this Calendar to only be able to view these <?= TICKET_NOUN ?> Types. If none are checked, the software will assume there are no restrictions.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Restrict <?= TICKET_NOUN ?> Types:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_restrict_ticket_types = ','.get_config($dbc, 'scheduling_restrict_ticket_types').','; ?>
+                                    <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                                        $ticket_type_value = config_safe_str($ticket_type);
+                                        echo '<label class="form-checkbox"><input type="checkbox" name="scheduling_restrict_ticket_types[]" '.(strpos($scheduling_restrict_ticket_types,','.$ticket_type_value.',') !== FALSE ? 'checked' : '').' value="'.$ticket_type_value.'"> '.$ticket_type.'</label>';
+                                    } ?>
+								</div>
+							</div>
+							<div class="form-group">
 								<label class="col-sm-4 control-label">Dispatch Calendar Use Unbooked List:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_use_unbooked = get_config($dbc, 'scheduling_use_unbooked'); ?>
@@ -2284,6 +2305,7 @@ function deleteLogo(logo) {
 								<label class="col-sm-4 control-label">Dispatch Calendar Use Filters:</label>
 								<div class="col-sm-8">
 									<?php $scheduling_filters = get_config($dbc, 'scheduling_filters'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_filters[]" <?= strpos(",$scheduling_filters,",",Ticket Type,") !== FALSE ? 'checked' : '' ?> value="Ticket Type"> <?= TICKET_NOUN ?> Type</label>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_filters[]" <?= strpos(",$scheduling_filters,",",Region,") !== FALSE ? 'checked' : '' ?> value="Region"> Region</label>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_filters[]" <?= strpos(",$scheduling_filters,",",Location,") !== FALSE ? 'checked' : '' ?> value="Location"> Location</label>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_filters[]" <?= strpos(",$scheduling_filters,",",Classification,") !== FALSE ? 'checked' : '' ?> value="Classification"> Classification</label>
@@ -2379,6 +2401,13 @@ function deleteLogo(logo) {
 								<div class="col-sm-8">
 									<?php $scheduling_combine_pickup = get_config($dbc, 'scheduling_combine_pickup'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="scheduling_combine_pickup" <?= $scheduling_combine_pickup == 1 ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label">Don't Count Warehouse As A Delivery Stop:</label>
+								<div class="col-sm-8">
+									<?php $scheduling_dont_count_warehouse = get_config($dbc, 'scheduling_dont_count_warehouse'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="scheduling_dont_count_warehouse" <?= $scheduling_dont_count_warehouse == 1 ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 							<div class="form-group">
@@ -2743,6 +2772,31 @@ function deleteLogo(logo) {
 								<div class="col-sm-8">
 									<?php $ticket_use_all_tickets = get_config($dbc, 'ticket_use_all_tickets'); ?>
 									<label class="form-checkbox"><input type="checkbox" name="ticket_use_all_tickets" <?= $ticket_use_all_tickets != '' ? 'checked' : '' ?> value="1"></label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Sidebar Filters:</label>
+								<div class="col-sm-8">
+									<?php $ticket_sidebar_filters = ','.get_config($dbc, 'ticket_sidebar_filters').','; ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_sidebar_filters[]" <?= strpos($ticket_sidebar_filters,',Region,') !== FALSE ? 'checked' : '' ?> value="Region"> Region</label>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_sidebar_filters[]" <?= strpos($ticket_sidebar_filters,',Ticket Type,') !== FALSE ? 'checked' : '' ?> value="Ticket Type"> <?= TICKET_NOUN ?> Type</label>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='This will restrict this Calendar to only be able to view these <?= TICKET_NOUN ?> Types. If none are checked, the software will assume there are no restrictions.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Restrict <?= TICKET_NOUN ?> Types:</label>
+								<div class="col-sm-8">
+									<?php $ticket_restrict_ticket_types = ','.get_config($dbc, 'ticket_restrict_ticket_types').','; ?>
+                                    <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                                        $ticket_type_value = config_safe_str($ticket_type);
+                                        echo '<label class="form-checkbox"><input type="checkbox" name="ticket_restrict_ticket_types[]" '.(strpos($ticket_restrict_ticket_types,','.$ticket_type_value.',') !== FALSE ? 'checked' : '').' value="'.$ticket_type_value.'"> '.$ticket_type.'</label>';
+                                    } ?>
+								</div>
+							</div>
+							<div class="form-group">
+								<label class="col-sm-4 control-label"><?= TICKET_NOUN ?>  Calendar Include Equipment:</label>
+								<div class="col-sm-8">
+									<?php $ticket_use_equipment = get_config($dbc, 'ticket_use_equipment'); ?>
+									<label class="form-checkbox"><input type="checkbox" name="ticket_use_equipment" <?= $ticket_use_equipment != '' ? 'checked' : '' ?> value="1"></label>
 								</div>
 							</div>
 							<div class="form-group">

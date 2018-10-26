@@ -14,10 +14,12 @@ $invoice_ux = FOLDER_NAME.'_ux';
 $pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Point of Sale#*#Point of Sale');
 
 $pos_advanced_tile = $pos_advance_tile_name[0] ?: 'Point of Sale';
-$pos_advanced_noun = 'Point of Sale';
+$pos_advanced_noun = $pos_advance_tile_name[1] ?: 'Point of Sale';
 
 if (isset($_POST['submit'])) {
     set_config($dbc, 'invoice_dashboard_xsl_xml'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_dashboard_xsl_xml']),FILTER_SANITIZE_STRING));
+
+    set_config($dbc, 'invoice_dashboard', implode(',',$_POST['invoice_dashboard']));
 
     //print_R((!empty($_POST['invoice_dashboard_xsl_xml']) ? implode(',', $_POST['invoice_dashboard_xsl_xml']) : ''));die;
     if(!empty($_POST['invoice_type'])) {
@@ -59,6 +61,7 @@ if (isset($_POST['submit'])) {
 
         //Customizable Ticket Fields
         set_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($invoice_type), filter_var(implode(',', $_POST['invoice_custom_ticket_fields']),FILTER_SANITIZE_STRING));
+        set_config($dbc, 'invoice_ticket_append_qty_'.config_safe_str($invoice_type), filter_var($_POST['invoice_ticket_append_qty'],FILTER_SANITIZE_STRING));
         //Customizable Ticket Fields
 
         //Customizable Ticket Service Columns
@@ -184,6 +187,7 @@ if (isset($_POST['submit'])) {
 
         //Customizable Ticket Fields
         set_config($dbc, 'invoice_custom_ticket_fields', filter_var(implode(',', $_POST['invoice_custom_ticket_fields']),FILTER_SANITIZE_STRING));
+        set_config($dbc, 'invoice_ticket_append_qty', filter_var($_POST['invoice_ticket_append_qty'],FILTER_SANITIZE_STRING));
         //Customizable Ticket Fields
 
         //Customizable Ticket Service Columns
@@ -481,7 +485,7 @@ if(!empty($invoice_types)) { ?>
 
                         <div class="gap-top">
                             <div class="form-group">
-                                <label for="fax_number" class="col-sm-4 control-label">Tile Name:<br /><em>Enter the name you would like the POS Advanced tile to be labelled as.</em></label>
+                                <label for="fax_number" class="col-sm-4">Tile Name:<br /><em>Enter the name you would like the POS Advanced tile to be labelled as.</em></label>
                                 <div class="col-sm-8">
                                     <input name="pos_advanced_tile" type="text" value="<?= $pos_advanced_tile ?>" class="form-control"/>
                                 </div>
@@ -489,7 +493,7 @@ if(!empty($invoice_types)) { ?>
                         </div>
 
                         <div class="form-group">
-                            <label for="fax_number" class="col-sm-4 control-label">Tile Noun:<br /><em>Enter the name you would like individual <?= POS_ADVANCE_TILE ?> to be labelled as.</em></label>
+                            <label for="fax_number" class="col-sm-4">Tile Noun:<br /><em>Enter the name you would like individual <?= POS_ADVANCE_TILE ?> to be labelled as.</em></label>
                             <div class="col-sm-8">
                                 <input name="pos_advanced_noun" type="text" value="<?= $pos_advanced_noun ?>" class="form-control"/>
                             </div>
@@ -553,13 +557,13 @@ if(!empty($invoice_types)) { ?>
                         foreach($invoice_types as $invoice_type) { ?>
                             <div class="form-group invoice_type">
                                 <label class="col-sm-4">Invoice Type:</label>
-                                <div class="col-sm-7">
+                                <div class="col-sm-6">
                                     <input type="text" name="invoice_types[]" class="form-control" value="<?= $invoice_type ?>">
                                 </div>
-                                <div class="col-sm-1">
+                                <div class="col-sm-2">
                                     <img src="../img/icons/drag_handle.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right drag-handle">
-                                    <img src="../img/icons/plus.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addType();">
                                     <img src="../img/remove.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="removeType(this);">
+                                    <img src="../img/icons/ROOK-add-icon.png" style="height: 1.5em; margin: 0 0.25em;" class="pull-right" onclick="addType();">
                                 </div>
                             </div>
                         <?php } ?>
@@ -582,7 +586,7 @@ if(!empty($invoice_types)) { ?>
 
 					<?php $invoice_design = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_design_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_design_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_design')) : get_config($dbc, 'invoice_design')); ?>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Select Invoice Design:</label>
+						<label class="col-sm-4">Select Invoice Design:</label>
 						<div class="col-sm-8">
 							<label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == '1') { echo 'checked'; } ?> type="radio" name="invoice_design" value="1">
 								Layout 1<br /><a target="_blank" href="../img/invoice_design1.png"><img src="../img/invoice_design1.png" width="100" height="100" border="0" alt=""></a></label>
@@ -612,12 +616,18 @@ if(!empty($invoice_types)) { ?>
                     <?php $invoice_custom_ticket_fields = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_fields_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket_fields')) : get_config($dbc, 'invoice_custom_ticket_fields'));
                     $invoice_custom_ticket_fields = explode(',', $invoice_custom_ticket_fields); ?>
                     <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
-                        <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Fields:</label>
+                        <label class="col-sm-4">Customizable <?= TICKET_NOUN ?> Options:</label>
                         <div class="col-sm-8">
 
                             <div class="row">
                                 <div class="col-sm-4">
                                     <label class="form-checkbox"><input <?= (in_array('num_stops',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="num_stops"> # of Stops</label>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-checkbox"><input <?= (in_array('pro_number',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="pro_number"> Pro Number</label>
+                                </div>
+                                <div class="col-sm-4">
+                                    <label class="form-checkbox"><input <?= (in_array('volume',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="volume"> Volume</label>
                                 </div>
                                 <div class="col-sm-4">
                                     <label class="form-checkbox"><input <?= (in_array('customer_code',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="customer_code"> Customer Code</label>
@@ -634,15 +644,22 @@ if(!empty($invoice_types)) { ?>
                                 <div class="col-sm-4">
                                     <label class="form-checkbox"><input <?= (in_array('delivery_group',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="delivery_group"> Group by Delivery</label>
                                 </div>
+                                <div class="col-sm-4">
+                                    <label class="form-checkbox"><input <?= (in_array('append_ticket',$invoice_custom_ticket_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_custom_ticket_fields[]" value="append_ticket"> Append <?= TICKET_NOUN ?> PDF to Invoice</label>
+                                </div>
                             </div>
 
                         </div>
+                    </div>
+                    <div class="form-group">
+                        <label class="col-sm-4">Append <?= TICKET_TILE ?> in Groups of:<br /><em>If there are several <?= TICKET_TILE ?>, there will be no more than this number appended to the invoice. After it hits this number, the <?= TICKET_TILE ?> will be split into their own PDF.</em></label>
+                        <div class="col-sm-8"><input type="number" min="1" step="1" class="form-control" name="invoice_ticket_append_qty" value="<?= get_config($dbc, 'invoice_ticket_append_qty'.(empty($_GET['type']) ? '' : '_'.config_safe_str($_GET['type']))) ?>"></div>
                     </div>
 
 
                     <?php $invoice_custom_ticket = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket')) : get_config($dbc, 'invoice_custom_ticket')); ?>
                     <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
-                        <label class="col-sm-4 control-label">Customizable <?= TICKET_NOUN ?> Service Columns:
+                        <label class="col-sm-4">Customizable <?= TICKET_NOUN ?> Service Columns:
                             <span class="popover-examples list-inline">&nbsp;
                             <a href="#job_file" data-toggle="tooltip" data-placement="top" title="This will display each of the selected Service as columns. Any services that are not selected will be under the All Other Services column."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
                             </span>
@@ -699,7 +716,7 @@ if(!empty($invoice_types)) { ?>
 
                     <?php $logo = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_logo_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_logo_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_logo')) : get_config($dbc, 'invoice_logo')); ?>
                     <div class="form-group">
-                    <label for="file[]" class="col-sm-4 control-label">Upload Logo:
+                    <label for="file[]" class="col-sm-4">Upload Logo:
                     <span class="popover-examples list-inline">&nbsp;
                     <a href="#job_file" data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas."><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
                     </span>
@@ -718,7 +735,7 @@ if(!empty($invoice_types)) { ?>
 
                     <?php $invoice_header = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_header_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_header_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_header')) : get_config($dbc, 'invoice_header')); ?>
                     <div class="form-group">
-                    <label for="company_name" class="col-sm-4 control-label">Header:</label>
+                    <label for="company_name" class="col-sm-4">Header:</label>
                     <div class="col-sm-8">
                         <textarea name="invoice_header" rows="5" cols="50" class="form-control"><?php echo $invoice_header; ?></textarea>
                     </div>
@@ -726,7 +743,7 @@ if(!empty($invoice_types)) { ?>
 
                     <?php $invoice_footer = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_footer_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_footer_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_footer')) : get_config($dbc, 'invoice_footer')); ?>
                     <div class="form-group">
-                    <label for="company_name" class="col-sm-4 control-label">Footer for Customer and Third Party Invoices:</label>
+                    <label for="company_name" class="col-sm-4">Footer for Customer and Third Party Invoices:</label>
                     <div class="col-sm-8">
                         <textarea name="invoice_footer" rows="5" cols="50" class="form-control"><?php echo $invoice_footer; ?></textarea>
                     </div>
@@ -734,7 +751,7 @@ if(!empty($invoice_types)) { ?>
 
                     <?php $invoice_unpaid_footer = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_unpaid_footer_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_unpaid_footer_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_unpaid_footer')) : get_config($dbc, 'invoice_unpaid_footer')); ?>
                     <div class="form-group">
-                    <label for="company_name" class="col-sm-4 control-label">Footer for Unpaid Third Party Invoices:</label>
+                    <label for="company_name" class="col-sm-4">Footer for Unpaid Third Party Invoices:</label>
                     <div class="col-sm-8">
                         <textarea name="invoice_unpaid_footer" rows="5" cols="50" class="form-control"><?php echo $invoice_unpaid_footer; ?></textarea>
                     </div>
@@ -884,7 +901,7 @@ if(!empty($invoice_types)) { ?>
                     <div class="panel-body">
 
                         <div class="form-group">
-                        <label for="company_name" class="col-sm-4 control-label"><h4>MVA Claim Max $ for Inventory</h4></label>
+                        <label for="company_name" class="col-sm-4"><h4>MVA Claim Max $ for Inventory</h4></label>
                         <div class="col-sm-8">
                           <input name="mva_claim_price" value="<?php echo get_config($dbc, 'mva_claim_price'); ?>" type="text" class="form-control">
                         </div>
@@ -958,6 +975,12 @@ if(!empty($invoice_types)) { ?>
     							</td>
 
     						</tr>
+                            <tr>
+    							<td>
+    								<input type="checkbox" <?php if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) { echo " checked"; } ?> value="Customer Billing Status" name="invoice_dashboard[]">&nbsp;&nbsp;Customer Billing Status
+    							</td>
+
+                            </tr>
     					</table>
     				</div>
     			</div>
@@ -982,7 +1005,8 @@ if(!empty($invoice_types)) { ?>
 					<label class="form-checkbox"><input <?= (in_array('po_num',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="po_num"> PO #</label>
 					<label class="form-checkbox"><input <?= (in_array('area',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="area"> Area</label>
 					<label class="form-checkbox"><input <?= (in_array('injury',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="injury"> Injury</label>
-					<label class="form-checkbox"><input <?= (in_array('staff',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="staff"> Staff (Providing Service)</label>
+					<label class="form-checkbox"><input <?= (in_array('staff',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="staff" onclick="if(this.checked) { $('[name^=invoice_fields][value=vendor]').removeAttr('checked'); }"> Staff (Providing Service)</label>
+					<label class="form-checkbox"><input <?= (in_array('vendor',$invoice_fields) && !in_array('staff',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="vendor" onclick="if(this.checked) { $('[name^=invoice_fields][value=staff]').removeAttr('checked'); }"> Vendor (for Compensation)</label>
 					<label class="form-checkbox"><input <?= (in_array('appt_type',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="appt_type"> Appointment Type</label>
 					<label class="form-checkbox"><input <?= (in_array('treatment',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="treatment"> Treatment Plan</label>
 					<label class="form-checkbox"><input <?= (in_array('service_date',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="service_date"> Service Date</label>
@@ -1029,6 +1053,14 @@ if(!empty($invoice_types)) { ?>
 					<label class="form-checkbox"><input <?= (in_array('packages_fee',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="packages_fee"> Packages - Fee</label>
 					<label class="form-checkbox"><input <?= (in_array('misc_items',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="misc_items"> Misc Items</label>
 					<label class="form-checkbox"><input <?= (in_array('unbilled_tickets',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="unbilled_tickets"> Unbilled <?= TICKET_TILE ?></label>
+                    <?php $split_ticket_tiles = $dbc->query("SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'ticket_split_tiles_%'");
+                    while($split_tile = $split_ticket_tiles->fetch_assoc()['value']) {
+                        $split_tile = explode('#*#',$split_tile)[0]; ?>
+                        <label class="form-checkbox"><input <?= (in_array('unbilled_tickets_split_'.config_safe_str($split_tile),$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="unbilled_tickets_split_<?= config_safe_str($split_tile) ?>"> Unbilled <?= $split_tile ?></label>
+                    <?php }
+                    foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_tab) { ?>
+                        <label class="form-checkbox"><input <?= (in_array('unbilled_tickets_type_'.config_safe_str($ticket_tab),$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="unbilled_tickets_type_<?= config_safe_str($ticket_tab) ?>"> Unbilled <?= TICKET_NOUN.' - '.$ticket_tab ?></label>
+                    <?php } ?>
 					<label class="form-checkbox"><input <?= (in_array('deposit_paid',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="deposit_paid"> Deposit Paid</label>
 					<label class="form-checkbox"><input <?= (in_array('due_date',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="due_date"> Due Date</label>
 					<label class="form-checkbox"><input <?= (in_array('service_queue',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="service_queue"> Service Queue</label>
@@ -1036,10 +1068,11 @@ if(!empty($invoice_types)) { ?>
 					<label class="form-checkbox"><input <?= (in_array('tips',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="tips"> Gratuity</label>
 					<label class="form-checkbox"><input <?= (in_array('next_appt',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="next_appt"> Next Appointment</label>
 					<label class="form-checkbox"><input <?= (in_array('survey',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="survey"> Send Survey</label>
-					<label class="form-checkbox"><input <?= (in_array('request_recommend',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="request_recommend"> Request Recommendation Report</label>
+					<label class="form-checkbox"><input <?= (in_array('request_recommend',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="request_recommend"> Request Recommendation</label>
 					<label class="form-checkbox"><input <?= (in_array('followup',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="followup"> Send Follow Up Email</label>
                     <label class="form-checkbox"><input <?= (in_array('giftcard',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="giftcard"> Gift Card</label>
                     <label class="form-checkbox"><input <?= (in_array('reference',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="reference"> Reference</label>
+                    <label class="form-checkbox"><input <?= (in_array('Customer Billing Status',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="Customer Billing Status"> Customer Billing Status</label>
 
                     <div class="form-group double-gap-top">
                         <div class="col-sm-6">
@@ -1068,7 +1101,7 @@ if(!empty($invoice_types)) { ?>
     				<div class="panel-body">
 
     					<div class="form-group">
-    						<label for="office_country" class="col-sm-4 control-label">Payment Type Options:<br><em>(separate by a comma)</em></label>
+    						<label for="office_country" class="col-sm-4">Payment Type Options:<br><em>(separate by a comma)</em></label>
     						<div class="col-sm-8">
     							<?php $invoice_payment_types = explode(',',get_config($dbc, 'invoice_payment_types')); ?>
     							<label class="form-checkbox"><input <?= (in_array('Pay Now',$invoice_payment_types) ? 'checked' : '') ?> type="checkbox" name="invoice_payment_types[]" value="Pay Now"> Pay Now</label>

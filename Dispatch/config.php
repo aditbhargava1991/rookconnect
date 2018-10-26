@@ -4,7 +4,10 @@ $reset_active = get_config($dbc, 'dispatch_tile_reset_active');
 $edit_access = vuaed_visible_function($dbc, 'dispatch');
 $ticket_view_access = tile_visible($dbc, 'ticket');
 $equipment_edit_access = vuaed_visible_function($dbc, 'equipment');
+$staff_view_access = tile_visible($dbc, 'staff');
+
 $search_fields = array_filter(explode(',',get_config($dbc, 'dispatch_tile_search_fields')));
+$equipment_fields = array_filter(explode(',',get_config($dbc, 'dispatch_tile_equipment_fields')));
 $completed_ticket_status = get_config($dbc, 'auto_archive_complete_tickets');
 $combine_warehouses = get_config($dbc, 'dispatch_tile_combine_warehouse');
 $combine_pickups = get_config($dbc, 'dispatch_tile_combine_pickup');
@@ -135,3 +138,13 @@ if($is_customer) {
 	$customer_equipments = get_customer_equipment($dbc, $daily_date, $daily_date);
 	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
 }
+$dont_count_warehouse = get_config($dbc, 'dispatch_tile_dont_count_warehouse');
+$group_regions = get_config($dbc, 'dispatch_tile_group_regions');
+$dispatch_tile_ticket_card_fields = explode(',', get_config($dbc, 'dispatch_tile_ticket_card_fields'));
+$auto_refresh = get_config($dbc, 'dispatch_tile_auto_refresh');
+if(!empty($auto_refresh)) {
+    $auto_refresh = date_parse($auto_refresh);
+    $auto_refresh = ($auto_refresh['hour'] * 3600) + ($auto_refresh['minute'] * 60);
+}
+$summary_tab = get_config($dbc, 'dispatch_tile_summary_tab');
+$delivery_timeframe_default = !empty(get_config($dbc, 'delivery_timeframe_default')) ? get_config($dbc, 'delivery_timeframe_default') : 3;

@@ -384,7 +384,7 @@ if($('[name="edit_access"]').val() == 1) {
 	var resizeTimeout;
 	var resizeSave;
 	function itemsResizable() {
-		$('div.used-block:not(.ui-resizable)').resizable({
+		$('div.used-block:not(.ui-resizable,.no_change)').resizable({
 			handles: 's',
 			start: function(e, block) {
 				$(this).css('min-height', '0px');
@@ -808,6 +808,18 @@ if($('[name="edit_access"]').val() == 1) {
 								}
 							}
 						}
+						var retrieve_collapse2 = $('#retrieve_collapse2').val();
+						var retrieve_contact2 = $('#retrieve_contact2').val();
+						if(retrieve_collapse2 != undefined && retrieve_collapse2 != '') {
+							$('[id^='+retrieve_collapse2+']').find('.block-item.active').each(function() {
+								var anchor = $(this).closest('a');
+								if(old_date != new_date) {
+									retrieve_items(anchor);
+								} else {
+									retrieve_items(anchor, new_date);
+								}
+							});
+						}
 						if(data.check_team_shifts != undefined && data.check_team_shifts == 1) {
 							checkStaffShifts(new_contact, data.new_date, 'team').success(function(response) {
 								var response = JSON.parse(response);
@@ -919,7 +931,7 @@ if($('[name="edit_access"]').val() == 1) {
 	function teamsDraggable() {
 		var clone, before, parent, current_block;
 		$('.team_assign_div').sortable({
-			connectWith: ".team_assign_block",
+			connectWith: ".team_assign_block,.equip_assign_block",
 			items: '.team_assign_draggable.sorting-initialize',
 			handle: '.drag-handle',
 			helper: 'clone',
@@ -940,27 +952,47 @@ if($('[name="edit_access"]').val() == 1) {
 					$(current_block).remove();
 					var staffid = td.item.data('staff');
 					var target = $('.highlightCell').removeClass('highlightCell');
-					var teamid = target.data('team');
-					var date = target.data('date');
+					if(target.hasClass('equip_assign_block')) {
+						var blocktype = 'staff';
+						var staffid = td.item.data('staff');
+						var equipmentid = target.data('equip');
+						var equipment_assignid = target.data('equip-assign');
+						var date = target.data('date');
 
-					data = { staffid: staffid, teamid: teamid, date: date };
-					if(teamid != undefined && teamid > 0) {
+						data = { blocktype: blocktype, staffid: staffid, equipmentid: equipmentid, equipment_assignid: equipment_assignid, date: date };
+											
 						$.ajax({
-							url: '../Calendar/calendar_ajax_all.php?fill=team_assign_draggable&offline='+offline_mode,
+							url: '../Calendar/calendar_ajax_all.php?fill=equip_assign_draggable&offline='+offline_mode,
 							method: 'POST',
 							data: data,
 							success: function(response) {
-								// console.log(response);
-								reload_teams(response);
+								 
+							    reload_all_data();
 							}
 						});
+					} else {
+						var teamid = target.data('team');
+						var date = target.data('date');
+
+						data = { staffid: staffid, teamid: teamid, date: date };
+						if(teamid != undefined && teamid > 0) {
+							$.ajax({
+								url: '../Calendar/calendar_ajax_all.php?fill=team_assign_draggable&offline='+offline_mode,
+								method: 'POST',
+								data: data,
+								success: function(response) {
+									// console.log(response);
+									reload_teams(response);
+								}
+							});
+						}
 					}
 				} else {
 					$(this).sortable('cancel');
 				}
 			},
 			sort: function(e, block) {
-				td = $(document.elementsFromPoint(e.clientX, e.clientY)).filter('.team_assign_block').first();
+				td = $(document.elementsFromPoint(e.clientX, e.clientY)).filter('.team_assign_block,.equip_assign_block').first();
 				$('.highlightCell').removeClass('highlightCell');
 				td.addClass('highlightCell');
 			}
@@ -1150,7 +1182,9 @@ function resize_calendar_view() {
 			$('.sidebar.panel-group .panel-body').outerHeight($('.sidebar.panel-group').outerHeight() - sidebar_headings);
 		}
 
-		$('.calendar_view').height('calc(80% + 4em)');
+		var height = $('.calendar-screen .scale-to-fill').outerHeight();
+		$('.calendar_view').height('calc('+$('.calendar-screen .scale-to-fill').outerHeight()+'px - 4em)');
+		$('.collapsible .sidebar').height('calc('+($('.calendar_view').height() - $('.search-text').outerHeight())+'px - 1.5em - 1px)');
 		// $('.calendar_view').outerHeight($('.calendar_view').outerHeight() - $('.ticket-status-legend').outerHeight(true));
 
 		var time_blocks = [];
@@ -1206,22 +1240,24 @@ function expandBlock() {
 			$(this).closest('.used-block').clearQueue().stop().animate({
 				'min-height': $(this).height() + 5
 			});
-			$(this).closest('td').css({
-				zIndex: 2
-			});
 		}
+        $(this).closest('td').css({
+            zIndex: 2
+        });
 		clearTimeout(force_resize_blocks);
 	}, function() {
 		$(this).closest('.used-block').clearQueue().stop().animate({
 			'min-height': '0'
-		}, 'normal', function() {
-			$(this).closest('td').css({
-				zIndex: 1
-			});
-		});
+		}, 'normal');
+        $(this).closest('td').css({
+            zIndex: 1
+        });
 		clearTimeout(force_resize_blocks);
+        $('.used-block').each(function() {
+            $(this).closest('td').css('z-index', 1);
+        });
 		force_resize_blocks = setTimeout(function() {
-			reload_resize_all();
+            reload_resize_all();
 		}, 1000);
 	});
 }
@@ -1344,10 +1380,14 @@ function removeStaffEquipAssign(link) {
 			data: data,
 			success: function(response) {
 				// window.location.reload();
+				var retrieve_collapse2_filter = '';
 				var retrieve_collapse = $('#retrieve_collapse').val();
-				var retrieve_contact = $('#retrieve_contact').val();
+				var retrieve_collapse2 = $('#retrieve_collapse2').val();
+				if(retrieve_collapse2 != undefined && retrieve_collapse2 != '') {
+					retrieve_collapse2_filter = ',[id^='+retrieve_collapse2+']';
+				}
 				if(new_contact > 0) {
-					var anchor = $('[id^='+retrieve_collapse+']').find('.block-item[data-'+retrieve_contact+'='+new_contact+']').closest('a');
+					var anchor = $('[id^='+retrieve_collapse+']'+retrieve_collapse2_filter).find('.block-item[data-equipment='+new_contact+']').closest('a');
 					retrieve_items(anchor, new_date);
 				} else {
 				    reload_all_data();
@@ -1443,4 +1483,132 @@ function removeTicketSchedule(ticketid, stopid) {
             retrieve_items($('[id^='+$('#retrieve_collapse').val()+']').find('.block-item[data-'+$('#retrieve_contact').val()+'='+$(td).data('contact')+']').closest('a'),$(td).data('date'))
         });
     });
+}
+function setDaysheetReminder(input) {
+    var daysheet_reminder = $(input);
+    var daysheetreminderid = input.value;
+    var done = 0;
+    if ($(input).is(':checked')) {
+        done = 1;
+    }
+    $.ajax({
+        url: '../Profile/profile_ajax.php?fill=daysheet_reminders',
+        method: 'POST',
+        data: {
+            daysheetreminderid: daysheetreminderid,
+            done: done
+        },
+        success: function(response) {
+            if (done == 1) {
+                daysheet_reminder.closest('.daysheet_row').find('span').css('text-decoration', 'line-through');
+            } else {
+                daysheet_reminder.closest('.daysheet_row').find('span').css('text-decoration', 'none');
+            }
+        }
+    });
+}
+									 
+									 
+										 
+				 
+								  
+				 
+	 
+			
+																   
+					   
+			   
+												   
+					  
+		  
+									 
+							
+																											   
+					
+																									   
+			 
+		 
+	   
+ 
+
+// Functions for the hover icons for Customer Sign Off on Deliveries
+function display_camera(img) {
+	if($(img).hasClass('active')) {
+	    var left  = ($(img).offset().left + 25) + "px";
+	    var top  = $(img).offset().top + "px";
+
+		if($('#camera_hover').not(':visible')) {
+		    $('#camera_hover').css('left', left);
+		    $('#camera_hover').css('top', top);
+			$('#camera_hover').show().html('Loading...');
+			$('#camera_hover').html('<p><b>'+$(img).data('label')+'</b></p><img src="'+$(img).data('file')+'" style="max-width: 300px; max-height: 300px; width: auto; height: auto;">');
+		}
+	} else {
+		hide_camera();
+	}
+}
+function hide_camera() {
+	$('#camera_hover').hide().html('Loading...');
+}
+function display_signature(img) {
+	if($(img).hasClass('active')) {
+	    var left  = ($(img).offset().left + 25) + "px";
+	    var top  = $(img).offset().top + "px";
+
+		if($('#signature_hover').not(':visible')) {
+		    $('#signature_hover').css('left', left);
+		    $('#signature_hover').css('top', top);
+			$('#signature_hover').show().html('Loading...');
+			$('#signature_hover').html('<img src="'+$(img).data('file')+'" style="max-width: 300px; max-height: 300px; width: auto; height: auto;">');
+		}
+	} else {
+		hide_camera();
+	}
+}
+function hide_signature() {
+	$('#signature_hover').hide().html('Loading...');
+}
+function display_star_rating(img) {
+	if($(img).hasClass('active')) {
+	    var left  = ($(img).offset().left + 25) + "px";
+	    var top  = $(img).offset().top + "px";
+	    var rating_html = $(img).closest('.used-block').find('.star_rating_hover_html').clone();
+	    $(rating_html).css('display', '');
+
+		if($('#star_rating_hover').not(':visible')) {
+		    $('#star_rating_hover').css('left', left);
+		    $('#star_rating_hover').css('top', top);
+			$('#star_rating_hover').show().html('Loading...');
+			$('#star_rating_hover').html(rating_html);
+		}
+	} else {
+		hide_star_rating();
+	}
+}
+function hide_star_rating() {
+	$('#star_rating_hover').hide().html('Loading...');
+}
+function display_customer_notes(img) {
+	if($(img).hasClass('active')) {
+	    var left  = ($(img).offset().left + 25) + "px";
+	    var top  = $(img).offset().top + "px";
+	    var notes_html = $(img).closest('.used-block').find('.customer_notes_hover_html').clone();
+	    $(notes_html).css('display', '');
+
+		if($('#customer_notes_hover').not(':visible')) {
+		    $('#customer_notes_hover').css('left', left);
+		    $('#customer_notes_hover').css('top', top);
+			$('#customer_notes_hover').show().html('Loading...');
+			$('#customer_notes_hover').html(notes_html);
+		}
+	} else {
+		hide_customer_notes();
+	}
+}
+function hide_customer_notes() {
+	$('#customer_notes_hover').hide().html('Loading...');
+}
+function view_customer_notes(url) {
+	overlayIFrameSlider(url, 'auto', true, true);
+	return false;
 }

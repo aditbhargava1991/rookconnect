@@ -6,6 +6,7 @@
 include ('../include.php');
 error_reporting(0);
 $communication_type = empty($_POST['comm_type']) ? (empty($_GET['type']) ? 'Internal' : ucfirst(filter_var($_GET['type'], FILTER_SANITIZE_STRING))) : $_POST['comm_type'];
+$back_url = '../blank_loading_page.php';
 
 if (isset($_POST['submit'])) {
     $businessid = $_POST['businessid'];
@@ -110,22 +111,39 @@ if (isset($_POST['submit'])) {
             // $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>');
 		}
 
-        if (empty($from_email)) {
-            $from_email = '';
+    if($_POST['submit'] == 'draft') {
+      /*$email_subject = $_POST['subject'];
+      $meeting_email = implode(",", $meeting_arr_email);
+      $meeting_cc_email = implode(",", $meeting_cc_arr_email);
+      $query_insert_email_comm = "INSERT INTO `email_communication_draft` (`from_email`, `from_name`, `to_emails`, `cc_emails`, `subject`, `send_body`,`meeting_attachment`)
+      VALUES ('$from_email', '$from_name', '$meeting_email', '$meeting_cc_email', '$email_subject', '$send_body',  '$send_body')";
+      $result_insert_email_comm = mysqli_query($dbc, $query_insert_email_comm);*/
+    }
+    else {
+      if (empty($from_email)) {
+          $from_email = '';
+      }
+      try {
+        send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
+        if($salesid > 0) {
+            add_update_history($dbc, 'sales', "Sent Email to Lead: ".$_POST['subject'], '', '', $salesid);
         }
-		try {
-            send_email([$from_email => $from_name], $meeting_arr_email, $meeting_cc_arr_email , '', $_POST['subject'], $send_body, $meeting_attachment);
-            if($salesid > 0) {
-                add_update_history($dbc, 'sales', "Sent Email to Lead: ".$_POST['subject'], '', '', $salesid);
-            }
-		} catch(Exception $e) {
-			echo "<script> alert('Unable to send the email: ".$e->getMessage()."'); </script>";
-		}
+      } catch(Exception $e) {
+        echo "<script> alert('Unable to send the email: ".$e->getMessage()."'); </script>";
+      }
+    }
     }
     // Meeting Note Email
 
     if(empty($_POST['email_communicationid']) || count($meeting_arr_email) > 0 || count($meeting_cc_arr_email) > 0) {
-        $query_insert_ca = 'INSERT INTO `email_communication` (`communication_type`, `businessid`, `contactid`, `salesid`, `projectid`, `ticketid`, `client_projectid`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff`, `new_emailid`, `today_date`, `created_by`, `follow_up_by`, `follow_up_date`, `from_email`, `from_name`) VALUES ("'.$communication_type.'", "'.$businessid.'", "'.$contactid.'",  "'.$salesid.'", "'. $projectid.'", "'. $ticketid.'", "'. $client_projectid.'",  "'.$subject.'",  "'.$email_body.'", "'.$to_contact.'", "'.$cc_contact.'", "'.$to_staff.'", "'.$cc_staff.'", "'.$new_emailid.'", "'.$today_date.'", "'.$created_by.'", "'.$follow_up_by.'", "'.$follow_up_date.'", "'.$from_email.'", "'.$from_name.'")';
+        if($_POST['submit'] == 'draft') {
+          $draft = 1;
+        }
+        else {
+          $draft = 0;
+        }
+
+        $query_insert_ca = 'INSERT INTO `email_communication` (`communication_type`, `businessid`, `contactid`, `salesid`, `projectid`, `ticketid`, `client_projectid`, `subject`, `email_body`, `to_contact`, `cc_contact`, `to_staff`, `cc_staff`, `new_emailid`, `today_date`, `created_by`, `follow_up_by`, `follow_up_date`, `from_email`, `from_name`,`draft`) VALUES ("'.$communication_type.'", "'.$businessid.'", "'.$contactid.'",  "'.$salesid.'", "'. $projectid.'", "'. $ticketid.'", "'. $client_projectid.'",  "'.$subject.'",  "'.$email_body.'", "'.$to_contact.'", "'.$cc_contact.'", "'.$to_staff.'", "'.$cc_staff.'", "'.$new_emailid.'", "'.$today_date.'", "'.$created_by.'", "'.$follow_up_by.'", "'.$follow_up_date.'", "'.$from_email.'", "'.$from_name.'", "'.$draft.'")';
 
         $result_insert_ca = mysqli_query($dbc, $query_insert_ca);
         $email_communicationid = mysqli_insert_id($dbc);
@@ -148,11 +166,11 @@ if (isset($_POST['submit'])) {
 			$overview .= ' - Added Time : '.$_POST['timer'];
 		}
     }
-    
+
     if ( !empty($follow_up_by) && !empty($follow_up_date) ) {
         mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `subject`, `src_table`, `src_tableid` ) VALUES ('$follow_up_by', '$follow_up_date', '$subject', 'email_communication', '$email_communicationid')");
     }
-    
+
 	//Connect the attachments to the current communication
 	mysqli_query($dbc, "UPDATE `email_communicationid_upload` SET `email_communicationid`='$email_communicationid' WHERE `email_communicationid`=0 AND `created_by`='$created_by' AND `created_date`='$today_date'");
 	echo insert_day_overview($dbc, $created_by, 'Communication', date('Y-m-d'), '', $overview);
@@ -243,7 +261,7 @@ if (isset($_POST['submit'])) {
             } ?>
             <img src="../img/icons/ROOK-reminder-icon.png" alt="Add Reminder" title="Add Reminder" class="no-toggle cursor-hand" data-placement="bottom" width="25" onclick="overlayIFrameSlider('../quick_action_reminders.php?tile=email&id=<?= $id ?>', 'auto', false, true);" />
             <img src="../img/icons/ROOK-timer2-icon.png" alt="Track Time" title="Track Time" class="no-toggle cursor-hand offset-left-5 offset-right-5" data-placement="bottom" width="25" onclick="overlayIFrameSlider('../quick_action_timer.php?tile=email&id=<?= $id ?>', 'auto', false, true);" />
-            <a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="no-toggle" data-placement="bottom" width="25" /></a>
+            <a href="../blank_loading_page.php"><img src="../img/icons/cancel.png" alt="Close" title="Close" class="no-toggle" data-placement="bottom" width="25" /></a>
         </div>
         <div class="clearfix"></div>
 
@@ -329,6 +347,13 @@ if (isset($_POST['submit'])) {
                 if(empty($subject)) {
                     $subject = get_ticket_label($dbc, $ticket_details);
                 }
+            }
+            $local_page = $_GET;
+            unset($local_page['type']);
+            unset($local_page['category']);
+            $local_query = '';
+            foreach($local_page as $name => $value) {
+                $local_query .= "&$name=$value";
             } ?>
             <input type="hidden" name="ticketid" value="<?= $ticketid ?>">
 
@@ -343,7 +368,7 @@ if (isset($_POST['submit'])) {
                     </div>
                     <div id="collapse_type" class="panel-collapse collapse">
                         <div class="panel-body">
-                            <select name="comm_type" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control">
+                            <select name="comm_type" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" onchange="window.location.replace('?type='+this.value+'<?= $local_query ?>');">
                                 <option value="Internal" <?= $comm_type == 'Internal' ? 'selected' : '' ?>>Internal</option>
                                 <option value="External" <?= $comm_type == 'External' ? 'selected' : '' ?>>External</option>
                             </select>
@@ -427,7 +452,7 @@ if (isset($_POST['submit'])) {
                     </div>
                 </div>
                 -->
-                
+
                 <?php //if (strpos($value_config, ','."Communication Timer".',') !== FALSE) { ?>
                     <!--
                     <div class="panel panel-default">
@@ -451,8 +476,9 @@ if (isset($_POST['submit'])) {
             </div><!-- .panel-group .block-panels .main-screen -->
 
             <div class="form-group">
+                <button type="submit" name="submit" value="draft" class="btn brand-btn pull-right">Save as Draft</button>
                 <button type="submit" name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
-                <a href="" class="btn brand-btn pull-right">Cancel</a>
+                <a href="../blank_loading_page.php" class="btn brand-btn pull-right">Cancel</a>
             </div>
         </form>
   </div>

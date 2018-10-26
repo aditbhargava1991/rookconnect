@@ -1,7 +1,7 @@
 <?php include_once(substr(dirname(__FILE__), 0, -12).'include.php');
 
 if($search_user > 0) {
-    if($get_from != 'daysheet') {
+    if($get_from != 'daysheet' && $get_from != 'calendar') {
         $today_date = date('Y-m-d');
         $fetch_until = date('Y-m-d');
 

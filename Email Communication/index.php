@@ -59,7 +59,7 @@ error_reporting(0);
 	                    echo '<div class="pull-right gap-left"><a href="field_config.php?settings=fields"><img src="'.WEBSITE_URL.'/img/icons/settings-4.png" class="settings-classic wiggle-me" width="30" /></a></div>';
 	                } ?>
                     <div class="pull-right">
-                        <button class="btn brand-btn hide-titles-mob" onclick="overlayIFrameSlider('add_email.php?type=<?= $type ?>', 'auto', false, true);">New Email</button>
+                        <button class="btn brand-btn hide-titles-mob" onclick="overlayIFrameSlider('add_email.php?type=<?= $type ?>', 'auto', false, true, 'auto', true);">New Email</button>
                         <a class="cursor-hand show-on-mob" onclick="overlayIFrameSlider('add_email.php?type=<?= $type ?>', 'auto', false, true);"><img src="../img/icons/ROOK-add-icon.png" style="height:2em;" /></a>
                     </div>
                 </div>
