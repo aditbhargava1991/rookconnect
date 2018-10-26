@@ -40,11 +40,11 @@ if($_GET['search_contacts'] != '') {
 else if(isset($_POST['search_'. $category.'_submit']) && $_POST['search_'. $category] != '') {
 	$search_contacts = $_POST['search_'. $category];
 	$id_list = search_contacts_table($dbc, $search_contacts, " AND `tile_name`='".$folder_name."' AND (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff')))");
-	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status` FROM contacts WHERE `contactid` IN ($id_list)";
+	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status`, `flag_colour`, `flag_label`, `flag_start`, `flag_end` FROM contacts WHERE `contactid` IN ($id_list)";
 	$query = "SELECT count(`contactid`) as numrows FROM contacts WHERE `contactid` IN ($id_list)";
 }
 else {
-	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status` FROM contacts WHERE (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff'))) AND `tile_name`='".$folder_name."'";
+	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status`, `flag_colour`, `flag_label`, `flag_start`, `flag_end` FROM contacts WHERE (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff'))) AND `tile_name`='".$folder_name."'";
 	$query = "SELECT count(`contactid`) as numrows FROM contacts WHERE (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff'))) AND `tile_name`='".$folder_name."'";
 }
 
@@ -236,6 +236,17 @@ if ( !empty($note) ) { ?>
 }
 .dashboard-icon { margin-right:8px; width:18px; }
 </style>
+
+<script type="text/javascript">
+
+function flag_item_manual(task) {
+       contactid = $(task).parents('span').data('task');
+
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=contacts&id='+contactid, 'auto', false, false);
+}
+
+</script>
+
 <div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
 <div class="standard-dashboard-body-content">
 <?php if($_GET['list'] != 'summary') { ?>
@@ -252,8 +263,13 @@ if ( !empty($note) ) { ?>
 			$field_display = explode(",",$get_field_config['contacts_dashboard']);
 			?>
 			<?php foreach($contact_sort as $id): ?>
-				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))]; ?>
+				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))];
+                ?>
 				<div class="dashboard-item set-relative">
+                        <?php if($row['flag_label'] != '') { ?>
+                        <span class="block-label flag-label-block" style="font-weight: bold; background-color: <?php echo '#'.$row['flag_colour']; ?>">Flagged: <?= $row['flag_label'] ?></span>
+                        <?php } ?>
+
                         <?php if(!empty($_GET['search_contacts']) || !empty($_POST['search_'.$category])) { ?>
 						<div class="col-sm-6">
 							<?php echo '<b>'.$row['category'].'</b>'; ?>
@@ -351,6 +367,17 @@ if ( !empty($note) ) { ?>
 							echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'">View</a>';
 						} ?>
 					</div>
+
+                    <?php
+                    echo '<span class="action-icons gap-top" style="width: 40%;" data-task="'.$row['contactid'].'">';
+                    $quick_actions = explode(',',get_config($dbc, 'contact_quick_action_icons'));
+
+                    echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                    echo '</span>';
+
+                    ?>
+
 					<div class="clearfix"></div>
                     <div class="set-favourite">
 						<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE): ?>
@@ -390,7 +417,7 @@ if(strpos($contacts_summary_config,'Per Category') !== false) {
                 $inactive_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=0"))['count'];
                 $all_count = $active_count + $inactive_count;
                 $active_percent = $all_count == 0 ? '00' : number_format((($active_count / $all_count) * 100), 0);
-                
+
                 $theme_color = get_calendar_today_color($dbc);
                 ?>
                 <div class="row">
