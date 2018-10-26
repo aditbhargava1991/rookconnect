@@ -90,6 +90,8 @@ if($_GET['map_action'] == 'pickup_delivery') {
                             }
                             delay_notify = false;
                         }, 1000);
+                    } else {
+                        delay_notify = false;
                     }
                 }
 				</script>
