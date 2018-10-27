@@ -25,7 +25,8 @@ function quick_add_time(ticket_id) {
                         method: 'POST',
                         url: 'ticket_ajax_all.php?fill=ticketreply',
                         data: { taskid: ticket_id, reply: 'Time added '+time+':00' },
-                        complete: function(result) { console.log(result.responseText); window.location.reload(); }
+                        complete: function(result) { console.log(result.responseText); window.location.reload();
+                        }
                     });
                 }
 			});
@@ -33,7 +34,6 @@ function quick_add_time(ticket_id) {
 	});
 	$('[name=task_time_'+ticket_id+']').timepicker('show');
 }
-
 function track_time(ticket) {
    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=ticket&id='+ticket, 'auto', false, false);
 }
