@@ -161,6 +161,10 @@ function show_hide_email() {
 		$('[name=send_email_div]').hide();
 	}
 }
+function view_summary()
+{
+    $('.view_summary').toggle();
+}
 function view_voided()
 {
     $('.view_voided').toggleClass('hidden');
@@ -174,7 +178,7 @@ function view_voided()
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop view_voided hidden">
+<div class="standard-body-content padded-desktop ">
     <!-- Summary Blocks -->
     <div class="view_summary double-gap-bottom" style="display:none;">
         <div class="col-xs-12 col-sm-4 gap-top">
@@ -211,6 +215,7 @@ function view_voided()
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
+    <div class="view_voided hidden">
 
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
@@ -482,4 +487,6 @@ function view_voided()
         </div>
 
     </form>
+
+    </div>
 </div><!-- .standard-body-content -->
