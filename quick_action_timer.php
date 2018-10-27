@@ -10,10 +10,10 @@ $html = '';
 
 //$id = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 if(isset($_POST['submit'])) {
-	$contactid = $_SESSION['contactid'];
-	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
+    $contactid = $_SESSION['contactid'];
+    $tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
     $id = preg_replace('/[^0-9]/', '', $_POST['id']);
-	$timer_value = filter_var($_POST['timer_value'],FILTER_SANITIZE_STRING);
+    $timer_value = filter_var($_POST['timer_value'],FILTER_SANITIZE_STRING);
     $timer_date = date('Y-m-d');
 
     switch ($tile) {
@@ -45,8 +45,8 @@ if(isset($_POST['submit'])) {
                 $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Task #$taskid')";
                 $result_add_time = mysqli_query($dbc, $query_add_time);
 
-			    $note = '<em>Time added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: '.$timer_value.'</em>';
-			    mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$refid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+                $note = '<em>Time added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: '.$timer_value.'</em>';
+                mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$refid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
 
                 $contactid = $_SESSION['contactid'];
                 $created_date = date('Y-m-d');
@@ -133,72 +133,73 @@ if(isset($_POST['submit'])) {
 } ?>
 
 <script>
-$(document).ready(function() {
+    $(document).ready(function() {
 
-    /* Timer */
-    $('.start-timer-btn').on('click', function() {
-        $(this).closest('div').find('.timer').timer({
-            editable: true
+        /* Timer */
+        $('.start-timer-btn').on('click', function() {
+            $(this).closest('div').find('.timer').timer({
+                editable: true
+            });
+            $(this).addClass('hidden');
+            $(this).next('.stop-timer-btn').removeClass('hidden');
         });
-        $(this).addClass('hidden');
-        $(this).next('.stop-timer-btn').removeClass('hidden');
-    });
 
 
-    $('.start-timer-btn').on('click', function() {
-        var taskid = $(this).data('id');
-	    var tile_name = $('[name="tile"]').val();
+        $('.start-timer-btn').on('click', function() {
+            var taskid = $(this).data('id');
+            var tile_name = $('[name="tile"]').val();
 
-        if(tile_name == 'tasks') {
-            var contactid = '<?= $_SESSION['contactid'] ?>';
-            if (taskid!='' && typeof taskid!='undefined') {
-                $.ajax({
-                    type: "GET",
-                    url: "Tasks_Updated/task_ajax_all.php?fill=start_timer&taskid="+taskid+"&contactid="+contactid,
-                    dataType: "html",
-                });
+            if(tile_name == 'tasks') {
+                var contactid = '<?= $_SESSION['contactid'] ?>';
+                if (taskid!='' && typeof taskid!='undefined') {
+                    $.ajax({
+                        type: "GET",
+                        url: "Tasks_Updated/task_ajax_all.php?fill=start_timer&taskid="+taskid+"&contactid="+contactid,
+                        dataType: "html",
+                    });
+                }
             }
-        }
-        if(tile_name == 'ticket') {
-        	var id = $('input[name="id"]').val()
-            var contactid = '<?= $_SESSION['contactid'] ?>';
-            if ( id!='' && typeof id!='undefined') {
-                $.ajax({
-                    type: "GET",
-                    url: "Ticket/ticket_ajax_all.php?fill=start_timer&ticketid="+id+"&contactid="+contactid,
-                    dataType: "html",
-                });
+            if(tile_name == 'ticket') {
+                var id = $('input[name="id"]').val()
+                var contactid = '<?= $_SESSION['contactid'] ?>';
+                if ( id!='' && typeof id!='undefined') {
+                    $.ajax({
+                        type: "GET",
+                        url: "Ticket/ticket_ajax_all.php?fill=start_timer&ticketid="+id+"&contactid="+contactid,
+                        dataType: "html",
+                    });
+                }
             }
-        }
 
+        });
+
+        /* Timer */
     });
-
-    /* Timer */
-});
 </script>
 <div class="container">
-	<div class="row">
+    <div class="row">
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <?php
             $id = $_GET['id'];
             ?>
-        	<h3 class="inline">Track Time</h3>
+            <h3 class="inline">Track Time</h3>
             <div class="pull-right gap-top"><a href=""><img src="../img/icons/cancel.png" alt="Close" title="Close" class="inline-img" /></a></div>
             <div class="clearfix"></div>
             <hr />
             <input type="hidden" name="tile" value="<?= $_GET['tile'] ?>" />
             <input type="hidden" name="id" value="<?= preg_replace('/[^0-9]/', '', $_GET['id']); ?>" />
 
-                <div class="form-group">
-                    <label class="col-sm-3 control-label">Timer:</label>
-                    <div class="col-sm-9">
-                        <input type="text" name="timer_value" id="timer_value" style="float:left; max-width:56%;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
-                        <a class="btn btn-success start-timer-btn brand-btn mobile-block" data-id="<?= $id ?>">Start</a>
-                        <button type="submit" name="submit" value="submit" class="btn brand-btn stop-timer-btn hidden mobile-block" data-id="<?= $id ?>">Stop</button>
-                         <!--<a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $id ?>">Stop</a>-->
-                    </div>
+            <div class="form-group">
+                <label class="col-sm-3 control-label">Timer:</label>
+                <div class="col-sm-9">
+                    <input type="text" name="timer_value" id="timer_value" style="float:left; max-width:56%;" class="form-control timer" placeholder="0 sec" />&nbsp;&nbsp;
+                    <a class="btn btn-success start-timer-btn brand-btn mobile-block" data-id="<?= $id ?>">Start</a>
+                    <button type="submit" name="submit" value="submit" class="btn brand-btn stop-timer-btn hidden mobile-block" data-id="<?= $id ?>">Stop</button>
+                    <!--<a class="btn stop-timer-btn hidden brand-btn mobile-block" data-id="<?= $id ?>">Stop</a>-->
                 </div>
+            </div>
 
         </form>
+        
     </div>
 </div>
