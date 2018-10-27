@@ -106,8 +106,8 @@ define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop view_paid_third_party_ar hidden">
-    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+<div class="standard-body-content padded-desktop ">
+    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal view_paid_third_party_ar hidden" role="form">
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>

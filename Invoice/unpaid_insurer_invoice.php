@@ -33,10 +33,10 @@ if (isset($_POST['printpdf'])) {
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop view_unpaid_third_party hidden">
-    <form name="invoice" method="post" action="" class="form-inline" role="form" style="overflow-x:visible;overflow-y:visible;">
+<div class="standard-body-content padded-desktop ">
+    <form name="invoice" method="post" action="" class="form-inline " role="form" style="overflow-x:visible;overflow-y:visible;">
 
-    <div class="notice double-gap-bottom popover-examples">
+    <div class="notice double-gap-bottom popover-examples view_unpaid_third_party hidden">
         <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
         <div class="col-sm-11"><span class="notice-name">NOTE:</span>
         Generate Unpaid <?= $payer_label ?> reports from here. Select the <?= $purchaser_label ?> name from the drop down menu, then select the <?= $payer_label ?> from the drop down menu to display all unpaid <?= $payer_label ?> invoices related to that <?= $purchaser_label ?> and <?= $payer_label ?>.</div>
@@ -53,7 +53,7 @@ if (isset($_POST['printpdf'])) {
             $search_user = '';
         }
         ?>
-        <div class="row">
+        <div class="row view_unpaid_third_party hidden">
             <div class="col-xs-12">
                 <div class="col-sm-6 col-xs-12">
                     <div class="col-sm-4"><label class="control-label"><?= $purchaser_label ?>:</label></div>

@@ -203,8 +203,8 @@ function view_allinvoices() {
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
-    <div class="view_allinvoices hidden">
-    <form name="invoice" method="GET" action="" class="form-horizontal" role="form">
+    <div class="">
+    <form name="invoice" method="GET" action="" class="form-horizontal view_allinvoices hidden" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
         <?php $xsl_xml_value_config = ','.get_config($dbc, 'invoice_dashboard_xsl_xml').','; ?>
         <input type="hidden" name="tab" value="all" />

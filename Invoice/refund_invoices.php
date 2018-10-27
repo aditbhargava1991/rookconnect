@@ -253,10 +253,10 @@ function view_refunds()
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
-    <div class="view_refunds hidden">
+    <div class="">
 
-    <form name="invoice" method="post" action="" class="form-horizontal" role="form">
-    <div class="notice double-gap-bottom popover-examples">
+    <form name="invoice" method="post" action="" class="form-horizontal " role="form">
+    <div class="notice double-gap-bottom popover-examples view_refunds hidden">
         <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
         <div class="col-sm-11"><span class="notice-name">NOTE:</span>
         <br>To Refund: Click Refund / Adjustments under the Function heading for the invoice you wish to access. Search by <?= $purchaser_label ?>, Invoice # and/or Invoice Date and click Search. Click the red Refund checkbox. You will now see the details of the <?= $purchaser_label ?> invoice that can be refunded.
@@ -265,7 +265,7 @@ function view_refunds()
         <div class="clearfix"></div>
     </div>
 
-        <div class="row">
+        <div class="row view_refunds hidden">
             <div class="col-sm-6">
                 <div class="col-sm-4"><label for="search_user" class="control-label"><?= $purchaser_label ?>:</label></div>
                 <div class="col-sm-8">

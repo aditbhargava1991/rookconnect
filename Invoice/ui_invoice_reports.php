@@ -87,10 +87,10 @@ define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop view_ui_report hidden">
+<div class="standard-body-content padded-desktop">
     <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
-        <div class="notice double-gap-bottom popover-examples">
+        <div class="notice double-gap-bottom popover-examples  view_ui_report hidden">
         <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
         <div class="col-sm-11"><span class="notice-name">NOTE:</span>
         U<?= substr(PAYER_LABEL,0,1) ?> Reports are grouped receivables (this tab displays the groups and their total amounts). </div>
@@ -122,7 +122,7 @@ define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0
         ?>
         <br /><br />
 
-        <div class="form-group">
+        <div class="form-group  view_ui_report hidden">
             <div class="col-xs-12">
                 <div class="col-sm-6 col-xs-12">
                     <div class="col-sm-4"><label class="control-label"><?= PAYER_LABEL ?>:</label></div>

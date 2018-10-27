@@ -143,11 +143,11 @@ function view_today_invoices()
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">Today's Invoices</h3>
     <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" />
-        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Search" onclick="view_today_invoices()"> </div>
+        </div>
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop view_today_invoices hidden">
+<div class="standard-body-content padded-desktop ">
     <!-- Summary Blocks --><?php
     $search_contact = 0;
     $search_invoiceid = '';
@@ -208,7 +208,7 @@ function view_today_invoices()
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
-
+    <div class="view_today_invoices hidden"></div>
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
 

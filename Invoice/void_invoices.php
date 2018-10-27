@@ -215,9 +215,9 @@ function view_voided()
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
-    <div class="view_voided hidden">
+    <div class="">
 
-    <form name="invoice" method="post" action="" class="form-horizontal" role="form">
+    <form name="invoice" method="post" action="" class="form-horizontal view_voided hidden" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
 
         <div class="form-group search-group double-gap-top">

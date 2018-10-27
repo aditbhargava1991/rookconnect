@@ -61,10 +61,10 @@ function view_clinic_master()
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop view_clinic_master hidden">
-    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+<div class="standard-body-content padded-desktop ">
+    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal " role="form">
 
-        <div class="notice double-gap-bottom popover-examples">
+        <div class="notice double-gap-bottom popover-examples view_clinic_master hidden">
         <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
         <div class="col-sm-11"><span class="notice-name">NOTE:</span>
         Old data that was not transferable from Clinic Master to Clinic Ace.</div>
@@ -86,7 +86,7 @@ function view_clinic_master()
         }
         ?>
 
-        <div class="form-group">
+        <div class="form-group view_clinic_master hidden">
             <label for="site_name" class="col-sm-2 control-label">Insurer:</label>
             <div class="col-sm-7">
                 <select data-placeholder="Choose an Insurer..." name="insurer" class="chosen-select-deselect form-control" width="380">

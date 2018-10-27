@@ -37,9 +37,9 @@ function view_gf()
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop view_gf hidden">
-    <form name="form_coupons" method="post" action="" class="form-inline">
-        <div class="row pad-top pad-bottom">
+<div class="standard-body-content padded-desktop ">
+    <form name="form_coupons " method="post" action="" class="form-inline">
+        <div class="row pad-top pad-bottom view_gf hidden">
             <div class="col-sm-3">
                 <label for="search_vendor" class="control-label">Search By Any:</label>
             </div>

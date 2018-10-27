@@ -170,11 +170,11 @@ form .form-control { width:10% !important; }
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">Cashout</h3>
-    <div class="pull-right"><img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide U<?= substr(PAYER_LABEL,0,1) ?> Invoice Report" onclick="view_cashout()"></div>
+    <div class="pull-right"><!--<img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide U<?/*= substr(PAYER_LABEL,0,1) */?> Invoice Report" onclick="view_cashout()">--></div>
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop view_cashout hidden">
+<div class="standard-body-content padded-desktop ">
     <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal padded" role="form">
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>

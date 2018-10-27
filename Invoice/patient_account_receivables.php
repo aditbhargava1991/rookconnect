@@ -220,11 +220,11 @@ function view_contact_ar()
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
-    <div class="view_unpaidcontact_ar hidden">
+    <div class="">
 
     <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
-        <div class="notice popover-examples">
+        <div class="notice popover-examples view_unpaidcontact_ar hidden">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11">
                 <span class="notice-name">NOTE:</span>
@@ -236,7 +236,7 @@ function view_contact_ar()
         <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
         <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
 
-        <div class="form-group search-group double-gap-top">
+        <div class="form-group search-group double-gap-top view_unpaidcontact_ar hidden">
             <div class="col-xs-12">
                 <div class="col-sm-6 col-xs-12">
                     <div class="col-sm-4">
