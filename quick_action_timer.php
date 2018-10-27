@@ -94,6 +94,37 @@ if(isset($_POST['submit'])) {
 
             }
 
+            $ticketid = $_GET['ticketid'];
+            $timer = $_GET['timer_value'];
+            $start_time = time();
+            $created_date = date('Y-m-d H:i:s');
+            $created_by = $_SESSION['contactid'];
+            $end_time = date('g:i A');
+            if($timer != '0' && $timer != '00:00:00' && $timer != '') {
+                $query_update_ticket = "UPDATE `ticket_timer` SET `end_time` = '$end_time', `timer` = '$timer' WHERE `ticketid` = '$ticketid' AND created_by='$created_by' AND end_time IS NULL";
+                $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+                $query_update_ticket = "UPDATE `ticket_timer` SET `start_timer_time`='0' WHERE `ticketid` = '$ticketid' AND created_by='$created_by' AND `start_timer_time` > 0";
+                $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+                mysqli_query($dbc, "INSERT INTO `time_cards` (`ticketid`,`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('$ticketid','$created_by','$created_date','Regular Hrs.','".((strtotime($timer) - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
+                echo insert_day_overview($dbc, $created_by, 'Ticket', date('Y-m-d'), '', "Updated ".TICKET_NOUN." #$ticketid - Added Time : $timer");
+            }
+            $ticket = $dbc->query("SELECT `pickup_address`, `pickup_city`, `pickup_postal_code`, `to_do_date`, `to_do_start_time` FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+            $address = implode(', ',[$ticket['pickup_address'],$ticket['pickup_city'],$ticket['pickup_postal_code']]);
+            if(trim($address,', ') != '') {
+                if($next_address = $dbc->query("SELECT * FROM (SELECT `pickup_address`, `pickup_city`, `pickup_postal_code` FROM `tickets` WHERE `to_do_date`='{$ticket['to_do_date']}' AND `to_do_start_time` > '{$ticket['to_do_start_time']}' WHERE `deleted`=0 UNION SELECT `address`, `city`, `province` FROM `ticket_schedule` WHERE `to_do_date`='{$ticket['to_do_date']}' AND `to_do_start_time` > '{$ticket['to_do_start_time']}' WHERE `deleted`=0) `addresses` ORDER BY `to_do_start_time` ASC")) {
+                    $next_address = implode(', ',$next_address);
+                    if(trim($next_address,', ') != '') {
+                        $eta = $data = json_decode(file_get_contents("https://maps.googleapis.com/maps/api/distancematrix/json?origins=".urlencode($address)."&destinations=".urlencode($next_address)."&language=en-EN&sensor=false"));
+                        $eta_time = 0;
+                        $eta_dist = 0;
+                        foreach($eta->rows[0]->elements as $road) {
+                            $eta_time += $road->duration->value / 3600;
+                            $eta_dist += $road->distance->value / 1000;
+                        }
+                        $dbc->query("UPDATE `tickets` SET `est_distance`='$eta_dist', `est_time`='$eta_time', `completed_time`=NOW() WHERE `ticketid`='$ticketid'");
+                    }
+                }
+            }
             break;
 
         default:

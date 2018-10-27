@@ -89,6 +89,26 @@ if($_GET['fill'] == 'start_timer') {
     $start_time = date('h:i A');
     $query_add_time = "INSERT INTO `ticket_time` (`ticketid`, `start_time`, `contactid`, `src`, `timer_date`) VALUES ('$ticketid', '$start_time', '$contactid', 'A', '$timer_date')";
     $result_add_time = mysqli_query($dbc, $query_add_time);
+    $ticketid = $_GET['ticketid'];
+    $start_time = time();
+    $start_timer_time = date('g:i A');
+    $created_date = date('Y-m-d H:i:s');
+    $created_by = $contactid;
+
+    $running_tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT tt.* FROM `ticket_timer` tt LEFT JOIN `tickets` ti ON tt.`ticketid` = ti.`ticketid` WHERE tt.`created_by` = '$created_by' AND tt.`start_timer_time` > 0 AND ti.`deleted` = 0 AND ti.`status` != 'Archive' AND tt.`deleted` = 0"),MYSQLI_ASSOC);
+    foreach ($running_tickets as $running_ticket) {
+        $tickettimerid = $running_ticket['tickettimerid'];
+        if(empty($running_ticket['timer']) && empty($running_ticket['end_time'])) {
+            $timer = gmdate('H:i:s', strtotime(date('Y-m-d H:i:s')) - $running_ticket['start_timer_time']);
+            $end_time = date('g:i A');
+            $query_update_ticket = "UPDATE `ticket_timer` SET `end_time` = '$end_time', `timer` = '$timer' WHERE `tickettimerid` = '$tickettimerid'";
+            $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+        }
+        $query_update_ticket = "UPDATE `ticket_timer` SET `start_timer_time`='0' WHERE `tickettimerid` = '$tickettimerid'";
+        $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
+    }
+    $query_insert_client_doc = "INSERT INTO `ticket_timer` (`ticketid`, `timer_type`, `start_time`, `created_date`, `created_by`, `start_timer_time`) VALUES ('$ticketid', 'Work', '$start_timer_time', '$created_date', '$created_by', '$start_time')";
+    $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
 } else if($_GET['fill'] == 'stop_timer') {
     $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
     $timer_value = filter_var($_GET['timer_value'],FILTER_SANITIZE_STRING);
@@ -109,17 +129,24 @@ if($_GET['fill'] == 'start_timer') {
         $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Task #$taskid')";
         $result_add_time = mysqli_query($dbc, $query_add_time);
     }
+
+
 }
 if($_GET['fill'] == 'ticket_quick_time') {
     $ticketid = $_POST['id'];
+    $tt=$_POST['time'];
     $time = strtotime($_POST['time']);
     $current_time = strtotime(mysqli_fetch_array(mysqli_query($dbc, "SELECT `work_time` FROM `tickets` WHERE `ticketid`='$ticketid'"))['work_time']);
+
     $total_time = date('H:i:s', $time + $current_time - strtotime('00:00:00'));
-    $query_time = "UPDATE `tickets` SET `work_time` = '$total_time' WHERE ticketid='$ticketid'";
+    $query_time = "UPDATE `tickets` SET `max_time` = '$total_time' WHERE ticketid='$ticketid'";
     mysqli_query($dbc, "INSERT INTO `ticket_time` (`ticketid`, `work_time`, `src`, `contactid`, `timer_date`) VALUES ('$ticketid', '".$_POST['time']."', 'M', '".$_SESSION['contactid']."', '".date('Y-m-d')."')");
     mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`,`date`,`type_of_time`,`total_hrs`,`timer_tracked`,`comment_box`) VALUES ('".$_SESSION['contactid']."','".date('Y-m-d')."','Regular Hrs.','".(($time - strtotime('00:00:00')) / 3600)."','0','Time Added on Ticket #$ticketid')");
     $result = mysqli_query($dbc, $query_time);
     insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', "Updated Ticket #$ticketid - Added Time : ".$_POST['time']);
+    echo $query="INSERT INTO ticket_time_list(ticketid,time_type,time_length,created_by)
+            VALUES('$ticketid','Regular Hrs.','$tt','$_SESSION[contactid]')";
+    mysqli_query($dbc, $query);
     echo 'Added '.$_POST['time']." - $total_time total";
 }
 if($_GET['fill'] == 'ticketreply') {
@@ -134,7 +161,7 @@ if($_GET['fill'] == 'ticketreply') {
     }
     $contactid = $_SESSION['contactid'];
     $created_date = date('Y-m-d');
-    $insert = mysqli_query($dbc, "INSERT INTO `task_comments` (`ticketid`, `created_by`, `created_date`, `comment`) VALUES ('$id', '$contactid', '$created_date', '$reply')");
+    $insert = mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `created_by`, `created_date`, `comment`) VALUES ('$id', '$contactid', '$created_date', '$reply')");
     echo mysqli_error($dbc);
 }
 if($_GET['fill'] == 'task_path_milestone') {
@@ -396,7 +423,6 @@ if($_GET['fill'] == 'pausetickettimer') {
         $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
     }
 }
-
 if($_GET['fill'] == 'stoptickettimer') {
 	$ticketid = $_GET['ticketid'];
     $timer = $_GET['timer_value'];
@@ -639,7 +665,6 @@ if($_GET['action'] == 'update_fields') {
 			mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, `sort`, `warehouse_location`, `container`, `manifest_num`) SELECT `ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, (`sort` + 1), `warehouse_location`, `container`, `manifest_num` FROM `ticket_schedule` WHERE `ticketid` = '".$ticketid."' AND `deleted` = 0 ORDER BY `sort` DESC LIMIT 1");
 			echo 'created_unscheduled_stop';
 		}
-        $dbc->query("UPDATE `$table_name` SET `status_contact`='".$_SESSION['contactid']."' WHERE `$id_field`='$id'");
 	}
 	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
 		$value = date('Y-m-d '.TIME_FORMAT_SEC, strtotime($value));
@@ -2219,12 +2244,11 @@ if($_GET['action'] == 'update_fields') {
 	$template = $_POST['template'];
 	if($template == 'template_a') {
 		$header = filter_var(htmlentities($_POST['header']),FILTER_SANITIZE_STRING);
-		$header_logo_align = filter_var(htmlentities($_POST['header_logo_align']),FILTER_SANITIZE_STRING);
 		$footer = filter_var(htmlentities($_POST['footer']),FILTER_SANITIZE_STRING);
 		$fields = filter_var(implode(',', json_decode($_POST['fields'])),FILTER_SANITIZE_STRING);
 
 		mysqli_query($dbc, "INSERT INTO `field_config_ticket_log` (`template`) SELECT 'template_a' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_log` WHERE `template` = 'template_a') num WHERE num.rows = 0");
-		mysqli_query($dbc, "UPDATE `field_config_ticket_log` SET `header` = '$header', `header_logo_align` = '$header_logo_align', `footer` = '$footer', `fields` = '$fields' WHERE `template` = 'template_a'");
+		mysqli_query($dbc, "UPDATE `field_config_ticket_log` SET `header` = '$header', `footer` = '$footer', `fields` = '$fields' WHERE `template` = 'template_a'");
 
 		if(!file_exists('download')) {
 	        mkdir('download', 0777, true);
@@ -2859,6 +2883,7 @@ if($_GET['action'] == 'update_fields') {
 			$validate_errors[] = "No repeat days selected";
 		}
 		if($validated) {
+			//If validated, get the first 10 recurring dates and send it as a response so the user can verify that the dates are correct
 			$ongoing_recurrence = false;
 			if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
 				$sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
@@ -2866,13 +2891,6 @@ if($_GET['action'] == 'update_fields') {
 				$ongoing_recurrence = true;
 			}
 			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
-			if(empty($recurring_dates)) {
-				$validated = false;
-				$validate_errors[] = "No dates found in recurrence range";
-			}
-		}
-		//If validated, get the first 10 recurring dates and send it as a response so the user can verify that the dates are correct
-		if($validated) {
 			$validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date.($ongoing_recurrence ? " ongoing" : " until ".$end_date).". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
 			$result = [success=>true, message=>$validate_message, first_date=>array_shift($recurring_dates)];
 		} else {
@@ -2884,10 +2902,6 @@ if($_GET['action'] == 'update_fields') {
 		$ticketid = $_POST['ticketid'];
 
 		if($ticketid > 0) {
-			if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
-				$sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
-				$end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
-			}
 			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
 			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
 
@@ -2895,7 +2909,7 @@ if($_GET['action'] == 'update_fields') {
 				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
 				$main_ticketid = $ticket['main_ticketid'];
 				mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
-				mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND (`to_do_date` >= '$create_starting_at' OR IFNULL(NULLIF(`to_do_date`,'0000-00-00'),'') = '') AND `ticketid` != '$ticketid'");
+				mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND (`to_do_date` >= '$create_starting_at' OR IFNULL(`to_do_date`,'0000-00-00') = '0000-00-00') AND `ticketid` != '$ticketid'");
 				mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
 			}
 
