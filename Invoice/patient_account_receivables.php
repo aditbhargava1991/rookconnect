@@ -82,15 +82,19 @@ function add_reminder(invoiceid) {
     }
     overlayIFrameSlider('../quick_action_reminders.php?tile=invoice&ar=true&id='+invoiceid+'&start_date=<?= empty($_GET['p1']) ? $_POST['starttime'] : $_GET['p1'] ?>&end_date=<?= empty($_GET['p2']) ? $_POST['endtime'] : $_GET['p2'] ?>&customer=<?= empty($_GET['p3']) ? $_POST['patient'] : $_GET['p3'] ?>','auto',false,true);
 }
+function view_contact_ar()
+{
+    $('.view_unpaidcontact_ar').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left"><?= $purchaser_label ?> Accounts Receivable</h3>
-    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /><img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Customer Accounts Receivable" onclick="view_contact_ar()"> </div>
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
+<div class="standard-body-content padded-desktop ">
     <!-- Summary Blocks --><?php
     if(!empty($_GET['p1'])) {
         $starttime = $_GET['p1'];
@@ -216,6 +220,7 @@ function add_reminder(invoiceid) {
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
+    <div class="view_unpaidcontact_ar hidden">
 
     <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
@@ -307,6 +312,8 @@ function add_reminder(invoiceid) {
         } ?>
 
     </form>
+    </div>
+
 </div><!-- .standard-body-content -->
 
 <?php

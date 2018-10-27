@@ -134,16 +134,20 @@ function show_hide_email() {
 		$('[name=send_email_div]').hide();
 	}
 }
+function view_today_invoices()
+{
+    $('.view_today_invoices').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">Today's Invoices</h3>
     <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" />
-        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Search" onclick="view_search()"> </div>
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Search" onclick="view_today_invoices()"> </div>
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
+<div class="standard-body-content padded-desktop view_today_invoices hidden">
     <!-- Summary Blocks --><?php
     $search_contact = 0;
     $search_invoiceid = '';

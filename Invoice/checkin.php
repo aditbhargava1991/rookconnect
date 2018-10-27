@@ -12,10 +12,13 @@ if(FOLDER_NAME == 'posadvanced') {
 ?>
 
 <div class="standard-body-title hide-titles-mob">
-    <h3>Check In</h3>
+    <h3 class="pull-left">Check In</h3>
+    <div class="pull-right">
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Check In" onclick="view_checkin()"> </div>
+    <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
+<div class="standard-body-content padded-desktop view_checkin hidden">
     <form name="form_sites" method="post" action="" class="form-inline" role="form">
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
@@ -193,3 +196,8 @@ if(FOLDER_NAME == 'posadvanced') {
         echo '</table>'; ?>
     </div>
 </div><!-- .standard-body-content -->
+<script type="text/javascript">
+    function view_checkin() {
+        $('.view_checkin').toggleClass('hidden');
+    }
+</script>

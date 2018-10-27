@@ -48,13 +48,20 @@ function waiting_on_collection(sel) {
 		}
 	});
 }
+function view_clinic_master()
+{
+    $('.view_clinic_master').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
-    <h3>Insurer Accounts Receivable From Clinic Master</h3>
+    <h3 class="pull-left">Insurer Accounts Receivable From Clinic Master</h3>
+    <div class="pull-right">
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Insurer Accounts Receivable From Clinic Master" onclick="view_clinic_master()"> </div>
+    <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
+<div class="standard-body-content padded-desktop view_clinic_master hidden">
     <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
         <div class="notice double-gap-bottom popover-examples">

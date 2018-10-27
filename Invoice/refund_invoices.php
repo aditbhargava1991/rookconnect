@@ -167,11 +167,15 @@ function view_tabs() {
 function view_summary() {
     $('.view_summary').toggle();
 }
+function view_refunds()
+{
+    $('.view_refunds').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">Refund / Adjustments</h3>
-    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /><img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Refund / Adjustments" onclick="view_refunds()"></div>
     <div class="clearfix"></div>
 </div>
 
@@ -249,6 +253,7 @@ function view_summary() {
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
+    <div class="view_refunds hidden">
 
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
     <div class="notice double-gap-bottom popover-examples">
@@ -582,6 +587,8 @@ function view_summary() {
         ?>
 
     </form>
+
+    </div>
 </div><!-- .standard-body-content -->
 
 <?php
