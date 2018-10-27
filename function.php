@@ -81,6 +81,7 @@ DEFINE('INVENTORY_TILE', $_SESSION['INVENTORY_TILE']);
 DEFINE('TASK_TILE', $_SESSION['TASK_TILE']);
 DEFINE('TASK_NOUN', $_SESSION['TASK_NOUN']);
 DEFINE('POS_ADVANCE_TILE', $_SESSION['POS_ADVANCE_TILE']);
+DEFINE('POS_ADVANCE_NOUN', $_SESSION['POS_ADVANCE_NOUN']);
 DEFINE('INVENTORY_NOUN', $_SESSION['INVENTORY_NOUN']);
 DEFINE('CONTACTS_TILE', $_SESSION['CONTACTS_TILE']);
 DEFINE('CONTACTS_NOUN', $_SESSION['CONTACTS_NOUN']);
@@ -603,6 +604,12 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return 'Sales Leads';
 		} else if($name == 'ticket_archive_status') {
 			return 'Archive#*#Archived';
+		} else if($name == 'estimate_tabs') {
+			return get_config($dbc, 'project_tabs');
+		} else if($name == 'invoice_ticket_append_qty') {
+			return 10;
+		} else if(strpos($name, 'invoice_ticket_append_qty_') === 0) {
+			return get_config($dbc, 'invoice_ticket_append_qty');
 		} else if($name == 'cust_support_tab_list') {
             $value = ['services','scrum','new','feedback'];
             foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_tab) {
@@ -914,7 +921,7 @@ function set_field_value($value, $field_name, $table_name, $id_field, $id) {
 	}
 
 	// Set the matching value
-	if(!$_SERVER['DBC']->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `$id_field`='$id'")) {
+	if(!$_SERVER['DBC']->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `$id_field`='$id' AND `$id_field` NOT IN (0,'')")) {
 		return "<!--Unable to update $field_name in $table_name to $value. Please review the request ($id_field: $id).-->";
 	} else {
 		return "<!--Successfully updated $field_name in $table_name to $value.-->";
@@ -938,7 +945,7 @@ function get_field_value($field_name, $table_name, $id_field, $id) {
 	}
 
 	// Get the first matching value, and decrypt it if necessary
-	if(!($values = $_SERVER['DBC']->query("SELECT $field_name FROM `$table_name` WHERE `$id_field`='$id'"))) {
+	if(!($values = $_SERVER['DBC']->query("SELECT $field_name FROM `$table_name` WHERE `$id_field`='$id' AND `$id_field` NOT IN (0,'')"))) {
 		return "<!--Unable to retrieve $field_name from $table_name. Please review the request ($id_field: $id).-->";
 	} else {
 		$values = $values->fetch_assoc();

@@ -55,7 +55,8 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 	// if($dbc->query("SELECT * FROM `orientation_staff` WHERE `staffid`='{$_SESSION['contactid']}' AND `start_date` <= DATE(NOW()) AND `completed`=0")->num_rows > 0) {
 		// $all_tiles = array('orientation');
 	// } else {
-	$all_tiles = array_merge([ 'admin_settings',
+	$all_tiles = array_merge([ 'start_day_button',
+            'admin_settings',
 			'software_config',
 			'security',
 			'contacts',
@@ -214,14 +215,6 @@ if($_SESSION['tile_list_updated'] + 30 < time() || $_SERVER['PHP_SELF'] == '/Set
 	session_start(['cookie_lifetime' => 518400]);
 	$_SERVER['page_load_info'] .= 'Session Started: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 	$_SESSION['tile_list'] = [];
-	if(START_DAY != '' && $_SESSION['category'] == 'Staff' && strpos(get_privileges($dbc, 'start_day_button', ROLE),'*hide*') === FALSE) {
-		$timer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start` FROM `time_cards` WHERE `type_of_time` IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='".$_SESSION['contactid']."'"))['timer_start'];
-		$tile_label = START_DAY;
-		if($timer > 0) {
-			$tile_label = END_DAY;
-		}
-		$_SESSION['tile_list'][] = ['tile' => 'start_day_button', 'label' => 'Tile: '.$tile_label,'key'=>$tile_label,'link' => WEBSITE_URL.'/Timesheet/start_day.php'];
-	}
 
 	$detect = new Mobile_Detect;
 	$is_mobile = ( $detect->isMobile() ) ? true : false;

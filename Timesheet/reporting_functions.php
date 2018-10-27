@@ -54,8 +54,8 @@ function get_hours_report_summary($dbc, $staff, $search_start_date, $search_end_
 	$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
 	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
 	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
-	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
-		$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array('total_hrs',$value_config)) {
+		$value_config = array_merge($value_config,['total_hrs']);
 	}
 	if(!empty($override_value_config)) {
 		$value_config = explode(',',$override_value_config);
@@ -158,8 +158,8 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 	$timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
 	$timesheet_rounding = get_config($dbc, 'timesheet_rounding');
 	$timesheet_rounded_increment = get_config($_SERVER['DBC'], 'timesheet_rounded_increment') / 60;
-	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config)) {
-		$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+	if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array('total_hrs',$value_config)) {
+		$value_config = array_merge($value_config,['total_hrs']);
 	}
 	if(!empty($override_value_config)) {
 		$value_config = explode(',',$override_value_config);

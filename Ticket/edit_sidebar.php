@@ -8,6 +8,19 @@ if(empty($ticketid) && !isset($value_config)) {
 	$access_view_summary = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_summary');
 	$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
 	$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
+	if((isset($_GET['intake_key']) && !($ticketid > 0)) || $_GET['estimate_mode'] > 0) {
+		$access_project = true;
+		$access_staff = true;
+		$access_contacts = true;
+		$access_waitlist = true;
+		$access_staff_checkin = true;
+		$access_all_checkin = true;
+		$access_medication = true;
+		$access_complete = true;
+		$access_services = true;
+		$access_all = true;
+		$access_any = true;
+    }
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
 	$value_config = ','.get_field_config($dbc, 'tickets').',';
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
@@ -39,6 +52,27 @@ if(empty($ticketid) && !isset($value_config)) {
 				}
 			}
 		}
+	}
+
+	//Estimate Mode Fields
+	if($_GET['estimate_mode'] == 1) {
+		$value_config_all = $value_config;
+		$value_config = ','.get_config($dbc, 'ticket_estimate_fields').',';
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_estimate_fields_'.$ticket_type).',';
+		}
+		if(empty(trim($value_config,','))) {
+			$value_config = $value_config_all;
+		} else {
+			foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+				if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+					$value_config .= ','.$action_mode_ignore_field;
+				}
+			}
+		}
+        foreach($estimate_mode_restrict as $remove_field) {
+            $value_config = str_replace($remove_field.',','',$value_config);
+        }
 	}
 
 	//Intake Fields

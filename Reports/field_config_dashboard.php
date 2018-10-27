@@ -72,7 +72,10 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Hourly Compensation".',') !== FALSE) { echo " checked"; } ?> value="Hourly Compensation" name="reports_dashboard[]"> Hourly Compensation</label>
         </div>
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Therapist Compensation".',') !== FALSE) { echo " checked"; } ?> value="Therapist Compensation" name="reports_dashboard[]"> Therapist Compensation</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Therapist Compensation".',') !== FALSE) { echo " checked"; } ?> value="Therapist Compensation" name="reports_dashboard[]"> Staff Compensation</label>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Vendor Compensation".',') !== FALSE) { echo " checked"; } ?> value="Vendor Compensation" name="reports_dashboard[]"> Vendor Compensation</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Compensation Print Appointment Reports".',') !== FALSE) { echo " checked"; } ?> value="Compensation Print Appointment Reports" name="reports_dashboard[]"> Compensation: Print Appt. Reports Button</label>

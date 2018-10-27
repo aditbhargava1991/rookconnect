@@ -151,7 +151,7 @@ $approv_count = $admin_group['precedence'] > 1 ? count(array_filter(explode(',',
             <table class="table table-bordered table-striped">
                 <tr class="hidden-sm hidden-xs">
                     <th><?= empty($ticket_noun) ? TICKET_NOUN : $ticket_noun ?> (Click to View)</th>
-                    <th>Date</th>
+                    <th style="min-width: 7em;">Date</th>
                     <?php if(strpos($value_config, ',Customer,') !== FALSE) { ?>
                         <th>Customer</th>
                     <?php } ?>

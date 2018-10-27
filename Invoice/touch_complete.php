@@ -241,9 +241,6 @@ if ( $complete===TRUE ) {
 	// Generate PDF Invoice
 	$invoice_design = get_config($dbc, 'invoice_design');
 	switch($invoice_design) {
-		case 1:
-			include('pos_invoice_1.php');
-			break;
 		case 2:
 			include('pos_invoice_2.php');
 			break;
@@ -261,6 +258,25 @@ if ( $complete===TRUE ) {
 			break;
 		case 'service':
             include('pos_invoice_service.php');
+			break;
+		case 'pink':
+			include ('pos_invoice_pink.php');
+			break;
+		case 'cnt1':
+			include ('pos_invoice_contractor_1.php');
+			break;
+		case 'cnt2':
+			include ('pos_invoice_contractor_2.php');
+			break;
+		case 'cnt3':
+			include ('pos_invoice_contractor_3.php');
+			break;
+        case 'custom_ticket':
+            include ('pos_invoice_custom_ticket.php');
+            break;
+		case 1:
+        default:
+			include('pos_invoice_1.php');
 			break;
 	}
 
