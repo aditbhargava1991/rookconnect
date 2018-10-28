@@ -89,6 +89,7 @@ if($_GET['fill'] == 'start_timer') {
     $start_time = date('h:i A');
     $query_add_time = "INSERT INTO `ticket_time` (`ticketid`, `start_time`, `contactid`, `src`, `timer_date`) VALUES ('$ticketid', '$start_time', '$contactid', 'A', '$timer_date')";
     $result_add_time = mysqli_query($dbc, $query_add_time);
+
     $ticketid = $_GET['ticketid'];
     $start_time = time();
     $start_timer_time = date('g:i A');
@@ -148,6 +149,7 @@ if($_GET['fill'] == 'ticket_quick_time') {
             VALUES('$ticketid','Regular Hrs.','$tt','$_SESSION[contactid]')";
     mysqli_query($dbc, $query);
     echo 'Added '.$_POST['time']." - $total_time total";
+
 }
 if($_GET['fill'] == 'ticketreply') {
     $id = $_POST['taskid'];
