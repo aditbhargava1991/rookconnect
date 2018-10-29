@@ -109,7 +109,8 @@ $(document).ready(function() {
 			</div>
 
 			<div class="clearfix"></div>
-			<?php if(isset($_GET['edit_inspection'])) {
+            <?php $overview = get_config($dbc, 'show_equipment_overview');
+			if(isset($_GET['edit_inspection'])) {
 				include('edit_inspection.php');
 			} else if(isset($_GET['edit_assigned_equipment'])) {
 				include('edit_assigned_equipment.php');
@@ -136,7 +137,11 @@ $(document).ready(function() {
 				} else if($_GET['subtab'] == 'equip_assign') {
 					include('edit_equipment_assignment.php');
 				} else {
-					include('edit_equipment.php');
+                    if($overview > 0 && $_GET['subtab'] != 'edit' && $_GET['edit'] > 0) {
+                        $_GET['view'] = 'readonly';
+                        $_GET['subtab'] = 'overview';
+                    }
+                    include('edit_equipment.php');
 				}
 			} else if(isset($_GET['settings']) && $security['config'] > 0) {
 				include('field_config.php');

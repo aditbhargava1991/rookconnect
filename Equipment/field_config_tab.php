@@ -25,6 +25,9 @@ if (isset($_POST['add_tab'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('show_category_dropdown_equipment', '$value')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
+    
+    // Set the Overview Tab option
+	set_config($dbc, 'show_equipment_overview', $_POST['show_equipment_overview']);
 
 	// Set the Volume Unit field
 	set_config($dbc, 'volume_units', $_POST['volume_units']);
@@ -142,7 +145,13 @@ if (isset($_POST['add_tab'])) {
 			}
 		}
 		?>
-          <input type='checkbox' style='width:20px; height:20px;' <?php echo $checked; ?>  name='show_category_dropdown_equipment' class='show_category_dropdown_equipment' value='1'>
+          <label class="form-checkbox"><input type='checkbox' <?php echo $checked; ?>  name='show_category_dropdown_equipment' class='show_category_dropdown_equipment' value='1'>Enable</label>
+        </div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4">Show Equipment Overview:</label>
+		<div class="col-sm-8">
+            <label class="form-checkbox"><input type='checkbox' <?= get_config($dbc,'show_equipment_overview') > 0 ? 'checked' : '' ?>  name='show_equipment_overview' value='1'>Enable</label>
         </div>
 	</div>
 	<div class="form-group">
