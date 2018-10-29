@@ -29,8 +29,7 @@ function saveQuickIcon() {
                 <div class="col-sm-8">
                     <?php $contact_quick_action_icons = explode(',',get_config($dbc, 'contact_quick_action_icons')); ?>
 
-                        <!--<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="contact_quick_action_icons[]" <?= in_array('flag',$contact_quick_action_icons) ? 'checked' : '' ?> value="flag"> <img class="inline-img" src="../img/icons/color-wheel.png"> Highlight</label> -->
-
+                        <label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="contact_quick_action_icons[]" <?= in_array('flag',$contact_quick_action_icons) ? 'checked' : '' ?> value="flag"> <img class="inline-img" src="../img/icons/color-wheel.png"> Highlight</label>
                         <label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="contact_quick_action_icons[]" <?= in_array('flag_manual',$contact_quick_action_icons) ? 'checked' : '' ?> value="flag_manual"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Manually Flag with Label</label>
 
                         <!--<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="contact_quick_action_icons[]" <?= in_array('reply',$contact_quick_action_icons) ? 'checked' : '' ?> value="reply"> <img class="inline-img" src="../img/icons/ROOK-reply-icon.png"> Reply</label>
