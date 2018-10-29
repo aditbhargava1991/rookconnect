@@ -407,59 +407,99 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 				if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=salesorderid]').length > 0) {
 					var business = $('[name=businessid] option:selected').first().text();
 					var invoice = $('[name=salesorderid]').first().val();
-					$('[name=heading]').val(business+' - '+invoice).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(business+' - '+invoice).change();
+                    else {
+                        $('[name=heading]').first().val(business+' - '+invoice).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Bus Invoice Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=salesorderid]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var business = $('[name=businessid] option:selected').first().text();
 					var invoice = $('[name=salesorderid]').first().val();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(invoice+' - '+business+' '+date).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(invoice+' - '+business+' '+date).change();
+                    } else {
+                        $('[name=heading]').first().val(invoice+' - '+business+' '+date).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Project Invoice Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=projectid]').length > 0 && $('[name=salesorderid]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var project = $('[name=projectid] option:selected').first().text();
 					var invoice = $('[name=salesorderid]').first().val();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(invoice+' - '+project+' '+date).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(invoice+' - '+project+' '+date).change();
+                    } else {
+                        $('[name=heading]').first().val(invoice+' - '+project+' '+date).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=to_do_date]').length > 0) {
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(date).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(date).change();
+                    } else {
+                        $('[name=heading]').first().val(date).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Business Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var business = $('[name=businessid] option:selected').first().text();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(business+' - '+date).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(business+' - '+date).change();
+                    } else {
+                        $('[name=heading]').first().val(business+' - '+date).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Contact Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=clientid]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var contact = $('[name=clientid] option:selected').first().text();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(contact+' - '+date).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(contact+' - '+date).change();
+                    } else {
+                        $('[name=heading]').first().val(contact+' - '+date).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Business".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0) {
 					var business = $('[name=businessid] option:selected').first().text();
-					$('[name=heading]').val(business).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(business).change();
+                    } else {
+                        $('[name=heading]').first().val(business).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Contact".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=clientid]').length > 0) {
 					var contact = $('[name=clientid] option:selected').first().text();
-					$('[name=heading]').val(contact).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(contact).change();
+                    } else {
+                        $('[name=heading]').first().val(contact).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Milestone Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=milestone_timeline]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var milestone = $('[name=milestone_timeline] option:selected').text();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(milestone+': '+invoice).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(milestone+': '+invoice).change();
+                    } else {
+                        $('[name=heading]').first().val(milestone+': '+invoice).change();
+                    }
 				}
 			<?php } else if(strpos($value_config, ','."Heading Assigned".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=contactid]').length > 0) {
 					var assigned = $('[name=contactid] option:selected,[name=item_id][data-type=Staff] option:selected').first().text();
-					$('[name=heading]').val(assigned).change();
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().val(assigned).change();
+                    } else {
+                        $('[name=heading]').first().val(assigned).change();
+                    }
 				}
 			<?php } ?>
 			} else { setTimeout(setHeading, 250); }
