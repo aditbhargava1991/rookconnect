@@ -366,8 +366,9 @@ if($type == 'Ticket') {
 		(in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon" title="Reply">' : '').
 		(in_array('time',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-timer-icon.png" class="inline-img time-icon" title="Add Time">' : '').
 		(in_array('timer',$quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '').
+		(in_array('scrum_sync',$quick_actions) ? '<span onclick="sync(this); return false;" data-sync="'.($item['is_sync'] > 0 ? 0 : 1).'"><img src="../img/icons/ROOK-sync-icon.png" title="'.($item['is_sync'] > 0 ? 'Remove From Customer' : 'Sync To Customer').' Scrum Board" class="inline-img no-toggle" onclick="return false;"></span>' : '').
 		(in_array('archive',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/trash-icon-red.png" class="inline-img archive-icon" title="Archive">' : '').
-		'<span title="Sync to Scrum Board" onclick="sync('.$item['tasklistid'].'); return false;"><img src="../img/icons/ROOK-sync-icon.png" title="Sync to Scrum Board" class="inline-img no-toggle" title="Sync" onclick="return false;"></span></span>';
+		'</span>';
 
     $actions .= '<input type="color" onchange="choose_color(this); return false;" class="color_picker" id="color_'.$item['tasklistid'].'"" name="color_'.$item['tasklistid'].'" style="display:none;" value="#f6b73c" />';
 
@@ -556,13 +557,20 @@ if($type == 'Ticket') {
 	<div class="clearfix"></div>
 </li>
 <script>
-function sync(tasklistid) {
+function sync(task) {
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
-		url: "../Tasks_Updated/task_ajax_all.php?fill=is_sync&tasklistid="+tasklistid,
+		url: "../Tasks_Updated/task_ajax_all.php?fill=is_sync&sync="+$(task).data('sync')+"&tasklistid="+$(task).closest('[data-task]').data('task'),
 		dataType: "html",   //expect html to be returned
 		success: function(response){
-			location.reload();
+            // $(task).hide();
+            $(task).data('sync',$(task).data('sync') > 0 ? 0 : 1);
+            $(task).find('img').prop('title',($(task).data('sync') > 0 ? 'Sync To Customer Scrum Board' : 'Remove From Customer Scrum Board'));
+            try {
+                $(task).find('img').tooltip('destroy');
+            } catch (err) { }
+            initTooltips();
+			// location.reload();
 		}
 	});
 }

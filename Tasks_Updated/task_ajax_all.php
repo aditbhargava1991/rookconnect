@@ -873,8 +873,9 @@ if ( $_GET['fill']=='checklistArchive' ) {
 	mysqli_query($dbc, "UPDATE `checklist` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `checklistid` = '$checklistid'");
 }
 if ( $_GET['fill']=='is_sync' ) {
-	$tasklistid = $_GET['tasklistid'];
-	$query = "UPDATE `tasklist` SET `is_sync` = 1 WHERE `tasklistid` = '$tasklistid'";
+	$tasklistid = filter_var($_GET['tasklistid'],FILTER_SANITIZE_STRING);
+	$sync = filter_var($_GET['sync'],FILTER_SANITIZE_STRING);
+	$query = "UPDATE `tasklist` SET `is_sync`='$sync' WHERE `tasklistid`='$tasklistid'";
 	mysqli_query($dbc, $query);
 }
 ?>

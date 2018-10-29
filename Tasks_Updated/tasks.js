@@ -334,13 +334,20 @@ function removeStaff(button) {
     $('div.add_staff').first().find('[name="task_userid[]"]').change();
 }
 
-function sync(tasklistid) {
+function sync(task) {
 	$.ajax({    //create an ajax request to load_page.php
 		type: "GET",
-		url: "task_ajax_all.php?fill=is_sync&tasklistid="+tasklistid,
+		url: "task_ajax_all.php?fill=is_sync&sync="+$(task).data('sync')+"&tasklistid="+$(task).closest('[data-task]').data('task'),
 		dataType: "html",   //expect html to be returned
 		success: function(response){
-			location.reload();
+            // $(task).hide();
+            $(task).data('sync',$(task).data('sync') > 0 ? 0 : 1);
+            $(task).find('img').prop('title',($(task).data('sync') > 0 ? 'Sync To Customer Scrum Board' : 'Remove From Customer Scrum Board'));
+            try {
+                $(task).find('img').tooltip('destroy');
+            } catch (err) { }
+            initTooltips();
+			// location.reload();
 		}
 	});
 }
