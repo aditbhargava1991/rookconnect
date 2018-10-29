@@ -59,7 +59,7 @@ if($map_url != '') {
             var y_pos = Math.round(height * <?= isset($zoom_ratios[$zoom]) ? $zoom_ratios[$zoom][0] : $zoom_ratios[10][0] ?> * <?= $ratio > 1 ? $ratio : 1 ?> * (<?= $map_center->lat ?> - <?= $ticket_coordinates->lat ?>) + height - 20);
             var x_pos = Math.round(width * <?= isset($zoom_ratios[$zoom]) ? $zoom_ratios[$zoom][1] : $zoom_ratios[10][1] ?> * <?= $ratio > 1 ? 1 : $ratio ?> * (<?= $ticket_coordinates->lng ?> - <?= $map_center->lng ?>) + width - 10);
             if(y_pos > 0 && x_pos > 0 && y_pos < height * 2 && x_pos < width * 2) {
-                $('.map_view').append('<span class="cursor-hand ticket" data-table="<?= $ticket['table'] ?>" data-id-field="<?= $ticket['id_field'] ?>" data-id="<?= $ticket['id'] ?>" style="position:absolute;top:'+y_pos+'px;left:calc(20% + '+x_pos+'px);"><img class="no-toggle drag-handle" title="<?= $ticket['ticket_label'] ?>" src="../img/icons/location-pin.png" style="height:20px;width:20px;"></span>');
+                $('.map_view').append('<span class="cursor-hand ticket" data-table="<?= $ticket['table'] ?>" data-id-field="<?= $ticket['id_field'] ?>" data-id="<?= $ticket['id'] ?>" style="position:absolute;top:'+y_pos+'px;left:calc(20% + '+x_pos+'px);"><img class="no-toggle drag-handle" data-placement="bottom" title="<?= $ticket['ticket_label'] ?>" src="../img/icons/location-pin.png" style="height:20px;width:20px;"></span>');
             }
             </script>
         <?php } ?>
