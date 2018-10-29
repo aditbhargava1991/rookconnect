@@ -610,6 +610,8 @@ if(!empty($invoice_types)) { ?>
                                 Contractor Design 3<br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
                             <label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'custom_ticket') { echo 'checked'; } ?> type="radio" name="invoice_design" value="custom_ticket">
                                 Customizable <?= TICKET_NOUN ?><br /><a target="_blank" href="../img/invoice_contractor3.png"><img src="../img/invoice_contractor3.png" width="100" height="100" border="0" alt=""></a></label>
+                            <label class="form-checkbox"><input style="height: 30px; width: 30px;" class="tax_exemption" <?php if ($invoice_design == 'exxon') { echo 'checked'; } ?> type="radio" name="invoice_design" value="cnt1">
+                                Exxon<br /><a target="_blank" href="../img/invoice_contractor1.png"><img src="../img/invoice_contractor1.png" width="100" height="100" border="0" alt=""></a></label>
 						</div>
 					</div>
 
