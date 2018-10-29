@@ -39,7 +39,9 @@ function savePinned() {
 <input type="hidden" name="id" value="<?= $_GET['id'] ?>">
 <input type="hidden" name="type" value="<?= $_GET['type'] ?>">
 <div class="pad-10">
-    <h3>Pinned Users<a href="../blank_loading_page.php" class="pull-right no-toggle" title="Close"><img src="../img/icons/cancel.png" class="inline-img"></a></h3>
+    <a href="../blank_loading_page.php" class="pull-right no-toggle" title="Close"><img src="../img/icons/cancel.png" class="inline-img"></a>
+    <h3 class="inline">Pinned Users</h3>
+    <hr>
     <div class="clearfix"></div>
     <?php foreach($pinned as $pin) { ?>
         <div class="form-group">

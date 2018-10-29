@@ -2505,6 +2505,9 @@ ul.guide-index li { font-weight:bold; list-style-type:none; margin-top:20px; mar
 	display: table;
 	table-layout: fixed;
 }
+.table > thead > tr > th, .table > tbody > tr > th  {
+	vertical-align:middle;
+}
 .text-centre-25 {
 	max-width: 25em;
 	margin: 0 auto;
