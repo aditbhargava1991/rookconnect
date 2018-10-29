@@ -27,7 +27,7 @@ https://github.com/jamalhassouni
 			 // if isset value of duration if not use the default value of duration
 			duration: $target.data('duration') ? $target.data('duration') : DEFAULTS.duration
 			};
-			 console.log(options);
+			 // console.log(options);
 	         // add divs for structure
 			$target.append('<div class="background"></div><div class="rotate"></div><div class="left"></div><div class="right"></div><div class=""><span>' + options.percent + '%</span></div>');
 	         // change style of the circle with the options values 

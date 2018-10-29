@@ -199,7 +199,9 @@ var useProfileSig = function(chk) {
 <div id="no-more-tables">
     <table class='table table-bordered'>
         <tr class='hidden-xs hidden-sm'>
-            <?php set_stat_hours($dbc, $search_staff, $search_start_date, $search_end_date);
+            <?php $hourly_comp = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND `tile_name`='Staff' AND `start_date` <= '$search_start_date' AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'$search_start_date') >= '$search_start_date' AND (`description` IN ('ALL','$search_staff') OR `item_id`='$search_staff') ORDER BY `item_id`='$search_staff' DESC, `description`='$search_staff' DESC, `uom`='Hourly' DESC")->fetch_assoc();
+            $hourly_comp = empty($hourly_comp['cost']) ? (empty($hourly_comp['cust_price']) ? $hourly_comp['hourly'] : $hourly_comp['cost']) : $hourly_comp['cost'];
+            set_stat_hours($dbc, $search_staff, $search_start_date, $search_end_date);
             $start_of_year = date('Y-01-01', strtotime($search_start_date));
             $sql = "SELECT IFNULL(SUM(IF(`type_of_time`='Sick Hrs.Taken',`total_hrs`,0)),0) SICK_HRS,
                 IFNULL(SUM(IF(`type_of_time`='Stat Hrs.',`total_hrs`,0)),0) STAT_AVAIL,
@@ -231,6 +233,7 @@ var useProfileSig = function(chk) {
             <?php if(in_array('vaca_used',$value_config)) { ?><th style='text-align:center;'><?= $vacation_taken; ?></th><?php } ?>
             <?php if(in_array('breaks',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
+            <?php if(in_array('compensation',$value_config)) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center;'></th><?php } ?>
@@ -276,6 +279,7 @@ var useProfileSig = function(chk) {
             <?php if(in_array('vaca_used',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Vacation Hrs. Taken</div></th><?php } ?>
             <?php if(in_array('breaks',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Breaks</div></th><?php } ?>
             <?php if(in_array('view_ticket',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;"><?= TICKET_NOUN ?></div></th><?php } ?>
+            <?php if(in_array('compensation',$value_config)) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Hourly Compensation</div></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Expenses Owed</div></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Mileage</div></th><?php } ?>
             <?php if(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE) { ?><th style='text-align:center; vertical-align:bottom;'><div style="min-width:4em;">Mileage Rate</div></th><?php } ?>
@@ -325,8 +329,8 @@ var useProfileSig = function(chk) {
         $mileage_rate_total = 0;
         $mileage_cost_total = 0;
         $row = mysqli_fetch_array($result);
-        $date_total = ['HOURS'=>0,'REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
-        $total = ['HOURS'=>0,'REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
+        $date_total = ['HOURS'=>0,'REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0,'COMP_TOTAL'=>0];
+        $total = ['HOURS'=>0,'REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0,'COMP_TOTAL'=>0];
         while(strtotime($date) <= strtotime($search_end_date)) {
             $ids = ['HOURS'=>0,'REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
             $attached_ticketid = 0;
@@ -511,7 +515,7 @@ var useProfileSig = function(chk) {
                     $show_separator = 1;
                 }
             } else {
-                $date_total = ['HOURS'=>0,'REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0];
+                $date_total = ['HOURS'=>0,'REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0,'DRIVE'=>0,'COMP_TOTAL'=>0];
                 $hrs = ['REG'=>0,'DIRECT'=>0,'INDIRECT'=>0,'EXTRA'=>0,'RELIEF'=>0,'SLEEP'=>0,'SICK_ADJ'=>0,'SICK'=>0,'STAT_AVAIL'=>0,'STAT'=>0,'VACA_AVAIL'=>0,'VACA'=>0,'BREAKS'=>0,'TRAINING'=>0];
                 $comments = '';
                 $mileage = 0;
@@ -520,6 +524,9 @@ var useProfileSig = function(chk) {
                 $show_separator = 1;
             }
             $expenses_owed = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total`) `expenses_owed` FROM `expense` WHERE `deleted` = 0 AND `staff` = '$search_staff' AND `status` = 'Approved' AND `approval_date` = '$date'"))['expenses_owed'];
+            $comp_owed = array_sum($hrs) * $hourly_comp;
+            $date_total['COMP_TOTAL'] += $comp_owed;
+            $total['COMP_TOTAL'] += $comp_owed;
             $hours = mysqli_fetch_array(mysqli_query($dbc, "SELECT IF(`dayoff_type` != '',`dayoff_type`,CONCAT(`starttime`,' - ',`endtime`)) FROM `contacts_shifts` WHERE `deleted`=0 AND `contactid`='$search_staff' AND '$date' BETWEEN `startdate` AND `enddate` ORDER BY `startdate` DESC"))[0];
             $day_of_week = date('l', $date);
             $shifts = checkShiftIntervals($dbc, $search_staff, $day_of_week, $date);
@@ -591,6 +598,7 @@ var useProfileSig = function(chk) {
                 '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken" style="text-align:center"><input type="hidden" name="time_cards_id" value="'.$ids['VACA'].'"><input type="hidden" name="type_of_time" value="Vac Hrs.Taken"><input type="text" '.($mod == 'readonly' ? 'readonly' : '').' name="total_hrs" value="'.(empty($hrs['VACA']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['VACA'],2) : time_decimal2time($hrs['VACA']))).'" class="form-control '.($mod == 'readonly' ? 'no-timepicker' : 'timepicker').'"></td>' : '').'
                 '.(in_array('breaks',$value_config) ? '<td data-title="Breaks" style="text-align:center">'.(empty($hrs['BREAKS']) ? '' : ($timesheet_time_format == 'decimal' ? number_format($hrs['BREAKS'],2) : time_decimal2time($hrs['BREAKS']))).'</td>' : '').'
                 '.(in_array('view_ticket',$value_config) ? '<td data-title="'.TICKET_NOUN.'" style="text-align:center">'.(!empty($attached_ticketid) ? '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?edit='.$attached_ticketid.'&date='.$date.'&calendar_view=true\',\'auto\',false,true, $(\'#timesheet_div\').outerHeight()); return false;" data-ticketid="'.$attached_ticketid.'" class="view_ticket" '.($attached_ticketid > 0 ? '' : 'style="display:none;"').'>View</a>' : '').'</td>' : '').'
+                '.(in_array('compensation',$value_config) ? '<td data-title="Hourly Compensation" style="text-align:center">'.number_format($comp_owed,2).'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Mileage">'.($mileage > 0 ? number_format($mileage,2) : '0.00').'</td>' : '').'
                 '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Mileage Rate">$'.($mileage_rate > 0 ? number_format($mileage_rate,2) : '0.00').'</td>' : '').'
@@ -629,6 +637,7 @@ var useProfileSig = function(chk) {
                     '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($date_total['VACA'],2) : time_decimal2time($date_total['VACA'])).'</td>' : '').'
                     '.(in_array('breaks',$value_config) ? '<td data-title="Breaks">'.($timesheet_time_format == 'decimal' ? number_format($date_total['BREAKS'],2) : time_decimal2time($date_total['BREAKS'])).'</td>' : '').'
                     '.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
+                    '.(in_array('compensation',$value_config) ? '<td data-title="Total Hourly Compensation">'.number_format($date_total['COMP_TOTAL'],2).'</td>' : '').'
                     '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
                     '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').'
                     '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').'
@@ -668,6 +677,7 @@ var useProfileSig = function(chk) {
             '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($total['VACA'],2) : time_decimal2time($total['VACA'])).'</td>' : '').'
             '.(in_array('breaks',$value_config) ? '<td data-title="Breaks">'.($timesheet_time_format == 'decimal' ? number_format($total['BREAKS'],2) : time_decimal2time($total['BREAKS'])).'</td>' : '').'
             '.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
+            '.(in_array('compensation',$value_config) ? '<td data-title="Total Hourly Compensation">'.number_format($total['COMP_TOTAL'],2).'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title="Total Expenses Owed">$'.($expenses_owed > 0 ? number_format($expenses_owed,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title="Total Mileage">'.($mileage_total > 0 ? number_format($mileage_total,2) : '0.00').'</td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title="Total Mileage Rate">$'.($mileage_rate_total > 0 ? number_format($mileage_rate_total,2) : '0.00').'</td>' : '').'
@@ -699,6 +709,7 @@ var useProfileSig = function(chk) {
             '.(in_array('vaca_used',$value_config) ? '<td data-title="Vacation Hours Taken">'.($timesheet_time_format == 'decimal' ? number_format($total['VACA']+$vacation_taken,2) : time_decimal2time($total['VACA']+$vacation_taken)).'</td>' : '').'
             '.(in_array('breaks',$value_config) ? '<td data-title="Breaks"></td>' : '').'
             '.(in_array('view_ticket',$value_config) ? '<td data-title=""></td>' : '').'
+            '.(in_array('compensation',$value_config) ? '<td data-title=""></td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<td data-title=""></td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage,') !== FALSE ? '<td data-title=""></td>' : '').'
             '.(strpos($timesheet_payroll_fields, ',Mileage Rate,') !== FALSE ? '<td data-title=""></td>' : '').'
@@ -777,5 +788,13 @@ if($current_page == 'payroll.php') { ?>
             <?php include ('../phpsign/sign.php'); ?>
     </div>
 <?php } ?>
+<div class="clearfix"></div>
+<?php include('../Reports/compensation_function.php');
+$stat_holidays = [];
+foreach(mysqli_fetch_all(mysqli_query($dbc, "SELECT `date` FROM `holidays` WHERE `paid`=1 AND `deleted`=0")) as $stat_day) {
+    $stat_holidays[] = $stat_day[0];
+}
+$stat_holidays = implode(',', $stat_holidays);
+echo report_compensation($dbc, $search_start_date, $search_end_date, '', '', '', $search_staff, $stat_holidays, ['New','Refund','Adjustment']); ?>
 <div class="clearfix"></div>
 <?php include('../Timesheet/time_cards_summary.php'); ?>

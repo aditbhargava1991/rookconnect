@@ -255,6 +255,7 @@ $total_time = 0; ?>
             <tr class="hidden-xs hidden-sm">
                 <th>Summary</th>
                 <th>Hours</th>
+                <?php if(in_array('compensation',$value_config) && $hourly_comp > 0) { ?><th>Compensation</th><?php } ?>
             </tr>
         </thead>
 		<?php foreach($summary_times as $summary_label => $summary_time) {
@@ -262,11 +263,13 @@ $total_time = 0; ?>
 			<tr>
 				<td data-title="Summary"><?= $summary_label ?></td>
 				<td data-title="Hours" align="right"><?= ($timesheet_time_format == 'decimal' ? number_format($summary_time,2) : time_decimal2time($summary_time)) ?></td>
+                <?php if(in_array('compensation',$value_config) && $hourly_comp > 0) { ?><td data-tile="Compensation"><?= number_format($summary_time * $hourly_comp,2) ?></td><?php } ?>
 			</tr>
 		<?php } ?>
 		<tr>
 			<td data-title="Total Hours"><b>Total Hours</b></td>
 			<td data-title="Hours" align="right"><b><?= ($timesheet_time_format == 'decimal' ? number_format($total_time,2) : time_decimal2time($total_time)) ?></b></td>
+                <?php if(in_array('compensation',$value_config) && $hourly_comp > 0) { ?><td data-tile="Compensation"><?= number_format($total['COMP_TOTAL'],2) ?></td><?php } ?>
 		</tr>
 	</table>
 </div>

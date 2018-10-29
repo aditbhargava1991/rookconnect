@@ -135,7 +135,6 @@ $field_display = explode(",",$get_field_config['contacts_dashboard']); ?>
     $quick_actions = explode(',',get_config($dbc, 'contact_quick_action_icons'));
 
     echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-
     echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
     ?>
     <input type="color" class="color_picker" onchange="choose_color(this); return false;" id="color_<?=$row['contactid']?>" data-taskid="<?=$row['contactid']?>" name="color_<?=$row['contactid']?>" style="display:none;" />

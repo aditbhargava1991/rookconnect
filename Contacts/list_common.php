@@ -249,26 +249,6 @@ function flag_item_manual(task) {
        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=contacts&id='+contactid, 'auto', false, false);
 }
 
-function highlight_item(sel) {
-    var task_id = $(sel).parents('span').data('task');
-    $('#color_'+task_id).click();
-}
-
-function choose_color(sel) {
-	var contactid = $(sel).parents('span').data('task');
-    var contactcolor = sel.value;
-	var contactcolor = contactcolor.replace("#", "");
-
-	$.ajax({    //create an ajax request to load_page.php
-		type: "GET",
-		url: "../Contacts/contacts_ajax.php?action=contact_highlight&contactid="+contactid+'&contactcolor='+contactcolor,
-		dataType: "html",   //expect html to be returned
-		success: function(response){
-			location.reload();
-		}
-	});
-}
-
 </script>
 
 <div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
@@ -289,12 +269,7 @@ function choose_color(sel) {
 			<?php foreach($contact_sort as $id): ?>
 				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))];
                 ?>
-                <?php
-                $bg_color = '';
-                if($row['flag_label'] == '' && $row['flag_colour'] != '') {
-                    $bg_color = "background-color: #".$row['flag_colour'];
-                } ?>
-				<div class="dashboard-item set-relative" style='<?php echo $bg_color; ?>'>
+				<div class="dashboard-item set-relative">
                         <?php if($row['flag_label'] != '') { ?>
                         <span class="block-label flag-label-block" style="font-weight: bold; background-color: <?php echo '#'.$row['flag_colour']; ?>">Flagged: <?= $row['flag_label'] ?></span>
                         <?php } ?>
@@ -402,10 +377,7 @@ function choose_color(sel) {
                     $quick_actions = explode(',',get_config($dbc, 'contact_quick_action_icons'));
 
                     echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-                    echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
-                    ?>
-                    <input type="color" class="color_picker" onchange="choose_color(this); return false;" id="color_<?=$row['contactid']?>" data-taskid="<?=$row['contactid']?>" name="color_<?=$row['contactid']?>" style="display:none;" />
-                    <?php
+
                     echo '</span>';
 
                     ?>
@@ -527,17 +499,18 @@ if(strpos($contacts_summary_config,'Per Classification') !== false) {
 
 if(strpos($contacts_summary_config,'Per City') !== false) {
     echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per City</h3>';
-    $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_city, `city` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 GROUP BY `city`");
-    while($service_row = $service_categories->fetch_assoc()) {
-        echo '<div class="col-sm-6">';
-            echo '<div class="overview-block">';
-                if($service_row['city'] == '') {
-                    $service_row['city'] = 'Not specified';
-                }
-                echo $service_row['city'].': '.$service_row['total_city'];
-            echo '</div>';
+    $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_city, `city` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 AND city != '' GROUP BY `city`");
+
+    echo '<div class="col-sm-6">';
+        echo '<div class="overview-block">';
+        while($service_row = $service_categories->fetch_assoc()) {
+            if($service_row['city'] == '') {
+                $service_row['city'] = 'Not specified';
+            }
+            echo $service_row['city'].': '.$service_row['total_city'].'<br>';
+        }
         echo '</div>';
-    }
+    echo '</div>';
     echo '<div class="clearfix"></div>';
 }
 
