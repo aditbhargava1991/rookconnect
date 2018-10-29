@@ -147,7 +147,7 @@ function loadPanel(panel_head, url) {
                         <div class="clearfix"></div>
                     </div>
 				</div>
-	            <div class="tile-sidebar show-on-mob full-width">
+	            <div class="show-on-mob full-width">
                     <div id="mobile" class="panel-group block-panels sidebar">
                         <?php if(!$dbc_support) { ?>
                             <div class="notice double-gap-bottom">
