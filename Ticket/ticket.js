@@ -577,6 +577,12 @@ function saveFieldMethod(field) {
 			} else if(field.type == 'checkbox' && !field.checked) {
 				save_value = '';
 			}
+            if((save_value == '' || save_value == undefined) && !(id_num > 0)) {
+                doneSaving();
+                return;
+            } else {
+                console.log(field_name+' = '+save_value+' on '+id_num);
+            }
 			if((field_name == 'item_id' || field_name == 'deleted') && $(field).data('type') == 'equipment') {
 				var equipmentids = [];
 				$('#collapse_ticket_equipment [name=item_id] option:selected,#tab_section_ticket_equipment [name=item_id] option:selected').each(function() {
@@ -650,6 +656,9 @@ function saveFieldMethod(field) {
 					return;
 				}
 			}
+            if(id_num > 0) {
+                doneSaving();
+            }
 			$.ajax({
 				url: 'ticket_ajax_all.php?action=update_fields'+($('[name=no_time_sheet]').val() > 0 ? '&time_sheet=none' : ''),
 				method: 'POST',
@@ -786,20 +795,20 @@ function saveFieldMethod(field) {
 							}
 							$('.ticket_timer_div').show();
 							if((field_name != 'projectid' && field_name != 'businessid' && $('[name=projectid]').val() > 0 && $('[name=projectid]').data('id') > 0) || $('[name=projectid]').length == 0) {
-								$('[name=projectid]').filter(function() { return this.value != ''; }).first().change();
-								$('select[name=businessid]').filter(function() { return this.value != ''; }).first().change();
+								$('[name=projectid]').filter(function() { return this.value > 0; }).first().change();
+								$('select[name=businessid]').filter(function() { return this.value > 0; }).first().change();
 								if(field_name != 'clientid')
-									$('[name=clientid]').filter(function() { return this.value != ''; }).first().change();
+									$('[name=clientid]').filter(function() { return this.value > 0; }).first().change();
 								if(field_name != 'milestone_timeline')
 									$('[name=milestone_timeline]').filter(function() { return this.value != ''; }).first().change();
 								if(field_name != 'serviceid')
-									$('[name=serviceid]').filter(function() { return this.value != ''; }).first().change();
+									$('[name=serviceid]').filter(function() { return this.value > 0; }).first().change();
 								if(field_name != 'ticket_type')
 									$('[name=ticket_type]').filter(function() { return this.value != ''; }).first().change();
 							} else if(field_name != 'businessid' && field_name != 'clientid' && field_name != 'projectid') {
-								$('select[name=businessid]').filter(function() { return this.value != ''; }).last().change();
-								$('[name=clientid]').filter(function() { return this.value != ''; }).last().change();
-								$('[name=serviceid]').filter(function() { return this.value != ''; }).first().change();
+								$('select[name=businessid]').filter(function() { return this.value > 0; }).last().change();
+								$('[name=clientid]').filter(function() { return this.value > 0; }).last().change();
+								$('[name=serviceid]').filter(function() { return this.value > 0; }).first().change();
 							}
 							if($(field).data('id-field') == 'ticketid') {
 								$('a').each(function() {
@@ -828,6 +837,7 @@ function saveFieldMethod(field) {
 						$('[name=to_do_date]').change();
 						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
+                        doneSaving();
 					} else if(response.split('#*#')[0] == 'ERROR') {
 						alert(response.split('#*#')[1]);
 					} else if(response != '' && (field_name == 'signature' || field_name == 'witnessed')) {
@@ -1121,7 +1131,9 @@ function saveFieldMethod(field) {
 					if(table_name == 'ticket_attached' && field_name == 'hours_set' && $(field).data('type') == 'Multiple_Timesheet_Row' && $(field).closest('.tab-section') != undefined && $(field).closest('.tab-section').prop('id') == 'tab_section_ticket_summary') {
 						$('.tab-section:not(#tab_section_ticket_summary').find('[name="hours_set"][data-table="ticket_attached"][data-type="Multiple_Timesheet_Row"][data-id="'+$(field).data('id')+'"]').val(field.value);
 					}
-					doneSaving();
+                    if(!(id_num > 0) && !(response > 0)) {
+                        doneSaving();
+                    }
 				}
 			});
 		} else {
@@ -3314,7 +3326,7 @@ function setBilling() {
 		total_discount = $('[name=billing_discount]').first().val();
 	}
 	total -= total_discount;
-	$('[name=services_cost]').filter(function() { return $(this).data('manual') < 1; }).val(total).change();
+	$('[name=services_cost]').filter(function() { return $(this).data('manual') < 1 && (this.value != total || this.value.indexOf(0,'') === false || total != 0); }).val(total).change();
 }
 function dialogQuickReminder() {
 	$('#dialog_quick_reminder').dialog({
