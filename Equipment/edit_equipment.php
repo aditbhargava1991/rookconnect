@@ -614,17 +614,23 @@ while($row = mysqli_fetch_array($query)) {
 <div class="scale-to-fill has-main-screen" style="overflow: hidden;">
     <div class="main-screen standard-body form-horizontal">
         <div class="standard-body-title">
-            <h3><?= (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?>
-            <?php if($_GET['view'] == 'readonly') { ?>
+            <h3><?= $_GET['subtab'] == 'overview' ? 'Equipment Overview: Unit #'.$unit_number : (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?>
+            <?php if(IFRAME_PAGE) { ?>
                 <a href="../blank_loading_page.php" class="pull-right"><img src="../img/icons/cancel.png" class="inline-img"></a>
-            <?php }
-            $quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
+            <?php } ?>
+            <?php if(vuaed_visible_function($dbc, 'equipment') && $_GET['view'] == 'readonly') { ?>
+                <a href="index.php?edit=<?= $_GET['edit'] ?>&subtab=edit" <?= IFRAME_PAGE ? 'target="_blank"' : '' ?> class="pull-right"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img no-toggle" title="Edit Equipment"></a>
+            <?php } ?>
+            <?php $quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
             if($equipmentid > 0) {
                 echo '<span class="pull-right action-icons  ">';
-                echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_reminders.php?tile=equipment&id='.$equipmentid.'\'); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" style="height: 1.25em; width: auto;" onclick="return false;"></span>' : '';
-                echo in_array('archive', $quick_actions) && vuaed_visible_function($dbc, 'equipment') == 1 ? '<span title="Archive Equipment"><a href="'.WEBSITE_URL.'/delete_restore.php?action=delete&equipmentid='.$equipmentid.'" onclick="return confirm(\'Are you sure?\');"><img src="../img/icons/trash-icon-red.png" style="height: 1.25em; width: auto;" title="Archive Equipment" class="inline-img no-toggle"></a></span>' : '';
+                echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_reminders.php?tile=equipment&id='.$equipmentid.'\'); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                echo in_array('archive', $quick_actions) && vuaed_visible_function($dbc, 'equipment') == 1 ? '<span title="Archive Equipment"><a href="'.WEBSITE_URL.'/delete_restore.php?action=delete&equipmentid='.$equipmentid.'" onclick="return confirm(\'Are you sure?\');"><img src="../img/icons/trash-icon-red.png" title="Archive Equipment" class="inline-img no-toggle"></a></span>' : '';
                 echo '</span>';
-            } ?></h3>
+            } ?>
+            <?php if(IFRAME_PAGE) { ?>
+                <a href="index.php?edit=<?= $_GET['edit'] ?>&subtab=<?= empty($_GET['subtab']) ? 'edit' : $_GET['subtab'] ?>&view=<?= $_GET['view'] ?>" target="_top" class="pull-right"><img src="../img/icons/ROOK-FullScreen-icon.png" class="inline-img no-toggle" title="Open Full Screen"></a>
+            <?php } ?></h3>
         </div>
 
         <div class="standard-body-content" style="padding: 0.5em;">
@@ -655,19 +661,24 @@ while($row = mysqli_fetch_array($query)) {
                 <input name="next_tire_rotation" type="hidden" value="<?= $next_tire_rotation ?>" />
                 <input name="next_tire_rotation_hrs" type="hidden" value="<?= $next_tire_rotation_hrs ?>" />
 
-                <?php foreach($accordion_list as $accordion) { ?>
-                    <div id="tab_section_<?= config_safe_str($accordion) ?>" class="tab-section col-sm-12">
-                        <h4><?= $accordion ?></h4>
-                        <?php $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='$category' AND accordion='$accordion'"));
-                        if(empty($get_field_config['equipment'])) {
-                            $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='' AND accordion='$accordion'"));
-                        }
-                        $value_config = ','.$get_field_config['equipment'].',';
+                <?php if($_GET['subtab'] == 'overview') {
+                    $value_config = get_config($dbc, 'equipment_overview_'.config_safe_str($category));
+                    include ('add_equipment_fields.php');
+                } else {
+                    foreach($accordion_list as $accordion) { ?>
+                        <div id="tab_section_<?= config_safe_str($accordion) ?>" class="tab-section col-sm-12">
+                            <h4><?= $accordion ?></h4>
+                            <?php $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='$category' AND accordion='$accordion'"));
+                            if(empty($get_field_config['equipment'])) {
+                                $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='' AND accordion='$accordion'"));
+                            }
+                            $value_config = ','.$get_field_config['equipment'].',';
 
-                        include ('add_equipment_fields.php'); ?>
-                        <div class="clearfix"></div><hr>
-                    </div>
-                <?php } ?>
+                            include ('add_equipment_fields.php'); ?>
+                            <div class="clearfix"></div><hr>
+                        </div>
+                    <?php }
+                } ?>
 
                 <?php if($_GET['view'] !== 'readonly') { ?>
                     <div class="form-group">
