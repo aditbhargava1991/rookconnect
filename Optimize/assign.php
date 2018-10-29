@@ -49,7 +49,7 @@ var opt_classification = '<?= $_GET['classification'] ?>';
 var opt_date = '<?= $_GET['date'] ?>';
 var lock_timer = null;
 var ticket_list = [];
-var zoom = 10;
+var zoom = <?= $_GET['zoom'] > 0 ? $_GET['zoom'] : 10 ?>;
 function filterRegions() {
 	opt_region = $('[name=region]').val();
 	$('[name=classification] option[data-region]').each(function() {
