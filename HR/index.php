@@ -119,9 +119,11 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 				include('fill_hr.php');
 			} else if(isset($_GET['hr_edit'])) {
 				checkAuthorised($tile);
+                $tab = config_safe_str(get_field_value('category','hr','hrid',$_GET['hr_edit']));
 				include('sidebar.php');
 				include('edit_hr.php');
 			} else if(isset($_GET['manual'])) {
+                $tab = config_safe_str(get_field_value('category','manuals','manualtypeid',$_GET['manual']));
 				include('sidebar.php');
 				include('fill_manual.php');
 			} else if(isset($_GET['manual_edit'])) {
