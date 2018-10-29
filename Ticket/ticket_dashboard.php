@@ -1,6 +1,7 @@
 <?php include_once('config.php');
 if(get_config($dbc, 'ticket_unassigned_status') == 1) {
-	$archive_query = "UPDATE tickets SET status='Unassigned' WHERE (contactid IS NULL OR contactid = '') AND `status` != 'Archive' AND `deleted` = 0";
+    $today_date = date('Y-m-d');
+	$archive_query = "UPDATE tickets SET status='Unassigned' WHERE ((contactid IS NULL OR contactid = '') OR (to_do_end_date < '".$today_date."' AND (internal_qa_date = '' OR internal_qa_date IS NULL OR internal_qa_date = '0000-00-00')) OR (internal_qa_date < '".$today_date."' AND deliverable_date = ''' OR deliverable_date IS NULL OR deliverable_date = '0000-00-00')) AND `status` != 'Archive' AND `deleted` = 0";
 	$delete_result = mysqli_query($dbc, $archive_query);
 }
 
@@ -96,7 +97,7 @@ $(document).ready(function() {
 			panel.html('<h4>No <?= $ticket_tile ?> Found</h4>');
 		}
 	});
-    
+
     /* $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
             if ( $('.tile-sidebar .highest-level .top-a').data('parent') == '#accordion' ) {
@@ -104,7 +105,7 @@ $(document).ready(function() {
             }
         });
     }); */
-    
+
     $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
             if ( $(this).data('parent') == '#accordion' ) {
