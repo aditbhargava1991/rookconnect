@@ -465,7 +465,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 			<?php } ?>
                 if(new_heading != heading) {
                     heading = new_heading;
-                    $('[name=heading]').first().val(heading);
+                    $('[name=heading]').val(heading);
                     if($('[name=heading]:visible').length > 0) {
                         $('[name=heading]:visible').first().change();
                     } else {
