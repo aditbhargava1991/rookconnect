@@ -342,7 +342,8 @@ function sync(task) {
 		success: function(response){
             // $(task).hide();
             $(task).data('sync',$(task).data('sync') > 0 ? 0 : 1);
-            $(task).find('img').prop('title',($(task).data('sync') > 0 ? 'Sync To Customer Scrum Board' : 'Remove From Customer Scrum Board'));
+            $(task).closest('li.t_item,.standard-body-title').find('.sync_visible_icon').toggle()
+            $(task).find('img').prop('title',($(task).data('sync') > 0 ? 'Not Synced To Customer Scrum Board' : 'Synced To Customer Scrum Board'));
             try {
                 $(task).find('img').tooltip('destroy');
             } catch (err) { }

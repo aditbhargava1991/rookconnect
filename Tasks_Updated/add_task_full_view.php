@@ -978,6 +978,25 @@ function track_icon_time(task) {
 
     //$('.timer_block_'+task_id).toggle();
 }
+
+function sync(task) {
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=is_sync&sync="+$(task).data('sync')+"&tasklistid="+$(task).closest('[data-task]').data('task'),
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+            // $(task).hide();
+            $(task).data('sync',$(task).data('sync') > 0 ? 0 : 1);
+            $(task).closest('li.t_item,.standard-body-title').find('.sync_visible_icon').toggle()
+            $(task).find('img').prop('title',($(task).data('sync') > 0 ? 'Not Synced To Customer Scrum Board' : 'Synced To Customer Scrum Board'));
+            try {
+                $(task).find('img').tooltip('destroy');
+            } catch (err) { }
+            initTooltips();
+			// location.reload();
+		}
+	});
+}
 </script>
 
 </head>
@@ -1157,7 +1176,8 @@ function track_icon_time(task) {
                         $value_config = ','.$get_field_config['task'].','; ?>
 
                         <div class="standard-body-title hide-on-mobile">
-                            <h3 class="pull-left"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?></h3>
+                            <h3 class="pull-left"><?= !empty($_GET['tasklistid']) ? 'Edit' : 'Add' ?> Task<?= !empty($_GET['tasklistid']) ? ' #'.$_GET['tasklistid'].': '.$task_heading : '' ?>
+                            <img src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle pull-right sync_visible_icon small" title="Synced to Customer Support Scrum Board" style="<?= $get_task['is_sync'] > 0 ? '' : 'display:none;' ?>"></h3>
                             <div class="pull-right">
                                 <?php if(!empty($_GET['tasklistid'])) { ?>
 
@@ -1168,7 +1188,7 @@ function track_icon_time(task) {
                                         echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
 
-                                        echo $row['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="sync_task(this); return false;"><img title="Sync to External Path" src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                                        echo $get_task['projectid'] > 0 && in_array('sync', $quick_actions) ? '<span title="Sync to External Path" onclick="sync_task(this); return false;"><img title="Sync to External Path" src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('alert', $quick_actions) ? '<span title="Send Alert" onclick="send_task_alert(this); return false;"><img src="../img/icons/ROOK-alert-icon.png" title="Send Alert" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('email', $quick_actions) ? '<span title="Send Email" onclick="send_email(this); return false;"><img src="../img/icons/ROOK-email-icon.png" title="Send Email" class="inline-img no-toggle" onclick="return false;"></span>' : '';
 
@@ -1180,7 +1200,7 @@ function track_icon_time(task) {
 
                                         echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="quick_icon_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_icon_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-                                        echo in_array('scrum_sync', $quick_actions) ? '<span title="Sync to Scrum Board" onclick="sync('.$_GET['tasklistid'].'); return false;"><img src="../img/icons/ROOK-sync-icon.png" title="Sync to Scrum Board" class="inline-img no-toggle" title="Sync" onclick="return false;"></span>' : '';
+                                        echo in_array('scrum_sync', $quick_actions) ? '<span title="Sync to Scrum Board" onclick="sync(this); return false;" data-sync="'.($get_task['is_sync'] > 0 ? 0 : 1).'"><img src="../img/icons/ROOK-sync-icon.png" title="'.($get_task['is_sync'] > 0 ? 'Synced To Customer' : 'Not Synced To Customer').' Scrum Board" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo '<button name="" type="button" value="" class="delete_task image-btn"><img class="inline-img no-toggle" src="../img/icons/trash-icon-red.png" alt="Delete Task"></button>';
 
                                     echo '</span>';
