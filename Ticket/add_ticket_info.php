@@ -111,7 +111,7 @@ function service_type_filter() {
 	block.find('.serviceid').trigger('change.select2');
 }
 function chooseServices() {
-	if($('[name=services_cost]').data('manual') > 0) {
+	if($('[name=services_cost]').data('manual') > 0 || !(ticketid > 0 || ticketid == 'multi')) {
 		return;
 	}
 	var total_cost = 0;

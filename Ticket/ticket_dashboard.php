@@ -96,7 +96,7 @@ $(document).ready(function() {
 			panel.html('<h4>No <?= $ticket_tile ?> Found</h4>');
 		}
 	});
-    
+
     /* $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
             if ( $('.tile-sidebar .highest-level .top-a').data('parent') == '#accordion' ) {
@@ -104,7 +104,7 @@ $(document).ready(function() {
             }
         });
     }); */
-    
+
     $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
             if ( $(this).data('parent') == '#accordion' ) {

@@ -163,21 +163,27 @@ function popUpClosed() {
                     <img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
                 </div>
                 <?php
+                $note = '';
                 $heading = $_GET['tab'];
                 if($heading == 'Private') {
                     $heading = 'Private Tasks';
+                    $note = "These are Task Boards specific to the user logged in. No Private Task Boards are visible to any other software user unless shared. If a Private Task Board is shared, it's no longer Private and moves to the Shared Task Board tab for future use.";
                 }
                 if($heading == 'Company') {
                     $heading = 'Shared Tasks';
+                    $note = "Shared Task Boards are meant for collaboration. All shared parties profile icons are visible in the header for the Board. Shared Boards are only visible to the individuals they're shared with.";
                 }
                 if($heading == 'path') {
                     $heading = 'Project Tasks';
+                    $note = 'Project Task Boards are connected to the Project Paths assigned in the Projects tile. Every Project Path that has Tasks assigned within them display under the Project Task Board sub tab. Clicking on a Project here should display the Project Path, showing only the Tasks within each Milestone. If a Task is added here, it will now be a part of the Project Path for that Project, and if a Task is added in the Project Path from the Project tile, then it would also display here. Project Path Milestones and Tasks are always in sync and make the same Task information available. Only Projects with Tasks in a Project Path will be available here. Only the staff added to the Project can see the Project Board.';
                 }
                 if($heading == 'Client') {
                     $heading = 'Contact Tasks';
+                    $note = "Every contact added to the Contact tile can have a Task Board attached to it. If a user adds a Task to a Contact, only that user can see those Tasks here. Contacts without Tasks will not be visible until a Task is added. Any Tasks added or worked on in the Task tile will be synched to the contact and visible in the contact's profile.";
                 }
                 if($heading == 'sales') {
                     $heading = 'Sales Tasks';
+                    $note = 'Each Sales Lead in the Sales tile has a Task Path automatically assigned. Any Sales Task Board with Tasks on the path will display under this tab. Tasks assigned from the Sales Task Board sub tab within Tasks coincide with Tasks from the Sales tile. Adding from either location will update both Task Boards seamlessly. If a user adds a Task to a Sales Lead, only that user can see those Tasks here. Other staff can go to the Sales Lead Path to see all the Tasks.';
                 }
                 if($heading == 'Summary') {
                     $heading = 'Summary';
@@ -188,6 +194,16 @@ function popUpClosed() {
             </div><!-- .tile-header -->
 
 			<div class="clearfix"></div>
+
+            <?php
+            if($note != '') { ?>
+            <div class="notice gap-bottom gap-top popover-examples">
+                <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+                <div class="col-sm-11"><span class="notice-name">NOTE:</span>
+                <?php echo $note; ?></div>
+                <div class="clearfix"></div>
+            </div>
+            <?php } ?>
 
             <!-- Mobile View Start-->
             <div id="accordions" class="sidebar show-on-mob panel-group block-panels col-xs-12 form-horizontal">

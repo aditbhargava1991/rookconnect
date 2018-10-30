@@ -1049,8 +1049,10 @@ function addIntakeForm(btn) {
 
 
                                             </div>
+                                            <img src="../img/icons/ROOK-sync-icon.png" class="inline-img no-toggle pull-right sync_visible_icon small" title="Synced to Customer Support Scrum Board" style="<?= $row['is_sync'] > 0 ? '' : 'display:none;' ?>">
                                         </h4>
                                     </div>
+                                    
                                     <span style="<?= $style_strikethrough ?>" class="pull-right action-icons offset-top-5 t_drag" data-task="<?= $row['tasklistid'] ?>">
 
                                         <img class="drag_handle pull-right inline-img no-toggle" src="../img/icons/drag_handle.png" title="Drag" />
@@ -1113,7 +1115,7 @@ function addIntakeForm(btn) {
 
                                         echo in_array('time', $quick_actions) ? '<span title="Add Time" onclick="quick_add_time(this); return false;"><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         echo in_array('timer', $quick_actions) ? '<span title="Track Time" onclick="track_time(this); return false;"><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img no-toggle" onclick="return false;"></span>' : '';
-																				echo in_array('timer', $quick_actions) ? '<span title="Sync to Scrum Board" onclick="sync('.$row['tasklistid'].'); return false;"><img src="../img/icons/ROOK-sync-icon.png" title="Sync to Scrum Board" class="inline-img no-toggle" title="Sync" onclick="return false;"></span>' : '';
+                                        echo in_array('scrum_sync', $quick_actions) ? '<span title="Sync to Scrum Board" onclick="sync(this); return false;" data-sync="'.($row['is_sync'] > 0 ? 0 : 1).'"><img src="../img/icons/ROOK-sync-icon.png" title="'.($row['is_sync'] > 0 ? 'Synced To Customer' : 'Not Synced To Customer').' Scrum Board" class="inline-img no-toggle" onclick="return false;"></span>' : '';
                                         ?>
 
 									    <img class="inline-img no-toggle" title="History" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>&tasklistid=<?=$row['tasklistid']?>','auto',true,true);" src="../img/icons/eyeball.png">
