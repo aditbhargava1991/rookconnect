@@ -1101,7 +1101,7 @@ var setHeading = function() {
 	<?php } ?>
         if(new_heading != heading) {
             heading = new_heading;
-            $('[name=heading]').first().val(heading);
+            $('[name=heading]').val(heading);
             if($('[name=heading]:visible').length > 0) {
                 $('[name=heading]:visible').first().change();
             } else {
