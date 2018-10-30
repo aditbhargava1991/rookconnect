@@ -316,16 +316,13 @@ function viewTicket(a) {
 
     <?php
     if($timesheet_payroll_styling == 'EGS') {
-        echo '1';
         if(!empty($_GET['see_staff'])) {
-            echo '2';
             echo get_egs_hours_report($dbc, $search_staff_list,$search_start_date, $search_end_date,$_GET['see_staff'], '', 'payroll');
         } else {
-            echo '3';
             echo get_egs_main_hours_report($dbc, $search_staff_list, $search_start_date, $search_end_date, '', 'payroll');
         }
     } else {
-        echo '4';
+
         $grid = '';
         $printable_grid = '';
 
