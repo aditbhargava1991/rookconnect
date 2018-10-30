@@ -389,56 +389,51 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
             if(is_array($contents)) {
 				$active = '';
 				if($title == $tab) {
-					$active = 'active';
+					$active = 'active_tab';
 				}
 
 				if($title == 'Holidays') {
-					$url = $contents['Holidays'] . '?navtab=holidays';
+					$url = $contents['Holidays'];
 				} else {
-					$url = !empty($contents[$default_tab]) ? $contents[$default_tab] . (strpos($contents[$default_tab], '?')!==false ? '&' : '?') . 'navtab='.str_replace(array(' ', '.php'), array('_', ''), strtolower($title)) : $contents['Custom'];
+					$url = !empty($contents[$default_tab]) ? $contents[$default_tab] : $contents['Custom'];
 				}
-                
-                if ( strpos($url, 'navtab=stat_holidays') === true ) {
-                    $url = str_replace('navtab=stat_holidays', 'navtab=holidays', $url);
-                }
 
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
-                    $html .= "<li class='".$active."'><a href='".$url."'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</a></li>";
+                    $html .= "<a href='".$url."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button></a>";
                 } else {
-                    $html .= "<li>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</li>";
+                    $html .= "<button type='button' class='btn disabled-btn mobile-block'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button>&nbsp;";
                 }
 
 				if($title == $tab) {
-                    foreach($contents as $subtitle => $content) {
+					foreach($contents as $subtitle => $content) {
 						$subactive = '';
 						if($subtitle == $subtab) {
-							$subactive = 'active';
+							$subactive = 'active_tab';
 						}
 
 						$get_field_config = mysqli_fetch_assoc(mysqli_query($custom['db'],"SELECT ".$custom['field']." FROM field_config"));
 						$value_config = ','.$get_field_config[$custom['field']].',';
 
 						if (strpos($value_config, ','.$content.',') !== FALSE || strpos($value_config, ','.$subtitle.',') !== FALSE) {
-							$subhtml .= "<li class='".$subactive."'><a href='".$content."'>".$subtitle."</a></li>";
+							$subhtml .= "<a href='".$content."'><button type='button' class='btn brand-btn mobile-block ".$subactive."' >".$subtitle."</button></a>";
 						}
 					}
-                    $html .= !empty($subhtml) ? '<ul>'. $subhtml .'</ul>' : '';
 				}
 			} else {
 				$active = '';
 				if($title == $tab) {
-					$active = 'active';
+					$active = 'active_tab';
 				}
 
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
-                    $html .= "<li class='".$active."'><a href='".$contents."'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</a></li>";
+                    $html .= "<a href='".$contents."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button></a>";
                 } else {
-                    $html .= "<li>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</li>";
+                    $html .= "<button type='button' class='btn disabled-btn mobile-block'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button>&nbsp;";
                 }
 			}
 		}
 	}
-	return $html;
+	return '<div>'.$html.'</div><br><div>'.$subhtml.'</div>';
 }
 
 function get_all_inputs($data) {
