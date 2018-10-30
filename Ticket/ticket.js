@@ -836,7 +836,7 @@ function saveFieldMethod(field) {
 						if(table_name == 'ticket_schedule' && field_name != 'type' && $(field).closest('.tab-section').hasClass('scheduled_stop')) {
 							$(field).closest('.scheduled_stop').find('[name="type"]').change();
 						}
-						$('[name=to_do_date]').change();
+						// $('[name=to_do_date]').change();
 						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
                         doneSaving();
