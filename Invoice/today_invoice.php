@@ -134,15 +134,20 @@ function show_hide_email() {
 		$('[name=send_email_div]').hide();
 	}
 }
+function view_today_invoices()
+{
+    $('.view_today_invoices').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">Today's Invoices</h3>
-    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" />
+        </div>
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
+<div class="standard-body-content padded-desktop ">
     <!-- Summary Blocks --><?php
     $search_contact = 0;
     $search_invoiceid = '';
@@ -203,11 +208,11 @@ function show_hide_email() {
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
-
+    <div class="view_today_invoices hidden"></div>
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
 
-        <div class="search-group double-gap-top">
+        <div class="search-group hidden double-gap-top">
             <div class="row">
                 <div class="col-sm-12">
                     <div class="row">

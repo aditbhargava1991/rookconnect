@@ -150,11 +150,15 @@ function show_hide_email() {
 		$('[name=send_email_div]').hide();
 	}
 }
+function view_unpaid()
+{
+    $('.view_unpaid').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">Accounts Receivable</h3>
-    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /><img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide All Invoices" onclick="view_unpaid()"> </div>
     <div class="clearfix"></div>
 </div>
 
@@ -233,7 +237,7 @@ function show_hide_email() {
         $total_ar_120 += $total_last120;
     } ?>
 
-    <div class="view_summary double-gap-bottom" style="display:none;">
+    <div class="view_summary double-gap-bottom " style="display:none;">
         <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
         <div class="col-xs-12 col-sm-3 gap-top">
             <div class="summary-block">
@@ -267,8 +271,9 @@ function show_hide_email() {
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
+    <div class="">
 
-    <form name="invoice" method="post" action="" class="form-horizontal" role="form">
+    <form name="invoice" method="post" action="" class="form-horizontal view_unpaid hidden" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
 
         <div class="form-group search-group double-gap-top">
@@ -564,4 +569,5 @@ function show_hide_email() {
         </div>
 
     </form>
+    </div>
 </div><!-- .standard-body-content -->

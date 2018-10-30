@@ -134,15 +134,19 @@ function show_hide_email() {
         $('[name=send_email_div]').hide();
     }
 }
+function view_allinvoices() {
+    $('.view_allinvoices').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">All Invoices</h3>
-    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" />
+    <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide All Invoices" onclick="view_allinvoices()"> </div>
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
+<div class="standard-body-content padded-desktop ">
     <!-- Summary Blocks --><?php
     $search_contact = 0;
     $search_invoiceid = '';
@@ -199,8 +203,8 @@ function show_hide_email() {
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
-
-    <form name="invoice" method="GET" action="" class="form-horizontal" role="form">
+    <div class="">
+    <form name="invoice" method="GET" action="" class="form-horizontal view_allinvoices hidden" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
         <?php $xsl_xml_value_config = ','.get_config($dbc, 'invoice_dashboard_xsl_xml').','; ?>
         <input type="hidden" name="tab" value="all" />
@@ -261,7 +265,7 @@ function show_hide_email() {
 
     <div class="clearfix"></div>
 
-    <form method="POST" action="" name="send_email" class="form-horizontal">
+     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager
 
@@ -493,6 +497,7 @@ function show_hide_email() {
         </div>
 
     </form>
+    </div>
 </div><!-- .standard-body-content -->
 
 <div>

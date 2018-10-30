@@ -12,11 +12,12 @@ if(FOLDER_NAME == 'posadvanced') {
 ?>
 
 <div class="standard-body-title hide-titles-mob">
-    <h3>Check In</h3>
+    <h3 class="pull-left">Check In</h3>
+    <div class="pull-right">
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Check In" onclick="view_checkin()"> </div>
+    <div class="clearfix"></div>
 </div>
-
-<div class="standard-body-content padded-desktop">
-    <form name="form_sites" method="post" action="" class="form-inline" role="form">
+ <form name="form_sites" method="post" action="" class="form-inline view_checkin hidden" role="form">
         <div class="notice double-gap-bottom popover-examples">
             <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
             <div class="col-sm-11"><span class="notice-name">NOTE:</span>
@@ -24,7 +25,7 @@ if(FOLDER_NAME == 'posadvanced') {
             <div class="clearfix"></div>
         </div>
         
-        <div class="row">
+        <div class="row ">
             <label class="col-sm-3 control-label">Search By Any:</label>
             <div class="col-sm-6">
                 <?php if(isset($_POST['search_email_submit'])) { ?>
@@ -40,7 +41,7 @@ if(FOLDER_NAME == 'posadvanced') {
         </div>
     </form>
 
-    <div class="pull-right double-gap-top"><img src="../img/red.png" width="32" height="32" border="0" alt=""> Cancelled/No-Show &nbsp;&nbsp;&nbsp;<img src="../img/yellow.png" width="32" height="32" border="0" alt="">&nbsp;&nbsp;Late</div>
+    <div class="pull-right double-gap-top view_checkin hidden"><img src="../img/red.png" width="32" height="32" border="0" alt=""> Cancelled/No-Show &nbsp;&nbsp;&nbsp;<img src="../img/yellow.png" width="32" height="32" border="0" alt="">&nbsp;&nbsp;Late</div>
     <div class="clearfix"></div>
 
     <div class="table-responsive"><?php
@@ -49,11 +50,11 @@ if(FOLDER_NAME == 'posadvanced') {
         if('0' == $_GET['contactid']) {
             $class= 'active_tab';
         }
-        echo '<span class="popover-examples list-inline">
+        echo '<span class="popover-examples list-inline view_checkin hidden">
             <a href="#job_file" data-toggle="tooltip" data-placement="top" title="Click here to see all appointments for the current day."><img src="'.WEBSITE_URL.'/img/info.png" width="20"></a>
         </span>';
-        echo '<a href="checkin.php?contactid=0"><button type="button" class="btn brand-btn mobile-block '.$class.'" >Today</button></a>&nbsp;&nbsp;';
-
+        echo '<a href="checkin.php?contactid=0" class="view_checkin hidden"><button type="button" class="btn brand-btn mobile-block '.$class.'" >Today</button></a>&nbsp;&nbsp;';
+        echo "</div>";
         $tabs = mysqli_query($dbc, "SELECT distinct(therapistsid) FROM booking WHERE deleted=0 AND (str_to_date(substr(appoint_date,1,10),'%Y-%m-%d')) = DATE(NOW()) AND type != 'I' AND type != 'E' AND type != 'P' AND type != 'Q' AND type != 'R' AND type != '' AND appoint_time IS NULL ORDER BY therapistsid");
         while($row_tab = mysqli_fetch_array( $tabs )) {
             $class='';
@@ -191,5 +192,10 @@ if(FOLDER_NAME == 'posadvanced') {
         }
 
         echo '</table>'; ?>
-    </div>
+
 </div><!-- .standard-body-content -->
+<script type="text/javascript">
+    function view_checkin() {
+        $('.view_checkin').toggleClass('hidden');
+    }
+</script>

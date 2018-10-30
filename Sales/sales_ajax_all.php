@@ -715,4 +715,14 @@ if($_GET['action'] == 'sales_path') {
         }
     }
 }
+if($_GET['action'] == 'sales_field_config_tab_order') {
+    $tab_order_array = filter_var($_POST['tab_order_array'],FILTER_SANITIZE_STRING);
+    $tab_order_array = $tab_order_array;
+    $dbc->query("UPDATE `general_configuration` SET `value`='".$tab_order_array."' WHERE `name`='sales_sub_tabs_order'");
+}
+if($_GET['action'] == 'field_config_sales_lead') {
+    $id = filter_var($_POST['id'],FILTER_SANITIZE_STRING);
+    $status = filter_var($_POST['status'],FILTER_SANITIZE_STRING);
+    $dbc->query("UPDATE `contacts` SET `sales_lead_is_active`='".$status."' WHERE `contactid`='".$id."'");
+}
 ?>

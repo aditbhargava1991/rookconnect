@@ -16,7 +16,7 @@ if(!empty($limit_staff_cat)) {
         <div class="col-xs-12 col-sm-5">
             <select data-placeholder="Select a Staff Member..." data-table="sales" name="primary_staff" class="chosen-select-deselect form-control">
                 <option value=""></option><?php
-                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0".$cat_query), MYSQLI_ASSOC));
+                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `sales_lead_is_active`=1 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0".$cat_query), MYSQLI_ASSOC));
                 foreach($query as $id) { ?>
                     <option <?= ($id==$primary_staff) ? 'selected' : ''; ?> value="<?= $id; ?>"><?= get_contact($dbc, $id); ?></option><?php
                 } ?>
@@ -33,7 +33,7 @@ if(!empty($limit_staff_cat)) {
             <div class="col-xs-12 col-sm-5">
                 <select data-placeholder="Select a Staff Member..." data-table="sales" data-concat="," name="share_lead" class="chosen-select-deselect form-control">
                     <option value=""></option><?php
-                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0".$cat_query), MYSQLI_ASSOC));
+                    $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `sales_lead_is_active`=1 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0".$cat_query), MYSQLI_ASSOC));
                     foreach($query as $id) { ?>
                         <option <?= $share_lead_id == $id ? 'selected' : ''; ?> value="<?= $id; ?>"><?= get_contact($dbc, $id); ?></option><?php
                     } ?>
