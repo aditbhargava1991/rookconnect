@@ -171,6 +171,7 @@ function changeDesc(cb) {
 
     //}
 }
+var calculatingTimeEstimate = false;
 function calculateTimeEstimate() {
 	// var total_minutes = 0;
 	// $('[name="service_estimated_hours"]').each(function() {
@@ -186,14 +187,18 @@ function calculateTimeEstimate() {
 	// total_time_estimate = new_hours+':'+new_minutes;
 	// $('.service_total_time_estimate').val(total_time_estimate);
 	var ticketid = $('#ticketid').val();
-	$.ajax({
-		url: '../Ticket/ticket_ajax_all.php?action=get_service_time_estimate',
-		method: 'POST',
-		data: { ticketid: ticketid },
-		success:function(response) {
-			$('.service_total_time_estimate').val(response);
-		}
-	})
+    if(ticketid > 0 && !calculatingTimeEstimate) {
+        calculatingTimeEstimate = true;
+        $.ajax({
+            url: '../Ticket/ticket_ajax_all.php?action=get_service_time_estimate',
+            method: 'POST',
+            data: { ticketid: ticketid },
+            success:function(response) {
+                $('.service_total_time_estimate').val(response);
+                calculatingTimeEstimate = false;
+            }
+        });
+    }
 }
 function limitServiceCategory() {
 	<?php if(strpos($value_config,',Service Limit Service Category,') !== FALSE) { ?>
