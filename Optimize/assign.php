@@ -32,6 +32,7 @@ foreach(explode(',',get_config($dbc, '%_classification', true, ',')) as $i => $c
     }
 }
 $allowed_classifications = $contact_classifications; ?>
+<script src="../Calendar/map_sorting.js"></script>
 <script>
 $(document).ready(function() {
 	$('[name=region]').change(filterRegions);
@@ -48,7 +49,7 @@ var opt_classification = '<?= $_GET['classification'] ?>';
 var opt_date = '<?= $_GET['date'] ?>';
 var lock_timer = null;
 var ticket_list = [];
-var zoom = 10;
+var zoom = <?= $_GET['zoom'] > 0 ? $_GET['zoom'] : 10 ?>;
 function filterRegions() {
 	opt_region = $('[name=region]').val();
 	$('[name=classification] option[data-region]').each(function() {
@@ -70,7 +71,7 @@ function filterClass() {
 function get_ticket_list() {
 	$('.draw_sort').empty();
 	var equip_scroll = $('.equip_list').scrollTop();
-	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
+	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
     get_map_view();
 	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 	lockTickets();
@@ -106,11 +107,16 @@ function setTicketSave() {
 function initOptions() {
     $('.ticket[data-table][data-id]').off('mouseenter');
     $('.ticket[data-table][data-id]').mouseenter(function() {
-        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').addClass('theme-color-icon').css('z-index',1);
+        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').css('z-index',1);
+        $('.map_view .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+'] img').css('height','60px').css('width','60px').css('margin-top','-40px').css('margin-left','-20px');
+        if($(this).parents('.map_view').length > 0) {
+            $('.ticket_list').scrollTop($('.ticket_list').scrollTop() + $('.ticket_list .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').closest('.block-item').offset().top - $('.ticket_list').offset().top);
+        }
     });
     $('.ticket[data-table][data-id]').off('mouseleave');
     $('.ticket[data-table][data-id]').mouseleave(function() {
-        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').removeClass('active').removeClass('theme-color-icon').css('z-index',0);
+        $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').removeClass('active').css('z-index',0);
+        $('.map_view .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+'] img').css('height','20px').css('width','20px').css('margin-top','0').css('margin-left','0');
     });
     try {
 		$('.assign_list_box').sortable('destroy');
@@ -120,14 +126,20 @@ function initOptions() {
 			$('.draw_sort').empty();
 			var block = $('.block-item.equipment.active').first();
 			if(block.length > 0) {
-				$.post('optimize_ajax.php?action=assign_ticket', {
-					equipment: block.data('id'),
-					table: ticket.item.data('table'),
-					id_field: ticket.item.data('id-field'),
-					id: ticket.item.data('id'),
-					date: $('[name=date]').val()
-				}, function(response) {
-					get_ticket_list();
+				$.ajax({
+					async: false,
+					url: 'optimize_ajax.php?action=assign_ticket',
+					method: 'POST',
+					data: {
+						equipment: block.data('id'),
+						table: ticket.item.data('table'),
+						id_field: ticket.item.data('id-field'),
+						id: ticket.item.data('id'),
+						date: $('[name=date]').val()
+					},
+					success: function(response) {
+						get_ticket_list();
+					}
 				});
 			}
 		},
@@ -152,15 +164,21 @@ function initDraw() {
 			var delay_load = '';
 			if(block.length > 0) {
 				ticket_list.forEach(function(ticket) {
-					$.post('optimize_ajax.php?action=assign_ticket', {
-						equipment: block.data('id'),
-						table: $(ticket).closest('span').data('table'),
-						id_field: $(ticket).closest('span').data('id-field'),
-						id: $(ticket).closest('span').data('id'),
-						date: $('[name=date]').val()
-					}, function(response) {
-						clearTimeout(delay_load);
-						delay_load = setTimeout(get_ticket_list(),1000);
+					$.ajax({
+						async: false,
+						url: 'optimize_ajax.php?action=assign_ticket',
+						method: 'POST',
+						data: {
+							equipment: block.data('id'),
+							table: $(ticket).closest('span').data('table'),
+							id_field: $(ticket).closest('span').data('id-field'),
+							id: $(ticket).closest('span').data('id'),
+							date: $('[name=date]').val()
+						},
+						success: function(response) {
+							clearTimeout(delay_load);
+							delay_load = setTimeout(get_ticket_list(),1000);
+						}
 					});
 				});
 				ticket_list = [];

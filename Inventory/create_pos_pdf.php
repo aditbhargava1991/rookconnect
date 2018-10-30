@@ -130,7 +130,7 @@ function create_pos3_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 	$html .= '<p style="text-align:center"><h2>'.COMPANY_SOFTWARE_NAME.'</h2></p><br><br><br><br>
 	<table><tr><td style="width:20%">To:</td><td style="width:30%">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['business_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td><td style="width:20%">Ship to:</td><td style="width:30%">'.decryptIt($customer['name']).' '.decryptIt($customer['first_name']).' '.decryptIt($customer['last_name']).'<br>'.$customer['business_address'].'<br>'.$customer['city'].', '.$customer['state'].' '.$customer['zip_code'].'<br>'.decryptIt($customer['cell_phone']).'<br>'.decryptIt($customer['email_address']).'</td></tr></table><br><br>
 	<table border="1px" style="padding:3px; border:1px solid grey;">
-            <tr nobr="true" style="background-color:rgb(140,173,174); color:black; "><td>Salesperson</td><td>Delivery Option</td><td>Ship Date</td><td>Payment Type</td>'.$thduedate.'</tr>
+            <tr nobr="true" style="background-color:rgb(140,173,174); color:black; "><td>Salesperson</td><td>Delivery Option</td><td>Ship Date</td><td>Payment Tab</td>'.$thduedate.'</tr>
 	<tr><td>'.SALESPERSON.'</td><td>'.$point_of_sell['delivery_type'].'</td><td>'.SHIP_DATE.'</td><td>'.PAYMENT_TYPE.'</td>'.$tdduedate.'</tr>
 	</table><br><br>
 	';
@@ -212,7 +212,7 @@ function create_pos3_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Product(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid grey;">
             <tr nobr="true" style="background-color:rgb(140,173,174); color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -241,7 +241,7 @@ function create_pos3_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Service(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid grey;">
             <tr nobr="true" style="background-color:rgb(140,173,174); color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -427,9 +427,9 @@ function create_pos2_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 					$tdduedate = '<br>Due Date : '.DUEDATE.'<br>';
 				} else { $tdduedate = '';  }
 			if($point_of_sell['delivery_type'] !== '' && $point_of_sell['delivery_type'] !== NULL) {
-				$footer_text = '<p style="text-align:right;">Date : ' .INVOICE_DATE.'<br>Invoice# : '.INVOICEID.'<br>Ship Date : ' . SHIP_DATE . $sales_person . '<br>Payment Type : ' .PAYMENT_TYPE.'<br>Shipping Method : '.$point_of_sell['delivery_type'].$tdduedate.'</p>';
+				$footer_text = '<p style="text-align:right;">Date : ' .INVOICE_DATE.'<br>Invoice# : '.INVOICEID.'<br>Ship Date : ' . SHIP_DATE . $sales_person . '<br>Payment Tab : ' .PAYMENT_TYPE.'<br>Shipping Method : '.$point_of_sell['delivery_type'].$tdduedate.'</p>';
 			} else {
-				$footer_text = '<p style="text-align:right;">Date : ' .INVOICE_DATE.'<br>Invoice# : '.INVOICEID.'<br>Ship Date : ' .SHIP_DATE . $sales_person . '<br>Payment Type : ' .PAYMENT_TYPE.$tdduedate.'</p>';
+				$footer_text = '<p style="text-align:right;">Date : ' .INVOICE_DATE.'<br>Invoice# : '.INVOICEID.'<br>Ship Date : ' .SHIP_DATE . $sales_person . '<br>Payment Tab : ' .PAYMENT_TYPE.$tdduedate.'</p>';
 			}
             $this->writeHTMLCell(0, 0, 0 , 10, $footer_text, 0, 0, false, "R", true);
 		}
@@ -563,7 +563,7 @@ function create_pos2_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Product(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid black;">
             <tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -592,7 +592,7 @@ function create_pos2_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Service(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid black;">
             <tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -919,7 +919,7 @@ function create_pos1_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Product(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid black;">
             <tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -948,7 +948,7 @@ function create_pos1_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		$html .= '<h2>Service(s)</h2>
 			<table border="1px" style="padding:3px; border:1px solid black;">
             <tr nobr="true" style="background-color:lightgrey; color:black;  width:22%;">
-            <th>Category</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
+            <th>Tab</th><th>Heading</th><th>Quantity</th><th>Price</th><th>Total</th></tr>';
 		while($row = mysqli_fetch_array( $result )) {
 			$inventoryid = $row['inventoryid'];
 			$price = $row['price'];
@@ -1035,7 +1035,7 @@ function create_pos1_pdf($dbc,$posid,$d_value,$comment, $gst_total, $pst_total, 
 		<th colspan="'.$col_span.'" style="background-color:grey; color:black;">Payment Information</th>
 	</tr>
 	<tr style="padding:3px; text-align:center; background-color:white; color:black;" >
-		<td>Payment Type</td>';
+		<td>Payment Tab</td>';
         if($point_of_sell['discount_value'] != 0) {
             $html .= '<td>Total Before Discount</td>
                       <td>Discount Value</td>

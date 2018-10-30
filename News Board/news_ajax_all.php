@@ -7,12 +7,12 @@ error_reporting(0);
 if($_GET['fill'] == 'cross_software_approval') {
 	$id = $_GET['status'];
 	$dbc_conn = $_GET['dbc'];
-	$dbc_cross = ${'dbc_cross_'.$dbc_conn}; 
+	$dbc_cross = ${'dbc_cross_'.$dbc_conn};
 	if(isset($_GET['disapprove'])) {
 		$message = $_GET['name'];
-		mysqli_query($dbc_cross,"UPDATE `newsboard` SET cross_software_approval = 'disapproved' WHERE newsboardid='$id'") or die(mysqli_error($dbc_cross)); 
+		mysqli_query($dbc_cross,"UPDATE `newsboard` SET cross_software_approval = 'disapproved' WHERE newsboardid='$id'") or die(mysqli_error($dbc_cross));
 	} else {
-		mysqli_query($dbc_cross,"UPDATE `newsboard` SET cross_software_approval = '1' WHERE newsboardid='$id'") or die(mysqli_error($dbc_cross)); 
+		mysqli_query($dbc_cross,"UPDATE `newsboard` SET cross_software_approval = '1' WHERE newsboardid='$id'") or die(mysqli_error($dbc_cross));
 	}
 }
 
@@ -23,12 +23,12 @@ if($_GET['fill'] == 'comment_reply') {
     $title = $_POST['title'];
     $created_date = date('Y-m-d');
     $comment = $_POST['comment'];
-    
+
     if ( !empty($software_name) ) {
         //Softwarewide
         $query = "INSERT INTO `newsboard_comments` (`newsboardid`, `contactid`, `software_name`, `created_date`, `comment`) VALUES('$newsboardid', '$contactid', '$software_name', '$created_date', '$comment')";
         mysqli_query($dbc_htg, $query);
-        
+
         $subject = 'New Comment Added - '. $software_name;
         $body = '<h3>'.$subject.'</h3>
         Title: '. $title .'<br />
@@ -36,21 +36,71 @@ if($_GET['fill'] == 'comment_reply') {
         Comment: '. $comment .'<br />';
         $error = '';
         $ffm_recepient = mysqli_fetch_assoc(mysqli_query($dbc_htg, "SELECT `comment_reply_recepient_email` FROM `newsboard_config`"))['comment_reply_recepient_email'];
-        
+
         if ( empty($ffm_recepient) ) {
             $ffm_recepient = 'info@rookconnect.com';
         }
-        
+
         try {
             send_email('', $ffm_recepient, '', '', $subject, html_entity_decode($body), '');
         } catch (Exception $e) {
             $error .= "Unable to send email: ".$e->getMessage()."\n";
         }
-    
+
+				// Tag all the staff by default to the new post in a news board
+				$newsboard_select = mysqli_fetch_assoc(mysqli_query($dbc, "select boardid from newsboard where newsboardid = $newsboardid"));
+        $boardid = $newsboard_select['boardid'];
+        $tag_newsboardid = $newsboardid;
+        $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`,`email_address` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
+        foreach($staff_list as $staff) {
+          $tag_staff_array[] = $staff['contactid'];
+          $tag_staff_email_array[] = $staff['email_address'];
+        }
+
+				//foreach($tag_staff_email_array as $tag_staff_email) {
+        try {
+            $sender = '';
+            $cc_emails = '';
+            $bcc_emails = '';
+            $title = "test";
+            $user = $tag_staff_email_array;
+            $subject = "New post -> $title has been added to the News Board.";
+            $body = "New Post with Name $title has been added to the news Board. <br>";
+            $body .= 'For more details <a href="'.'https://' . $_SERVER['SERVER_NAME'] . '/News Board/index.php">click here</a>';
+            send_email($sender, $user, $cc_emails, $bcc_emails, $subject, html_entity_decode($body), '');
+        } catch (Exception $e) {
+            $error .= "Unable to send email: ".$e->getMessage()."\n";
+        }
+        //}
     } else {
         //Local
         $query = "INSERT INTO `newsboard_comments` (`newsboardid`, `contactid`, `created_date`, `comment`) VALUES('$newsboardid', '$contactid', '$created_date', '$comment')";
         mysqli_query($dbc, $query);
+
+				// Tag all the staff by default to the new post in a news board
+        $boardid = $newsboard_board;
+        $tag_newsboardid = $newsboardid;
+        $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`,`email_address` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
+        foreach($staff_list as $staff) {
+          $tag_staff_array[] = $staff['contactid'];
+          $tag_staff_email_array[] = $staff['email_address'];
+        }
+
+				//foreach($tag_staff_email_array as $tag_staff_email) {
+        try {
+            $sender = '';
+            $cc_emails = '';
+            $bcc_emails = '';
+            $title = "test";
+            $user = $tag_staff_email_array;
+            $subject = "New post -> $title has been added to the News Board.";
+            $body = "New Post with Name $title has been added to the news Board. <br>";
+            $body .= 'For more details <a href="'.'https://' . $_SERVER['SERVER_NAME'] . '/News Board/index.php">click here</a>';
+            send_email($sender, $user, $cc_emails, $bcc_emails, $subject, html_entity_decode($body), '');
+        } catch (Exception $e) {
+            $error .= "Unable to send email: ".$e->getMessage()."\n";
+        }
+        //}
     }
 }
 
@@ -71,13 +121,13 @@ if ( $_GET['fill'] == 'get_boards' ) {
     $newsboard_type = filter_var($_GET['newsboard_type'], FILTER_SANITIZE_STRING);
     $query = "SELECT * FROM `newsboard_boards` WHERE `deleted`=0 ORDER BY `board_name`";
     $html = '';
-    
+
     if ( $newsboard_type == 'Softwarewide' ) {
         $result = mysqli_query($dbc_htg, $query);
     } else {
         $result = mysqli_query($dbc, $query);
     }
-    
+
     if ( $result->num_rows > 0 ) {
         $html .= '<option value=""></option>';
         $html .= '<option value="NEW">Add New News Board</option>';
@@ -87,7 +137,7 @@ if ( $_GET['fill'] == 'get_boards' ) {
     } else {
         $html .= '<option value="NEW">Add New News Board</option>';
     }
-    
+
     echo $html;
 }
 
@@ -96,21 +146,21 @@ if ( $_GET['fill'] == 'get_tags' ) {
     $newsboard_type = filter_var($_GET['newsboard_type'], FILTER_SANITIZE_STRING);
     $tags = '';
     $html = '';
-    
+
     $query = "SELECT `tags` FROM `newsboard` WHERE `boardid`='$boardid'";
     if ( $newsboard_type == 'Softwarewide' ) {
         $result = mysqli_query($dbc_htg, $query);
     } else {
         $result = mysqli_query($dbc, $query);
     }
-    
+
     if ( $result->num_rows > 0 ) {
         while ( $row = mysqli_fetch_assoc($result) ) {
             $tags .= $row['tags'] .',';
         }
         $tags = rtrim($tags, ',');
     }
-    
+
     foreach ( explode(',', $tags) as $tag ) {
         $html .= '<div class="tags_class">';
             $html .= '<div class="col-xs-10 no-pad-left"><input name="tags[]" value="'. $tag .'" type="text" class="form-control" /></div>';
@@ -120,14 +170,14 @@ if ( $_GET['fill'] == 'get_tags' ) {
             $html .= '</div>';
         $html .= '</div>';
     }
-    
+
     echo $html;
 }
 
 if ( $_GET['fill'] == 'delete_newsitem' ) {
     $newsboardid = preg_replace('/[^0-9]/', '', $_GET['newsboardid']);
-    $newsboard_type = filter_var($_GET['$newsboard_type'], FILTER_SANITIZE_STRING);
-    
+    $newsboard_type = filter_var($_GET['newsboard_type'], FILTER_SANITIZE_STRING);
+
     $query = "UPDATE `newsboard` SET `deleted`=1 WHERE `newsboardid`='$newsboardid'";
     if ( $newsboard_type == 'Softwarewide' ) {
         mysqli_query($dbc_htg, $query);
@@ -152,7 +202,7 @@ if ( $_GET['fill'] == 'get_shared_staff' ) {
                     <img class="inline-img pull-right cursor-hand" onclick="addStaff(this);" src="../img/icons/ROOK-add-icon.png" />
                 </div>
             </div>';
-    
+
     $get_shared_staff = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `shared_staff` FROM `newsboard_boards` WHERE `boardid`='$boardid'"))['shared_staff'];
     if ( !empty($get_shared_staff) ) {
         foreach ( array_filter(explode(',', $get_shared_staff)) as $shared_staff ) {
@@ -171,7 +221,7 @@ if ( $_GET['fill'] == 'get_shared_staff' ) {
         }
         $html .= $end;
     }
-    
+
     echo $html;
 }
 
@@ -189,7 +239,7 @@ if ( $_GET['fill'] == 'load_panel' ) {
     $tag_id = ($type == 'sw') ? 'tag_sw_' : 'tag_';
     $collapse_tag = ($type == 'sw') ? 'collapsetag_sw_' : 'collapsetag_';
     $html = '';
-    
+
     $result = mysqli_query($dbc_news, "SELECT `tags` FROM `newsboard` WHERE `boardid`='$board' AND `deleted`=0");
     if ( $result->num_rows > 0 ) {
         while ( $row=mysqli_fetch_assoc($result) ) {
@@ -210,7 +260,7 @@ if ( $_GET['fill'] == 'load_panel' ) {
             }
         }
     }
-    
+
     echo $html;
 }
 
@@ -223,4 +273,23 @@ if ( $_GET['fill'] == 'load_panel_item' ) {
     $html = include('news_item.php');
     echo $html;
 }
+if ( $_GET['fill'] == 'untag') {
+	$boardid = $_GET['boardid'];
+	$newsboardid = $_GET['newsboardid'];
+	$contactid = $_GET['contactid'];
+	$select_query = "SELECT staff from newsboard_tag where boardid=$boardid and newsboardid=$newsboardid";
+	$select_newsboard = mysqli_fetch_assoc(mysqli_query($dbc, $select_query));
+	if(!empty(array_filter($select_newsboard))) {
+		$staff_array = explode(",", $select_newsboard['staff']);
+		if(in_array($contactid, $staff_array)) {
+			$position = array_search($contactid, $staff_array);
+			unset($staff_array[$position]);
+		}
+
+		$update_staff = implode(",", $staff_array);
+		$query = "UPDATE newsboard_tag set staff = '$update_staff' where boardid=$boardid and newsboardid=$newsboardid";
+		mysqli_query($dbc, $query);
+	}
+}
+
 ?>

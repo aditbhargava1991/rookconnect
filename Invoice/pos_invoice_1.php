@@ -60,8 +60,16 @@ if($get_pos_tax != '') {
 //Tax
 
 $invoice_footer = get_config($dbc, 'invoice_footer');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$point_of_sell['type']))) {
+    $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
+}
 
-$logo = 'download/'.get_config($dbc, 'invoice_logo');
+$logo = get_config($dbc, 'invoice_logo');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_logo_'.$point_of_sell['type']))) {
+    $logo = get_config($dbc, 'invoice_logo_'.$point_of_sell['type']);
+}
+
+$logo = 'download/'.$logo;
 if(!file_exists($logo)) {
     $logo = '../POSAdvanced/'.$logo;
     if(!file_exists($logo)) {
@@ -135,7 +143,7 @@ $html = '<br><br><br /><br /><center><div style="margin-top:10px; text-align:cen
 	<td>'.( !empty($customer['name']) ? decryptIt($customer['name']).': ' : '') . decryptIt($customer['first_name']) .' '. decryptIt($customer['last_name']) .'</td>
 	<td>'.$customer_phone.'</td>
 	<td>'.decryptIt($customer['email_address']).'</td>
-	<td>'.$customer['referred_by'].'</td>
+	<td>'.( !empty($point_of_sell['reference']) ? $point_of_sell['reference'] : '-' ).'</td>
 </tr>';
 
 if($client_tax_number != '') {
@@ -193,7 +201,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 					$html .= '<td>' . get_inventory ( $dbc, $inventoryid, 'part_no' ) . '</td>';
 				}
 
-				$html .= '<td>'.get_inventory($dbc, $inventoryid, 'name').'</td>';
+				$html .= '<td>'.($quantity < 0 ? 'Return: ' : '').get_inventory($dbc, $inventoryid, 'name').'</td>';
 				$html .= '<td>'.number_format($quantity,0).'</td>';
 				if($return_result > 0) {
 					$html .= '<td>'.$returned.'</td>';
@@ -211,7 +219,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 		if($misc_product != '') {
 			$html .= '<tr>';
 			$html .=  '<td>Not Available</td>';
-			$html .=  '<td>'.$misc_product.'</td>';
+			$html .=  '<td>'.($price < 0 ? 'Return: ' : '').$misc_product.'</td>';
 			$html .=  '<td>'.number_format($row['quantity'],0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$row['returned_qty'].'</td>';
@@ -248,7 +256,7 @@ if($num_rows3 > 0) {
 			$amount = $price*($quantity-$returned);
 			$html .= '<tr>';
 			$html .=  '<td>'.get_products($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_products($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_products($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -285,7 +293,7 @@ if($num_rows4 > 0) {
 			$amount = $price*($quantity-$returned);
 			$html .= '<tr>';
 			$html .=  '<td>'.get_services($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_services($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Refund: ' : '').get_services($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -330,7 +338,7 @@ if($num_rows5 > 0) {
 
 			$html .= '<tr>';
 			$html .=  '<td>'.get_vpl($dbc, $inventoryid, 'part_no').'</td>';
-			$html .=  '<td>'.get_vpl($dbc, $inventoryid, 'name').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_vpl($dbc, $inventoryid, 'name').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -505,5 +513,6 @@ if (!file_exists('download')) {
 }
 
 $pdf->writeHTML($html, true, false, true, false, '');
-?><?php
+$invoice_type = $point_of_sell['type'];
+include('../Invoice/pos_invoice_append_ticket.php');
 $pdf->Output('download/invoice_'.$posid.$edited.'.pdf', 'F');

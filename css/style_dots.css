@@ -5208,13 +5208,19 @@ ul.sidebar .active.blue,
 .blue {
     background-color:#78c6ce !important; }
     
-.dashboard-container,
-.block-item,
-.block-label,
-.block-button,
+.summary-block,
+.overview-block,
 .main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
 .blue-border {
-    border:1px solid #78c6ce !important; }
+    border-color:#78c6ce !important; 
+    }
     
 .standard-sidebar-searchbox { background-color:#96dae1 !important; }
 
@@ -5236,6 +5242,7 @@ ul.sidebar .active,
 .col-sm-3.preview_div h3, .col-sm-3.preview_div h4 { color:#000; }
 .sidebar-higher-level a.cursor-hand.active {
   background-color: #78c6ce !important;
+  color:#fff !important;
 }
 .sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
   color:#78c6ce !important;

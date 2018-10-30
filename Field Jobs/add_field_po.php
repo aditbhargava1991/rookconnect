@@ -36,11 +36,17 @@ if (isset($_POST['purchase_order'])) {
 	    $result_insert_po = mysqli_query($dbc, $query_insert_po);
         $fieldpoid = mysqli_insert_id($dbc);
         $url = 'Added';
+			$before_change = '';
+	    $history = "field_po entry has been added. <br />";
+	    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 	} else {
 		$fieldpoid = $_POST['fieldpoid'];
 		$query_update_site = "UPDATE `field_po` SET `po_number`='$po_number', `type`='$type', `bill_to`='$bill_to', `issue_date`='$issue_date', `description`='$description', `qty`='$qty', `vendorid`='$vendorid', `third_invoice_no`='$third_invoice_no', `desc`='$desc', `grade`='$grade', `tag`='$tag', `detail`='$detail', `price_per_unit`='$price_per_unit', `each_cost`='$each_cost', `description`='$description', `cost`='$cost', `mark_up`='$mark_up', `total_cost`='$total_cost', `revision`='$revision', `edited_by`='$created_by' WHERE `fieldpoid`='$fieldpoid'";
 		$result_update_site	= mysqli_query($dbc, $query_update_site);
         $url = 'Updated';
+		$before_change = '';
+    $history = "field_po entry has been updated for fieldpoid -> $fieldpoid. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 	}
 	$invoice_list = '';
 	foreach($_POST['vendor_invoice'] as $invoice) {
@@ -54,7 +60,13 @@ if (isset($_POST['purchase_order'])) {
 		move_uploaded_file($_FILES['vendor_upload']['tmp_name'][$i],'download/field_invoice/'.$file);
 		$invoice_list .= '##FFM##'.$file;
 	}
+
+	$before_change = capture_before_change($dbc, 'field_po', 'vendor_invoice', 'fieldpoid', $fieldpoid);
+
 	mysqli_query($dbc, "UPDATE `field_po` SET `vendor_invoice`='$invoice_list' WHERE `fieldpoid`='$fieldpoid'");
+
+	$history = capture_after_change('vendor_invoice', $invoice_list);
+	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
     $vendname = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$vendorid'"));
     $vend_name = decryptIt($vendname['name']);
@@ -64,7 +76,7 @@ if (isset($_POST['purchase_order'])) {
 	$total_count = count($_POST['qty']);
     $po_html = '';
     $emp_loop=0;
-	
+
     for($emp_loop=0; $emp_loop<=$total_count; $emp_loop++) {
 		if( !empty($_POST['qty'][$emp_loop]) ) {
 			$po_html .= '<tr>
@@ -378,10 +390,10 @@ $(document).on('change', 'select[name="jobid"]', function() { changeJob(this); }
                 $mark_up = $get_job['mark_up'];
                 $total_cost = $get_job['total_cost'];
                 $revision = $get_job['revision']+1; ?>
-                
+
                 <input type="hidden" id="fieldpoid"	name="fieldpoid" value="<?= $fieldpoid; ?>" /><?php
             } ?>
-            
+
             <input type="hidden" id="jobid"	name="jobid" value="<?= $jobid; ?>" />
             <input type="hidden" id="revision" name="revision" value="<?= $revision; ?>" />
 
@@ -518,7 +530,7 @@ $(document).on('change', 'select[name="jobid"]', function() { changeJob(this); }
                         <label class="col-sm-2 text-center">Cost($)</label>
                     <?php endif; ?>
                 </div><?php
-                
+
                 if(!empty($_GET['fieldpoid'])) {
                     $qut = explode('#*#',$qty);
                     $desc = explode('#*#',$desc);
@@ -530,7 +542,7 @@ $(document).on('change', 'select[name="jobid"]', function() { changeJob(this); }
                     $total_count = mb_substr_count($qty,'#*#');
                     $no_ratecard = 0;
                     $no_rate_position = '';
-                    
+
                     for($emp_loop=0; $emp_loop<=$total_count; $emp_loop++) {
                         if(($qut[$emp_loop]) != '') {
                             $qt = '';
@@ -563,7 +575,7 @@ $(document).on('change', 'select[name="jobid"]', function() { changeJob(this); }
                             if(isset($each_cost[$emp_loop])) {
                                 $ec = $each_cost[$emp_loop];
                             } ?>
-                            
+
                             <div class="form-group clearfix">
                                 <?php if(strpos($edit_config,',item_qty,') !== false): ?>
                                     <div class="col-sm-1"><label for="company_name" class="col-sm-4 show-on-mob control-label">Quantity:</label>
@@ -645,11 +657,11 @@ $(document).on('change', 'select[name="jobid"]', function() { changeJob(this); }
 						<?php endif; ?>
 					</div>
 				</div>
-				
+
 				<div id="add_here_new_data"></div>
 				<button id="add_new_row" class="btn brand-btn">Add Another Item</button>
             <?php endif; ?>
-            
+
             <?php if(strpos($edit_config,',description,') !== false): ?>
                 <div class="form-group">
                     <label for="additional_note" class="col-sm-4 control-label">Description:</label>

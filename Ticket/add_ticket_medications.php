@@ -104,8 +104,8 @@
 			</div>
 			<div class="col-sm-1 pull-right" style="<?= $medication['arrived'] > 0 ? 'display:none;' : '' ?>">
 				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $medication['id'] ?>" data-id-field="id" data-type="medication" data-type-field="src_table" value="0">
-				<img class="inline-img pull-right" onclick="addMulti(this, 'inline');" src="../img/icons/ROOK-add-icon.png">
-				<img class="inline-img pull-right" onclick="noMeds(this);" src="../img/remove.png">
+				<img class="inline-img pull-right" data-history-label="Medication" onclick="addMulti(this, 'inline');" src="../img/icons/ROOK-add-icon.png">
+				<img class="inline-img pull-right" data-history-label="Medication" onclick="noMeds(this);" src="../img/remove.png">
 				<a href="" class="all_meds pull-right btn brand-btn" onclick="linkMeds(this); return false;">All Medications</a>
 			</div>
 			<div class="clearfix"></div>

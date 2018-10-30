@@ -3,9 +3,10 @@
 $po_numbers = $dbc->query("SELECT `po_num` FROM `ticket_attached` WHERE `deleted`=0 AND `ticketid` > 0 AND `src_table` IN ('inventory_general','inventory') AND `ticketid`='$ticketid' AND IFNULL(`po_num`,'') != '' GROUP BY `po_num`");
 $po_line_list = [];
 while($po_num_line = $po_numbers->fetch_assoc()) {
-	$po_line_list[] = $po_num_line['po_num'];
+	$po_num_line['po_num'] = explode('#*#', $po_num_line['po_num']);
+	$po_line_list = array_merge($po_line_list, $po_num_line['po_num']);
 }
-$po_list = array_unique(array_merge($po_line_list,$ticket_po_list));
+$po_list = array_filter(array_unique(array_merge($po_line_list,$ticket_po_list)));
 sort($po_list);
 foreach($field_sort_order as $field_sort_field) {
 	if($access_project == TRUE) { ?>
@@ -23,8 +24,8 @@ foreach($field_sort_order as $field_sort_field) {
 							<?php if(strpos($value_config,',PO Slider Icons,') !== FALSE) { ?>
 								<a href="line_item_views.php?po=<?= $po_num_line ?>" onclick="overlayIFrameSlider('line_item_views.php?po='+$(this).closest('.form-group').find('[name=purchase_order]').val(),'auto',true,true); return false;"><img class="inline-img pull-right" src="../img/icons/eyeball.png"></a>
 							<?php } ?>
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+							<img class="inline-img pull-right" data-history-label="Purchase Order #" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" data-remove="1" data-history-label="Purchase Order #" onclick="remMulti(this);" src="../img/remove.png">
 						</div>
 					</div>
 				<?php } else { ?>

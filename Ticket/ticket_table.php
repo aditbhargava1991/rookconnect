@@ -3,7 +3,7 @@ if($tile_security['edit'] == 1) {
 	echo "";
 	echo '<div class="pull-right gap-bottom">';
 		?><span class="popover-examples list-inline" style="margin:0 5px 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
-	echo '<a href="../Ticket/index.php?edit=0&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
+	echo '<a href="../Ticket/index.php?'.$current_tile.'edit=0&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
 	echo '</div>';
 }
 echo 'Displaying a total of '.mysqli_num_rows($result).' '.TICKET_TILE.'.';
@@ -34,8 +34,8 @@ echo '<tr class="hidden-xs hidden-sm">
 $project_security = get_security($dbc, 'project');
 while($row = mysqli_fetch_array( $result )) {
 	echo '<tr>
-		'.(!in_array('Label',$db_config) ? '<td data-title="'.TICKET_NOUN.' #">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>'.($row['main_ticketid'] > 0 ? $row['main_ticketid'].' '.$row['sub_ticket']
-			: $row['ticketid']).'</a>' : $row['ticketid']).'</td>' : '<td data-title="'.TICKET_NOUN.' #">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>'.get_ticket_label($dbc, $row).'</a>' : $row['ticketid']).'</td>');
+		'.(!in_array('Label',$db_config) ? '<td data-title="'.TICKET_NOUN.' #">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>'.($row['main_ticketid'] > 0 ? $row['main_ticketid'].' '.$row['sub_ticket']
+			: $row['ticketid']).'</a>' : $row['ticketid']).'</td>' : '<td data-title="'.TICKET_NOUN.' #">'.($tile_security['edit'] == 1 ? '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>'.get_ticket_label($dbc, $row).'</a>' : $row['ticketid']).'</td>');
 	if(in_array('Project',$db_config)) {
 		echo '<td data-title="'.PROJECT_NOUN.' Information">';
 			if($row['projectid'] > 0) {
@@ -174,14 +174,14 @@ while($row = mysqli_fetch_array( $result )) {
 			$functions[] = '<a href="../Ticket/ticket_pdf.php?ticketid='.$row['ticketid'].'">View PDF <img src="../img/pdf.png" class="inline-img small"></a>';
 		}
 		if($tile_security['edit'] == 1) {
-			$functions[] = '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>Edit</a>';
+			$functions[] = '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>Edit</a>';
 			$functions[] = '<a href=\''.WEBSITE_URL.'/delete_restore.php?action=delete&ticketid='.$row['ticketid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
 		} else if($edit_access > 0) {
-			$functions[] = '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>View</a>';
+			$functions[] = '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>View</a>';
 			$functions[] = '<a href=\'../delete_restore.php?action=restore&ticketid='.$row['ticketid'].'&category=tickets\' onclick="return confirm(\'Are you sure you want to restore this item?\')">Restore</a>';
 			$functions[] = '<a href=\'../delete_restore.php?action=delete_2&ticketid='.$row['ticketid'].'&category=tickets\' onclick="return confirm(\'By deleting this item, you may never be able to gain access to this item again. Are you sure you want to delete this item?\')">Delete</a>';
 		} else {
-			$functions[] = '<a href=\'../Ticket/index.php?edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>View</a>';
+			$functions[] = '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$row['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>View</a>';
 		}
 		echo implode('<br />',$functions);
 	echo '</td>';
@@ -197,6 +197,6 @@ if($tile_security['edit'] == 1) {
 	echo "";
 	echo '<div class="pull-right gap-bottom">';
 		?><span class="popover-examples list-inline" style="margin:0 5px 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add a <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
-	echo '<a href="../Ticket/index.php?edit=0&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
+	echo '<a href="../Ticket/index.php?'.$current_tile.'edit=0&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
 	echo '</div>';
 } ?>

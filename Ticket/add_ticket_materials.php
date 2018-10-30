@@ -8,13 +8,13 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
  + (strpos($value_config,',Material Rate,') !== FALSE ? 2 : 0); ?>
 <?php if(strpos($value_config,',Material Inline,') !== FALSE) { ?>
 	<?php if(strpos($value_config,',Material Category,') !== FALSE) { ?>
-		<div class="col-sm-2 hide-titles-mob text-center">Category</div>
+		<div class="col-sm-2 hide-titles-mob text-center">Tab</div>
 	<?php } ?>
 	<?php if(strpos($value_config,',Material Subcategory,') !== FALSE) { ?>
-		<div class="col-sm-2 hide-titles-mob text-center">Sub-Category</div>
+		<div class="col-sm-2 hide-titles-mob text-center">Sub-Tab</div>
 	<?php } ?>
 	<?php if(strpos($value_config,',Material Type,') !== FALSE) { ?>
-		<div class="col-sm-<?= 11 - $cols ?> hide-titles-mob text-center">Type</div>
+		<div class="col-sm-<?= 11 - $cols ?> hide-titles-mob text-center">Tab</div>
 	<?php } ?>
 	<?php if(strpos($value_config,',Material Manual,') !== FALSE) { ?>
 		<div class="col-sm-<?= 11 - $cols ?> hide-titles-mob text-center">Material</div>
@@ -39,7 +39,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 				<?php if(strpos($value_config,',Material Inline,') !== FALSE) { ?>
 					<?php if(strpos($value_config,',Material Category,') !== FALSE && $field_sort_field == 'Material Category') { ?>
 						<div class="select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label show-on-mob col-sm-4">Category:</label>
+							<label class="control-label show-on-mob col-sm-4">Tab:</label>
 							<div class="col-sm-2">
 								<select name="mat_category" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `material` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -52,7 +52,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Subcategory,') !== FALSE && $field_sort_field == 'Material Subcategory') { ?>
 						<div class="select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label show-on-mob col-sm-4">Sub-Category:</label>
+							<label class="control-label show-on-mob col-sm-4">Sub-Tab:</label>
 							<div class="col-sm-2">
 								<select name="mat_sub" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `sub_category` FROM `material` WHERE `deleted`=0 GROUP BY `sub_category` ORDER BY `sub_category`");
@@ -64,7 +64,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 						</div>
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Type,') !== FALSE && $field_sort_field == 'Material Type') { ?>
-						<label class="control-label show-on-mob col-sm-4">Type:</label>
+						<label class="control-label show-on-mob col-sm-4">Tab:</label>
 						<div class="col-sm-<?= 11 - $cols ?> select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
 							<select name="item_id" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" data-auto-checkin="<?= strpos($value_config, ',Auto Check In Materials,') !== FALSE ? 1 : 0 ?>" data-auto-checkout="<?= strpos($value_config, ',Auto Check Out Materials,') !== FALSE ? 1 : 0 ?>" class="chosen-select-deselect"><option></option>
 								<?php $groups = mysqli_query($dbc, "SELECT `category`, `sub_category`, `name`, `materialid` FROM `material` WHERE `deleted`=0 ORDER BY `category`, `sub_category`, `name`");
@@ -75,13 +75,13 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 							</select>
 						</div>
 						<div class="col-sm-<?= 11 - $cols ?> manual-div" style="<?= $material['description'] != '' ? '' : 'display:none;' ?>">
-							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= $material['description'] ?>">
+							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" data-auto-checkin="<?= strpos($value_config, ',Auto Check In Materials,') !== FALSE ? 1 : 0 ?>" data-auto-checkout="<?= strpos($value_config, ',Auto Check Out Materials,') !== FALSE ? 1 : 0 ?>" class="form-control" value="<?= $material['description'] ?>">
 						</div>
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Manual,') !== FALSE && $field_sort_field == 'Material Manual') { ?>
 						<label class="control-label show-on-mob col-sm-4">Material:</label>
 						<div class="col-sm-<?= 11 - $cols ?>">
-							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" class="form-control" value="<?= empty($material['description']) ? $material['name'] : $material['description'] ?>">
+							<input name="description" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" data-auto-checkin="<?= strpos($value_config, ',Auto Check In Materials,') !== FALSE ? 1 : 0 ?>" data-auto-checkout="<?= strpos($value_config, ',Auto Check Out Materials,') !== FALSE ? 1 : 0 ?>" class="form-control" value="<?= empty($material['description']) ? $material['name'] : $material['description'] ?>">
 						</div>
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Quantity,') !== FALSE && $field_sort_field == 'Material Quantity') { ?>
@@ -109,7 +109,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 				<?php } else { ?>
 					<?php if(strpos($value_config,',Material Category,') !== FALSE && $field_sort_field == 'Material Category') { ?>
 						<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label col-sm-4">Category:</label>
+							<label class="control-label col-sm-4">Tab:</label>
 							<div class="col-sm-8">
 								<select name="mat_category" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `material` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -122,7 +122,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Subcategory,') !== FALSE && $field_sort_field == 'Material Subcategory') { ?>
 						<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label col-sm-4">Sub-Category:</label>
+							<label class="control-label col-sm-4">Sub-Tab:</label>
 							<div class="col-sm-8">
 								<select name="mat_sub" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `sub_category` FROM `material` WHERE `deleted`=0 GROUP BY `sub_category` ORDER BY `sub_category`");
@@ -135,7 +135,7 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Type,') !== FALSE && $field_sort_field == 'Material Type') { ?>
 						<div class="form-group">
-							<label class="control-label col-sm-4">Type:</label>
+							<label class="control-label col-sm-4">Tab:</label>
 							<div class="col-sm-8 select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
 								<select name="item_id" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" data-auto-checkin="<?= strpos($value_config, ',Auto Check In Materials,') !== FALSE ? 1 : 0 ?>" data-auto-checkout="<?= strpos($value_config, ',Auto Check Out Materials,') !== FALSE ? 1 : 0 ?>" class="chosen-select-deselect"><option></option>
 									<?php $groups = mysqli_query($dbc, "SELECT `category`, `sub_category`, `name`, `materialid` FROM `material` WHERE `deleted`=0 ORDER BY `category`, `sub_category`, `name`");
@@ -198,8 +198,8 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 			<?php } ?>
 			<div class="form-group pull-right col-sm-1">
 				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $material['id'] ?>" data-id-field="id" data-type="material" data-type-field="src_table" value="0">
-				<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-				<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+				<img class="inline-img pull-right" data-history-label="Material" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+				<img class="inline-img pull-right" data-history-label="Material" onclick="remMulti(this);" src="../img/remove.png">
 			</div>
 			<div class="clearfix"></div>
 		</div>
@@ -207,24 +207,24 @@ $cols = (strpos($value_config,',Material Category,') !== FALSE ? 2 : 0)
 	<?php } else if($material['materialid'] > 0) { ?>
 		<div class="multi-block">
 			<?php if(strpos($value_config,',Material Inline,') !== FALSE) { ?>
-				
+
 			<?php } else { ?>
 				<?php foreach($field_sort_order as $field_sort_field) { ?>
 					<?php if(strpos($value_config,',Material Category,') !== FALSE && $field_sort_field == 'Material Category') { ?>
 						<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label col-sm-4">Category:</label>
+							<label class="control-label col-sm-4">Tab:</label>
 							<div class="col-sm-8"><?= $material['category'] ?></div>
 						</div>
 						<?php $pdf_contents[] = ['Category', $material['category']]; ?>
 						<div class="form-group select-div" style="<?= $material['description'] != '' ? 'display:none;' : '' ?>">
-							<label class="control-label col-sm-4">Sub-Category:</label>
+							<label class="control-label col-sm-4">Sub-Tab:</label>
 							<div class="col-sm-8"><?= $material['sub_category'] ?></div>
 						</div>
-						<?php $pdf_contents[] = ['Sub-Category', $material['sub_category']]; ?>
+						<?php $pdf_contents[] = ['Sub-Tab', $material['sub_category']]; ?>
 					<?php } ?>
 					<?php if(strpos($value_config,',Material Type,') !== FALSE && $field_sort_field == 'Material Type') { ?>
 						<div class="form-group">
-							<label class="control-label col-sm-4">Type:</label>
+							<label class="control-label col-sm-4">Tab:</label>
 							<div class="col-sm-8"><?= $material['description'] != '' ? $material['description'] : $material['name'] ?></div>
 						</div>
 						<?php $pdf_contents[] = ['Type', $material['description'] != '' ? $material['description'] : $material['name']]; ?>

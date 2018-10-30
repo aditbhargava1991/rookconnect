@@ -1,15 +1,4 @@
-<?php include_once('../include.php');
-if(!isset($request_tab)) {
-	$request_tab = (!empty($_GET['type']) ? $_GET['type'] : 'closed');
-	$dbc_support = mysqli_connect('localhost', 'ffm_rook_user', 'mIghtyLion!542', 'ffm_rook_db');
-	// $dbc_support = mysqli_connect('localhost', 'root', 'FreshFocus007', 'local_1_rook');
-	$user = get_config($dbc, 'company_name');
-	$url = WEBSITE_URL;
-	$user_name = $user;
-	$user_category = '';
-	$ticket_types = explode(',',get_config($dbc_support,'ticket_tabs'));
-	$security = get_security($dbc, 'customer_support');
-}
+<?php include_once('config.php');
 if($request_tab == 'new'): ?>
 	<?php if(!empty($_POST['new_request'])) {
 		$errors = '';
@@ -29,6 +18,7 @@ if($request_tab == 'new'): ?>
 		$cc = filter_var(implode(';',$_POST['ccemail']),FILTER_SANITIZE_STRING);
 		$heading = filter_var($_POST['heading'],FILTER_SANITIZE_STRING);
 		$details = filter_var(htmlentities($_POST['details']),FILTER_SANITIZE_STRING);
+        $link_list = [];
 		$plan = filter_var(htmlentities($_POST['plan']),FILTER_SANITIZE_STRING);
 		$discovery = filter_var(htmlentities($_POST['discovery']),FILTER_SANITIZE_STRING);
 		$action = filter_var(htmlentities($_POST['action']),FILTER_SANITIZE_STRING);
@@ -51,7 +41,7 @@ if($request_tab == 'new'): ?>
 				if(!move_uploaded_file($_FILES['documents']['tmp_name'][$row], 'download/'.$filename)) {
 					$errors .= "Error Saving Attachment: ".$filename."\n";
 				}
-				$email_attachments .= 'download/'.$filename.'#FFM#';
+				$email_attachments .= 'download/'.$filename.'*#FFM#*';
 				if(!mysqli_query($dbc_support, "INSERT INTO `support_uploads` (`supportid`, `document`, `created_by`) VALUES ('$supportid', '".WEBSITE_URL."/Support/download/$filename', '".get_contact($dbc, $_SESSION['contactid'])."')")) {
 					$errors .= "Error Recording Attachment: ".mysqli_error($dbc_support)."\n";
 				}
@@ -59,9 +49,13 @@ if($request_tab == 'new'): ?>
 		}
 		foreach($_POST['links'] as $link) {
 			if($link != '') {
+                if(strpos($link,'http') === false) {
+                    $link = 'http://'.$link;
+                }
 				if(!mysqli_query($dbc_support, "INSERT INTO `support_uploads` (`supportid`, `document`, `created_by`) VALUES ('$supportid', '$link', '".get_contact($dbc, $_SESSION['contactid'])."')")) {
 					$errors .= "Error Recording Attachment: ".mysqli_error($dbc_support)."\n";
 				}
+                $link_list[] = '<a href="'.$link.'">'.$link.'</a>';
 			}
 		}
 
@@ -139,6 +133,10 @@ if($request_tab == 'new'): ?>
 					Details<hr>
 					".html_entity_decode($details);
 			}
+            if(!empty($link_list)) {
+                $body .= '<p><b>Links:</b><br />'.implode('<br />',$link_list).'</p>';
+                $cust_body .= '<p><b>Links:</b><br />'.implode('<br />',$link_list).'</p>';
+            }
 			
 			// Email to FFM staff.
 			$default = get_config($dbc_support, 'support_recipients_default');
@@ -192,6 +190,24 @@ if($request_tab == 'new'): ?>
 		$(block).after(clone);
 		$('[name="ccemail[]"]:visible').last().focus();
 	}
+	function rem_uploader(button) {
+        if($('[name="documents[]"]:visible').length <= 1) {
+            add_uploader(button);
+        }
+		$(button).closest('.form-group').remove();
+	}
+	function rem_link(button) {
+        if($('[name="links[]"]:visible').length <= 1) {
+            add_link(button);
+        }
+		$(button).closest('.form-group').remove();
+	}
+	function rem_cc(button) {
+        if($('[name="ccemail[]"]:visible').length <= 1) {
+            add_cc(button);
+        }
+		$(button).closest('.form-group').remove();
+	}
 	function validate(form) {
 		tinymce.triggerSave();
 		if($('[name=email]').val() == '') {
@@ -226,26 +242,31 @@ if($request_tab == 'new'): ?>
 		<div class="clearfix"></div>
 	</div>
 	<form class="form" method="POST" action="" enctype="multipart/form-data" onsubmit="return validate(this);">
-		<h1 class="triple-pad-bottom">Submit Support Request</h1>
-		
 		<div class="form-group clearfix">
-			<label class="col-sm-4 control-label" for="type">Request Type:</label>
-			<div class="col-sm-8">
-				<?php if(empty($source)) { ?>
+			<label class="col-sm-4" for="type">Request Type:</label>
+            <?php if(empty($new_type) || empty($source)) { ?>
+                <div class="col-sm-8">
 					<select name="type" id="type" class="chosen-select-deselect form-control"><option></option>
 						<option <?= ($new_type == 'feedback' ? 'selected' : '') ?> value="feedback">Feedback & Ideas</option>
 						<?php foreach($ticket_types as $type) { ?>
 							<option <?= ($new_type == config_safe_str($type) ? 'selected' : '') ?> value="<?= config_safe_str($type) ?>"><?= $type ?></option>
 						<?php } ?>
 					</select>
-				<?php } else {
-					foreach($ticket_types as $type) {
-						if($new_type == config_safe_str($type)) {
-							echo $type;
-						}
-					}
-				} ?>
-			</div>
+                </div>
+            <?php } else {
+                echo '<div class="col-sm-8 pad-top-5">';
+                echo '<input type="hidden" name="type" value="'.$new_type.'">';
+                if($new_type == 'feedback') {
+                    echo "Feedback &amp; Ideas";
+                } else {
+                    foreach($ticket_types as $type) {
+                        if($new_type == config_safe_str($type)) {
+                            echo $type;
+                        }
+                    }
+                }
+                echo '</div>';
+            } ?>
 		</div>
 		<input type="hidden" name="src_user" value="<?= $_SESSION['user_name'] ?>">
 		<input type="hidden" name="src_contactid" value="<?= $_SESSION['contactid'] ?>">
@@ -255,7 +276,7 @@ if($request_tab == 'new'): ?>
 		<?php if($new_type == 'last_minute_priority'): ?>
 			<input type="hidden" name="heading" value="Critical Incident">
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="business">Business:</label>
+				<label class="col-sm-4" for="business">Business:</label>
 				<div class="col-sm-8">
 					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
 					<input type="hidden" name="businessid" value="<?= $user ?>">
@@ -263,7 +284,7 @@ if($request_tab == 'new'): ?>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="customer">Who initiated the Priority:</label>
+				<label class="col-sm-4" for="customer">Who initiated the Priority:</label>
 				<div class="col-sm-8">
 					<input type="text" readonly name="customer" id="customer" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>" class="form-control">
 					<input type="hidden" name="contactid" value="<?= $_SESSION['contactid'] ?>">
@@ -271,64 +292,67 @@ if($request_tab == 'new'): ?>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="email">Email<span class="text-red">*</span>:</label>
+				<label class="col-sm-4" for="email">Email<span class="text-red">*</span>:</label>
 				<div class="col-sm-8">
 					<input type="text" name="email" id="email" value="<?= get_email($dbc, $_SESSION['contactid']) ?>" class="form-control">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="ccemail">CC Email:</label>
+				<label class="col-sm-4" for="ccemail">CC Email:</label>
 				<div class="col-sm-7">
 					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="date">Date and Time of Incident:</label>
+				<label class="col-sm-4" for="date">Date and Time of Incident:</label>
 				<div class="col-sm-8">
 					<input type="text" name="incident_date" id="incident_date" value="<?= date('Y-m-d') ?>" class="form-control">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="date">Date and Time Reported to FFM:</label>
+				<label class="col-sm-4" for="date">Date and Time Reported to FFM:</label>
 				<div class="col-sm-8">
 					<input type="text" readonly name="date" id="date" value="<?= date('Y-m-d h:i') ?>" class="form-control">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="details">Issue as it was explained<span class="text-red">*</span>:</label>
+				<label class="col-sm-4" for="details">Issue as it was explained<span class="text-red">*</span>:</label>
 				<div class="col-sm-8">
 					<textarea name="details" id="details" class="form-control"></textarea>
 				</div>
 			</div>
 				
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label">Upload Documents:</label>
+				<label class="col-sm-4">Upload Documents:</label>
 				<div class="col-sm-7">
 					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label">Attach Link:</label>
+				<label class="col-sm-4">Attach Link:</label>
 				<div class="col-sm-7">
 					<input type="text" name="links[]" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 		<?php elseif($new_type == 'feedback'): ?>
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="customer">Customer:</label>
+				<label class="col-sm-4" for="customer">Customer:</label>
 				<div class="col-sm-8">
 					<input type="text" name="customer" id="customer" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>" class="form-control">
 					<input type="hidden" name="contactid" value="<?= $_SESSION['contactid'] ?>">
@@ -336,14 +360,14 @@ if($request_tab == 'new'): ?>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="date">Date:</label>
+				<label class="col-sm-4" for="date">Date:</label>
 				<div class="col-sm-8">
 					<input type="text" readonly name="date" id="date" value="<?= date('Y-m-d') ?>" class="form-control">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="business">Business:</label>
+				<label class="col-sm-4" for="business">Business:</label>
 				<div class="col-sm-8">
 					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
 					<input type="hidden" name="businessid" value="<?= $user ?>">
@@ -351,24 +375,25 @@ if($request_tab == 'new'): ?>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="email">Email<span class="text-red">*</span>:</label>
+				<label class="col-sm-4" for="email">Email<span class="text-red">*</span>:</label>
 				<div class="col-sm-8">
 					<input type="text" name="email" id="email" value="<?= get_email($dbc, $_SESSION['contactid']) ?>" class="form-control">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="ccemail">CC Email:</label>
+				<label class="col-sm-4" for="ccemail">CC Email:</label>
 				<div class="col-sm-7">
 					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="heading">Feedback Heading:</label>
+				<label class="col-sm-4" for="heading">Feedback Heading:</label>
 				<div class="col-sm-8">
 					<select name="heading" id="heading" class="form-control chosen-select-deselect"><option></option>
 						<option value="Creative Design">Creative Design</option>
@@ -386,33 +411,35 @@ if($request_tab == 'new'): ?>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="details">Details<span class="text-red">*</span>:</label>
+				<label class="col-sm-4" for="details">Details<span class="text-red">*</span>:</label>
 				<div class="col-sm-8">
 					<textarea name="details" id="details" class="form-control"></textarea>
 				</div>
 			</div>
 				
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label">Upload Documents:</label>
+				<label class="col-sm-4">Upload Documents:</label>
 				<div class="col-sm-7">
 					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label">Attach Link:</label>
+				<label class="col-sm-4">Attach Link:</label>
 				<div class="col-sm-7">
 					<input type="text" name="links[]" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 		<?php else: ?>
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="customer">Customer:</label>
+				<label class="col-sm-4" for="customer">Customer:</label>
 				<div class="col-sm-8">
 					<input type="text" name="customer" id="customer" value="<?= get_contact($dbc, $_SESSION['contactid']) ?>" class="form-control">
 					<input type="hidden" name="contactid" value="<?= $_SESSION['contactid'] ?>">
@@ -420,14 +447,14 @@ if($request_tab == 'new'): ?>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="date">Date:</label>
+				<label class="col-sm-4" for="date">Date:</label>
 				<div class="col-sm-8">
 					<input type="text" readonly name="date" id="date" value="<?= date('Y-m-d') ?>" class="form-control">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="business">Business:</label>
+				<label class="col-sm-4" for="business">Business:</label>
 				<div class="col-sm-8">
 					<input type="text" name="business" id="business" value="<?= $user_name ?>" class="form-control">
 					<input type="hidden" name="businessid" value="<?= $user ?>">
@@ -435,24 +462,25 @@ if($request_tab == 'new'): ?>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="email">Email<span class="text-red">*</span>:</label>
+				<label class="col-sm-4" for="email">Email<span class="text-red">*</span>:</label>
 				<div class="col-sm-8">
 					<input type="text" name="email" id="email" value="<?= get_email($dbc, $_SESSION['contactid']) ?>" class="form-control">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="ccemail">CC Email:</label>
+				<label class="col-sm-4" for="ccemail">CC Email:</label>
 				<div class="col-sm-7">
 					<input type="text" name="ccemail[]" id="ccemail" value="" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_cc(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="heading">Support Request Heading:</label>
+				<label class="col-sm-4" for="heading">Support Request Heading:</label>
 				<div class="col-sm-8">
 					<select name="heading" id="heading" class="form-control chosen-select-deselect"><option></option>
 						<option value="Creative Design">Creative Design</option>
@@ -470,35 +498,37 @@ if($request_tab == 'new'): ?>
 			</div>
 			
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label" for="details">Details<span class="text-red">*</span>:</label>
+				<label class="col-sm-4" for="details">Details<span class="text-red">*</span>:</label>
 				<div class="col-sm-8">
 					<textarea name="details" id="details" class="form-control"></textarea>
 				</div>
 			</div>
 				
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label">Upload Documents:</label>
+				<label class="col-sm-4">Upload Documents:</label>
 				<div class="col-sm-7">
 					<input type="file" multiple name="documents[]" data-filename-placement="inside" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_uploader(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 				<div class="clearfix"></div>
 			</div>
 			<div class="form-group clearfix">
-				<label class="col-sm-4 control-label">Attach Link:</label>
+				<label class="col-sm-4">Attach Link:</label>
 				<div class="col-sm-7">
 					<input type="text" name="links[]" class="form-control">
 				</div>
 				<div class="col-sm-1">
+					<img onclick="rem_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/remove.png">
 					<img onclick="add_link(this); return false;" class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			</div>
 		<?php endif; ?>
 		
-		<button type="submit" name="new_request" value="new" class="btn brand-btn pull-right">Submit Request</button>
-		<div class="clearfix"></div>
+		<button type="submit" name="new_request" value="new" class="btn brand-btn pull-right double-gap-bottom">Submit Request</button>
+        <div class="clearfix"></div>
 	</form>
 <?php elseif($request_tab == 'closed'): ?>
 	<div class="notice double-gap-bottom popover-examples">
@@ -507,6 +537,7 @@ if($request_tab == 'new'): ?>
 		All completed Support Requests will be displayed here for two months. After two months completed requests are moved to the archive, still accessible upon request.</div>
 		<div class="clearfix"></div>
 	</div>
+    <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-left-5 theme-color-icon pull-right show-on-mob" title="" width="25" data-title="Show/Hide Search" onclick="$('.search-group').toggle();"><br />&nbsp;<div class="clearfix"></div>
 	<form name='search_form' method='POST' action=''>
 	<?php $date = date('Y-m-d',strtotime('-2month'));
 	$search_string = '';
@@ -523,9 +554,32 @@ if($request_tab == 'new'): ?>
 		$search_details = $_POST['search_details'];
 		
 		$search_string = " AND `current_date` >= '$search_start' AND `current_date` <= '$search_end' AND `company_name` LIKE '$search_cust%' AND `heading` LIKE '%$search_head%' AND IFNULL(`message`,'') LIKE '%$search_details%'";
+	} if(!empty($_GET['search'])) {
+		$search_cust = $_GET['search_cust'];
+        if($search_cust == 'undefined') {
+            $search_cust = '';
+        }
+		$search_start = $_GET['search_start'];
+        if($search_start == 'undefined') {
+            $search_start = '';
+        }
+		$search_end = $_GET['search_end'];
+        if($search_end == 'undefined') {
+            $search_end = date('Y-m-d');
+        }
+		$search_head = $_GET['search_head'];
+        if($search_head == 'undefined') {
+            $search_head = '';
+        }
+		$search_details = $_GET['search_details'];
+        if($search_details == 'undefined') {
+            $search_details = '';
+        }
+		
+		$search_string = " AND `current_date` >= '$search_start' AND `current_date` <= '$search_end' AND `company_name` LIKE '$search_cust%' AND `heading` LIKE '%$search_head%' AND IFNULL(`message`,'') LIKE '%$search_details%'";
 	} ?>
-	<div class="search-group">
-		<div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
+	<div class="search-group" style="display:none;">
+		<div class="form-group col-sm-12">
 			<?php if($user_category == 'Staff') { ?>
 				<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 					<div class="col-sm-4">
@@ -581,45 +635,58 @@ if($request_tab == 'new'): ?>
 				</div>
 			</div>
 		</div>
-		<div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
-			<div style="display:inline-block; padding: 0 0.5em;">
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button type="submit" name="search" value="Search" class="btn brand-btn mobile-block">Search</button>
+		<div class="form-group col-sm-12">
+			<div class="pull-right gap-right gap-top">
 				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see closed requests from the past two months."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<a href="" class="btn brand-btn mobile-block">Display All</a>
+				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+				<button type="submit" name="search" value="Search" class="hide-titles-mob btn brand-btn mobile-block">Search</button>
+                <a type="submit" name="search" value="Search" class="show-on-mob btn brand-btn mobile-block" onclick="loadPanel($(this).closest('.panel').find('.panel-heading'), 'requests.php?type=closed&search=Search&search_cust='+$('[name=search_cust]:visible').val()+'&search_start='+$('[name=search_start]:visible').val()+'&search_end='+$('[name=search_end]:visible').val()+'&search_head='+$('.search_head:visible').find('[name=search_head]').val()+'&search_details='+$('[name=search_details]').val());">Search</a>
 			</div>
 		</div><!-- .form-group -->
 		<div class="clearfix"></div>
 	</div>
 	</form>
-	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `deleted`=1 AND `archived_date` > '$date'".$search_string);
-	if(mysqli_num_rows($support_list) > 0) { ?>
-		<ul class="connectedChecklist">
-			<li class="ui-state-default ui-state-disabled no-sort">Support Requests</li>
-			<?php while($row = mysqli_fetch_array($support_list)) {
-				echo '<li id="'.$row['supportid'].'" class="ui-state-default" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
-				echo '<span>';
-				echo '<span class="pull-right" style="cursor:pointer; display:inline-block; width:100%;" data-support="'.$row['supportid'].'">';
-				echo '<span style="display:inline-block; text-align:center; width:25%;" title="Flag This!" onclick="flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				echo '<span style="display:inline-block; text-align:center; width:25%;" title="Attach File" onclick="attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				echo '<span style="display:inline-block; text-align:center; width:25%;" title="Reply" onclick="send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				echo '<span style="display:inline-block; text-align:center; width:25%;" title="Send Email" onclick="send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				echo '</span>';
-				echo '<input type="text" name="reply_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
-				echo '<input type="text" name="checklist_time_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
-				echo '<input type="text" name="reminder_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
-				echo '<input type="file" name="attach_'.$row['supportid'].'" style="display:none;" class="form-control" />';
-				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />User Name: ".$row['software_user_name']."<br />Security Level: ".$row['software_role']."<br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
-				$documents = mysqli_query($dbc, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
-				while($doc = mysqli_fetch_array($documents)) {
-					$link = $doc['document'];
-					echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
-				}
-				echo '</span></li>';
-			} ?>
-		</ul>
+	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR `contactid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `deleted`=1 AND `archived_date` > '$date'".$search_string." ORDER BY `archived_date` DESC, `supportid` DESC");
+    if(mysqli_num_rows($support_list) > 0) { ?>
+        <div class="has-dashboard dashboard-container gap-top">
+            <div class="item-list">
+                <div class="info-block-header"><h4>Closed Support Requests</h4>
+                    <div class="small">REQUESTS: <?= $support_list->num_rows ?></div>
+                </div>
+                <ul class="connectedChecklist full-width">
+                    <?php while($row = mysqli_fetch_array($support_list)) {
+                        echo '<li id="'.$row['supportid'].'" class="dashboard-item padded" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
+                        echo '<span>';
+                        if($user_category == 'Staff') { ?>
+                            <span class="action-icons pad-bottom" data-support="<?= $row['supportid'] ?>">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" class="no-toggle inline-img cursor-hand" title="Flag This!" onclick="flag_item(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" class="no-toggle inline-img cursor-hand" title="Attach File" onclick="attach_file(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" class="no-toggle inline-img cursor-hand" title="Reply" onclick="send_reply(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-email-icon.png" class="no-toggle inline-img cursor-hand" title="Send Email" onclick="send_email(this);">
+                            </span>
+                            <input type="text" name="reply_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control" />
+                            <input type="text" name="checklist_time_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control timepicker" />
+                            <input type="text" name="reminder_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control datepicker" />
+                            <input type="file" name="attach_<?= $row['supportid'] ?>" style="display:none;" class="form-control" />
+                        <?php }
+                        echo '<span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />
+                        Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />
+                        User Name: ".$row['software_user_name']."<br />
+                        Security Level: ".ucwords(implode(', ', array_filter(array_unique(explode(',',$row['software_role'])))))."<br />
+                        Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
+                        $documents = mysqli_query($dbc_support, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
+                        while($doc = mysqli_fetch_array($documents)) {
+                            $link = $doc['document'];
+                            echo '<br /><a target="_blank" href="'.(strpos($link,'http') === false ? 'http://' : '').$link.'">'.(strpos($link, WEBSITE_URL.'/Support/download/') !== false ? str_replace(WEBSITE_URL.'/Support/download/', '', $link) : $link).' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
+                        }
+                        echo '</span></li>';
+                    } ?>
+                </ul>
+            </div>
+        </div>
 	<?php } else {
-		echo "<h3>No Support Requests Found</h3>";
+		echo "<h4 class='pad-10'>No Support Requests Found</h4>";
 	} ?>
 <?php else: ?>
 	<div class="notice double-gap-bottom popover-examples">
@@ -628,15 +695,10 @@ if($request_tab == 'new'): ?>
 		All active <?= ($request_tab == 'feedback' ? 'Feedback & Ideas' : ($request_tab == 'requests' ? 'Support Requests' : 'Critical Incidents')) ?> display here. As we complete support requests, require your approval or simply want to provide you with work ready for your approval, all Active Requests will display here.</div>
 		<div class="clearfix"></div>
 	</div>
+    <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-left-5 theme-color-icon pull-right show-on-mob" title="" width="25" data-title="Show/Hide Search" onclick="$('.search-group').toggle();"><br />&nbsp;<div class="clearfix"></div>
 	
 	<form name='search_form' method='POST' action=''>
-	<?php $request_tab_name = 'Feedback &amp; Ideas';
-	foreach($ticket_types as $type) {
-		if(config_safe_str($type) == $request_tab) {
-			$request_tab_name = $type;
-		}
-	}
-	$date = date('Y-m-d',strtotime('-2month'));
+	<?php $date = date('Y-m-d',strtotime('-2month'));
 	$search_string = '';
 	$search_cust = '';
 	$search_start = '';
@@ -651,15 +713,38 @@ if($request_tab == 'new'): ?>
 		$search_details = $_POST['search_details'];
 		
 		$search_string = " AND `current_date` >= '$search_start' AND `current_date` <= '$search_end' AND `company_name` LIKE '$search_cust%' AND `heading` LIKE '%$search_head%' AND IFNULL(`message`,'') LIKE '%$search_details%'";
+	} if(!empty($_GET['search'])) {
+		$search_cust = $_GET['search_cust'];
+        if($search_cust == 'undefined') {
+            $search_cust = '';
+        }
+		$search_start = $_GET['search_start'];
+        if($search_start == 'undefined') {
+            $search_start = '';
+        }
+		$search_end = $_GET['search_end'];
+        if($search_end == 'undefined') {
+            $search_end = date('Y-m-d');
+        }
+		$search_head = $_GET['search_head'];
+        if($search_head == 'undefined') {
+            $search_head = '';
+        }
+		$search_details = $_GET['search_details'];
+        if($search_details == 'undefined') {
+            $search_details = '';
+        }
+		
+		$search_string = " AND `current_date` >= '$search_start' AND `current_date` <= '$search_end' AND `company_name` LIKE '$search_cust%' AND `heading` LIKE '%$search_head%' AND IFNULL(`message`,'') LIKE '%$search_details%'";
 	} ?>
-	<div class="search-group">
-		<div class="form-group col-lg-9 col-md-8 col-sm-12 col-xs-12">
+	<div class="search-group" style="display:none;">
+		<div class="form-group col-sm-12">
 			<?php if($user_category == 'Staff') { ?>
 				<div class="col-lg-6 col-md-6 col-sm-12 col-xs-12">
 					<div class="col-sm-4">
 						<label for="site_name" class="control-label">Search By Customer:</label>
 					</div>
-					<div class="col-sm-8">
+					<div class="col-sm-8 search_cust">
 						<select data-placeholder="Select a Customer" name="search_cust" class="chosen-select-deselect form-control">
 							<option></option>
 							<?php $query = mysqli_query($dbc_support,"SELECT DISTINCT `company_name` FROM `support` WHERE `support_type`='$request_tab' AND `deleted`=0 ORDER BY `company_name`");
@@ -690,7 +775,7 @@ if($request_tab == 'new'): ?>
 				<div class="col-sm-4">
 					<label for="site_name" class="control-label">Search By Heading:</label>
 				</div>
-				<div class="col-sm-8">
+				<div class="col-sm-8 search_head">
 						<select data-placeholder="Select a Heading" name="search_head" class="chosen-select-deselect form-control">
 							<option></option>
 							<?php $query = mysqli_query($dbc_support,"SELECT DISTINCT `heading` FROM `support` WHERE `support_type`='$request_tab' AND `deleted`=0 ORDER BY `heading`");
@@ -709,61 +794,76 @@ if($request_tab == 'new'): ?>
 				</div>
 			</div>
 		</div>
-		<div class="form-group col-lg-3 col-md-4 col-sm-12 col-xs-12">
-			<div style="display:inline-block; padding: 0 0.5em;">
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button type="submit" name="search" value="Search" class="btn brand-btn mobile-block">Search</button>
-				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see closed requests from the past two months."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+		<div class="form-group col-sm-12">
+			<div class="pull-right gap-right gap-top">
+				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click to refresh the page and see all active requests."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 				<a href="" class="btn brand-btn mobile-block">Display All</a>
+				<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered search criteria."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+				<button type="submit" name="search" value="Search" class="hide-titles-mob btn brand-btn mobile-block">Search</button>
+				<a type="submit" name="search" value="Search" class="show-on-mob btn brand-btn mobile-block" onclick="loadPanel($(this).closest('.panel').find('.panel-heading'), 'requests.php?type=<?= $_GET['type'] ?>&search=Search&search_cust='+$('[name=search_cust]:visible').val()+'&search_start='+$('[name=search_start]:visible').val()+'&search_end='+$('[name=search_end]:visible').val()+'&search_head='+$('.search_head:visible').find('[name=search_head]').val()+'&search_details='+$('[name=search_details]').val());">Search</a>
 			</div>
 		</div><!-- .form-group -->
 		<div class="clearfix"></div>
 	</div>
 	</form>
-	<a href="?tab=requests&type=new&new_type=<?=  $request_tab ?>&source=tab" class="btn brand-btn pull-right">
-		Submit <?= $request_tab_name ?></a>
-	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `support_type`='$request_tab' AND `deleted`=0".$search_string);
+	<?php $support_list = mysqli_query($dbc_support, "SELECT * FROM `support` WHERE (`businessid`='$user' OR `contactid`='$user' OR '$user_category' IN (".STAFF_CATS.")) AND `support_type`='$request_tab' AND `deleted`=0".$search_string." ORDER BY `current_date` DESC, `supportid` DESC");
 	$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 	if(mysqli_num_rows($support_list) > 0) { ?>
-		<ul class="connectedChecklist">
-			<li class="ui-state-default ui-state-disabled no-sort"><?= $request_tab_name ?></li>
-			<?php while($row = mysqli_fetch_array($support_list)) {
-				echo '<a name="'.$row['supportid'].'"></a><li id="'.$row['supportid'].'" class="ui-state-default" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
-				echo '<span>';
-				echo '<span class="pull-right" style="cursor:pointer; display:inline-block; width:100%;" data-support="'.$row['supportid'].'">';
-				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Flag This!" onclick="flag_item(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Attach File" onclick="attach_file(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Reply" onclick="send_reply(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Send Email" onclick="send_email(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				echo '<span style="display:inline-block; text-align:center; width:20%;" title="Archive Item" onclick="archive(this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" style="height:1.5em;" onclick="return false;"></span>';
-				if($user_category == 'Staff') {
-					echo '<label class="col-sm-4 control-label">Staff Responsible:</label><div class="col-sm-8"><select name="set_staff[]" multiple data-placeholder="Select Staff to Assign" class="chosen-select-deselect form-control"><option></option>';
-					foreach($staff_list as $id) {
-						echo '<option '.(strpos(','.$row['assigned'].',', ','.$id.',') !== false ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).'</option>';
-					}
-					echo '</select></div>';
-					if($row['ticketid'] > 0) {
-						echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$row['ticketid'].'&from='.urlencode(WEBSITE_URL.'/Support/customer_support.php?tab=requests&type='.$request_tab.'#'.$row['supportid']).'">Open '.TICKET_NOUN.' #'.$row['ticketid'].'</a>';
-					} else {
-						echo '<button value="'.$row['supportid'].'" class="btn brand-btn pull-right" onclick="create_ticket(this); return false;">Create and Edit '.TICKET_NOUN.'</button>';
-					}
-				}
-				echo '</span>';
-				echo '<input type="text" name="reply_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
-				echo '<input type="text" name="checklist_time_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
-				echo '<input type="text" name="reminder_'.$row['supportid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
-				echo '<input type="file" name="attach_'.$row['supportid'].'" style="display:none;" class="form-control" />';
-				echo '<br /><span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />User Name: ".$row['software_user_name']."<br />Security Level: ".$row['software_role']."<br />Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
-				$documents = mysqli_query($dbc, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
-				while($doc = mysqli_fetch_array($documents)) {
-					$link = $doc['document'];
-					echo '<br /><a href="'.$link.'">'.$link.' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
-				}
-				echo '</span></li>';
-			} ?>
-		</ul>
+        <div class="has-dashboard dashboard-container gap-top">
+            <div class="item-list">
+                <div class="info-block-header"><h4><?= $request_tab_name ?></h4>
+                    <div class="small">REQUESTS: <?= $support_list->num_rows ?></div>
+                </div>
+                <ul class="connectedChecklist full-width">
+                    <?php while($row = mysqli_fetch_array($support_list)) {
+                        echo '<a name="'.$row['supportid'].'"></a>
+                        <li id="'.$row['supportid'].'" class="dashboard-item padded" style="'.($row['flag_colour'] == '' ? '' : 'background-color: #'.$row['flag_colour'].';').' border: solid #FF0000 2px; margin-bottom: 1em;">';
+                        echo '<span>';
+                        if($user_category == 'Staff') { ?>
+                            <span class="action-icons pad-bottom" data-support="<?= $row['supportid'] ?>">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" class="inline-img cursor-hand no-toggle" title="Flag This!" onclick="flag_item(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" class="inline-img cursor-hand no-toggle" title="Upload File" onclick="attach_file(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" class="inline-img cursor-hand no-toggle" title="Add Comment" onclick="send_reply(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-email-icon.png" class="inline-img cursor-hand no-toggle" title="Send Email" onclick="send_email(this);">
+                                <img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png" class="inline-img cursor-hand no-toggle" title="Close" onclick="archive(this);">
+                            </span>
+                            <div class="form-group no-pad no-margin">
+                                <label class="col-sm-4">Staff Responsible:</label>
+                                <div class="col-sm-8"><select name="set_staff[]" multiple data-placeholder="Select Staff to Assign" class="chosen-select-deselect form-control"><option></option>
+                                    <?php foreach($staff_list as $id) {
+                                        echo '<option '.(strpos(','.$row['assigned'].',', ','.$id.',') !== false ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).'</option>';
+                                    } ?>
+                                    </select>
+                                </div>
+                            </div>
+                            <?php if($row['ticketid'] > 0) {
+                                echo '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$row['ticketid'].'&from='.urlencode(WEBSITE_URL.'/Support/customer_support.php?tab=requests&type='.$request_tab.'#'.$row['supportid']).'">Open '.TICKET_NOUN.' #'.$row['ticketid'].'</a>';
+                            } else {
+                                echo '<br /><button value="'.$row['supportid'].'" class="btn brand-btn pull-right" onclick="create_ticket(this); return false;">Create and Edit '.TICKET_NOUN.'</button>';
+                            } ?>
+                            <input type="text" name="reply_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control" />
+                            <input type="text" name="checklist_time_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control timepicker" />
+                            <input type="text" name="reminder_<?= $row['supportid'] ?>" style="display:none; margin-top: 2em;" class="form-control datepicker" />
+                            <input type="file" name="attach_<?= $row['supportid'] ?>" style="display:none;" class="form-control" />
+                            <div class="clearfix"></div>
+                        <?php }
+                        echo '<span class="display-field"><b>Date of Request: '.$row['current_date']."</b><br />
+                        Software Link: <a href='".$row['software_url']."'>".$row['software_url']."</a><br />
+                        User Name: ".$row['software_user_name']."<br />
+                        Security Level: ".ucwords(implode(', ', array_filter(array_unique(explode(',',$row['software_role'])))))."<br />
+                        Support Request #".$row['supportid']."<br />".$row['heading']."<hr>".html_entity_decode($row['message']).'</span>';
+                        $documents = mysqli_query($dbc_support, "SELECT * FROM support_uploads WHERE supportid='".$row['supportid']."'");
+                        while($doc = mysqli_fetch_array($documents)) {
+                            $link = $doc['document'];
+                            echo '<br /><a target="_blank" href="'.(strpos($link,'http') === false ? 'http://' : '').$link.'">'.(strpos($link, WEBSITE_URL.'/Support/download/') !== false ? str_replace(WEBSITE_URL.'/Support/download/', '', $link) : $link).' (Attached by '.$doc['created_by'].' on '.$doc['created_date'].')</a>';
+                        }
+                        echo '</span></li>';
+                    } ?>
+                </ul>
+            </div>
+        </div>
 	<?php } else {
-		echo "<h3>No $request_tab_name Found</h3>";
+		echo "<h4 class='pad-10'>No $request_tab_name Found</h4>";
 	} ?>
 <?php endif; ?>
 <script>
@@ -825,7 +925,7 @@ function attach_file(support) {
 			url: "support_ajax.php?fill=upload&id="+support_id,
 			data: fileData,
 			complete: function(result) {
-				console.log(result.responseText);
+				console.log(result);
 				window.location.reload();
 			}
 		});
@@ -839,7 +939,7 @@ function flag_item(support) {
 		url: "support_ajax.php?fill=flag",
 		data: { id: support_id },
 		complete: function(result) {
-			console.log(result.responseText);
+			console.log(result);
 			$(support).closest('li').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
 		}
 	});
@@ -852,7 +952,7 @@ function archive(support) {
 			url: "support_ajax.php?fill=archive&supportid="+support_id,
 			dataType: "html",   //expect html to be returned
 			success: function(response){
-				console.log(response.responseText);
+				console.log(response);
 				window.location.reload();
 			}
 		});

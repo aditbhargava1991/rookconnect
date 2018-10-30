@@ -46,7 +46,8 @@ if($_GET['fill'] == "daysheet_reminders") {
 if($_GET['fill'] == "daysheet_notepad_add") {
     $date = filter_var($_POST['date'], FILTER_SANITIZE_STRING);
     $contactid = filter_var($_POST['contactid'], FILTER_SANITIZE_STRING);
-    $notes = htmlentities(filter_var($_POST['notes'], FILTER_SANITIZE_STRING));
+    $notes = filter_var(htmlentities($_POST['notes']), FILTER_SANITIZE_STRING);
+    
 	if($notes != '') {
 		mysqli_query($dbc, "INSERT INTO `daysheet_notepad` (`contactid`,`date`,`notes`) VALUES ('$contactid','$date','$notes')");
 	}
@@ -117,5 +118,12 @@ if($_GET['action'] == 'setStatus') {
 	} else if($_POST['ticketid'] > 0) {
 		$dbc->query("UPDATE `tickets` SET `status`='$status' WHERE `ticketid`='{$_POST['stopid']}'");
 	}
+}
+
+if($_GET['action'] == 'contacts_untag') {
+    $id = $_GET['id'];
+    if($id > 0) {
+        mysqli_query($dbc, "UPDATE `contacts_tagging` SET `deleted` = 1 WHERE `id` = '$id'");
+    }
 }
 ?>

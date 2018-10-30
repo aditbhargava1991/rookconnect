@@ -84,6 +84,10 @@ $edit_access = vuaed_visible_function($dbc, 'estimate');
 $config_access = config_visible_function($dbc, 'estimate');
 include_once ('../navigation.php');
 $summary_view = explode(',',get_config($dbc, 'estimate_summary_view'));
+$reminderIcon = false;
+if( (isset($_GET['edit']) && $_GET['edit']!='') || (isset($_GET['view']) && $_GET['view']>0) ){
+	$reminderIcon = true;
+}
 if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'summary') && !isset($_GET['status'])) {
 	$_GET['status'] = 'summary_view';
 	$_GET['view'] = 'summary';
@@ -97,9 +101,8 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
 	</div>
 	<div class="row">
 		<div class="main-screen">
-            <div class="tile-header col-sm-12">
-				<h1><a href="?"><?= ESTIMATE_TILE ?></a>
-					<?php if(!empty($_GET['edit'])) {
+            <div class="tile-header col-sm-12 icons_div" data-id="<?= $_GET['edit'] ?>">
+				<h1><a href="?"><?= ESTIMATE_TILE ?></a><?php if(!empty($_GET['edit'])) {
 						echo ': '.ESTIMATE_TILE.' #'.$_GET['edit'].' - <span id="estimate_name_fill">'.get_field_value('estimate_name','estimate','estimateid',$_GET['edit']).'</span>';
 					}
 					if($config_access > 0) {
@@ -110,6 +113,9 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
                     if($edit_access > 0) {
                         echo "<div class='pull-right gap-left'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".rtrim(ESTIMATE_TILE, 's')."</button>";
                         echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob' height='30'></a></div>";
+                    }
+                    if($reminderIcon==true){
+						echo "<div class='pull-right'><a href='Add Reminder' onclick='return false;'><img src='".WEBSITE_URL."/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width:1.5em;'></a></div>";
                     }
                     if(!isset($_GET['edit']) && !isset($_GET['view'])) { ?>
 						<img class="inline-img pull-right btn-horizontal-collapse hide-titles-mob small no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
@@ -128,7 +134,6 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
                             </select>
                         </div>
                     <?php } ?>
-                    <img class="no-toggle syncIcon pull-right no-margin inline-img" title="" src="" />
 				</h1>
 				<div class="clearfix"></div>
             </div>
@@ -154,4 +159,12 @@ if(array_filter($summary_view) && (!isset($_GET['view']) || $_GET['view'] == 'su
 	</div>
 </div>
 <div class="clearfix"></div>
+<script>
+$(document).ready(function() {
+	$('.icons_div .reminder-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=estimates&id='+item.data('id'), 'auto', false, true);
+    });
+})
+</script>
 <?php include('../footer.php'); ?>

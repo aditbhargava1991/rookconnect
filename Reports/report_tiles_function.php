@@ -12,7 +12,23 @@ function reports_tiles($dbc) {
                 window.location.replace(this.value);
             }
         });
+        $('[name=printpdf]').click(function() {
+            setTimeout(function (){
+                $('[name=printpdf]').closest('form').removeAttr('target');
+            },500);
+        });
     });
+
+    function printPDF() {
+        $('[name=printpdf]').closest('form').prop('target', '_blank');
+    }
+    function email_doc(report){
+        var url = window.location.href;
+        var subject = $(report).data('title');
+        var body = '<a href="'+encodeURIComponent(url)+'" target="_blank">View Report</a>'
+        //overlayIFrameSlider('../Email Communication/add_email.php?type=external&subject='+subject+'&body='+body, 'auto', false, true);
+        overlayIFrameSlider('../quick_action_email.php?subject='+subject+'&body='+body, 'auto', true, true);
+    }
     </script>
     <div class="main-screen">
         <div class="tile-header standard-header">
@@ -208,10 +224,12 @@ function reports_tiles($dbc) {
             <?php } ?>
         </div>
 
+    <?php $reports_dashboard_navigation = explode(',', get_config($dbc, 'reports_dashboard_navigation')); ?>
+    <?php if(in_array('show', $reports_dashboard_navigation) || empty(array_filter($reports_dashboard_navigation))): ?>
         <!-- Desktop View -->
     	<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
             <ul>
-
+                <li class="standard-sidebar-searchbox"><input type="text" class="search-text form-control" placeholder="Search Reports" /></li>
                 <?php if(in_array('ar',$report_tabs)) { ?>
                     <a href="report_tiles.php?type=ar"><li <?= $_GET['type']=='ar' ? 'class="active"' : '' ?>>Accounts Receivable</li></a>
                 <?php } ?>
@@ -245,6 +263,7 @@ function reports_tiles($dbc) {
 
             </ul>
     	</div>
+    <?php endif; ?>
 
         <div class="scale-to-fill has-main-screen hide-titles-mob">
             <div class="main-screen standard-body form-horizontal">
@@ -278,6 +297,9 @@ function reports_tiles($dbc) {
                         case 'estimates':
                             $title = 'Estimates';
                             break;
+                        case 'search':
+                            $title = 'Search Results '. ( !empty($_GET['q']) ? 'for "'. $_GET['q'] .'"' : '' );
+                            break;
                         case 'operations':
                         default:
                             $title = 'Operations';
@@ -286,11 +308,101 @@ function reports_tiles($dbc) {
                     if(!empty($_GET['report'])) {
                         $title .= ': '.$report_list[$_GET['report']][1];
                     } ?>
-                    <h3><?= $title ?></h3>
+                    <h3>
+                        <?= $title ?>
+                        <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
+                            <div class="pull-right">
+
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle" title="Print Report" width="25" /></a>
+                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
+                                <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
+
+                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
+                            </div>
+                        <?php } else if ( $_GET['report'] == 'Ticket Activity Extra Report' ) { ?>
+                            <div class="pull-right">
+
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle" title="Print Report" width="25" /></a>
+                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
+                                <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
+
+                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
+                            </div>
+                        <?php } ?>
+                    </h3>
                 </div>
 
-                <div class="standard-body" style="padding: 0.5em;">
-                    <?php reports_tiles_content($dbc); ?>
+                <div class="standard-body" style="padding: 0.5em;"><?php
+                    if ( $_GET['type'] == 'search' ) {
+                        include('../Reports/field_list.php');
+                        $value_config = ','.get_config($dbc, 'reports_dashboard').',';
+                        $sorted_reports = [];
+                        $q = $_GET['q']; ?>
+                        <div class="standard-dashboard-body-content"><?php
+                            foreach($ar_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'ar'];
+                                }
+                            }
+                            foreach($compensation_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'compensation'];
+                                }
+                            }
+                            foreach($customer_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'customer'];
+                                }
+                            }
+                            foreach($estimates_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'estimates'];
+                                }
+                            }
+                            foreach($history_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'history'];
+                                }
+                            }
+                            foreach($marketing_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'marketing'];
+                                }
+                            }
+                            foreach($operations_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'operations'];
+                                }
+                            }
+                            foreach($pnl_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'pnl'];
+                                }
+                            }
+                            foreach($sales_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'sales'];
+                                }
+                            }
+                            foreach($staff_reports as $key => $report) {
+                                if ( strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true && stripos($key, $q) !== false ) {
+                                    $sorted_reports[$report[1]] = [$report[0],$key,'staff'];
+                                }
+                            }
+
+                            if(!empty($sorted_reports)) {
+                                ksort($sorted_reports);
+                                foreach($sorted_reports as $key => $report) {
+                                    echo '<div class="dashboard-item"><a data-file="'.$report[0].'" href="report_tiles.php?type='.$report[2].'&report='.$report[1].'">'.$key.'</a></div>';
+                                }
+                            } else {
+                                echo '<div class="dashboard-item">No Record Found</div>';
+                            } ?>
+                        </div><?php
+
+                    } else {
+                        reports_tiles_content($dbc);
+                    } ?>
                 </div>
 
             </div>
@@ -352,7 +464,7 @@ function reports_tiles_content($dbc) {
                 // Operations
                 if($_GET['type'] == 'operations' || empty($_GET['type'])) {
                     foreach($operations_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'operations'];
                         }
                     }
@@ -360,7 +472,7 @@ function reports_tiles_content($dbc) {
                 // Sales
                 else if($_GET['type'] == 'sales') {
                     foreach($sales_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'sales'];
                         }
                     }
@@ -368,7 +480,7 @@ function reports_tiles_content($dbc) {
                 // Accounts Receivables
                 else if($_GET['type'] == 'ar') {
                     foreach($ar_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'ar'];
                         }
                     }
@@ -376,7 +488,7 @@ function reports_tiles_content($dbc) {
                 // Profit & Loss
                 else if ( $_GET['type']=='pnl' ) {
                     foreach($pnl_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'pnl'];
                         }
                     }
@@ -384,7 +496,7 @@ function reports_tiles_content($dbc) {
                 // Marketing
                 else if($_GET['type'] == 'marketing') {
                     foreach($marketing_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'marketing'];
                         }
                     }
@@ -392,7 +504,7 @@ function reports_tiles_content($dbc) {
                 // Compensation
                 else if($_GET['type'] == 'compensation') {
                     foreach($compensation_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'compensation'];
                         }
                     }
@@ -400,7 +512,7 @@ function reports_tiles_content($dbc) {
                 // Customer
                 else if($_GET['type'] == 'customer') {
                     foreach($customer_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'customer'];
                         }
                     }
@@ -408,7 +520,7 @@ function reports_tiles_content($dbc) {
                 // Staff
                 else if($_GET['type'] == 'staff') {
                     foreach($staff_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'staff'];
                         }
                     }
@@ -416,14 +528,14 @@ function reports_tiles_content($dbc) {
                 // History
                 else if($_GET['type'] == 'history') {
                     foreach($history_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'history'];
                         }
                     }
                 }
                 else if($_GET['type'] == 'estimates') {
                     foreach($estimates_reports as $key => $report) {
-                        if(strpos($value_config, ','.$report[2].',') !== FALSE && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === TRUE) {
+                        if(strpos($value_config, ','.$report[2].',') !== false && check_subtab_persmission($dbc, 'report', ROLE, $report[3]) === true) {
                             $sorted_reports[$report[1]] = [$report[0],$key,'estimates'];
                         }
                     }

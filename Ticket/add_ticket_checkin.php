@@ -107,7 +107,7 @@ $(document).ready(function() {
 });
 </script>
 <h3><?= (!empty($renamed_accordion) ? $renamed_accordion : (strpos($value_config, ','."Check In Member Drop Off".',') !== FALSE ? 'Member Drop Off' : 'Check In')) ?>
-<?php $checkins = mysqli_query($dbc, "SELECT `id`, `src_table`, `arrived`, `item_id`, `position`, `description`, `notes` FROM `ticket_attached` WHERE `item_id` > 0 AND `src_table` NOT IN ('Wait List') AND `deleted`=0 AND `ticketid`='$ticketid' AND '$ticketid' > 0 AND (`src_table` != 'Delivery' OR `line_id`='$stopid') AND `tile_name`='".$folder."' $query_daily ORDER BY `src_table` != 'Staff', `src_table`");
+<?php $checkins = mysqli_query($dbc, "SELECT `id`, `src_table`, `arrived`, `item_id`, `position`, `description`, `notes`, `timer_start` FROM `ticket_attached` WHERE `item_id` > 0 AND `src_table` NOT IN ('Wait List') AND `deleted`=0 AND `ticketid`='$ticketid' AND '$ticketid' > 0 AND (`src_table` != 'Delivery' OR `line_id`='$stopid') AND `tile_name`='".$folder."' $query_daily ORDER BY `src_table` != 'Staff', `src_table`");
 if(strpos($value_config, ',Checkin Delivery Require,') !== FALSE && !($_GET['stop'] > 0)) { ?>
 	<script>
 	$(document).ready(function() {
@@ -142,9 +142,9 @@ foreach ($field_sort_order as $field_sort_order) {
 					<label class="col-sm-4 control-label"><?= get_contact($dbc, $checkin['item_id']) ?>:</label>
 					<div class="col-sm-8 <?= $access_all_checkin == TRUE ? 'toggleSwitch mobile-lg' : '' ?>">
 						<input type="hidden" name="checkin_id[]" value="<?= $checkin['item_id'] ?>">
-						<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['arrived'] ?>" class="toggle">
-						<span style="<?= $checkin['arrived'] > 0 ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img"> Click to Check In</span>
-						<span style="<?= $checkin['arrived'] > 0 ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img"> Checked In</span>
+						<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['arrived'] ?>" class="toggle" <?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 'data-no-toggle-off="1"' : '' ?>>
+						<span style="<?= $checkin['arrived'] > 0 && (!empty($checkin['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img on_img"> Click to Check In</span>
+						<span style="<?= $checkin['arrived'] > 0 && (!empty($checkin['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img off_img"> Checked In</span>
 					</div>
 					<?php $pdf_contents[] = [$checkin['src_table'], get_contact($dbc, $checkin['item_id']).' - '.($checkin['arrived'] > 0 ? 'Checked In' : 'Not Checked In')]; ?>
 					<div class="col-sm-12">
@@ -166,7 +166,7 @@ foreach ($field_sort_order as $field_sort_order) {
 											<label class="col-sm-4">Dosage</label>
 											<label class="col-sm-3">Time</label>
 										</div>
-										<?php 
+										<?php
 										if (strpos($value_config, ',Medication Multiple Days,') !== false) {
 											if(!empty($get_ticket['to_do_date'])) {
 												$ticket_start_date = $get_ticket['to_do_date'];
@@ -204,8 +204,8 @@ foreach ($field_sort_order as $field_sort_order) {
 												</div>
 												<?php if($access_all_checkin == TRUE) { ?>
 													<div class="col-sm-1">
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Medication" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Medication" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -268,8 +268,8 @@ foreach ($field_sort_order as $field_sort_order) {
 													<div class="col-sm-1">
 														<input type="hidden" name="deleted" value="<?= $guardian_status[$i] ?>" onchange="$(this).closest('.multi-block').find('[name=notes]').val(this.value == 1 ? 2 : 0).change(); return false;">
 														<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Guardian" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Guardian" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -300,8 +300,8 @@ foreach ($field_sort_order as $field_sort_order) {
 													<div class="col-sm-1">
 														<input type="hidden" name="deleted" value="0" onchange="$(this).val($(this).val() + 1).change(); $(this).closest('.multi-block').find('[name=notes]').val(this.value).change();">
 														<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Guardian" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Guardian" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -356,8 +356,8 @@ foreach ($field_sort_order as $field_sort_order) {
 														<input type="hidden" name="description" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" data-concat="," value="<?= $show_hide[$i] ?>">
 														<input type="hidden" name="deleted" value="<?= $show_hide[$i] ?>" onchange="$(this).closest('div').find('[name=description]').val(this.value).change();">
 														<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Emergency Contacts" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Emergency Contacts" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -385,8 +385,8 @@ foreach ($field_sort_order as $field_sort_order) {
 														<input type="hidden" name="description" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" data-concat="," value="0">
 														<input type="hidden" name="deleted" value="0" onchange="$(this).closest('div').find('[name=description]').val(this.value).change();">
 														<button class="btn brand-btn pull-right" onclick="return false;">Save</button>
-														<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-														<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+														<img class="inline-img pull-right" data-history-label="Emergency Contacts" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+														<img class="inline-img pull-right" data-history-label="Emergency Contacts" onclick="remMulti(this);" src="../img/remove.png">
 													</div>
 												<?php } ?>
 											</div>
@@ -403,9 +403,9 @@ foreach ($field_sort_order as $field_sort_order) {
 					<label class="col-sm-4 control-label"><?= get_contact($dbc, $checkin['item_id']).($checkin['position'] != '' ? ' - '.$checkin['position'] : '') ?>:</label>
 					<div class="col-sm-8 <?= ($checkin['src_table'] == 'Staff' && $access_staff_checkin == TRUE) || ($checkin['src_table'] != 'Staff' && $access_all_checkin == TRUE) ? 'toggleSwitch mobile-lg' : '' ?>">
 						<input type="hidden" name="checkin_id[]" value="<?= $checkin['item_id'] ?>">
-						<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['arrived'] ?>" class="toggle">
-						<span style="<?= $checkin['arrived'] > 0 ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img"> Click to Check In</span>
-						<span style="<?= $checkin['arrived'] > 0 ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img"> Checked In</span>
+						<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['arrived'] ?>" class="toggle" <?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 'data-no-toggle-off="1"' : '' ?>>
+						<span style="<?= $checkin['arrived'] > 0 && (!empty($checkin['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img on_img"> Click to Check In</span>
+						<span style="<?= $checkin['arrived'] > 0 && (!empty($checkin['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img off_img"> Checked In</span>
 					</div>
 				</div>
 				<hr class="visible-xs">
@@ -416,9 +416,9 @@ foreach ($field_sort_order as $field_sort_order) {
 					<label class="col-sm-4 control-label"><?= $material['category'].': '.$material['sub_category'].' '.$material['name'] ?>:</label>
 					<div class="col-sm-8 <?= $access_all_checkin == TRUE ? 'toggleSwitch mobile-lg' : '' ?>">
 						<input type="hidden" name="checkin_id[]" value="<?= $checkin['item_id'] ?>">
-						<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['arrived'] ?>" class="toggle">
-						<span style="<?= $checkin['arrived'] > 0 ? 'display: none;' : '' ?>" onclick="$('[data-table]').off('click',cancelClick);"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img"> Click to Check In</span>
-						<span style="<?= $checkin['arrived'] > 0 ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img"> Checked In</span>
+						<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['arrived'] ?>" class="toggle" <?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 'data-no-toggle-off="1"' : '' ?>>
+						<span style="<?= $checkin['arrived'] > 0 && (!empty($checkin['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? 'display: none;' : '' ?>" onclick="$('[data-table]').off('click',cancelClick);"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img on_img"> Click to Check In</span>
+						<span style="<?= $checkin['arrived'] > 0 && (!empty($checkin['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img off_img"> Checked In</span>
 					</div>
 				</div>
 				<hr class="visible-xs">
@@ -429,9 +429,9 @@ foreach ($field_sort_order as $field_sort_order) {
 					<label class="col-sm-4 control-label"><?= $equipment['category'].': '.$equipment['make'].' '.$equipment['model'].' '.$equipment['label'].' '.$equipment['unit_number'] ?>:</label>
 					<div class="col-sm-8 <?= $access_all_checkin == TRUE ? 'toggleSwitch mobile-lg' : '' ?>">
 						<input type="hidden" name="checkin_id[]" value="<?= $checkin['item_id'] ?>">
-						<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['arrived'] ?>" class="toggle">
-						<span style="<?= $checkin['arrived'] > 0 ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img"> Click to Check In</span>
-						<span style="<?= $checkin['arrived'] > 0 ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img"> Checked In</span>
+						<input type="hidden" name="arrived" data-table="ticket_attached" data-id="<?= $checkin['id'] ?>" data-id-field="id" value="<?= $checkin['arrived'] ?>" class="toggle" <?= strpos($value_config,',Check Out Before Check In,') !== FALSE ? 'data-no-toggle-off="1"' : '' ?>>
+						<span style="<?= $checkin['arrived'] > 0 && (!empty($checkin['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? 'display: none;' : '' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-6.png" class="text-lg inline-img on_img"> Click to Check In</span>
+						<span style="<?= $checkin['arrived'] > 0 && (!empty($checkin['timer_start']) || strpos($value_config,',Check Out Before Check In,') === FALSE) ? '' : 'display: none;' ?>"><img src="<?= WEBSITE_URL ?>/img/icons/switch-7.png" class="text-lg inline-img off_img"> Checked In</span>
 					</div>
 				</div>
 				<hr class="visible-xs">

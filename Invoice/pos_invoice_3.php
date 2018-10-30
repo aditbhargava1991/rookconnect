@@ -57,9 +57,17 @@ if($get_pos_tax != '') {
 //Tax
 
 $invoice_footer = get_config($dbc, 'invoice_footer');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$point_of_sell['type']))) {
+    $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
+}
 $payment_type = explode('#*#', $point_of_sell['payment_type']);
 
-$logo = 'download/'.get_config($dbc, 'invoice_logo');
+$logo = get_config($dbc, 'invoice_logo');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_logo_'.$point_of_sell['type']))) {
+    $logo = get_config($dbc, 'invoice_logo_'.$point_of_sell['type']);
+}
+
+$logo = 'download/'.$logo;
 if(!file_exists($logo)) {
     $logo = '../POSAdvanced/'.$logo;
     if(!file_exists($logo)) {
@@ -108,7 +116,7 @@ if ( !class_exists('MYPDF') ) {
         // Page footer
         public function Footer() {
             // Position at 15 mm from bottom /* CHANGED (SetY used to be -25) */
-            $this->SetY(-27);
+            $this->SetY(-20);
             // Set font
             $this->SetFont('helvetica', 'I', 8);
             // Page number
@@ -117,9 +125,10 @@ if ( !class_exists('MYPDF') ) {
                   //<table width="400px" style="border-bottom:1px solid black;text-align:left;font-style: normal !important;font-size:9"><tr><td style="text-align:left;font-style: normal !important;font-size:9">
         //Signature</td></tr></table>
                   //$footer_text = '<br><br><center><p style="text-align:center;">Transfer Funds to '.COMPANY_SOFTWARE_NAME.'<br>Thank you for your business!</p></center><br>'.INVOICE_FOOTER;
+                  $footer_text = '<center><p style="text-align:center;">'. INVOICE_FOOTER .'</p></center>';
                 } else {
                   // ... footer for the normal page ...
-                  $footer_text = INVOICE_FOOTER;
+                  $footer_text = '<center><p style="text-align:center;">'. INVOICE_FOOTER .'</p></center>';
                 }
 
             $this->writeHTMLCell(0, 0, '', '', $footer_text, 0, 0, false, "L", true);
@@ -163,8 +172,8 @@ $html .= '<p style="text-align:center"><h2>'.COMPANY_SOFTWARE_NAME.'</h2></p><br
     </tr>
 </table><br><br>';
 
-if ( !empty($customer['referred_by']) ) {
-    $html .= '<table><tr><td style="width:20%">Reference:</td><td style="width:80%">'.$customer['referred_by'].'</td></tr></table><br><br>';
+if ( !empty($point_of_sell['reference']) ) {
+    $html .= '<table><tr><td style="width:20%">Reference:</td><td style="width:80%">'.$point_of_sell['reference'].'</td></tr></table><br><br>';
 }
 $html .= '<table border="1px" style="padding:3px; border:1px solid grey;">
 		<tr nobr="true" style="background-color:rgb(140,173,174); color:black; "><td>Salesperson</td><td>Delivery Option</td><td>Ship Date</td><td>Payment Type</td>'.$thduedate.'</tr>
@@ -221,7 +230,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 				//if ( $rookconnect !== 'sea' ) {
 					$html .= '<td>' . get_inventory ( $dbc, $inventoryid, 'part_no' ) . '</td>';
 				//}
-				$html .= '<td>' . get_inventory ( $dbc, $inventoryid, 'name' ) . '</td>';
+				$html .= '<td>' . ($quantity < 0 ? 'Return: ' : '').get_inventory ( $dbc, $inventoryid, 'name' ) . '</td>';
 				$html .= '<td>' . number_format($quantity, 0) . '</td>';
 				if($return_result > 0) {
 					$html .= '<td>'.$returned.'</td>';
@@ -230,7 +239,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 				$html .= '<td style="text-align:right; background-color:rgb(232,238,238);">$'.number_format($amount,2).'</td>';
 			$html .= '</tr>';
 		}
-        
+
         $returned_amt += $price * $returned;
 	}
 
@@ -244,7 +253,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 		if($misc_product != '') {
 			$html .= '<tr>';
 			$html .=  '<td>Not Available</td>';
-			$html .=  '<td>'.$misc_product.'</td>';
+			$html .=  '<td>'.($qty < 0 ? 'Return: ' : '').$misc_product.'</td>';
 			$html .=  '<td>'.number_format($qty,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -281,7 +290,7 @@ if($num_rows3 > 0) {
 			$amount = $price*($quantity-$returned);
 			$html .= '<tr>';
 			$html .=  '<td>'.get_products($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_products($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_products($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -318,7 +327,7 @@ if($num_rows4 > 0) {
 			$amount = $price*($quantity-$returned);
 			$html .= '<tr>';
 			$html .=  '<td>'.get_services($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_services($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Refund: ' : '').get_services($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -364,7 +373,7 @@ if($num_rows5 > 0) {
 
 			$html .= '<tr>';
 			$html .=  '<td>'.get_vpl($dbc, $inventoryid, 'part_no').'</td>';
-			$html .=  '<td>'.get_vpl($dbc, $inventoryid, 'name').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_vpl($dbc, $inventoryid, 'name').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -428,7 +437,7 @@ $html .= '
 			$html .= $pdf_tax;
 			//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
 		}
-        
+
 		$total_returned_amt = 0;
         if($returned_amt != 0) {
 			$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
@@ -436,7 +445,7 @@ $html .= '
             $html .= '<tr><td align="right" width="75%"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="25%" style="background-color: rgb(232,238,238);">$'.$total_returned_amt.'</td></tr>';
 		}
 
-        
+
 		$html .= '<tr><td align="right" width="75%"><strong>Total</strong></td><td align="right" border="1" width="25%" style="background-color: rgb(232,238,238);">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
 		if($point_of_sell['deposit_paid'] > 0) {
 			$html .='<tr><td align="right" width="75%"><strong>Deposit Paid</strong></td><td align="right" border="1" width="25%" style="background-color: rgb(232,238,238);">$'.$point_of_sell['deposit_paid'].'</td></tr>';
@@ -456,6 +465,8 @@ if (!file_exists('download')) {
 
 //if(empty($posid) && !empty($invoiceid)) {
 	$pdf->writeHTML($html, true, false, true, false, '');
+    $invoice_type = $point_of_sell['type'];
+    include('../Invoice/pos_invoice_append_ticket.php');
 	$pdf->Output('download/invoice_'.$invoiceid.$edited.'.pdf', 'F');
 /* } else {
 	$pdf->writeHTML($html, true, false, true, false, '');

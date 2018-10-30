@@ -71,7 +71,7 @@ if(!empty($so_type)) {
                         </div>
                         <div class="row hidden-xs">
                             <div class="col-sm-<?= $include_hours ? '3' : '4' ?>"><b><?= $item_from == 'Labour' ? 'Labour Type' : 'Category' ?></b></div>
-                            <div class="col-sm-<?= $include_hours ? '4' : '5' ?>"><b><?= $item_from == 'Services' ? 'Service' : 'Product' ?></b></div>
+                            <div class="col-sm-<?= $include_hours ? '4' : '5' ?>"><b><?= $item_from == 'Services' ? 'Service' : ($item_from == 'Unit #' ? 'Equipment' : 'Product') ?></b></div>
                             <?php if($include_hours) { ?>
                                 <div class="col-sm-2"><b>Time Estimate</b></div>
                             <?php } ?>
@@ -79,7 +79,7 @@ if(!empty($so_type)) {
                             <!-- <div class="col-sm-2"><b>Quantity</b></div> -->
                             <div class="col-sm-1"></div>
                         </div><?php
-                        
+
                         $odd_even = 0;
                         while ( $row=mysqli_fetch_assoc($result) ) {
                             $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg'; ?>

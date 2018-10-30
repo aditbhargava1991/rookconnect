@@ -87,6 +87,8 @@ if(!empty($_POST['submit'])) {
             $tile_settings = 'active_tab';
         } else if($_GET['category'] == 'quick_actions') {
             $quick_actions = 'active_tab';
+        } else if($_GET['category'] == 'mandatory_field') {
+          $mandatory_field = 'active_tab';
         } else if($_GET['category'] == 'add_field') {
             $add_field = 'active_tab';
         } else if($_GET['category'] == 'auto_archive') {
@@ -98,6 +100,7 @@ if(!empty($_POST['submit'])) {
         echo "<a href='field_config_project_manage.php?category=tile_settings'><button type='button' class='btn brand-btn mobile-block ".$tile_settings."'>Tile Settings</button></a>";
         echo "<a href='field_config_project_manage.php?category=add_tab'><button type='button' class='btn brand-btn mobile-block ".$add_tab."'>Edit Task Tabs</button></a>";
         echo "<a href='field_config_project_manage.php?category=add_field'><button type='button' class='btn brand-btn mobile-block ".$add_field."'>Edit Task Fields</button></a>";
+        echo "<a href='field_config_project_manage.php?category=mandatory_field'><button type='button' class='btn brand-btn mobile-block ".$mandatory_field."'>Edit Mandatory Task Fields</button></a>";
         echo "<a href='field_config_project_manage.php?category=quick_actions'><button type='button' class='btn brand-btn mobile-block ".$quick_actions."'>Quick Actions</button></a>";
         echo "<a href='field_config_project_manage.php?category=auto_archive'><button type='button' class='btn brand-btn mobile-block ".$auto_archive."'>Auto Archive Settings</button></a>";
         ?>
@@ -192,12 +195,11 @@ if(!empty($_POST['submit'])) {
                     </div>
                 </div>
 
-                <!--
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_fields">
-                               Task Settings<span class="glyphicon glyphicon-plus"></span>
+                               Include Checklists<span class="glyphicon glyphicon-plus"></span>
                             </a>
                         </h4>
                     </div>
@@ -208,13 +210,77 @@ if(!empty($_POST['submit'])) {
                                 <label class="col-sm-4">Include Checklists:</label>
                                 <div class="col-sm-8">
                                     <?php $task_include_checklists = get_config($dbc, 'task_include_checklists'); ?>
-                                    <label class="form-checkbox"><input type="checkbox" name="task_include_checklists" value="1" <?= $task_include_checklists == 1 ? 'checked' : '' ?>> Enable</label>
+                                    <label class="form-checkbox"><input onchange="saveTaskChecklist(this)" type="checkbox" name="task_include_checklists" value="1" <?= $task_include_checklists == 1 ? 'checked' : '' ?>> Enable</label>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
-                -->
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_fields2">
+                               Include Intake<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_fields2" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <div class="form-group">
+                                <label class="col-sm-4">Include Intake:</label>
+                                <div class="col-sm-8">
+                                    <?php $task_include_intake = get_config($dbc, 'task_include_intake'); ?>
+                                    <label class="form-checkbox"><input onchange="saveTaskIntake(this)" type="checkbox" name="task_include_intake" value="1" <?= $task_include_intake == 1 ? 'checked' : '' ?>> Enable</label>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_fields29">
+                               Default Status<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_fields29" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <?php $task_default_status = get_config($dbc, 'task_default_status'); ?>
+                            <div class="form-group">
+                                <label for="first_name" class="col-sm-4">Status:</label>
+                                <div class="col-sm-8">
+                                    <select onchange="saveTaskDefaultStatus(this)" data-placeholder="Select a Status..." name="task_default_status" class="chosen-select-deselect form-control" width="380">
+                                        <option value=""></option>
+                                      <?php
+                                        $tabs = get_config($dbc, 'ticket_status');
+                                        $each_tab = explode(',', $tabs);
+                                        if($task_default_status == '') {
+                                            $task_default_status = 'Doing Today';
+                                        }
+                                        foreach ($each_tab as $cat_tab) {
+                                            if ($task_default_status == $cat_tab) {
+                                                $selected = 'selected="selected"';
+                                            } else {
+                                                $selected = '';
+                                            }
+                                            echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
+                                        }
+                                      ?>
+                                    </select>
+                                </div>
+                            </div>
+
+
+                       </div>
+                    </div>
+                </div>
+
 
 				<div class="panel panel-default">
                     <div class="panel-heading">
@@ -347,8 +413,8 @@ if(!empty($_POST['submit'])) {
 									<?php $task_quick_action_icons = explode(',',get_config($dbc, 'task_quick_action_icons')); ?>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('edit',$task_quick_action_icons) ? 'checked' : '' ?> value="edit"> <img class="inline-img" src="../img/icons/ROOK-edit-icon.png"> Edit</label>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('sync',$task_quick_action_icons) ? 'checked' : '' ?> value="sync"> <img class="inline-img" src="../img/icons/ROOK-sync-icon.png"> Sync External Path</label>
-										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= !in_array('flag_manual',$task_quick_action_icons) && in_array('flag',$task_quick_action_icons) ? 'checked' : '' ?> value="flag" onclick="$('[name^=task_quick_action_icons][value=flag_manual]').removeAttr('checked');"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Flag</label>
-										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('flag_manual',$task_quick_action_icons) ? 'checked' : '' ?> value="flag_manual" onclick="$('[name^=task_quick_action_icons][value=flag]').removeAttr('checked');"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Manually Flag with Label</label>
+										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('flag',$task_quick_action_icons) ? 'checked' : '' ?> value="flag"> <img class="inline-img" src="../img/icons/color-wheel.png"> Highlight</label>
+										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('flag_manual',$task_quick_action_icons) ? 'checked' : '' ?> value="flag_manual"> <img class="inline-img" src="../img/icons/ROOK-flag-icon.png"> Manually Flag with Label</label>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('reply',$task_quick_action_icons) ? 'checked' : '' ?> value="reply"> <img class="inline-img" src="../img/icons/ROOK-reply-icon.png"> Reply</label>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('attach',$task_quick_action_icons) ? 'checked' : '' ?> value="attach"> <img class="inline-img" src="../img/icons/ROOK-attachment-icon.png"> Attach</label>
 										<label class="form-checkbox"><input type="checkbox" onchange="saveQuickIcon(this)" name="task_quick_action_icons[]" <?= in_array('alert',$task_quick_action_icons) ? 'checked' : '' ?> value="alert"> <img class="inline-img" src="../img/icons/ROOK-alert-icon.png"> Alerts</label>
@@ -366,7 +432,7 @@ if(!empty($_POST['submit'])) {
 				<?php $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM task_dashboard"));
 				$flag_colours = $get_config['flag_colours'];
 				$flag_names = explode('#*#', $get_config['flag_names']); ?>
-                <div class="panel panel-default">
+                <!-- <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
                             <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_flags">
@@ -414,6 +480,7 @@ if(!empty($_POST['submit'])) {
                         </div>
                     </div>
                 </div>
+                -->
                 <?php } else if($_GET['category'] == 'add_tab') { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
@@ -524,6 +591,30 @@ if(!empty($_POST['submit'])) {
                         </div>
                     </div>
                 </div>
+              <?php } else if($_GET['category'] == 'mandatory_field') { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                            <h4 class="panel-title">
+                            <span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Click here to add or remove your Tabs."><img src=" <?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                            <a data-toggle="collapse" data-parent="#accordion_tabs" href="#collapse_00">
+                                Mandatory Task Fields<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div class="panel-collapse collapse in" id="collapse_00" style="height: auto;">
+                        <div class="panel-body">
+                            <?php $get_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard")); ?>
+                            <?php $task_mandatory_fields = explode(",", $get_field_config_tiles['task_fields']); ?>
+                            <?php $get_mandatory_field_config_tiles = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT task_fields FROM task_dashboard_mandatory")); ?>
+                            <?php $task_get_mandatory_fields = ','.$get_mandatory_field_config_tiles['task_fields'] . ','; ?>
+                            <?php foreach($task_mandatory_fields as $mandatory_field): ?>
+                                <input type="checkbox" onchange="saveMandatoryFields(this)" name="task_mandatory_fields[]" <?= (strpos($task_get_mandatory_fields, ','.$mandatory_field.',') !== FALSE ? 'checked' : '') ?> style="height: 20px; width: 20px;" value="<?php echo $mandatory_field; ?>">&nbsp;&nbsp;<?php echo $mandatory_field; ?>
+                                &nbsp;&nbsp;
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </div>
                 <?php } else if($_GET['category'] == 'auto_archive') { ?>
                 <input type="hidden" name="auto_archive_config" value="1">
                 <div class="panel panel-default">
@@ -572,4 +663,18 @@ if(!empty($_POST['submit'])) {
         </form>
     </div>
 </div>
+<script>
+function saveMandatoryFields() {
+	var tab_list = [];
+	$('[name="task_mandatory_fields[]"]:checked').not(':disabled').each(function() {
+		tab_list.push(this.value);
+	});
+
+	$.ajax({    //create an ajax request to ajax_all.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=setting_mandatory_fields&tab_list="+tab_list,
+		dataType: "html",   //expect html to be returned
+	});
+}
+</script>
 <?php include ('../footer.php'); ?>

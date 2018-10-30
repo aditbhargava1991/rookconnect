@@ -56,17 +56,29 @@ if($get_pos_tax != '') {
 }
 //Tax
 
-$logo = 'download/'.get_config($dbc, 'invoice_logo');
+$logo = get_config($dbc, 'invoice_logo');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_logo_'.$point_of_sell['type']))) {
+    $logo = get_config($dbc, 'invoice_logo_'.$point_of_sell['type']);
+}
+
+$logo = 'download/'.$logo;
 if(!file_exists($logo)) {
     $logo = '../POSAdvanced/'.$logo;
     if(!file_exists($logo)) {
         $logo = '';
     }
 }
+$invoice_header = get_config($dbc, 'invoice_header');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_header_'.$point_of_sell['type']))) {
+    $invoice_header = get_config($dbc, 'invoice_header_'.$point_of_sell['type']);
+}
 DEFINE('POS_LOGO', $logo);
 $invoice_footer = get_config($dbc, 'invoice_footer');
+if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$point_of_sell['type']))) {
+    $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
+}
 $payment_type = explode('#*#', $point_of_sell['payment_type']);
-DEFINE('INVOICE_HEADER', get_config($dbc, 'invoice_header'));
+DEFINE('INVOICE_HEADER', $invoice_header);
 DEFINE('INVOICE_FOOTER', $invoice_footer);
 DEFINE('INVOICE_DATE', $point_of_sell['invoice_date']);
 DEFINE('INVOICEID', $posid);
@@ -185,7 +197,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 				//if ( $rookconnect !== 'sea' ) {
 					$html .= '<td></td><td>' . get_inventory ( $dbc, $inventoryid, 'part_no' ) . '</td>';
 				//}
-				$html .= '<td>' . get_inventory ( $dbc, $inventoryid, 'name' ) . '</td>';
+				$html .= '<td>' . ($quantity < 0 ? 'Return: ' : '').get_inventory ( $dbc, $inventoryid, 'name' ) . '</td>';
 				$html .= '<td>' . number_format($quantity,0) . '</td>';
 				if($return_result > 0) {
 					$html .= '<td>'.$returned.'</td>';
@@ -194,7 +206,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 				$html .= '<td style="text-align:right; ">$'.number_format($amount,2).'</td>';
 			$html .= '</tr>';
 		}
-        
+
         $returned_amt += $price * $returned;
 	}
 
@@ -208,7 +220,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 		if($misc_product != '') {
 			$html .= '<tr>';
 			$html .=  '<td></td><td>Not Available</td>';
-			$html .=  '<td>'.$misc_product.'</td>';
+			$html .=  '<td>'.($qty < 0 ? 'Return: ' : '').$misc_product.'</td>';
 			$html .=  '<td>'.number_format($qty,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -235,7 +247,7 @@ if($num_rows3 > 0) {
 			$amount = $price*($quantity-$returned);
 			$html .= '<tr>';
 			$html .=  '<td></td><td>'.get_products($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_products($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_products($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -262,7 +274,7 @@ if($num_rows4 > 0) {
 			$amount = $price*($quantity-$returned);
 			$html .= '<tr>';
 			$html .=  '<td></td><td>'.get_services($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_services($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Refund: ' : '').get_services($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -290,7 +302,7 @@ if($num_rows5 > 0) {
 
 			$html .= '<tr>';
 			$html .=  '<td></td><td>'.get_vpl($dbc, $inventoryid, 'part_no').'</td>';
-			$html .=  '<td>'.get_vpl($dbc, $inventoryid, 'name').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_vpl($dbc, $inventoryid, 'name').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -312,7 +324,7 @@ if($num_rows6 > 0) {
 
 		$html .= '<tr>';
 		$html .=  '<td></td><td>'.$row['heading'].'</td>';
-		$html .=  '<td>'.number_format($row['quantity'],0).'</td>';
+		$html .=  '<td>'.($amount < 0 ? 'Refund: ' : '').number_format($row['quantity'],0).'</td>';
 		$html .=  '<td>$'.$row['unit_price'].'</td>';
 		$html .=  '<td style="text-align:right;">$'.number_format($amount,2).'</td>';
 		$html .= '</tr>';
@@ -348,7 +360,7 @@ $html .= '
 			$html .= $pdf_tax;
 			//$html .= '<tr><td style="text-align:right;" width="75%"><strong>Tax</strong></td><td width="25%" style="text-align:right;">'.$pdf_tax.'</td></tr>';
 		}
-        
+
 		$total_returned_amt = 0;
         if($returned_amt != 0) {
 			$total_tax_rate = ($gst_rate/100) + ($pst_rate/100);
@@ -356,7 +368,7 @@ $html .= '
             $html .= '<tr><td align="right" width="75%"><strong>Returned Total (Including Tax)</strong></td><td align="right" border="1" width="25%" style="">$'.$total_returned_amt.'</td></tr>';
 		}
 
-        
+
 		$html .= '<tr><td align="right" width="75%"><strong>Total</strong></td><td align="right" border="1" width="25%" style="">$'.number_format($point_of_sell['final_price'] - $total_returned_amt, 2).'</td></tr>';
 		if($point_of_sell['deposit_paid'] > 0) {
 			$html .='<tr><td align="right" width="75%"><strong>Deposit Paid</strong></td><td align="right" border="1" width="25%" style="">$'.$point_of_sell['deposit_paid'].'</td></tr>';
@@ -376,6 +388,8 @@ if (!file_exists('download')) {
 // echo $html;error_reporting(E_ALL);
 //if(empty($posid) && !empty($invoiceid)) {
 	$pdf->writeHTML($html, true, false, true, false, '');
+    $invoice_type = $point_of_sell['type'];
+    include('../Invoice/pos_invoice_append_ticket.php');
 	$pdf->Output('download/invoice_'.$invoiceid.$edited.'.pdf', 'F');
 /* } else {
 	$pdf->writeHTML($html, true, false, true, false, '');

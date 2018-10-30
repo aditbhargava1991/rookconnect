@@ -11,16 +11,29 @@
 		if($next_booking['bookingid'] > 0) {
 			$footer_text = '<p style="color: #37C6F4; font-size: 14; font-weight: bold; text-align: center;">Your next appointment is '.date('d/m/y',strtotime($next_booking['appoint_date']))." at ".date('G:ia',strtotime($next_booking['appoint_date'])).'</p>';
 		}
-		$footer_text .= html_entity_decode(get_config($dbc, 'invoice_footer'));
-        $logo = 'download/'.get_config($dbc, 'invoice_logo');
+	    $invoice_footer = get_config($dbc, 'invoice_footer');
+	    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_footer_'.$get_invoice['type']))) {
+	        $invoice_footer = get_config($dbc, 'invoice_footer_'.$get_invoice['type']);
+	    }
+		$footer_text .= html_entity_decode($invoice_footer);
+
+	    $logo = get_config($dbc, 'invoice_logo');
+	    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_logo_'.$get_invoice['type']))) {
+	        $logo = get_config($dbc, 'invoice_logo_'.$get_invoice['type']);
+	    }
+        $logo = 'download/'.$logo;
         if(!file_exists($logo)) {
             $logo = '../POSAdvanced/'.$logo;
             if(!file_exists($logo)) {
                 $logo = '';
             }
         }
+	    $invoice_header = get_config($dbc, 'invoice_header');
+	    if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_header_'.$get_invoice['type']))) {
+	        $invoice_header = get_config($dbc, 'invoice_header_'.$get_invoice['type']);
+	    }
 		DEFINE('INVOICE_LOGO', $logo);
-		DEFINE('INVOICE_HEADER', html_entity_decode(get_config($dbc, 'invoice_header')));
+		DEFINE('INVOICE_HEADER', html_entity_decode($invoice_header));
 		DEFINE('INVOICE_FOOTER', $footer_text);
 		$invoiceid = $get_invoice['invoiceid'];
 		$all_payment_type = explode('#*#',$get_invoice['payment_type'])[0];
@@ -347,6 +360,8 @@
 		$html .= '</table>';
 
 		$pdf->writeHTML($html, true, false, true, false, '');
+        $invoice_type = $get_invoice['type'];
+        include('../Invoice/pos_invoice_append_ticket.php');
 		$pdf->Output('download/invoice_'.$invoiceid.'.pdf', 'F');
 
 		$invoice_md5 .= md5_file("download/invoice_".$invoiceid.".pdf");

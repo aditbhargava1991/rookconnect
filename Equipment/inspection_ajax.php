@@ -79,7 +79,7 @@ if(isset($_GET['category'])) {
 				</div> -->
 			<?php }
 		} else {
-			echo "<h4>No checklist found for the current category.</h4>";
+			echo "<h4>No checklist found for the current tab.</h4>";
 		}
 	}
 } ?>

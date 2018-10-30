@@ -2,7 +2,10 @@
 $equipment_main_tabs = explode(',',get_config($dbc, 'equipment_main_tabs')); ?>
 
 <div class="blue tile-navbar">
-	<a href="?edit=<?= $_GET['edit'] ?>"><span class="block-clear <?= empty($_GET['subtab']) ? 'active' : '' ?>">Equipment</span></a>
+    <?php if($overview > 0 && $_GET['edit'] > 0) { ?>
+        <a href="?edit=<?= $_GET['edit'] ?>"><span class="block-clear <?= empty($_GET['subtab']) ? 'active' : '' ?>">Overview</span></a>
+    <?php } ?>
+	<a href="?edit=<?= $_GET['edit'] ?>&subtab=edit"><span class="block-clear <?= (!($overview > 0 || $_GET['edit'] > 0) && empty($_GET['subtab'])) || $_GET['subtab'] == 'edit' ? 'active' : '' ?>">Equipment</span></a>
 	<?php if($_GET['edit'] > 0) { ?>
 		<?php if ( in_array('Inspection',$equipment_main_tabs) && check_subtab_persmission($dbc, 'equipment', ROLE, 'inspection') === TRUE ) { ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&subtab=inspections"><span class="block-clear <?= $_GET['subtab'] == 'inspections' ? 'active' : '' ?>">Inspections</span></a>

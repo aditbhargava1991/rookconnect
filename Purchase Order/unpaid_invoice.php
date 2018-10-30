@@ -174,6 +174,9 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 		if(!empty($current_cat)) {
 			$search .= " AND inv.po_category='$current_cat'";
 		}
+		if(!empty($_GET['ticket'])) {
+			$search .= " AND t.ticket_type='".filter_var($_GET['ticket'],FILTER_SANITIZE_STRING)."'";
+		}
 		?>
 		<div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
 			<label for="search_any" class="control-label">Search Within Tab:</label>
@@ -268,7 +271,7 @@ $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS co
 	if (isset($_POST['display_all_invoice'])) {
 		$invoice_name = '';
 	}
-	$query_check_credentialss = "SELECT inv.*, c.* FROM purchase_orders inv,  contacts c WHERE inv.contactid = c.contactid AND inv.deleted = 0 AND inv.status = 'Paying' ".$search." ORDER BY inv.posid DESC";
+	$query_check_credentialss = "SELECT inv.*, c.* FROM purchase_orders inv LEFT JOIN contacts c ON inv.contactid=c.contactid LEFT JOIN tickets t ON inv.ticketid=t.ticketid WHERE inv.deleted = 0 AND inv.status = 'Paying' ".$search." ORDER BY inv.posid DESC";
 
 	// how many rows we have in database
 	$queryy = "SELECT COUNT(posid) AS numrows FROM purchase_orders";

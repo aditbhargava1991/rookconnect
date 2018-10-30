@@ -174,10 +174,16 @@ function removeRoomServiceChecklist(btn) {
 		}
 	});
 }
+var scrolling_to_top = '';
 function scrollToChecklist(a) {
 	if(self !== top) {
-		setTimeout(function() {
-			$('html,body').scrollTop($(a).offset().top + $('.standard-body').scrollTop() - $('.standard-body').offset().top);
+		var block = $(a).closest('.panel').find('.panel-collapse');
+		clearInterval(scrolling_to_top);
+		scrolling_to_top = setInterval(function() {
+			if($(block).hasClass('in')) {
+				clearInterval(scrolling_to_top);
+				$('html,body').scrollTop($(a).offset().top + $('.standard-body').scrollTop() - $('.standard-body').offset().top);	
+			}
 		},250);
 	} else {
 		if($(a).closest('.block-panels').length > 0) {
@@ -355,13 +361,13 @@ function scrollToChecklist(a) {
 		}
 		if(strpos($value_config, ',Service Staff Checklist Extra Billing,') !== FALSE && !($strict_view > 0)) { ?>
 			<div class="double-gap-bottom">
-				<a href="?" onclick="displayServiceExtraBilling(); return false;" class="btn brand-btn pull-right">Add Extra Billing</a>
+				<a href="?" onclick="displayServiceExtraBilling(); return false;" data-history-label="Extra Billing Detail" class="btn brand-btn pull-right">Add Extra Billing</a>
 				<div class="clearfix"></div>
 				<div class="service_extra_billing_comment" style="display:none;">
 					<label class="col-sm-8 control-label">Extra Billing Comment:</label>
 					<div class="col-sm-12">
 						<textarea name="service_extra_billing" class="form-control"></textarea>
-						<a href="?" onclick="addServiceExtraBilling(this); return false;" class="btn brand-btn pull-right">Submit</a>
+						<a href="?" onclick="addServiceExtraBilling(this); return false;" data-history-label="Save Extra Billing Detail" class="btn brand-btn pull-right">Submit</a>
 					</div>
 				</div>
 				<div class="clearfix"></div>

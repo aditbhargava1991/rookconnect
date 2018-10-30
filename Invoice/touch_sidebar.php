@@ -75,13 +75,10 @@
 			if(check_subtab_persmission($dbc, FOLDER_NAME == 'invoice' ? 'check_out' : 'posadvanced', ROLE, $tab_name) === TRUE) {
 				switch($tab_name) {
 					case 'today': ?>
-						<div class="col-sm-6"><a href='today_invoice.php' class="btn brand-btn mobile-block touch-button">TODAY'S INVOICES</a></div>
+						<div class="col-sm-6"><a href='index.php?tab=today' class="btn brand-btn mobile-block touch-button">TODAY'S INVOICES</a></div>
 						<?php break;
 					case 'all': ?>
-						<div class="col-sm-6"><a href='all_invoice.php' class="btn brand-btn mobile-block touch-button">ALL INVOICES</a></div>
-						<?php break;
-					case 'invoices': ?>
-						<div class="col-sm-6"><a href='invoice_list.php' class="btn brand-btn mobile-block touch-button">INVOICES</a></div>
+						<div class="col-sm-6"><a href='index.php?tab=all' class="btn brand-btn mobile-block touch-button">ALL INVOICES</a></div>
 						<?php break;
 				}
 			}

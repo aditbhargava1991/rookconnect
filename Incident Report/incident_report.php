@@ -10,6 +10,9 @@ include ('../include.php');
 checkAuthorised('incident_report');
 $view_sql = (search_visible_function($dbc,'incident_report') > 0 ? '' : " AND (CONCAT(',',`contactid`,',',`clientid`,',') LIKE '%,{$_SESSION['contactid']},%' OR `completed_by` = '{$_SESSION['contactid']}')");
 $current_type = $_GET['type'];
+if($current_type == 'ALL') {
+    $current_type = '';
+}
 if(!empty($current_type)) {
     $type_query = " AND `type` = '$current_type'";
 }
@@ -25,9 +28,59 @@ $project_vars = [];
 foreach($project_tabs as $item) {
     $project_vars[preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)))] = $item;
 }
+$quick_action_icons = explode(',',get_config($dbc, 'inc_rep_quick_action_icons'));
 ?>
+<script type="text/javascript">
+$(document).ready(function() {
+    setQuickActions();
 
+    $(window).resize(function() {
+        var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.tile-sidebar').offset().top;
+        if(available_height > 200) {
+            $('tile-container, .tile-sidebar, .tile-sidebar ul.sidebar, .tile-content').height(available_height);
+            $('.tile-content .main-screen-white').height(available_height - 11);
+        }
+    }).resize();
+});
+function setQuickActions() {
+    $('.manual-flag-icon').off('click').click(function() {
+        var item = $(this).closest('tr');
+        $(item).addClass('flag_target');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=incident_report&id='+$(item).data('id'), 'auto', false, true);
+    });
+    $('.flag-icon').off('click').click(function() {
+        var item = $(this).closest('tr');
+        var incidentreportid = $(this).closest('.action-icons').data('id');
+        $.ajax({
+            url: 'incident_report_ajax.php?action=quick_actions',
+            method: 'POST',
+            data: {
+                field: 'flag_colour',
+                value: item.data('colour'),
+                table: item.data('table'),
+                id: item.data('id'),
+                id_field: item.data('id-field')
+            },
+            success: function(response) {
+                item.data('colour',response.substr(0,6));
+                item.css('background-color','#'+response.substr(0,6));
+                item.find('.flag-label').html(response.substr(6));
+            }
+        });
+    });
+    $('.tagging-icon').off('click').click(function() {
+        var item = $(this).closest('tr');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_tagging.php?tile=incident_report&id='+$(item).data('id'), 'auto', false, true);
+    });
+}
+</script>
 <div class="container">
+    <div class="iframe_overlay" style="display:none; margin-top: -20px;margin-left:-15px;">
+        <div class="iframe">
+            <div class="iframe_loading">Loading...</div>
+            <iframe name="inc_rep_iframe" src=""></iframe>
+        </div>
+    </div>
     <div class='iframe_holder' style='display:none;'>
         <img src='<?php echo WEBSITE_URL; ?>/img/icons/close.png' class='close_iframe' width="45px" style='position:relative; right: 10px; float:right;top:58px; cursor:pointer;'>
         <span class='iframe_title' style='color:white; font-weight:bold; position: relative;top:58px; left: 20px; font-size: 30px;'></span>
@@ -49,7 +102,7 @@ foreach($project_tabs as $item) {
 
                         <form name="form_sites" method="post" action="" class="form-inline" role="form">
                             <div id="no-more-tables">
-								<?php 
+								<?php
                                 if($current_type == 'SAVED') {
                                     $search_from = '';
                                     $search_to = '';
@@ -59,10 +112,14 @@ foreach($project_tabs as $item) {
                                 }
 								if(isset($_POST['search_from'])) {
 									$search_from = filter_var($_POST['search_from'],FILTER_SANITIZE_STRING);
-								}
+								} else if(isset($_GET['search_from'])) {
+                                    $search_from = filter_var($_GET['search_from'],FILTER_SANITIZE_STRING);
+                                }
 								if(isset($_POST['search_to'])) {
 									$search_to = filter_var($_POST['search_to'],FILTER_SANITIZE_STRING);
-								} ?>
+								} else if(isset($_GET['search_to'])) {
+                                    $search_to = filter_var($_GET['search_to'],FILTER_SANITIZE_STRING);
+                                } ?>
                                 <div class="preview-block">
                                     <div class="preview-block-header"><h4><?= empty($current_type) ? 'All '.INC_REP_TILE : ($current_type == 'SAVED' ? 'Saved '.INC_REP_TILE : $current_type) ?></h4></div>
 									<br />
@@ -83,7 +140,7 @@ foreach($project_tabs as $item) {
 								<div class="clearfix"></div>
                             <?php
                             /* Pagination Counting */
-                            $rowsPerPage = 25;
+                            $rowsPerPage = get_config($dbc, 'inc_rep_rows_per_page') > 0 ? get_config($dbc, 'inc_rep_rows_per_page') : 25;;
                             $pageNum = 1;
 
                             if(isset($_GET['page'])) {
@@ -160,12 +217,37 @@ foreach($project_tabs as $item) {
                                     }
                                     if(vuaed_visible_function($dbc, 'incident_report') == 1) {
                                         echo '<th>Function</th>';
+                                        if(!empty(array_filter($quick_action_icons))) {
+                                            echo '<th>Quick Actions</th>';
+                                        }
                                     }
                                 echo "</tr>";
                                 echo "</thead>";
 
                                 while($row = mysqli_fetch_array( $result ))
                                 {
+                                    $flag_label = '';
+                                    if($row['flag_colour'] != '' && $row['flag_colour'] != 'FFFFFF') {
+                                        if(in_array('flag_manual',$quick_action_icons)) {
+                                            if(time() < strtotime($row['flag_start']) || time() > strtotime(str_replace('9999',date('Y'),$row['flag_end']).' + 1 day')) {
+                                                $row['flag_colour'] = '';
+                                            } else {
+                                                $flag_label = $row['flag_label'];
+                                            }
+                                        } else {
+                                            $ticket_flag_names = [''=>''];
+                                            $flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+                                            foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+                                                $ticket_flag_names[$colour] = $flag_names[$i];
+                                            }
+                                            $flag_label = $ticket_flag_names[$ticket['flag_colour']];
+                                        }
+                                    }
+                                    $flag_styling = '';
+                                    if(!empty($row['flag_colour']) && $row['flag_colour'] != 'FFFFFF') {
+                                        $flag_styling = 'background-color: #'.$row['flag_colour'].';';
+                                    }
+
                                     $contact_list = [];
                                     if ($row['contactid'] != '') {
                                         $contact_list[$row['contactid']] = get_staff($dbc, $row['contactid']);
@@ -211,57 +293,57 @@ foreach($project_tabs as $item) {
                                         if(!empty($_POST['search_incident_reports'])) {
                                             $search_key = $_POST['search_incident_reports'];
                                             if(stripos($project, $search_key) === FALSE && stripos($ticket, $search_key) === FALSE && stripos($program, $search_key) === FALSE && stripos($member_list, $search_key) === FALSE && stripos($client_list, $search_key) === FALSE && stripos($contact_name, $search_key) === FALSE && stripos($project_type, $search_key) === FALSE) {
-                                                $hidden_row = 'style="display: none;"';
+                                                $hidden_row = 'display: none;';
                                             }
                                         }
-                                        echo "<tr $hidden_row>";
+                                        echo '<tr data-id="'.$row['incidentreportid'].'" data-colour="'. $row['flag_colour'].'" data-table="incident_report" data-id-field="incidentreportid" style="'.$hidden_row.$flag_styling.'">';
 
                                         if (strpos($value_config, ','."Program".',') !== FALSE) {
-                                            echo '<td data-title="Program">'.$program.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Program">'.$program.'</td>';
                                         }
                                         if (strpos($value_config, ','."Project Type".',') !== FALSE) {
-                                            echo '<td data-title="'.PROJECT_NOUN.' Noun">'.$project_type.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="'.PROJECT_NOUN.' Type">'.$project_type.'</td>';
                                         }
                                         if (strpos($value_config, ','."Project".',') !== FALSE) {
-                                            echo '<td data-title="'.PROJECT_NOUN.'">'.$project.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="'.PROJECT_NOUN.'">'.$project.'</td>';
                                         }
                                         if (strpos($value_config, ','."Ticket".',') !== FALSE) {
-                                            echo '<td data-title="'.TICKET_NOUN.'">'.$ticket.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="'.TICKET_NOUN.'">'.$ticket.'</td>';
                                         }
                                         if (strpos($value_config, ','."Member".',') !== FALSE) {
-                                            echo '<td data-title="Member">'.$member_list.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Member">'.$member_list.'</td>';
                                         }
                                         if (strpos($value_config, ','."Client".',') !== FALSE) {
-                                            echo '<td data-title="Client">'.$client_list.'</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Client">'.$client_list.'</td>';
                                         }
                                         if (strpos($value_config, ','."Type".',') !== FALSE) {
-                                            echo '<td data-title="Type">' . $row['type'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Type">' . $row['type'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."Staff".',') !== FALSE) {
-                                            echo '<td data-title="Staff">' . $contact_name . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Staff">' . $contact_name . '</td>';
                                         }
                                         if (strpos($value_config, ','."Follow Up".',') !== FALSE) {
                                             if($row['type'] == 'Near Miss') {
-                                                echo '<td data-title="Follow Up">N/A</td>';
+                                                echo '<td style="'.$flag_styling.'" data-title="Follow Up">N/A</td>';
                                             } else {
-                                                echo '<td data-title="Follow Up">' . $row['ir14'] . '</td>';
+                                                echo '<td style="'.$flag_styling.'" data-title="Follow Up">' . $row['ir14'] . '</td>';
                                             }
                                         }
                                         if (strpos($value_config, ','."Date of Happening".',') !== FALSE) {
-                                            echo '<td data-title="Date of Happening">' . $row['date_of_happening'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Date of Happening">' . $row['date_of_happening'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."Date of Incident".',') !== FALSE) {
-                                            echo '<td data-title="Date of Incident">' . $row['incident_date'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Date of Incident">' . $row['incident_date'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."Date Created".',') !== FALSE) {
-                                            echo '<td data-title="Date Created">' . $row['today_date'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Date Created">' . $row['today_date'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."Location".',') !== FALSE) {
-                                            echo '<td data-title="Location">' . $row['location'] . '</td>';
+                                            echo '<td style="'.$flag_styling.'" data-title="Location">' . $row['location'] . '</td>';
                                         }
                                         if (strpos($value_config, ','."PDF".',') !== FALSE) {
                                             $name_of_file = 'incident_report_'.$row['incidentreportid'].'.pdf';
-                        					echo '<td data-title="PDF">'.(file_exists('download/'.$name_of_file) ? '<a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</a>' : '');
+                        					echo '<td style="'.$flag_styling.'" data-title="PDF">'.(file_exists('download/'.$name_of_file) ? '<a href="download/'.$name_of_file.'" target="_blank" ><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</a>' : '');
                                             if ($row['revision_number'] > 0) {
                                                 $revision_dates = explode('*#*', $row['revision_date']);
                                                 for ($i = 0; $i < $row['revision_number']; $i++) {
@@ -274,10 +356,21 @@ foreach($project_tabs as $item) {
                                             echo '</td>';
                                         }
                                         if(vuaed_visible_function($dbc, 'incident_report') == 1) {
-                                            echo '<td data-title="Function">';
+                                            echo '<td style="'.$flag_styling.'" data-title="Function">';
                     						echo '<a href=\'add_incident_report.php?type='.$row['type'].'&incidentreportid='.$row['incidentreportid'].'\'>Edit</a> | ';
                     						echo '<a href=\'../delete_restore.php?action=delete&incidentreportid='.$row['incidentreportid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
                                             echo '</td>';
+
+                                            if(!empty(array_filter($quick_action_icons))) {
+                                                echo '<td style="'.$flag_styling.'" data-title="Quick Actions">';
+                                                echo '<span class="flag-label">'.$flag_label.'</span><div class="clearfix"></div>';
+                                                echo '<div class="action-icons pull-left">';
+                                                echo (in_array('flag_manual',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img manual-flag-icon no-toggle" title="Flag This!">' : '');
+                                                echo (!in_array('flag_manual',$quick_action_icons) && in_array('flag',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">' : '');
+                                                echo (in_array('tagging',$quick_action_icons) ? '<img src="'.WEBSITE_URL.'/img/icons/tagging.png" class="inline-img tagging-icon no-toggle" title="Tag Staff">' : '');
+                                                echo '</div>';
+                                                echo '</td>';
+                                            }
                                         }
 
                                         echo "</tr>";

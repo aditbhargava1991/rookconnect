@@ -18,9 +18,15 @@ if (isset($_POST['upload_doc'])) {
 
     move_uploaded_file($_FILES["file"]["tmp_name"], "download/".$_FILES["file"]["name"]);
 
-    $query_update_bid = "UPDATE `field_po` SET `vendor_invoice` = '$docs', `status` = 'To be Billed' WHERE `fieldpoid` = '$fieldpoid'";
+    $before_change = capture_before_change($dbc, 'field_po', 'vendor_invoice', 'fieldpoid', $fieldpoid);
+    $before_change .= capture_before_change($dbc, 'field_po', 'status', 'fieldpoid', $fieldpoid);
 
+    $query_update_bid = "UPDATE `field_po` SET `vendor_invoice` = '$docs', `status` = 'To be Billed' WHERE `fieldpoid` = '$fieldpoid'";
     $result_update_bid = mysqli_query($dbc, $query_update_bid);
+
+    $history = capture_after_change('vendor_invoice', $docs);
+    $history .= capture_after_change('status', 'To be Billed');
+	  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
     echo '<script type="text/javascript"> window.location.replace("field_jobs.php"); </script>';
 }
@@ -28,15 +34,33 @@ if (isset($_POST['upload_doc'])) {
 if((!empty($_GET['workticketid'])) && ($_GET['status'] == 'Approve')) {
 	$workticketid = $_GET['workticketid'];
 	$today_date = date('Y-m-d');
+
+  $before_change = capture_before_change($dbc, 'field_work_ticket', 'status', 'workticketid', $workticketid);
+  $before_change .= capture_before_change($dbc, 'field_work_ticket', 'date_received', 'workticketid', $workticketid);
+
 	$query_update_site = "UPDATE `field_work_ticket` SET `status` = 'Approved', `date_received` = '$today_date' WHERE	`workticketid` = '$workticketid'";
 	$result_update_site	= mysqli_query($dbc, $query_update_site);
+
+  $history = capture_after_change('status', 'Approved');
+  $history .= capture_after_change('date_received', $today_date);
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 	echo '<script type="text/javascript"> window.location.replace("field_jobs.php"); </script>';
 }
 
 if((!empty($_GET['workticketid'])) && ($_GET['status'] == 'Revert')) {
 	$workticketid = $_GET['workticketid'];
+
+  $before_change = capture_before_change($dbc, 'field_work_ticket', 'status', 'workticketid', $workticketid);
+  $before_change .= capture_before_change($dbc, 'field_work_ticket', 'date_received', 'workticketid', $workticketid);
+
 	$query_update_site = "UPDATE `field_work_ticket` SET `status` = 'Pending', `date_received` = '' WHERE	`workticketid` = '$workticketid'";
 	$result_update_site	= mysqli_query($dbc, $query_update_site);
+
+  $history = capture_after_change('status', 'Pending');
+  $history .= capture_after_change('date_received', '');
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 	echo '<script type="text/javascript"> window.location.replace("field_jobs.php"); </script>';
 }
 
@@ -83,17 +107,46 @@ if((!empty($_GET['wtsend'])) && (!empty($_GET['contactid']))) {
 if((!empty($_GET['jobid'])) && (!empty($_GET['action']))) {
 	$jobid = $_GET['jobid'];
         $date_of_archival = date('Y-m-d');
-	$query_update_job = "UPDATE `field_jobs` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
+
+  $before_change = capture_before_change($dbc, 'field_jobs', 'deleted', 'jobid', $jobid);
+  $before_change .= capture_before_change($dbc, 'field_jobs', 'date_of_archival', 'jobid', $jobid);
+
+  $query_update_job = "UPDATE `field_jobs` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_job	= mysqli_query($dbc, $query_update_job);
 
-	$query_update_po = "UPDATE `field_po` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
+  $history = capture_after_change('deleted', '1');
+  $history .= capture_after_change('date_of_archival', '');
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
+  $before_change = capture_before_change($dbc, 'field_po', 'deleted', 'jobid', $jobid);
+  $before_change .= capture_before_change($dbc, 'field_po', 'date_of_archival', 'jobid', $jobid);
+
+  $query_update_po = "UPDATE `field_po` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_po	= mysqli_query($dbc, $query_update_po);
 
-	$query_update_fs = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
-	$result_update_fs	= mysqli_query($dbc, $query_update_fs);
+  $history = capture_after_change('deleted', '1');
+  $history .= capture_after_change('date_of_archival', '');
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
-	$query_update_in = "UPDATE `field_invoice` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
+  $before_change = capture_before_change($dbc, 'field_foreman_sheet', 'deleted', 'jobid', $jobid);
+  $before_change .= capture_before_change($dbc, 'field_foreman_sheet', 'date_of_archival', 'jobid', $jobid);
+
+  $query_update_fs = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
+  $result_update_fs	= mysqli_query($dbc, $query_update_fs);
+
+  $history = capture_after_change('deleted', '1');
+  $history .= capture_after_change('date_of_archival', '');
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
+  $before_change = capture_before_change($dbc, 'field_invoice', 'deleted', 'jobid', $jobid);
+  $before_change .= capture_before_change($dbc, 'field_invoice', 'date_of_archival', 'jobid', $jobid);
+
+  $query_update_in = "UPDATE `field_invoice` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE	`jobid` = '$jobid'";
 	$result_update_in	= mysqli_query($dbc, $query_update_in);
+
+  $history = capture_after_change('deleted', '1');
+  $history .= capture_after_change('date_of_archival', '');
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 	header('Location: field_jobs.php');
 }
@@ -190,6 +243,7 @@ function actionDate(sel) {
 
        <?php
         echo '<a href="add_field_foreman_sheet.php" class="btn brand-btn pull-right">Add Foreman Sheet</a>';
+        echo '<a href="add_field_foreman_sheet.php?pdf_foreman_sheet=new" class="btn brand-btn pull-right">Blank Foreman Sheet PDF</a>';
         ?>
 
     <div id="no-more-tables">
@@ -380,6 +434,7 @@ function actionDate(sel) {
 
         echo '</table></div>';
         echo '<a href="add_field_foreman_sheet.php" class="btn brand-btn pull-right">Add Foreman Sheet</a>';
+        echo '<a href="add_field_foreman_sheet.php?pdf_foreman_sheet=new" class="btn brand-btn pull-right">Blank Foreman Sheet PDF</a>';
 
         if($fs_name_search == '') {
             echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);

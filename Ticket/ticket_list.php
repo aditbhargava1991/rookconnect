@@ -172,11 +172,11 @@ function changePOSStatus(sel) {
 		<?php if(in_array('Project',$db_config)) { ?>
 			<div class="col-sm-5">
 				<label for="site_name" class="control-label col-sm-4">
-					<span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Choose from the drop down menu for the Type of <?= PROJECT_NOUN ?> that is attached to <?= TICKET_TILE ?> you want to see."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-					Select <?= in_array(substr(PROJECT_NOUN,0,1),['a','e','i','o','u','A','E','I','O','U']) ? 'an' : 'a' ?> <?= PROJECT_NOUN ?> Type:
+					<span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Choose from the drop down menu for the tab of <?= PROJECT_NOUN ?> that is attached to <?= TICKET_TILE ?> you want to see."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+					Select <?= in_array(substr(PROJECT_NOUN,0,1),['a','e','i','o','u','A','E','I','O','U']) ? 'an' : 'a' ?> <?= PROJECT_NOUN ?> Tab:
 				</label>
 				<div class="col-sm-8">
-					<select data-placeholder="Select a Type" name="search_project_type" id="" class="chosen-select-deselect form-control input-sm">
+					<select data-placeholder="Select a Tab" name="search_project_type" id="" class="chosen-select-deselect form-control input-sm">
 					  <option value=""></option>
 					  <?php foreach($project_types as $cat_tab_value => $cat_tab) {
 							echo "<option ".($cat_tab_value == $search_project_type_name ? 'selected' : '')." value='".$cat_tab_value."'>".$cat_tab.'</option>';
@@ -297,14 +297,14 @@ if($num_rows > 0) {
 	if($tile_security['edit'] == 1) {
 		echo '<div class="pull-right gap-bottom">';
 			?><span class="popover-examples list-inline" style="margin:0 5px 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add <?= in_array(substr(TICKET_NOUN,0,1),['a','e','i','o','u','A','E','I','O','U']) ? 'an' : 'a' ?> <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
-		echo '<a href="../Ticket/index.php?edit=0&type='.$ticket_type.'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
+		echo '<a href="../Ticket/index.php?edit=0&type='.$ticket_type.'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
 		echo '</div>';
 	}
 	echo "<h2>No Record Found.</h2>";
 	if($tile_security['edit'] == 1) {
 		echo '<div class="pull-right gap-bottom">';
 			?><span class="popover-examples list-inline" style="margin:0 5px 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Click here to add <?= in_array(substr(TICKET_NOUN,0,1),['a','e','i','o','u']) ? 'an' : 'a' ?> <?= TICKET_NOUN ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span><?php
-		echo '<a href="../Ticket/index.php?edit=0&type='.$ticket_type.'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
+		echo '<a href="../Ticket/index.php?edit=0&type='.$ticket_type.'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'" class="btn brand-btn mobile-block">Add '.TICKET_NOUN.'</a>';
 		echo '</div>';
 	}
 }
@@ -314,7 +314,7 @@ if($num_rows > 0) {
 $(document).ready(function() {
 	$('.iframe_open').click(function(){
 		   var id = $(this).attr('id');
-		   $('#iframe_instead_of_window').attr('src', 'ticket_history.php?ticketid='+id);
+		   $('#iframe_instead_of_window').attr('src', 'ticket_history.php?ticketid='+id+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name));
 		   $('.iframe_title').text('<?= TICKET_NOUN ?> History');
 		   $('.iframe_holder').show();
 		   $('.hide_on_iframe').hide();

@@ -867,7 +867,7 @@ checkAuthorised(); ?>
 	            </div>
 	            <?php } ?>
 
-	            <?php if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') { ?>
+	            <?php if (strpos($value_config, ','."Time Tracking Block".',') !== FALSE && $sort_field == 'Timer') { ?>
 	            <div class="panel panel-default">
 	                <div class="panel-heading">
 	                    <h4 class="panel-title">
@@ -885,7 +885,7 @@ checkAuthorised(); ?>
 	            </div>
 	            <?php } ?>
 
-				<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
+				<?php if (strpos($value_config, ','."Day Tracking Block".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">
@@ -1158,7 +1158,7 @@ checkAuthorised(); ?>
 
 		<div id="no-more-tables" class="connected_table"></div>
 		<div class="gap-top double-gap-bottom">
-			<a href="index.php" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE) ? 'checkoutAll();' : '' ?>">Finish</a>
+			<a href="index.php<?= (empty($_GET['tile_name']) ? '' : '?tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '?tile_group='.$_GET['tile_group']) ?>" class="pull-right btn brand-btn" onclick="<?= (strpos($value_config, ','."Timer".',') !== FALSE) ? 'stopTimers();' : '' ?><?= (strpos($value_config, ','."Check Out".',') !== FALSE) ? 'checkoutAll();' : '' ?>">Finish</a>
 			<a href="<?php echo addOrUpdateCurrentUrlParam(array('archive'), array('1')); ?>" class="pull-right gap-right"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" alt="Delete" width="36" /></a>
 			<?php if(strpos($value_config,',Additional,') !== FALSE) { ?>
 				<a href="add_tickets.php?addition_to=current_ticket" class="pull-right addition_button btn brand-btn" onclick="return addition();">Additional</a>

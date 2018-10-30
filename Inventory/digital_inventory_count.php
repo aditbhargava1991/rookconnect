@@ -2,6 +2,8 @@
 /*
 Inventory Listing
 */
+error_reporting(0);
+
 include ('../database_connection.php');
 include ('../function.php');
 include ('../global.php');
@@ -474,30 +476,36 @@ checkAuthorised('inventory');
 									<?php } ?>
 								</div>
 								<?php
-								$sql = mysqli_query($dbc, "SELECT * FROM inventory WHERE deleted = 0 GROUP BY category ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name");  ?>
+								$sql = mysqli_query($dbc, "SELECT * FROM inventory WHERE deleted = 0 GROUP BY category ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name");
+                                $db_value = get_config($dbc, 'default_digi_count_tab');
+                                $db_query_mod = ( $db_value != '3456780123456971230' && $db_value != '3456780123456971232' ) ? "AND category='$db_value'" : '' ?>
 
 								<div class="col-lg-1 col-md-1 col-sm-1 col-xs-4">
-								<label for="travel_task" class="" style='text-align:right;width:100%;'>Category:</label>
+								<label for="travel_task" class="" style='text-align:right;width:100%;'>Tab:</label>
 								</div>
 								<div class="col-lg-2 col-md-3 col-sm-3 col-xs-8" style='margin-bottom:10px;'>
-									<select name="category_search" class="chosen-select-deselect form-control category_actual" width="380">
-									<option value="3456780123456971232">Most Recently Added (25 Rows)</option>
-									<option value="3456780123456971230">All Categories</option>
-									<?php
-									while($row = mysqli_fetch_assoc($sql)){
-										$selected = '';
-										if(isset($_POST['search_client_submit'])) {
-											if($row['category'] == $_POST['category_search']) {
-												$selected = 'selected';
-											}
-										} else if(isset($_GET['category'])) {
-											if($row['category'] == $_GET['category']) {
-												$selected = 'selected';
-											}
-										}
-										echo '<option value="'.$row['category'].'" '.$selected.'>'.$row['category'].'</option>';
-									}
-									?>
+									<select name="category_search" class="chosen-select-deselect form-control category_actual" width="380"><?php
+                                        $selected_recent = ($_POST['category_search'] == '3456780123456971232' || $_GET['category'] == '3456780123456971232' || $db_value == '3456780123456971232' || (empty($_POST['category_search']) && empty($_GET['category']) && empty($db_value))) ? 'selected' : '';
+                                        $selected_all = ($_POST['category_search'] == '3456780123456971230' || $_GET['category'] == '3456780123456971230' || $db_value == '3456780123456971230') ? 'selected' : ''; ?>
+                                        <option value="3456780123456971232" <?= $selected_recent ?>>Most Recently Added (25 Rows)</option>
+                                        <option value="3456780123456971230" <?= $selected_all ?>>All Tabs</option>
+                                        <?php
+                                        while($row = mysqli_fetch_assoc($sql)){
+                                            $selected = '';
+                                            if(isset($_POST['search_client_submit'])) {
+                                                if($row['category'] == $_POST['category_search']) {
+                                                    $selected = 'selected';
+                                                }
+                                            } else if(isset($_GET['category'])) {
+                                                if($row['category'] == $_GET['category']) {
+                                                    $selected = 'selected';
+                                                }
+                                            } else {
+                                                $selected = $row['category'] == $db_value ? 'selected="selected"' : '';
+                                            }
+                                            echo '<option value="'.$row['category'].'" '.$selected.'>'.$row['category'].'</option>';
+                                        }
+                                        ?>
 									</select>
 								</div>
 								<div class="col-lg-5 col-md-4 col-sm-4 col-xs-offset-4 col-sm-offset-0 col-md-offset-0 col-lg-offset-0">
@@ -529,19 +537,25 @@ checkAuthorised('inventory');
 									$category_search = $_POST['category_search'];
 									if($category_search != '3456780123456971230' && $category_search != '3456780123456971232' ) {
 										$category_search = " AND category = '".$category_search."'";
-									} else { $category_search = ''; }
+									} else {
+                                        $category_search = '';
+                                    }
 								}
 							}
-				                if($client_name != '' || $category_search != '') {
-				                    $query_check_credentials = "SELECT  * FROM inventory WHERE deleted = 0 ".$client_name." ".$category_search." ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name";
-				                } else if(isset($_GET['category']) && ($_GET['category'] != '' && $_GET['category'] != NULL && $_GET['category'] != '3456780123456971230'  && $_GET['category'] != '3456780123456971232')) {
-									$category = $_GET['category'];
-				                    $query_check_credentials = "SELECT * FROM inventory WHERE deleted = 0 AND category = '".$category."' ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name";
-				                } else if(isset($_GET['category']) && $_GET['category'] == '3456780123456971230'){
-									$query_check_credentials = "SELECT * FROM inventory WHERE deleted = 0 ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name";
-								} else {
-									$query_check_credentials = "SELECT * FROM inventory WHERE deleted = 0 ORDER BY inventoryid DESC LIMIT 25";
-								}
+                            
+                            if($client_name != '' || $category_search != '') {
+                                $query_check_credentials = "SELECT  * FROM inventory WHERE deleted = 0 ".$client_name." ".$category_search." ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name";
+                            } else if(isset($_GET['category']) && ($_GET['category'] != '' && $_GET['category'] != NULL && $_GET['category'] != '3456780123456971230'  && $_GET['category'] != '3456780123456971232')) {
+                                $category = $_GET['category'];
+                                $query_check_credentials = "SELECT * FROM inventory WHERE deleted = 0 AND category = '".$category."' ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name";
+                            } else if(isset($_GET['category']) && $_GET['category'] == '3456780123456971230'){
+                                $query_check_credentials = "SELECT * FROM inventory WHERE deleted = 0 ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name";
+                            } else if ( empty($client_name) && empty($category_search) && !isset($_GET['category']) && !empty($db_value) ) {
+                                $query_check_credentials = "SELECT * FROM inventory WHERE deleted = 0 ".$db_query_mod." ORDER BY IF(category RLIKE '^[a-z]', 1, 2), category, IF(name RLIKE '^[a-z]', 1, 2), name";
+                            } else {
+                                $query_check_credentials = "SELECT * FROM inventory WHERE deleted = 0 ORDER BY inventoryid DESC LIMIT 25";
+                            }
+                            
 				            // how many rows we have in database
 				            $query = "SELECT COUNT(clientid) AS numrows FROM clients";
 				            if($client_name == '') {
@@ -552,7 +566,7 @@ checkAuthorised('inventory');
 						    if($num_rows > 0) {
 								echo "<form><div id='no-more-tables'><table border='2' cellpadding='10' class='table table-striped'>";
 				                echo "<thead><tr class='hidden-xs hidden-sm'>
-				                <th>Category</th>
+				                <th>Tab</th>
 								<th>Name</th>
 								<th>Shipping $</th>
 								<th>Exchange $</th>";
@@ -586,7 +600,7 @@ checkAuthorised('inventory');
 								if($row['cdn_cpu'] == '' || $row['cdn_cpu'] == NULL) {
 									$cdn_cpu = 0;
 								} else { $cdn_cpu = $row['cdn_cpu']; }
-								echo '<td data-title="Category">' . $row['category'] . '</td>';
+								echo '<td data-title="Tab">' . $row['category'] . '</td>';
 				                echo '<td data-title="Name">' . $row['name'] . '</td>';
 				                echo '<td data-title="Shipping $">$' . $shipping_cash . '</td>';
 								echo '<td data-title="Exchange $">$' . $exchange_cash . '</td>';

@@ -3,7 +3,7 @@ $current_cat = $_GET['category']; ?>
 <ul class="sidebar">
     <li class="standard-sidebar-searchbox">
         <form action="" method="POST">
-        	<input name="search_material" type="text" value="<?= $_POST['search_material'] ?>" class="form-control search_material" placeholder="Search Material">
+        	<input name="search_material" type="text" value="<?= $_POST['search_material'] ?>" class="form-control search_material" placeholder="Search Materials">
         	<input type="submit" value="search_material_submit" name="search_material_submit" style="display: none;">
         </form>
     </li>

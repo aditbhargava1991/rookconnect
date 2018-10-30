@@ -114,7 +114,7 @@ $(document).ready(function() {
 				<div class="panel-body">
 
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Description
-					<input type="checkbox" <?php if (strpos($equipment_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Category
+					<input type="checkbox" <?php if (strpos($equipment_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tab
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Type
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Make".',') !== FALSE) { echo " checked"; } ?> value="Make" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Make
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Model".',') !== FALSE) { echo " checked"; } ?> value="Model" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Model
@@ -124,8 +124,8 @@ $(document).ready(function() {
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Vehicle Size".',') !== FALSE) { echo " checked"; } ?> value="Vehicle Size" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Vehicle Size
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Color".',') !== FALSE) { echo " checked"; } ?> value="Color" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Color
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Trim".',') !== FALSE) { echo " checked"; } ?> value="Trim" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Trim
-					<input type="checkbox" <?php if (strpos($equipment_config, ','."Fuel Type".',') !== FALSE) { echo " checked"; } ?> value="Fuel Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Fuel Type
-					<input type="checkbox" <?php if (strpos($equipment_config, ','."Tire Type".',') !== FALSE) { echo " checked"; } ?> value="Tire Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tire Type
+					<input type="checkbox" <?php if (strpos($equipment_config, ','."Fuel Type".',') !== FALSE) { echo " checked"; } ?> value="Fuel Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Fuel Tab
+					<input type="checkbox" <?php if (strpos($equipment_config, ','."Tire Type".',') !== FALSE) { echo " checked"; } ?> value="Tire Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tire Tab
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Drive Train".',') !== FALSE) { echo " checked"; } ?> value="Drive Train" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Drive Train
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Total Kilometres".',') !== FALSE) { echo " checked"; } ?> value="Total Kilometres" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Kilometres
 					<input type="checkbox" <?php if (strpos($equipment_config, ','."Leased".',') !== FALSE) { echo " checked"; } ?> value="Leased" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Leased
@@ -153,6 +153,7 @@ $(document).ready(function() {
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Serial #".',') !== FALSE) { echo " checked"; } ?> value="Serial #" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Serial #
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Part Serial".',') !== FALSE) { echo " checked"; } ?> value="Part Serial" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Part / Engine Serial #
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Unit #".',') !== FALSE) { echo " checked"; } ?> value="Unit #" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Unit #
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."VIN #".',') !== FALSE) { echo " checked"; } ?> value="VIN #" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;VIN #
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Licence Plate".',') !== FALSE) { echo " checked"; } ?> value="Licence Plate" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Licence Plate

@@ -3,7 +3,7 @@
  * Internal & External Email Dashboard
  * Included In: dashboard.php
  */
- 
+
 include ('../include.php');
 $type = empty($type) ? (isset($_GET['type']) ? filter_var($_GET['type'], FILTER_SANITIZE_STRING) : 'internal') : $type;
 $from = FOLDER_NAME;
@@ -63,20 +63,20 @@ $from = FOLDER_NAME;
         }
 
         $offset = ($pageNum - 1) * $rowsPerPage;
-        
+
         $project_clause = '';
         if(!empty($_GET['projectid'])) {
             $project_clause = " AND (`projectid`='".$_GET['projectid']."' OR CONCAT('C',`client_projectid`)='".$_GET['projectid']."')";
         } else if(!empty($_GET['edit'])) {
             $project_clause = " AND (`projectid`='".$_GET['edit']."' OR CONCAT('C',`client_projectid`)='".$_GET['edit']."')";
         }
-        
+
         $search_clause = '';
         if ( isset($_POST['search']) ) {
             $search_term = filter_var($_POST['search_term'], FILTER_SANITIZE_STRING);
             $search_clause = " AND (`subject` LIKE '%$search_term%' OR `email_body` LIKE '%$search_term%' OR `to_staff` LIKE '%$search_term%' OR `cc_staff` LIKE '%$search_term%' OR `to_contact` LIKE '%$search_term%' OR `cc_contact` LIKE '%$search_term%' OR `new_emailid` LIKE '%$search_term%' OR `status` LIKE '%$search_term%')";
         }
-        
+
         if($type == 'internal') {
             $query_comm = "SELECT * FROM `email_communication` WHERE `communication_type` = 'Internal' AND `deleted` = 0 AND `status` != 'Archived' $project_clause $search_clause ORDER BY `email_communicationid` DESC LIMIT $offset, $rowsPerPage";
             $query = "SELECT COUNT(*) `numrows` FROM `email_communication` WHERE `communication_type` = 'Internal' AND `deleted` = 0 AND `status` != 'Archived' $project_clause $search_clause ORDER BY `email_communicationid` DESC";
@@ -96,10 +96,10 @@ $from = FOLDER_NAME;
 
         $result = mysqli_query($dbc, $query_comm);
         $num_rows = mysqli_num_rows($result);
-        
+
         if ( $from == 'project' ) { ?>
             <div class="pull-right gap-bottom">
-                <a class="cursor-hand" onclick="overlayIFrameSlider('../Email Communication/add_email.php?projectid=<?= $projectid ?>', 'auto', false, true);"><img src="../img/icons/ROOK-add-icon.png" class="no-toggle" title="Add Email" /></a>
+                <a class="cursor-hand" onclick="overlayIFrameSlider('../Email Communication/add_email.php?projectid=<?= $projectid ?>', 'auto', false, true, 'auto', true);"><img src="../img/icons/ROOK-add-icon.png" class="no-toggle" title="Add Email" /></a>
             </div>
             <div class="clearfix"></div><?php
         }
@@ -158,7 +158,7 @@ $from = FOLDER_NAME;
                                 }
                                 echo get_project($dbc, $row['projectid'], 'project_name').'</td>';
                             }
-                            echo (strpos($value_config, ','."Subject".',') !== false) ? '<td data-title="Subject">'. html_entity_decode(htmlspecialchars_decode($row['subject'])) .'</td>' : '';
+                            echo (strpos($value_config, ','."Subject".',') !== false) ? '<td data-title="Subject"><a class="cursor-hand" onclick="overlayIFrameSlider(\'../Email Communication/view_email.php?type='.$row['communication_type'].'&email_communicationid='.$row['email_communicationid'].'\', \'auto\', false, true);">'. html_entity_decode(htmlspecialchars_decode($row['subject'])) .'</a></td>' : '';
                             //echo (strpos($value_config, ','."Body".',') !== false) ? '<td data-title="Body">'. html_entity_decode(htmlspecialchars_decode($row['email_body'])) .'</td>' : '';
                             if (strpos($value_config, ','."Attachment".',') !== false) {
                                 echo '<td data-title="Attachment">';
@@ -199,8 +199,13 @@ $from = FOLDER_NAME;
                             */
                             echo '<td data-title="Details">';
                                 if(vuaed_visible_function($dbc, 'email_communication') == 1) {
-                                    echo '<a class="cursor-hand" onclick="overlayIFrameSlider(\'../Email Communication/add_email.php?type='.$row['communication_type'].'&email_communicationid='.$row['email_communicationid'].'\', \'auto\', false, true);"><img src="../img/icons/ROOK-edit-icon.png" class="no-toggle inline-img" title="View Details" /></a>';
-                                }
+                                    echo '<a class="cursor-hand" onclick="overlayIFrameSlider(\'../Email Communication/view_email.php?type='.$row['communication_type'].'&email_communicationid='.$row['email_communicationid'].'\', \'auto\', false, true);">View</a>';
+                                ?>
+                                <?php if($row['draft'] == 1): ?>
+                                  <button type="button" name="submit" value="draft" onclick="sendmail(<?php echo $row['email_communicationid'] ?>);" class="btn brand-btn pull-right">Send Email</button>
+                                <?php endif; ?>
+                              <?php }
+
                                 //echo '<a href=\''.WEBSITE_URL.'/delete_restore.php?type='.$_GET['type'].'&action=delete&email_communicationid='.$row['email_communicationid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
                             echo '</td>';
                         echo "</tr>";
@@ -210,7 +215,19 @@ $from = FOLDER_NAME;
         } else {
             echo "<h4>No Record Found.</h4>";
         }
-        
+
         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage); ?>
     </div><!-- #no-more-tables -->
 </form>
+<script>
+function sendmail(commid) {
+  $.ajax({    //create an ajax request to load_page.php
+    type: "GET",
+    url: "project_ajax_all.php?fill=send_email&commid="+commid,
+    dataType: "html",   //expect html to be returned
+    success: function(response){
+      location. reload(true);
+    }
+  });
+}
+</script>

@@ -242,187 +242,95 @@ checkAuthorised('phone_communication'); ?>
 				$get_ticket = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM phone_communication WHERE phone_communicationid='$phone_communicationid'"));
 
 				$businessid = $get_ticket['businessid'];
-            $projectid = $get_ticket['projectid'];
-			$followup_by = $get_ticket['follow_up_by'];
-			$doc = $get_ticket['doc'];
-			$followup_date = $get_ticket['follow_up_date'];
+                $projectid = $get_ticket['projectid'];
+                $followup_by = $get_ticket['follow_up_by'];
+                $doc = $get_ticket['doc'];
+                $followup_date = $get_ticket['follow_up_date'];
 
-            $comments = $get_ticket['comment'];
-        ?>
-        <input type="hidden" id="phone_communicationid" name="phone_communicationid" value="<?php echo $phone_communicationid ?>" />
-        <?php   }      ?>
+                $comments = $get_ticket['comment'];
+            ?>
+            <input type="hidden" id="phone_communicationid" name="phone_communicationid" value="<?php echo $phone_communicationid ?>" />
+            <?php   }      ?>
 
-        <div class="panel-group <?= ($from == 'project' ? 'block-panels main-screen' : '') ?>" id="accordion2" <?= $from == 'project' ? 'style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);"' : '' ?>>
+            <div class="panel-group <?= ($from == 'project' ? 'block-panels main-screen' : '') ?>" id="accordion2" <?= $from == 'project' ? 'style="background-color: #fff; padding: 0; margin-left: 0.5em; width: calc(100% - 1em);"' : '' ?>>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_info" >
-                            Information<span class="glyphicon glyphicon-plus"></span>
-                        </a>
-                    </h4>
-                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_info" >
+                                Information<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
 
-                <div id="collapse_info" class="panel-collapse collapse in">
-                    <div class="panel-body">
-                        <?php
-                            include ('add_business_info.php');
-                        ?>
+                    <div id="collapse_info" class="panel-collapse collapse in">
+                        <div class="panel-body">
+                            <?php
+                                include ('add_business_info.php');
+                            ?>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_td" >
-                            Phone Communication Details<span class="glyphicon glyphicon-plus"></span>
-                        </a>
-                    </h4>
-                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_td" >
+                                Phone Communication Details<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
 
-                <div id="collapse_td" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <?php
-                            include ('add_phone_communication_info.php');
-                        ?>
+                    <div id="collapse_td" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <?php
+                                include ('add_phone_communication_info.php');
+                            ?>
+                        </div>
                     </div>
                 </div>
-            </div>
 
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_followup" >
-                            Reminder<span class="glyphicon glyphicon-plus"></span>
-                        </a>
-                    </h4>
-                </div>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_followup" >
+                                Reminder<span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
 
-                <div id="collapse_followup" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        <?php
-                            include ('add_phone_communication_follow_up.php');
-                        ?>
+                    <div id="collapse_followup" class="panel-collapse collapse">
+                        <div class="panel-body">
+                            <?php
+                                include ('add_phone_communication_follow_up.php');
+                            ?>
+                        </div>
                     </div>
                 </div>
+
             </div>
 
-        </div>
-
-        <?php if ( $from == 'project' ) { ?>
-            <div class="form-group">
-                <button type="submit" name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
-                <a href="" class="btn brand-btn pull-right">Cancel</a>
-            </div>
-        <?php } else { ?>
-            <div class="form-group">
-                <div class="col-sm-6">
-                    <a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
+            <?php if ( $from == 'project' ) { ?>
+                <div class="form-group">
+                    <button type="submit" name="submit" value="submit" class="btn brand-btn pull-right">Submit</button>
+                    <a href="" class="btn brand-btn pull-right">Cancel</a>
                 </div>
-                <div class="col-sm-6">
-                    <button type="submit" name="submit" value="submit" class="btn brand-btn btn-lg pull-right">Submit</button>
+            <?php } else { ?>
+                <div class="form-group">
+                    <div class="col-sm-6">
+                        <a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
+                    </div>
+                    <div class="col-sm-6">
+                        <button type="submit" name="submit" value="submit" class="btn brand-btn btn-lg pull-right">Submit</button>
+                    </div>
                 </div>
-            </div>
-        <?php } ?>
+            <?php } ?>
 
-        <style>
-            .chosen-container {
-                width:100%;
-            }
-        </style>
-
-				$contactid = $get_ticket['contactid'];
-				if($businessid == '') {
-					$businessid = get_contact($dbc, $contactid, 'businessid');
-				}
-
-				$projectid = $get_ticket['projectid'];
-				$followup_by = $get_ticket['follow_up_by'];
-				$doc = $get_ticket['doc'];
-				$followup_date = $get_ticket['follow_up_date'];
-
-				$comments = $get_ticket['comment'];
-			?>
-			<input type="hidden" id="phone_communicationid" name="phone_communicationid" value="<?php echo $phone_communicationid ?>" />
-			<?php   }      ?>
-
-			<div class="panel-group" id="accordion2">
-
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_info" >
-								Information<span class="glyphicon glyphicon-plus"></span>
-							</a>
-						</h4>
-					</div>
-
-					<div id="collapse_info" class="panel-collapse collapse in">
-						<div class="panel-body">
-							<?php
-								include ('add_business_info.php');
-							?>
-						</div>
-					</div>
-				</div>
-
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_td" >
-								Phone Communication Details<span class="glyphicon glyphicon-plus"></span>
-							</a>
-						</h4>
-					</div>
-
-					<div id="collapse_td" class="panel-collapse collapse">
-						<div class="panel-body">
-							<?php
-								include ('add_phone_communication_info.php');
-							?>
-						</div>
-					</div>
-				</div>
-
-				<div class="panel panel-default">
-					<div class="panel-heading">
-						<h4 class="panel-title">
-							<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_followup" >
-								Follow Up<span class="glyphicon glyphicon-plus"></span>
-							</a>
-						</h4>
-					</div>
-
-					<div id="collapse_followup" class="panel-collapse collapse">
-						<div class="panel-body">
-							<?php
-								include ('add_phone_communication_follow_up.php');
-							?>
-						</div>
-					</div>
-				</div>
-
-			</div>
-
-			<div class="form-group">
-				<p><span class="hp-red"><em>Required Fields *</em></span></p>
-			</div>
-
-			<div class="form-group">
-				<div class="col-sm-6">
-					<a href="<?php echo $back_url; ?>" class="btn brand-btn btn-lg">Back</a>
-				</div>
-				<div class="col-sm-6">
-					<button type="submit" name="submit" value="submit" class="btn brand-btn btn-lg pull-right">Submit</button>
-				</div>
-			</div>
-
-			<style>
-				.chosen-container {
-					width:100%;
-				}
-			</style>
+            <style>
+                .chosen-container {
+                    width:100%;
+                }
+            </style>
 		<?php } ?>
 	</form>
   </div>

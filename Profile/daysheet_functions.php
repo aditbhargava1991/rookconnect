@@ -203,3 +203,199 @@ function daysheet_ticket_label ($dbc, $daysheet_ticket_fields, $ticket, $status_
 
     return $label;
 }
+
+function daysheet_get_reminder($dbc, $daysheet_reminder) {
+    $reminder_label = '';
+
+    if ($daysheet_reminder['type'] == 'reminder') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `reminders` WHERE `reminderid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_url = get_reminder_url($dbc, $reminder, 1);
+        $slider = 1;
+        if(empty($reminder_url)) {
+            $slider = 0;
+            $reminder_url = get_reminder_url($dbc, $reminder);
+        }
+        if(!empty($reminder_url)) {
+            if($slider == 1 && $use_slider == 1) {
+                $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.$reminder_url.'\'); return false;">'.$reminder['subject'].'</a>';
+            } else {
+                $reminder_label = '<a href="'.$reminder_url.'">'.$reminder['subject'].'</a>';
+            }
+        } else {
+            $reminder_label = '<div class="daysheet-span">'.$reminder['subject'].'</div>';
+        }
+    } else if ($daysheet_reminder['type'] == 'sales') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales` WHERE `salesid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$reminder['salesid'].'\'); return false;" style="color: black;">Follow Up Sales: Sales #'.$reminder['salesid'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'sales_order') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order` WHERE `posid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="../Sales Order/index.php?p=preview&id='.$reminder['posid'].'" style="color: black;">Follow Up '.SALES_ORDER_NOUN.': '.($reminder['name'] != '' ? $reminder['name'] : SALES_ORDER_NOUN.' #'.$reminder['posid']).'</a>';
+    } else if ($daysheet_reminder['type'] == 'sales_order_temp') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `sales_order_temp` WHERE `sotid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="../Sales Order/order.php?p=details&sotid='.$reminder['sotid'].'" style="color: black;">Follow Up '.SALES_ORDER_NOUN.': '.($reminder['name'] != '' ? $reminder['name'] : SALES_ORDER_NOUN.' Form #'.$reminder['sotid']).'</a>';
+    } else if ($daysheet_reminder['type'] == 'estimate') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ea`.*, `e`.`estimate_name` FROM `estimate_actions` AS `ea` JOIN `estimate` AS `e` ON (`ea`.`estimateid`=`e`.`estimateid`) WHERE `ea`.`id` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="../Estimate/estimates.php?view='.$reminder['estimateid'].'" style="color: black;">Follow Up Estimate: '.$reminder['estimate_name'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'project') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `pa`.*, `p`.`project_name` FROM `project_actions` AS `pa` JOIN `project` AS `p` ON (`pa`.`projectid`=`p`.`projectid`) WHERE `pa`.`id` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'project_followup') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$reminder['projectid'].'\'); return false;" style="color: black;">Follow Up Project: '.$reminder['project_name'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'certificate') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `certificate` WHERE `certificateid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Certificate/edit_certificate.php?edit='.$reminder['certificateid'].'\'); return false;" style="color: black;">Certificate Reminder: '.$reminder['title'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'alert') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `alerts` WHERE `alertid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="'.$reminder['alert_link'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" style="color: black;">Alert: '.$reminder['alert_text'].' - '.$reminder['alert_link'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'incident_report') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Follow Up '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'equipment_followup') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Follow Up Equipment ('.$reminder['category'].' #'.$reminder['unit_number'].'): Next Service Date coming up on '.$reminder['next_service_date'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'equipment_service') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Equipment Service Reminder ('.$reminder['category'].' #'.$reminder['unit_number'].'): Service Date scheduled for '.$reminder['next_service_date'].'</a>';
+    } else if ($daysheet_reminder['type'] == 'incident_report_flag') {
+        $reminder = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$daysheet_reminder['reminderid']."'"));
+        $reminder_label = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Flagged '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].(!empty($reminder['flag_label']) ? ' - '.$reminder['flag_label'] : '').'</a>';
+    }
+
+    return $reminder_label;
+}
+
+function daysheet_get_tags($dbc, $contactid, $start_date = '0000-00-00', $end_date = '9999-12-31', $offset = 0, $rowsPerPage = 9999999999) {
+    $daysheet_styling = $user_settings['daysheet_styling'];
+    if(empty($daysheet_styling)) {
+        $daysheet_styling = get_config($dbc, 'daysheet_styling');
+    }
+    if(empty($daysheet_styling)) {
+        $daysheet_styling = 'card';
+    }
+    $tagged_items = mysqli_query($dbc, "SELECT * FROM `contacts_tagging` WHERE `contactid` = '$contactid' AND `deleted` = 0 AND `last_updated_date` BETWEEN '$start_date' AND '$end_date' ORDER BY `last_updated_date` DESC LIMIT $offset, $rowsPerPage");
+
+    $html = '';
+    while($row = mysqli_fetch_assoc($tagged_items)) {
+        $block_html = '';
+        switch($row['src_table']) {
+            case 'incident_report':
+                $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT incident_report_dashboard FROM field_config_incident_report"));
+                $value_config = ','.$get_field_config['incident_report_dashboard'].',';
+
+                $incident_report = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `incident_report` WHERE `incidentreportid` = '".$row['item_id']."'"));
+                $contact_list = [];
+                if ($incident_report['contactid'] != '') {
+                    $contact_list[$incident_report['contactid']] = get_staff($dbc, $incident_report['contactid']);
+                }
+                $attendance_list = [];
+                if ($incident_report['attendance_staff'] != '') {
+                    $attendance_list = explode(',', $incident_report['attendance_staff']);
+                }
+                foreach($attendance_list as $attendee) {
+                    $contact_list[] = $attendee;
+                }
+                if ($incident_report['completed_by'] != '') {
+                    $contact_list[] = get_contact($dbc, $incident_report['completed_by']);
+                }
+                $contact_list = array_unique($contact_list);
+                if(empty($contact_list) && $current_type == 'SAVED') {
+                    $contact_list = [''];
+                }
+                $contact_name = implode(', ',$contact_list);
+
+                $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid` = '".$incident_report['projectid']."'"));
+                $project = get_project_label($dbc, $project);
+                $ticket = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '".$incident_report['ticketid']."'"));
+                $ticket = get_ticket_label($dbc, $ticket);
+                $program = (!empty(get_client($dbc, $incident_report['programid'])) ? get_client($dbc, $incident_report['programid']) : get_contact($dbc, $incident_report['programid']));
+                $member_list = [];
+                foreach(explode(',',$incident_report['memberid']) as $member) {
+                    if($member != '') {
+                        $member_list[] = !empty(get_client($dbc, $member)) ? get_client($dbc, $member) : get_contact($dbc, $member);
+                    }
+                }
+                $member_list = implode(', ',$member_list);
+                $client_list = [];
+                foreach(explode(',',$incident_report['clientid']) as $client) {
+                    if($client != '') {
+                        $client_list[] = !empty(get_client($dbc, $client)) ? get_client($dbc, $client) : get_contact($dbc, $client);
+                    }
+                }
+                $client_list = implode(', ',$client_list);
+                $project_type = $project_vars[$incident_report['project_type']];
+
+                $block_html .= '<a href="" onclick="untagMyself(this, \''.$row['id'].'\'); return false;" class="pull-right"><img src="../img/icons/cancel.png" class="inline-img no-toggle" title="Untag Myself"></a>';
+                $block_html .= '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$row['item_id'].'\'); return false;">';
+
+                $block_html .= INC_REP_NOUN.' #'.$row['item_id'].'<br />';
+
+                if (strpos($value_config, ','."Program".',') !== FALSE && !empty(str_replace('-','',$program))) {
+                    $block_html .= 'Program: '.$program.'<br />';
+                }
+                if (strpos($value_config, ','."Project Type".',') !== FALSE && !empty($project_type)) {
+                    $block_html .= PROJECT_NOUN.' Type: '.$project_type.'<br />';
+                }
+                if (strpos($value_config, ','."Project".',') !== FALSE && !empty(str_replace('-','',$project))) {
+                    $block_html .= PROJECT_NOUN.': '.$project.'<br />';
+                }
+                if (strpos($value_config, ','."Ticket".',') !== FALSE && !empty(str_replace('-','',$ticket))) {
+                    $block_html .= TICKET_NOUN.': '.$ticket.'<br />';
+                }
+                if (strpos($value_config, ','."Member".',') !== FALSE && !empty($member_list)) {
+                    $block_html .= 'Member: '.$member_list.'<br />';
+                }
+                if (strpos($value_config, ','."Client".',') !== FALSE && !empty($client_list)) {
+                    $block_html .= 'Client: '.$client_list.'<br />';
+                }
+                if (strpos($value_config, ','."Type".',') !== FALSE && !empty($incident_report['type'])) {
+                    $block_html .= 'Type: ' . $incident_report['type'].'<br />';
+                }
+                if (strpos($value_config, ','."Staff".',') !== FALSE && !empty(str_replace('-','',$contact_name))) {
+                    $block_html .= 'Staff: ' . $contact_name.'<br />';
+                }
+                if (strpos($value_config, ','."Follow Up".',') !== FALSE && !empty($incident_report['ir14'])) {
+                    $block_html .= 'Follow Up: ' . $incident_report['ir14'].'<br />';
+                }
+                if (strpos($value_config, ','."Date of Happening".',') !== FALSE && !empty(str_replace('0000-00-00','',$incident_report['date_of_happening']))) {
+                    $block_html .= 'Date of Happening: ' . $incident_report['date_of_happening'].'<br />';
+                }
+                if (strpos($value_config, ','."Date of Incident".',') !== FALSE && !empty(str_replace('0000-00-00','',$incident_report['incident_date']))) {
+                    $block_html .= 'Date of Incident: ' . $incident_report['incident_date'].'<br />';
+                }
+                if (strpos($value_config, ','."Date Created".',') !== FALSE && !empty(str_replace('0000-00-00','',$incident_report['today_date']))) {
+                    $block_html .= 'Date Created: ' . $incident_report['today_date'].'<br />';
+                }
+                if (strpos($value_config, ','."Location".',') !== FALSE && !empty($incident_report['location'])) {
+                    $block_html .= 'Location: ' . $incident_report['location'].'<br />';
+                }
+                if (strpos($value_config, ','."PDF".',') !== FALSE) {
+                    $name_of_file = 'incident_report_'.$incident_report['incidentreportid'].'.pdf';
+                    $block_html .= 'PDF: '.(file_exists('../Incident Report/download/'.$name_of_file) ? '<span onclick="window.open(\''.WEBSITE_URL.'/Incident Report/download/'.$name_of_file.'\', \'_blank\');" class="no-slider"><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="View">View</span>' : '');
+                    if ($incident_report['revision_number'] > 0) {
+                        $revision_dates = explode('*#*', $incident_report['revision_date']);
+                        for ($i = 0; $i < $incident_report['revision_number']; $i++) {
+                            $name_of_file = 'incident_report_'.$incident_report['incidentreportid'].'_'.($i+1).'.pdf';
+                            if(file_exists('../Incident Report/download/'.$name_of_file)) {
+                                $block_html .= '<br /><span onclick="window.open(\''.WEBSITE_URL.'/Incident Report/download/'.$name_of_file.'\', \'_blank\');" class="no-slider"><img src="'.WEBSITE_URL.'/img/pdf.png" width="16" height="16" border="0" alt="view">View R'.($i+1).': '.$revision_dates[$i].'</span>';
+                            }
+                        }
+                    }
+                    $block_html .= '<br />';
+                }
+                $block_html .= 'Last Updated Date: '.$row['last_updated_date'];
+
+                $block_html .= '</a>';
+
+                break;
+        }
+        if(!empty($block_html)) {
+            if($daysheet_styling == 'card') {
+                $html .= '<div class="block-group-daysheet">'.$block_html.'</div>';
+            } else {
+                $html .= '<li>'.$block_html.'</li>';
+            }
+        }
+    }
+    return $html;
+}

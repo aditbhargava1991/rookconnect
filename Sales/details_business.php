@@ -1,6 +1,6 @@
 <?php include_once('../include.php');
 include_once('../Sales/config.php');
-if(empty($salesid)) {
+if(empty($salesid) || empty($lead)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
     if($salesid > 0) {
         $businessid = $dbc->query("SELECT `businessid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc()['businessid'];
@@ -12,7 +12,8 @@ $(document).ready(function() {
     init_page();
 });
 var reload_business = function() {
-	$.get('details_business.php?id=<?= $salesid ?>', function(response) {
+	$.get('details_business.php?id='+$('[name=salesid]').val(), function(response) {
+        $('#business-tab-label').show();
 		$('[id^=business]').parents('div').first().html(response);
 	});
 }
@@ -31,11 +32,19 @@ var reload_business = function() {
             </select>
         </div>
 		<div class="col-xs-12 col-sm-1">
-            <a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $businessid ?>" class="no-toggle" title="<?= get_contact($dbc, $businessid, 'name_company') ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#task_businessid').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a>
+            <a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $businessid ?>" class="no-toggle" title="<?= get_contact($dbc, $businessid, 'name_company') ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#task_businessid').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/person.PNG" class="inline-img"></a>
         </div>
         <div class="clearfix"></div>
     </div>
-    <div class="accordion-block-details-heading"><h4><?= get_contact($dbc, $businessid, 'name_company') ?></h4></div>
+    <div class="accordion-block-details-heading">
+        <?php if(get_contact($dbc, $businessid, 'name_company')!=''){
+            ?>
+            <script type="text/javascript">
+                $('#business-tab-label').html("<?php echo get_contact($dbc, $businessid, 'name_company') ?>");
+            </script>
+        <?php } ?>
+        <h4><?= get_contact($dbc, $businessid, 'name_company') ?></h4>
+    </div>
     
     <div class="row">
         <div class="col-xs-12 col-sm-11 gap-md-left-15">

@@ -1,15 +1,21 @@
-<ul class='sidebar hide-titles-mob collapsible' style='padding-left: 15px;'>
-	<a href="?settings=tabs"><li class="<?= $_GET['settings'] == 'tabs' ? 'active blue' : '' ?>">HR Categories</li></a>
-	<a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Fields</li></a>
-	<a href="?settings=manuals"><li class="<?= $_GET['settings'] == 'manuals' ? 'active blue' : '' ?>">Manuals</li></a>
-	<a href="?settings=forms"><li class="<?= $_GET['settings'] == 'forms' ? 'active blue' : '' ?>">Forms</li></a>
-	<a href="?settings=form_design"><li class="<?= $_GET['settings'] == 'form_design' ? 'active blue' : '' ?>">Form Design</li></a>
-	<a href="?settings=summary"><li class="<?= $_GET['settings'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a>
-	<a href="?settings=performance_reviews"><li class="<?= $_GET['settings'] == 'performance_reviews' ? 'active blue' : '' ?>">Performance Reviews</li></a>
-</ul>
+<div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
+    <ul>
+        <a href="?settings=tabs"><li class="<?= $_GET['settings'] == 'tabs' ? 'active blue' : '' ?>">HR Categories</li></a>
+        <a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Fields</li></a>
+        <a href="?settings=manuals"><li class="<?= $_GET['settings'] == 'manuals' ? 'active blue' : '' ?>">Manuals</li></a>
+        <a href="?settings=forms"><li class="<?= $_GET['settings'] == 'forms' ? 'active blue' : '' ?>">Forms</li></a>
+        <a href="?settings=form_design"><li class="<?= $_GET['settings'] == 'form_design' ? 'active blue' : '' ?>">Form Design</li></a>
+        <a href="?settings=summary"><li class="<?= $_GET['settings'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a>
+        <a href="?settings=performance_reviews"><li class="<?= $_GET['settings'] == 'performance_reviews' ? 'active blue' : '' ?>">Performance Reviews</li></a>
+        <a href="?settings=request_update"><li class="<?= $_GET['settings'] == 'request_update' ? 'active blue' : '' ?>">Request an Update</li></a>
+    </ul>
+</div>
 <div class='scale-to-fill has-main-screen hide-titles-mob'>
 	<div class='main-screen form-horizontal'>
 		<?php switch($_GET['settings']) {
+		case 'request_update':
+			include('field_config_request_update.php');
+			break;
 		case 'performance_reviews':
 			include('field_config_performance_reviews.php');
 			break;
