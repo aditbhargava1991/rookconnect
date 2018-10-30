@@ -12,7 +12,6 @@ if($_GET['action'] == 'setting_quick_icon') {
 if($_GET['action'] == 'contact_highlight') {
 	$contactid = $_GET['contactid'];
 	$contactcolor = $_GET['contactcolor'];
-
     mysqli_query($dbc, "UPDATE `contacts` SET `flag_colour`='$contactcolor' WHERE `contactid`='$contactid'");
 }
 
