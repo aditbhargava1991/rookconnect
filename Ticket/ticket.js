@@ -3688,33 +3688,35 @@ function setRestrictedHours(input, start_time = '', end_time = '') {
 				end_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-maxtime');
 			}
 			var to_do_date = $(block).find('[name="to_do_date"]').val();
-			var to_do_start_time = $(block).find('[name="to_do_start_time"]').val();
-			$.ajax({
-				url :'../Ticket/ticket_ajax_all.php?action=get_restricted_hours',
-				method: 'POST',
-				data: {
-					ticketid: ticketid,
-					to_do_date: to_do_date,
-					to_do_start_time: to_do_start_time,
-					start_time: start_time,
-					end_time: end_time
-				},
-				success: function(response) {
-					var response = JSON.parse(response);
-					if(response.start_time == '') {
-						response.start_time = start_time;
-						response.end_time = end_time;
-					}
-					destroyInputs('.stop_scheduled_time');
-					$(block).find('[name="to_do_start_time"]').prop('disabled', false);
-					$(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', response.start_time);
-					$(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', response.end_time);
-					initInputs('.stop_scheduled_time');
-					if(response.to_do_start_time != to_do_start_time && response.to_do_start_time != '') {
-						$(block).find('[name="to_do_start_time"]').val(response.to_do_start_time).change();
-					}
-				}
-			});
+            if(to_do_date != '' && to_do_date != undefined) {
+                var to_do_start_time = $(block).find('[name="to_do_start_time"]').val();
+                $.ajax({
+                    url :'../Ticket/ticket_ajax_all.php?action=get_restricted_hours',
+                    method: 'POST',
+                    data: {
+                        ticketid: ticketid,
+                        to_do_date: to_do_date,
+                        to_do_start_time: to_do_start_time,
+                        start_time: start_time,
+                        end_time: end_time
+                    },
+                    success: function(response) {
+                        var response = JSON.parse(response);
+                        if(response.start_time == '') {
+                            response.start_time = start_time;
+                            response.end_time = end_time;
+                        }
+                        destroyInputs('.stop_scheduled_time');
+                        $(block).find('[name="to_do_start_time"]').prop('disabled', false);
+                        $(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', response.start_time);
+                        $(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', response.end_time);
+                        initInputs('.stop_scheduled_time');
+                        if(response.to_do_start_time != to_do_start_time && response.to_do_start_time != '') {
+                            $(block).find('[name="to_do_start_time"]').val(response.to_do_start_time).change();
+                        }
+                    }
+                });
+            }
 		}
 	}
 }
