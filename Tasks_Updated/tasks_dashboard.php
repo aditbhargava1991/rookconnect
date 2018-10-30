@@ -1201,7 +1201,7 @@ function addIntakeForm(btn) {
                                     }
                                     $comments = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `comment` FROM `task_comments` WHERE `tasklistid`='{$row['tasklistid']}' AND `deleted`=0 ORDER BY `taskcommid` DESC");
                                     if ( $comments->num_rows > 0 ) { ?>
-                                        <div class="form-group clearfix full-width">
+                                        <div class="form-group clearfix" style="max-width:50em; word-break:break-word;">
                                             <div class="updates_<?= $row['tasklistid'] ?> col-sm-12"><?php
                                                 $odd_even = 0;
                                                 while ( $row_comment=mysqli_fetch_assoc($comments) ) {
