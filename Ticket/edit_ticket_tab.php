@@ -409,7 +409,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 					var invoice = $('[name=salesorderid]').first().val();
                     if($('[name=heading]:visible').length > 0) {
                         $('[name=heading]:visible').first().val(business+' - '+invoice).change();
-                    else {
+                    } else {
                         $('[name=heading]').first().val(business+' - '+invoice).change();
                     }
 				}
