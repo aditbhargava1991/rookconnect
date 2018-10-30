@@ -49,7 +49,6 @@ var opt_classification = '<?= $_GET['classification'] ?>';
 var opt_date = '<?= $_GET['date'] ?>';
 var lock_timer = null;
 var ticket_list = [];
-var zoom = 10;
 function filterRegions() {
 	opt_region = $('[name=region]').val();
 	$('[name=classification] option[data-region]').each(function() {
@@ -69,11 +68,12 @@ function filterClass() {
 	get_ticket_list();
 }
 function get_ticket_list() {
+    zoom = 'auto';
 	$('.draw_sort').empty();
 	var equip_scroll = $('.equip_list').scrollTop();
-	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
+	$('.equip_list').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);">Loading Equipment...<img src="/img/status_working.gif" class="inline-img"></h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
     get_map_view();
-	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
+	$('.ticket_list').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);">Loading <?= TICKET_TILE ?>...<img src="/img/status_working.gif" class="inline-img"></h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 	lockTickets();
 	initOptions();
 }
@@ -83,7 +83,7 @@ function get_map_view() {
     } else if(zoom < 6) {
         zoom = 6;
     }
-	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?zoom='+zoom+'&x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
+	$('.map_view').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);position:relative;z-index:2;">Loading Map...<img src="/img/status_working.gif" class="inline-img"></h4><img style="position:absolute;top:0;width:'+$('.map_view').width()+'px;height:100%;opacity:0.5;z-index:1;" src="https://maps.googleapis.com/maps/api/staticmap?center=51.477222,0&zoom=12&size='+$('.map_view').width()+'x'+$('.map_view').height()+'&maptype=roadmap&key=<?= EMBED_MAPS_KEY ?>">').load('assign_map_view.php?zoom='+zoom+'&x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 }
 function lockTickets() {
 	clearTimeout(lock_timer);

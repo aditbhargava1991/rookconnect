@@ -54,12 +54,12 @@ if($map_url != '') {
             $ticket_pts[] = [ 'lat'=>$ticket_coordinates->lat, 'lng'=>$ticket_coordinates->lng, 'id'=>$ticket['id'], 'field'=>$ticket['id_field'], 'table'=>$ticket['table'], 'label'=>$ticket['ticket_label'] ];
             foreach($zoom_ratios as $zoom_level => $zoom_ratio) {
                 if($zoom_level <= $auto_zoom && $zoom_level > 6) {
-                    $y_pos = round($height * $zoom_ratio[0] * ($ratio > 1 ? $ratio : 1) * ($map_center->lat - $ticket_coordinates->lat) + $height - 20);
-                    $x_pos = round($width * $zoom_ratio[1] * ($ratio > 1 ? 1 : $ratio) * ($ticket_coordinates->lng - $map_center->lng) + $width - 10);
+                    $y_pos = round($height * (float)$zoom_ratio[0] * ($ratio > 1 ? (float)$ratio : 1) * ((float)$map_center->lat - (float)$ticket_coordinates->lat) + $height - 20);
+                    $x_pos = round($width * (float)$zoom_ratio[1] * ($ratio > 1 ? 1 : (float)$ratio) * ((float)$ticket_coordinates->lng - (float)$map_center->lng) + $width - 10);
                     if($y_pos < 0 || $x_pos < 0 || $y_pos > $height * 2 || $x_pos > $width * 2) {
                         $auto_zoom = $zoom_level - 1;
                     }
-                    echo "<!-- $zoom_level on ".$ticket['id'].": $x_pos / $y_pos on $width x $height (".print_r($zoom_ratio,true).") -->";
+                    echo "<!-- $zoom_level on ".$ticket['id'].": $x_pos, $y_pos on $width x $height (".((float)$map_center->lat - (float)$ticket_coordinates->lat)."; ".((float)$ticket_coordinates->lng - (float)$map_center->lng).") -->";
                 }
             }
         }
