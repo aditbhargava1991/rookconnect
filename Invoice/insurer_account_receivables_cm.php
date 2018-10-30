@@ -48,16 +48,23 @@ function waiting_on_collection(sel) {
 		}
 	});
 }
+function view_clinic_master()
+{
+    $('.view_clinic_master').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
-    <h3>Insurer Accounts Receivable From Clinic Master</h3>
+    <h3 class="pull-left">Insurer Accounts Receivable From Clinic Master</h3>
+    <div class="pull-right">
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Insurer Accounts Receivable From Clinic Master" onclick="view_clinic_master()"> </div>
+    <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
-    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+<div class="standard-body-content padded-desktop ">
+    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal " role="form">
 
-        <div class="notice double-gap-bottom popover-examples">
+        <div class="notice double-gap-bottom popover-examples view_clinic_master hidden">
         <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
         <div class="col-sm-11"><span class="notice-name">NOTE:</span>
         Old data that was not transferable from Clinic Master to Clinic Ace.</div>
@@ -79,7 +86,7 @@ function waiting_on_collection(sel) {
         }
         ?>
 
-        <div class="form-group">
+        <div class="form-group view_clinic_master hidden">
             <label for="site_name" class="col-sm-2 control-label">Insurer:</label>
             <div class="col-sm-7">
                 <select data-placeholder="Choose an Insurer..." name="insurer" class="chosen-select-deselect form-control" width="380">

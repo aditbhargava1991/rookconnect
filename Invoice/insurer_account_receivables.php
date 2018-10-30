@@ -73,6 +73,10 @@ function waiting_on_collection(sel) {
 		}
 	});
 }
+function view_third_party_ar()
+{
+    $('.view_third_party_ar').toggleClass('hidden');
+}
 </script>
 
 <?php
@@ -80,11 +84,14 @@ $payer_config = explode(',',get_config($dbc, 'invoice_payer_contact'));
 define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0]); ?>
 
 <div class="standard-body-title hide-titles-mob">
-    <h3><?= PAYER_LABEL ?> Accounts Receivable</h3>
+    <h3 class="pull-left"><?= PAYER_LABEL ?> Accounts Receivable</h3>
+    <div class="pull-right">
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Business Accounts Receivable" onclick="view_third_party_ar()"> </div>
+    <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
-    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+<div class="standard-body-content padded-desktop ">
+    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal view_third_party_ar hidden" role="form">
 
         <div class="notice double-gap-bottom popover-examples">
         <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>

@@ -161,15 +161,24 @@ function show_hide_email() {
 		$('[name=send_email_div]').hide();
 	}
 }
+function view_summary()
+{
+    $('.view_summary').toggle();
+}
+function view_voided()
+{
+    $('.view_voided').toggleClass('hidden');
+}
 </script>
 
 <div class="standard-body-title hide-titles-mob">
     <h3 class="pull-left">Voided / Credit Memo</h3>
-    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" /></div>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" />
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Voided / Credit Memo" onclick="view_voided()"></div>
     <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
+<div class="standard-body-content padded-desktop ">
     <!-- Summary Blocks -->
     <div class="view_summary double-gap-bottom" style="display:none;">
         <div class="col-xs-12 col-sm-4 gap-top">
@@ -206,8 +215,9 @@ function show_hide_email() {
         </div>
         <div class="clearfix"></div>
     </div><!-- .view_summary -->
+    <div class="">
 
-    <form name="invoice" method="post" action="" class="form-horizontal" role="form">
+    <form name="invoice" method="post" action="" class="form-horizontal view_voided hidden" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
 
         <div class="form-group search-group double-gap-top">
@@ -477,4 +487,6 @@ function show_hide_email() {
         </div>
 
     </form>
+
+    </div>
 </div><!-- .standard-body-content -->
