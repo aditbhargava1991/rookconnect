@@ -38,7 +38,7 @@ $(document).ready(function() {
             $('#sales_div .main-screen-white .standard-body-content').css('overflow-y','auto');
             $('#sales_div .main-screen-white .standard-body-content').css('margin-top',$('#sales_div .main-screen-white .standard-body-title').height()+'px');
         }
-	}).resize();
+    }).resize();
 
     $('.main-screen-white').css('overflow-x','hidden');
     var $sections = $('.accordion-block-details');
@@ -48,10 +48,10 @@ $(document).ready(function() {
         $sections.each(function(){
             var divPosition = $(this).offset().top;
             if( divPosition - 1 < currentScroll ){
-				$('.tile-sidebar li').removeClass('active');
-				$('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
+                $('.tile-sidebar li').removeClass('active');
+                $('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
             } else if(divPosition < currentScroll + $('.main-screen .tile-container').height()) {
-				$('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
+                $('.tile-sidebar [href=#'+$(this).attr('id')+'] li').addClass('active');
             }
         });
     });
@@ -229,20 +229,20 @@ $(document).ready(function() {
 <body>
 <?php
     if($_GET['iframe_slider'] != 1) {
-    	include_once ('../navigation.php');
+        include_once ('../navigation.php');
     }
     checkAuthorised('sales');
 ?>
 
 <div id="sales_div" class="container">
     <div class="iframe_overlay" style="display:none;">
-		<div class="iframe">
-			<iframe src=""></iframe>
-		</div>
-	</div>
+        <div class="iframe">
+            <iframe src=""></iframe>
+        </div>
+    </div>
 
     <div class="row">
-		<div class="main-screen"><?php
+        <div class="main-screen"><?php
             if($_GET['iframe_slider'] != 1 && !IFRAME_PAGE) {
                 include('tile_header.php');
             }
@@ -306,7 +306,8 @@ $(document).ready(function() {
 
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 || IFRAME_PAGE ? 'style="display:none;"' : '' ?>>
-                    <ul><?php
+                    <ul><?php                     
+                        
                         if($salesid!=''){?>
                             <a href="<?php echo WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$salesid;?>"><li class="<?= $_GET['p'] == 'preview' ? 'active' : '' ?>">Summary</li></a>
                         <?php }

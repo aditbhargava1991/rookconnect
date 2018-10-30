@@ -42,6 +42,16 @@ switch($_GET['tab']) {
         $include_file = 'field_config_auto_archive.php';
 		break;
 
+    case 'sales_lead':
+        $page_title = "Sales Lead";
+        $include_file = 'field_config_sales_lead.php';
+        break;
+
+    case 'manage_sub_tabs':
+        $page_title = "Manage Sub Tabs";
+        $include_file = 'field_config_manage_sub_tabs.php';
+        break;
+
     case 'actions':
         $_GET['tab'] = 'actions';
         $page_title = "Quick Action Flags";
@@ -109,6 +119,8 @@ function resizeScreen() {
                         <a href="?tab=next_action"><li <?= $_GET['tab'] == 'next_action' ? 'class="active"' : '' ?>>Next Action</li></a>
                         <a href="?tab=lead_status"><li <?= $_GET['tab'] == 'lead_status' ? 'class="active"' : '' ?>>Lead Status</li></a>
                         <a href="?tab=auto_archive"><li <?= $_GET['tab'] == 'auto_archive' ? 'class="active"' : '' ?>>Auto Archive</li></a>
+                        <a href="?tab=sales_lead"><li <?= $_GET['tab'] == 'sales_lead' ? 'class="active"' : '' ?>>Sales Lead</li></a>
+                        <a href="?tab=manage_sub_tabs"><li <?= $_GET['tab'] == 'manage_sub_tabs' ? 'class="active"' : '' ?>>Manage Sub-Tabs</li></a>
                     </ul>
                 </div>
                 <?php
