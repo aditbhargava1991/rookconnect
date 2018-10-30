@@ -162,6 +162,7 @@ if(ucwords($category) == 'Vendors') {
     $heading = VENDOR_TILE;
 }
 ?>
+
 <div class="standard-dashboard-body-title">
 <h3 class="gap-left"><?php echo $heading; ?>
 <div class="pull-right hide-titles-mob col-sm-8">
