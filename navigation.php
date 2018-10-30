@@ -12,6 +12,10 @@ $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - 
 	}
 
 	$active_ticket_buttons = '';
+
+    $today_date = date('Y-m-d');
+	$active_tasks = mysqli_query($dbc, "SELECT time_id, tasklistid FROM `tasklist_time` WHERE `start_time` IS NOT NULL AND end_time IS NULL AND src='A' AND contactid='{$_SESSION['contactid']}' AND timer_date='$today_date' ORDER BY time_id DESC LIMIT 1");
+
 	$active_tickets = mysqli_query($dbc, "SELECT `tickets`.`ticketid`, `tickets`.`heading`, `tickets`.`businessid`, `tickets`.`clientid`, `tickets`.`contactid`, `tickets`.`ticket_type`, `tickets`.`to_do_date`, `tickets`.`status`, `tickets`.`projectid`, `tickets`.`main_ticketid`, `tickets`.`sub_ticket`, `ticket_label` FROM `tickets` LEFT JOIN `ticket_timer` ON `tickets`.`ticketid`=`ticket_timer`.`ticketid` AND `ticket_timer`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_timer`.`created_by`='{$_SESSION['contactid']}' AND `start_timer_time` > 0 GROUP BY `tickets`.`ticketid` UNION SELECT `tickets`.`ticketid`, `tickets`.`heading`, `tickets`.`businessid`, `tickets`.`clientid`, `tickets`.`contactid`, `tickets`.`ticket_type`, `tickets`.`to_do_date`, `tickets`.`status`, `tickets`.`projectid`, `tickets`.`main_ticketid`, `tickets`.`sub_ticket`, `tickets`.`ticket_label` FROM `tickets` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` WHERE `tickets`.`deleted`=0 AND `tickets`.`status` != 'Archive' AND `ticket_attached`.`arrived` > `ticket_attached`.`completed` AND `ticket_attached`.`deleted`=0 AND `ticket_attached`.`src_table` IN ('Staff','Staff_Tasks') AND `ticket_attached`.`item_id`='{$_SESSION['contactid']}' GROUP BY `tickets`.`ticketid`");
 	if($active_tickets->num_rows > 0 && ACTIVE_TICKET_BUTTON != 'disable_active_ticket') {
 		$ticket_tile_visible = tile_visible($dbc, 'ticket');
@@ -30,7 +34,21 @@ $_SERVER['page_load_info'] .= 'Nav Bar Start: '.number_format(microtime(true) - 
 		if(SHOW_SIGN_IN == '1' && strpos(get_privileges($dbc, 'start_day_button', ROLE),'*hide*') === FALSE) {
 			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.END_DAY.'</a>';
 		}
-	} else if((SHOW_SIGN_IN == '1' || ACTIVE_DAY_BANNER != '') && strpos(get_privileges($dbc, 'start_day_button', ROLE),'*hide*') === FALSE) {
+	} else if($active_tasks->num_rows > 0 && ACTIVE_TICKET_BUTTON != 'disable_active_ticket') {
+		$task_shown = [];
+		while($active_task = mysqli_fetch_assoc($active_tasks)) {
+			if(!in_array($active_task['tasklistid'],$task_shown)) {
+				$task_shown[] = $active_task['tasklistid'];
+                $task_label = get_tasklist_tabledata($dbc, $active_task['tasklistid'], 'heading');
+				if(ACTIVE_TICKET_BUTTON == 'ticket_label') {
+					$label = $task_label;
+				} else {
+					$label = 'Running '.TASK_NOUN.' #'.$active_task['tasklistid'];
+				}
+				$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Tasks_Updated/add_task_full_view.php?tasklistid='.$active_task['tasklistid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'&action_mode='.$ticket_action_mode.'">'.$label.'</a>';
+			}
+		}
+    } else if((SHOW_SIGN_IN == '1' || ACTIVE_DAY_BANNER != '') && strpos(get_privileges($dbc, 'start_day_button', ROLE),'*hide*') === FALSE) {
 		$timer_running = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer_start` FROM `time_cards` WHERE `type_of_time` IN ('day_tracking','day_break') AND `timer_start` > 0 AND `staff`='".$_SESSION['contactid']."'"))['timer_start'];
 		if(ACTIVE_DAY_BANNER != '' && $timer_running > 0) {
 			$active_ticket_buttons .= '<a class="btn brand-btn active-ticket" href="'.WEBSITE_URL.'/Timesheet/start_day.php">'.\ACTIVE_DAY_BANNER.'</a>';
@@ -109,6 +127,13 @@ $(document).ready(function() {
             }
         });
     }
+    
+    $('.nav_more_options').click(function() {
+        $('.nav_icons_mobile').toggle();
+    });
+    $(window).scroll(function() {
+        $('.nav_icons_mobile').hide();
+    });
 });
 
 var software_search_shifted = false;
@@ -244,7 +269,7 @@ if(!isset($_SESSION['fullscreen'])) {
                     <?php if($_SESSION['contactid'] > 0) { ?>
                         <ul class="nav navbar-nav navbar-right pad-right pull-right">
                             <?php //include('Navigation/social_media_links.php'); ?>
-                            <li><?= $active_ticket_buttons ?></li><?php
+                            <li class="nav-active-ticket"><?= $active_ticket_buttons ?></li><?php
                             $contact_category = $_SESSION['category'];
                             /*
                             if(tile_enabled($dbc, 'contacts_rolodex')) {
@@ -268,7 +293,8 @@ if(!isset($_SESSION['fullscreen'])) {
                             <li class="hide-header-footer">
                                 <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" class="no-toggle" title="Hide Header &amp; Footer" data-placement="bottom" /></div>
                             </li>
-                            <li><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15 no-toggle" title="Logout" data-placement="bottom" /></a></li>
+                            <li><a class="logout-button" href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="no-toggle" title="Logout" data-placement="bottom" /></a></li>
+                            <li class="show-on-mob"><img title="More Options" data-placement="bottom" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-3dot-icon.png" width="30p" class="nav_more_options offset-top-13 offset-right-15 no-toggle cursor-hand" /></li>
                         </ul>
                     <?php } ?>
                     <ul class="nav navbar-nav scale-to-fill" style="overflow: hidden;">
@@ -293,11 +319,11 @@ if(!isset($_SESSION['fullscreen'])) {
                                 <li class="pull-left"><?php include('Notification/newsboard.php'); ?></li>
                             <?php } ?>
                             <?php if(tile_visible($dbc, 'calendar_rook')): ?>
-                                <li class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="inline-img white-color no-toggle" title="Calendar" data-placement="bottom"></a></li>
+                                <li class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="white-color no-toggle" title="Calendar" data-placement="bottom"></a></li>
                             <?php endif; ?>
                             <?php if($_SESSION['contactid'] > 0) { ?>
                                 <li class="pull-left"><?php include('Notification/alert_software.php'); ?></li>
-                                <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on"  style='display:none; position: relative; top: 5px;'  width="50px"></a></p></li>
+                                <li class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" class="no-toggle" title="Info i Toggle" data-placement="bottom"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on" style='display:none; position: relative; top: 5px;'  width="50px"></a></p></li>
                                 <li class="scale-to-fill">
                                     <script>
                                     <?php // Get Search Categories
@@ -369,6 +395,44 @@ if(!isset($_SESSION['fullscreen'])) {
                 </div><!--/.nav-collapse -->
             </div><!--/.container-fluid -->
         </div>
+        
+        <?php
+            /*
+             * Show on mobile when the user click the 3 dots icons
+             * Duplicate the nav li items
+             */
+        ?>
+        <div class="nav_icons_mobile">
+            <div class="pull-left"><?php
+                if ( isset($_SESSION[ 'newsboard_menu_choice' ]) && $_SESSION[ 'newsboard_menu_choice' ] != NULL ) { ?>
+                    <div class="pull-left"><?php include('Notification/newsboard.php'); ?></div><?php
+                }
+                if ( tile_visible($dbc, 'calendar_rook') ) { ?>
+                    <div class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="inline-img white-color no-toggle" title="Calendar" data-placement="bottom"></a></div><?php
+                }
+                if ( $_SESSION['contactid'] > 0 ) { ?>
+                    <div class="pull-left"><?php include('Notification/alert_software.php'); ?></div>
+                    <div class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on"  style='display:none; position: relative; top: 5px;'  width="50px"></a></p></div><?php
+                } ?>
+            </div>
+            <div class="pull-right"><?php
+                $contact_category = $_SESSION['category'];
+                $contacts_folder = 'Contacts';
+                if ( strtolower($contact_category) != 'staff' ) {
+                    $profile_access = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_security` WHERE `category` = '$contact_category' AND `security_level` = '".ROLE."'"))['profile_access'];
+                    if($profile_access == 'disable') {
+                        $profile_html = profile_id($dbc, $_SESSION['contactid'], false);
+                    } else {
+                        $profile_html = '<a href="'.WEBSITE_URL.'/'.$contacts_folder.'/contacts_inbox.php?edit='.$_SESSION['contactid'].'" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
+                    }
+                } else {
+                    $profile_html = '<a href="'.WEBSITE_URL.'/Profile/my_profile.php" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
+                }
+                echo '<div class="pull-left">'.$profile_html .'</div>'; ?>
+                <div class="pull-left"><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15 no-toggle offset-right-15" title="Logout" data-placement="bottom" /></a></div>
+            </div>
+            <div class="clearfix"></div>
+        </div><!-- .nav_icons_mobile -->
 
         <div class="hide-header-footer-down">
             <div class="pullup down"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>
@@ -383,4 +447,3 @@ $_SERVER['page_load_info'] .= 'Nav Bar Loaded: '.number_format($_SERVER['page_lo
 	include_once('password_reset.php');
 	exit();
 } ?>
- 

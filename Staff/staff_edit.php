@@ -317,6 +317,7 @@ foreach($security_levels as $security_level) {
 
 									$value_config_hidden = ','.implode(',',$value_config_hidden).',';
 									$value_config = ','.implode(',',$value_config).',';
+									$contacts_mandatory_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_mandatory_contacts`"))['contacts'];
 									if(str_replace(',','',$value_config) != '') {
 										?>
 
@@ -415,7 +416,7 @@ foreach($security_levels as $security_level) {
 							} else if($subtab == 'rate_card') {
                                 include('edit_staff_rate_card.php');
                             } ?>
-						<?php if($subtab != 'id_card') { ?><button type='submit' name='<?= $subtab=='rate_card' ? 'submit_rate_card' : 'contactid' ?>' value='<?php echo $contactid; ?>' class="btn brand-btn pull-right">Submit</button><?php }
+						<?php if($subtab != 'id_card') { ?><button type='submit' name='<?= $subtab=='rate_card' ? 'submit_rate_card' : 'contactid' ?>' value='<?php echo $contactid; ?>' onclick="return presave();" class="btn brand-btn pull-right">Submit</button><?php }
 						else if(!isset($_GET['mobile_view']) && vuaed_visible_function($dbc, 'staff') > 0) { ?><a href='?contactid=<?php echo $contactid; ?>&subtab=staff_information' class="hide-on-mobile btn brand-btn pull-right">Edit Staff</a><?php } ?>
 						<a href='<?php echo $from_url; ?>' class="btn brand-btn pull-right">Back</a>
 							<div class="clearfix"></div>

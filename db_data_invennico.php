@@ -24,8 +24,4 @@ ADD `sales_lead_is_active` tinyint(2) NULL DEFAULT '1' COMMENT '1 : Active, 0 : 
 
 echo "Invennico's DB Changes Done<br />\n";
 
-
-
-
-
 ?>

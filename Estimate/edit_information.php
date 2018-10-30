@@ -71,6 +71,30 @@ function filterContacts(select) {
 </script>
 <div class="form-horizontal col-sm-12" data-tab-name="information">
 	<h3><?= rtrim(ESTIMATE_TILE, 's') ?> Information</h3>
+	<?php $estimate_type_options = explode(',',get_config($dbc, 'estimate_tabs'));
+    foreach(explode(',',$estimate['estimatetype']) as $current_type) { ?>
+		<div class="form-group">
+			<label class="col-sm-4"><?= rtrim(ESTIMATE_TILE, 's') ?> Type:</label>
+			<div class="col-sm-7">
+				<select class="chosen-select-deselect" name="estimatetype[]" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>">
+					<option></option>
+					<?php foreach($estimate_type_options as $est_type) {
+                        if($est_type == 'one_time_est_type') { ?>
+                            <option <?= $current_type == $est_type ? 'selected' : '' ?> value="<?= $est_type ?>">One Time <?= rtrim(ESTIMATE_TILE,'s') ?></option>
+                        <?php } else if (strpos($est_type,'ticket_est_') === 0) { ?>
+                            <option <?= $current_type == $est_type ? 'selected' : '' ?> value="<?= $est_type ?>"><?= str_replace('ticket_est_','',$est_type) ?></option>
+                        <?php } else { ?>
+                            <option <?= $current_type == $est_type ? 'selected' : '' ?> value="<?= $est_type ?>"><?= $est_type ?></option>
+                        <?php } ?>
+					<?php } ?>
+				</select>
+			</div>
+			<div class="col-sm-1">
+				<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="addType();">
+				<img src="../img/remove.png" class="inline-img pull-right" onclick="removeType(this);">
+			</div>
+		</div>
+	<?php } ?>
 	<?php if(in_array('Business',$config)) { ?>
 		<div class="form-group">
 			<label class="col-sm-4">Business:</label>
@@ -115,23 +139,6 @@ function filterContacts(select) {
 			<label class="col-sm-4">Customer AFE#:</label>
 			<div class="col-sm-8">
 				<input type="text" class="form-control" name="afe_number" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>" value="<?= $estimate['afe_number'] ?>">
-			</div>
-		</div>
-	<?php } ?>
-	<?php foreach(explode(',',$estimate['estimatetype']) as $current_type) { ?>
-		<div class="form-group">
-			<label class="col-sm-4"><?= rtrim(ESTIMATE_TILE, 's') ?> Type:</label>
-			<div class="col-sm-7">
-				<select class="chosen-select-deselect" name="estimatetype[]" data-table="estimate" data-id-field="estimateid" data-id="<?= $estimateid ?>">
-					<option></option>
-					<?php foreach(explode(',',get_config($dbc,'project_tabs')) as $est_type) { ?>
-						<option <?= $current_type == $est_type ? 'selected' : '' ?> value="<?= $est_type ?>"><?= $est_type ?></option>
-					<?php } ?>
-				</select>
-			</div>
-			<div class="col-sm-1">
-				<img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="addType();">
-				<img src="../img/remove.png" class="inline-img pull-right" onclick="removeType(this);">
 			</div>
 		</div>
 	<?php } ?>

@@ -13,7 +13,7 @@ include_once('../tcpdf/tcpdf.php');
 /*
 if (isset($_POST['submit_pay'])) {
 	$all_invoice = implode(',',$_POST['invoice']);
-	header('Location: add_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
+	header('Location: create_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
 }
 
 if (isset($_POST['printpdf'])) {
@@ -34,7 +34,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -92,7 +92,7 @@ $(document).ready(function() {
         ?>
         </h2>
 
-        <a href='today_invoice.php'><button type="button" class="btn brand-btn mobile-block" >Today's Invoices</button></a>
+        <a href='index.php?tab=today'><button type="button" class="btn brand-btn mobile-block" >Today's Invoices</button></a>
         <a href='generate_invoice.php'><button type="button" class="btn brand-btn mobile-block active_tab" >Generate Invoice</button></a>
         <a href='unpaid_invoice.php'><button type="button" class="btn brand-btn mobile-block" >Unpaid Invoice</button></a>
         <a href='waiting_on_insurer_invoice.php'><button type="button" class="btn brand-btn mobile-block" >Waiting on Insurer Invoice</button></a>
@@ -136,7 +136,7 @@ $(document).ready(function() {
             <div class="table-responsive">
 
             <?php
-            echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
+            echo '<a href="create_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             // Display Pager
             /* Pagination Counting */
             $rowsPerPage = 25;
@@ -204,7 +204,7 @@ $(document).ready(function() {
                 echo '<td>' . $row['paid'] . '</td>';
 
                 if($row['final_price'] == '') {
-                    echo '<td><a href=\'add_invoice.php?invoiceid='.$row['invoiceid'].'&patientid='.$row['patientid'].'\' >Generate</a></td>';
+                    echo '<td><a href=\'create_invoice.php?invoiceid='.$row['invoiceid'].'&patientid='.$row['patientid'].'\' >Generate</a></td>';
                 } else {
                     echo '<td>-</td>';
                 }
@@ -215,11 +215,11 @@ $(document).ready(function() {
             echo '</table></div>';
             // Added Pagination //
             echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-            echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
+            echo '<a href="create_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             ?>
 
 
-        
+
 
         </form>
 

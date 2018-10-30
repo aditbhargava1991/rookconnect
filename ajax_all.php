@@ -1237,7 +1237,13 @@ else if($_GET['action'] == 'text_template_sort') {
 else if($_GET['action'] == 'summary_block_sort') {
     $id = $_POST['template_id'];
     $id_val = implode('||*||',$id);
-    mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$id_val."' WHERE `name`='summary_block_sort'");
+
+    $columnExist = mysqli_query($dbc, "SELECT `name` from `general_configuration` WHERE `name` = 'summary_block_sort' ");
+    if($columnExist->num_rows>0){
+        mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$id_val."' WHERE `name`='summary_block_sort'");
+    }else{
+        $mm = mysqli_query($dbc, "INSERT INTO `general_configuration` (`configid`, `name`, `value`, `calllog_schedule_status`) VALUES (NULL, 'summary_block_sort', '$id_val', NULL)");
+    }
 }
 // Get  User's Profile Image
 else if($_GET['action'] == 'user_profile_id') {
@@ -1664,9 +1670,30 @@ else if($_GET['action'] == 'sync_data') {
 			$tables = [filter_var($_GET['table'],FILTER_SANITIZE_STRING)];
 			break;
 	}
+  if (!file_exists('database_table_backup')) {
+    mkdir('database_table_backup', 0777, true);
+  }
+
+  $current_time = date("Y-m-d-H-i-s");
+  if (!file_exists('database_table_backup/'.$current_time)) {
+    mkdir('database_table_backup/'.$current_time, 0777, true);
+  }
+
 	foreach(array_filter($tables) as $table_name) {
+
+    // Backup code //
+    $backupFile = __DIR__.'/database_table_backup/'.$current_time.'/'.$table_name.'.sql';
+    $backup_query = "SELECT * INTO OUTFILE '$backupFile' FROM $table_name";
+    $backup_result = mysqli_query($dbc, $backup_query);
+    // Back up code end //
+
 		$db_all->query("TRUNCATE `".DATABASE_NAME."`.`$table_name`");
 		$db_all->query("INSERT INTO `".DATABASE_NAME."`.`$table_name` SELECT * FROM `".DATABASE_NAME2."`.`$table_name`");
 	}
+
+  $before_change = '';
+  $all_tables = implode(",", $tables);
+  $history = "Tables been transfered from Live to Demo -> $all_tables";
+  add_update_history($dbc, 'db_backup_history', $history, '', $before_change);
 	echo 'Sync Complete!';
 }

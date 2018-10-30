@@ -311,7 +311,7 @@ function checkCallBeforeBooking() {
 		<a href="" onclick="payNow('<?= $pos_url; ?>'); return false;" class="block-label pull-right"<?= $follow_up_call_status != 'Arrived' ? ' style="opacity: 0.5;" disabled' : '' ?>>Pay</a><?php
     } else if ((strpos($enabled_fields, ',pos,') !== false || strpos($enabled_fields, ',pos_touch,') !== false) && check_subtab_persmission($dbc, 'posadvanced', ROLE, 'sell') === true ) {
         if (strpos($enabled_fields, ',pos,') !== false) { ?>
-            <a href="" onclick="payNow('../POSAdvanced/add_invoice.php?invoiceid=<?= $invoiceid ?>&bookingid=<?= $bookingid ?>'); return false;" class="block-label pull-right"<?= $follow_up_call_status != 'Arrived' ? ' style="opacity: 0.5;" disabled' : '' ?>>Pay</a><?php
+            <a href="" onclick="payNow('../POSAdvanced/create_invoice.php?invoiceid=<?= $invoiceid ?>&bookingid=<?= $bookingid ?>'); return false;" class="block-label pull-right"<?= $follow_up_call_status != 'Arrived' ? ' style="opacity: 0.5;" disabled' : '' ?>>Pay</a><?php
         } else if (strpos($enabled_fields, ',pos_touch,') !== false) { ?>
             <a href="" onclick="payNow('../POSAdvanced/touch_main.php?invoiceid=<?= $invoiceid ?>&bookingid=<?= $bookingid ?>'); return false;" class="block-label pull-right"<?= $follow_up_call_status != 'Arrived' ? ' style="opacity: 0.5;" disabled' : '' ?>>Pay</a><?php
         }

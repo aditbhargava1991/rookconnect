@@ -81,7 +81,7 @@
 					'.TICKET_NOUN.' Heading: [HEADING]<br>
 					Status: [STATUS]<br>
 					Please click the '.TICKET_NOUN.' link below to view all information.<br>
-					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br>';
+					<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br>';
 			?>
 			<script>
 			function ticket_comment_check_send_email(checked) {
@@ -113,7 +113,7 @@
 						<textarea name="ticket_comment_email_body[]" class="form-control email_body"><?php echo $body; ?></textarea>
 					</div>
 				</div>
-				<button class="btn brand-btn pull-right" onclick="send_comment_email" data-table="ticket_comment" data-id-field="ticketcommid" data-id="" data-field="comment" onclick="send_email(this); return false;">Send Email</button>
+				<button class="btn brand-btn pull-right" onclick="send_comment_email" data-table="ticket_comment" data-id-field="ticketcommid" data-id="" data-field="comment" data-history-label="Send Day Note Email" onclick="send_email(this); return false;">Send Email</button>
 			</div>
 		</div>
 	<?php }

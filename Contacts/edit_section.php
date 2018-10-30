@@ -199,21 +199,26 @@ function viewOnlyFields(div) {
 	<div style="display:none;"><?php include('../footer.php'); ?></div>
 <?php } ?>
 <script>
-window.onbeforeunload = function() {
-	$('.form-group .required').each(function() {
-			var target = this;
-				if($(target).val() != null && $(target).val().length === 0) {
-					if($(target).is('select')) {
-						var select2 = $(target).next('.select2');
-						$(select2).find('.select2-selection').css('background-color', 'red');
-						$(select2).find('.select2-selection__placeholder').css('color', 'white');
-					} else {
-						$(target).css('background-color', 'red');
-					}
-			}
-	});
-	// setTimeout(function() {
-			// alert("Please fill in the required fields");
-	// }, 0);
-}
+$(document).ready(function() {
+	window.onbeforeunload = function() {
+		$('.required').each(function() {
+				var target = this;
+					if($(target).val() != null && $(target).val().length === 0) {
+						if($(target).is('select')) {
+							var select2 = $(target).next('.select2');
+							$(select2).find('.select2-selection').css('background-color', 'red');
+							$(select2).find('.select2-selection__placeholder').css('color', 'white');
+						} else {
+							$(target).css('background-color', 'red');
+						}
+
+						setTimeout(function() {
+								alert("Please fill in the "+$(target).closest('.form-group').find('label').text().split("\n")[0].replace(/^[^a-zA-Z0-9()]*/g,'').replace(/[^a-zA-Z0-9()]*$/g,'')+".");
+								$(target).focus();
+						}, 0);
+				}
+		});
+
+	}
+});
 </script>

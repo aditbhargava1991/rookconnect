@@ -59,6 +59,7 @@ function saveFields() {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('edit', $manifest_fields) ? 'checked' : '' ?> value="edit" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Edit Manifests</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('ticket_sort', $manifest_fields) ? 'checked' : '' ?> value="ticket_sort" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Sort by <?= TICKET_NOUN ?></label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('ticket_search', $manifest_fields) ? 'checked' : '' ?> value="ticket_search" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Search by <?= TICKET_NOUN ?></label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('mark_unused', $manifest_fields) ? 'checked' : '' ?> value="mark_unused" style="height: 20px; width: 20px;" name="tickets_manifests[]"> Removing Piece Marks As Unused</label>
 	</div>
 </div>
 <div class="form-group">

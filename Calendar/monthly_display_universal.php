@@ -253,7 +253,25 @@ while($row = mysqli_fetch_array( $result )) {
     	$num_rows2 = 0;
     }
 
-    if($num_rows > 0 || $num_rows1 > 0 || $num_rows2 > 0) {
+    if($combine_shift_items == 1) {
+	    if(get_config($dbc, 'shift_hide_if_day_off') == 1) {
+	        $daysoff = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'daysoff');
+	        if(!empty($daysoff)) {
+	            $shifts = $daysoff;
+	        } else {
+	            $shifts = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'shifts');
+	        }
+	    } else {
+	    	$shifts = checkShiftIntervals($dbc, $contactid, $day_of_week, $new_today_date, 'all');
+	    }
+	    if(!empty($shifts) || !empty($daysoff)) {
+	    	$num_rows3 = 1;
+	    }
+    } else {
+    	$num_rows3 = 0;
+    }
+
+    if($num_rows > 0 || $num_rows1 > 0 || $num_rows2 > 0 || $num_rows3 > 0) {
     	$column .= '<div class="calendar_block calendarSortable" data-blocktype="'.$_GET['block_type'].'" data-contact="'.$contactid.'" data-date="'.$new_today_date.'">';
         $column .= '<h4>'.$staff.'</h4>';
     }
@@ -325,7 +343,9 @@ while($row = mysqli_fetch_array( $result )) {
 		} else {
 			$checkmark_ticket = '';
 		}
-		if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+		if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$row_tickets['ticket_type']])) {
+            $ticket_styling = ' background-color:'.$ticket_tabs_color[$row_tickets['ticket_type']].';';
+        } else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 			$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 		} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 			$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';
@@ -362,7 +382,7 @@ while($row = mysqli_fetch_array( $result )) {
 		$list_view = $get_table_orient['calendar_list_view'];
 		if($list_view == 1) {
        //$column .= '<a class="" href="#" style="color:black; display:block; border-bottom:1px solid black; white-space: nowrap; width:200px; text-overflow: ellipsis; overflow:hidden; padding: 2px;  background-color: '.$row['calendar_color'].';" id="ticket_'.$row_tickets['ticketid'].'" onclick="wwindow.open(\''.WEBSITE_URL.'/Ticket/add_tickets.php?ticketid='.$row_tickets['ticketid'].'\', \'newwindow\', \'width=1000, height=900\'); return false;" title="#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'"><img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt=""><img src="'.WEBSITE_URL.'/img/'.$status_color.'" width="10" height="10" border="0" alt="" style="margin-left:3px;">&nbsp;#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a>';
-		$column .= '<a class="sortable-blocks '.$checkmark_ticket.'" href="" onclick="'.($edit_access == 1 ? 'overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$row_tickets['ticketid'].'\');' : '').'return false;" style="color:black;  display:block; border-bottom:1px solid black; white-space: nowrap; width:200px; text-overflow: ellipsis; overflow:hidden; padding: 2px;'.$ticket_styling.'" id="ticket_'.$row_tickets['ticketid'].'" title="#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'" data-ticket="'.$row_tickets['ticketid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-businessid="'.$row_tickets['businessid'].'" data-itemtype="ticket"><img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt=""><img src="'.WEBSITE_URL.'/img/'.$status_color.'" width="10" height="10" border="0" alt="" style="margin-left:3px;">&nbsp;#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a>';
+		$column .= '<a class="sortable-blocks '.$checkmark_ticket.'" href="" onclick="'.($edit_access == 1 ? 'overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$row_tickets['ticketid'].'\');' : '').'return false;" style="color:black;  display:block; border-bottom:1px solid black; white-space: nowrap; width:200px; text-overflow: ellipsis; overflow:hidden; padding: 2px;'.$ticket_styling.'" id="ticket_'.$row_tickets['ticketid'].'" title="#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'" data-ticket="'.$row_tickets['ticketid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-businessid="'.$row_tickets['businessid'].'" data-itemtype="ticket" data-tickettype="'.$row_tickets['ticket_type'].'" ><img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt=""><img src="'.WEBSITE_URL.'/img/'.$status_color.'" width="10" height="10" border="0" alt="" style="margin-left:3px;">&nbsp;#'.$row_tickets['ticketid'].' : '.get_contact($dbc, $row_tickets['businessid'], 'name').' : '.$row_tickets['heading'].' ('.substr($row_tickets['max_time'], 0, 5).')'.'</a>';
 		} else {
 		$column .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" style="width:1em;" border="0" alt="">&nbsp;<img src="'.WEBSITE_URL.'/img/'.$status_color.'" style="width:1em;" border="0" alt="">';
 		$column .= '<span class="pull-right" style="display:inline-block; width:calc(100% - 2.5em);" data-ticket="'.$row_tickets['ticketid'].'">';
@@ -380,7 +400,7 @@ while($row = mysqli_fetch_array( $result )) {
 		$column .= '<input type="text" name="ticket_reminder_'.$row_tickets['ticketid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker" />';
 		$column .= '<input type="file" name="ticket_attach_'.$row_tickets['ticketid'].'" style="display:none;" class="form-control" />';
 		$column .= '<br /><a class="sortable-blocks '.$checkmark_ticket.'" href="" onclick="'.($edit_access == 1 ? 'overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$row_tickets['ticketid'].'\');' : '').'return false;" style="display:block; padding: 5px;color:black;  '.($row_tickets['flag_colour'] != '' ? 'color: #'.$row_tickets['flag_colour'].';' : '').'
-        border-radius: 10px;'.$ticket_styling.$icon_background.'" id="ticket_'.$row_tickets['ticketid'].'" data-ticket="'.$row_tickets['ticketid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-businessid="'.$row_tickets['businessid'].'" data-itemtype="ticket">';
+        border-radius: 10px;'.$ticket_styling.$icon_background.'" id="ticket_'.$row_tickets['ticketid'].'" data-ticket="'.$row_tickets['ticketid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-businessid="'.$row_tickets['businessid'].'" data-itemtype="ticket" data-tickettype="'.$row_tickets['ticket_type'].'">';
 		$column .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" style="width:1em;" border="0" alt="">&nbsp;<img src="'.WEBSITE_URL.'/img/block/'.$status_array[$status].'" style="width:1em;" border="0" alt="">'.$icon_img;
 		if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 			$column .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
@@ -443,6 +463,53 @@ while($row = mysqli_fetch_array( $result )) {
 		unset($page_query['bookingid']);
     }
 
+    if(!empty($shifts)) {
+        $all_conflicts = getShiftConflicts($dbc, $contactid, $new_today_date);
+        $shift_conflicts = [];
+        foreach($all_conflicts as $conflict) {
+            $shift_conflicts = array_merge(explode('*#*',$conflict), $shift_conflicts);
+        }
+
+        foreach ($shifts as $row_shifts) {
+            if(in_array($row_shifts['shiftid'], $shift_conflicts)) {
+                $has_conflict = true;
+            } else {
+                $has_conflict = false;
+            }
+            $calendar_color = '';
+            if($shift_client_color == 1 && !empty($row_shifts['clientid'])) {
+                $calendar_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `calendar_color` FROM `contacts` WHERE `contactid` = '".$row_shifts['clientid']."'"))['calendar_color'];
+            }
+            if(empty($calendar_color)) {
+                $calendar_color = $row['calendar_color'];
+            }
+            $shift_bg_color = (!empty($_GET['shiftid']) ? ($_GET['shiftid'] == $row_shifts['shiftid'] ? '#3ac4f2' : '#ccc') : (!empty($row_shifts['dayoff_type']) ? '#ccc' : $calendar_color));
+            $shift_fields = explode(',',mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['enabled_fields']);
+            if(in_array('conflicts_highlight', $shift_fields) && $has_conflict) {
+                $shift_bg_color = '#f00';
+            }
+            $warning_icon = '';
+            if(in_array('conflicts_warning', $shift_fields) && $has_conflict) {
+                $warning_icon = '<img title="This shift has a conflict with another shift." src="'.WEBSITE_URL.'/img/icons/yellow-warning.png" class="pull-right" style="max-height: 20px;">';
+            }
+			$page_query = $_GET;
+			unset($page_query['shiftid']);
+			unset($page_query['current_day']);
+			$column .= ($row_shifts['startdate'] < $lock_date ? '<span class="sortable-blocks" ' : '<a class="sortable-blocks" ').($edit_access == 1 ? 'href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?'.http_build_query($page_query).'&shiftid='.$row_shifts['shiftid'].'&current_day='.$new_today_date.'\'); return false;"' : 'href="" onclick="return false;"').'style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$shift_bg_color.';" data-shift="'.$row_shifts['shiftid'].'" data-currentdate="'.$new_today_date.'" data-currentcontact="'.$staff.'" data-clientid="'.$row_shifts['clientid'].'" data-itemtype="shift">'.$warning_icon;
+            if(!empty($row_shifts['heading'])) {
+                $column .= $row_shifts['heading'].'<br />';
+            }
+			$column .= (!empty($row_shifts['dayoff_type']) ? 'Time Off: ' : 'Shift: ').date('g:i a', strtotime($row_shifts['starttime']))." - ".date('g:i a', strtotime($row_shifts['endtime'])).'<br />';
+			if(!empty($row_shifts['clientid'])) {
+				$column .= $client_type.': '.get_contact($dbc, $row_shifts['clientid']).'<br />';
+			}
+            if(!empty($row_shifts['notes'])) {
+                $column .= 'Notes: '.html_entity_decode($row_shifts['notes']);
+            }
+			$column .= $row_shifts['startdate'] < $lock_date ? '</span>' : '</a>';
+        }
+    }
+
     while($row_tasklist = mysqli_fetch_array( $tasklist )) {
         $date_color = 'block/green.png';
         if($new_today_date < date('Y-m-d',strtotime("-2 days"))) {
@@ -455,7 +522,7 @@ while($row = mysqli_fetch_array( $result )) {
         //$column .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" width="10" height="10" border="0" alt="">&nbsp;<a href="#"  id="task_'.$row_tasklist['tasklistid'].'" onclick="wwindow.open(\''.WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$row_tasklist['tasklistid'].'\', \'newwindow\', \'width=1000, height=900\'); return false;">'.$row_tasklist['heading']. '</a><br>';
     }
 
-    if($num_rows > 0 || $num_rows1 > 0 || $num_rows2 > 0) {
+    if($num_rows > 0 || $num_rows1 > 0 || $num_rows2 > 0 || $num_rows3 > 0) {
 	    $column .= '</div>';
 	}
 }

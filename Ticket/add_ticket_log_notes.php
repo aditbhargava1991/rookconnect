@@ -57,7 +57,7 @@
 	  <textarea name="note" data-table="client_daily_log_notes" data-id="" data-id-field="note_id" rows="4" cols="50" class="form-control" ></textarea>
 	</div>
   </div>
-	<button class="btn brand-btn pull-right" onclick="addMulti(this); return false;">Add Note</button>
+	<button class="btn brand-btn pull-right" data-history-label="Note" data-history-label="Add Log Note" onclick="addMulti(this); return false;">Add Note</button>
 	<div class="clearfix"></div>
 </div>
 <?php } ?>

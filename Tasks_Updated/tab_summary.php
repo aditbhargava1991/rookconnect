@@ -15,19 +15,22 @@ checkAuthorised('tasks'); ?>
 
                 if ( $enabled_tab=='Private Tasks' ) {
                     $enabled_tab = 'Private '.TASK_TILE;
-                    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board=tb.taskboardid AND tb.board_security='Private' AND (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND tl.deleted=0 AND tb.deleted=0"));
+                    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board=tb.taskboardid AND tb.board_security='Private' AND (tl.archived_date IS NULL OR tl.archived_date = '0000-00-00') AND (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND tl.deleted=0 AND tb.deleted=0"));
                 } else if ( $enabled_tab=='Shared Tasks' ) {
                     $enabled_tab = 'Shared '.TASK_TILE;
-                    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE (tb.board_security='Company' AND tb.company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%') AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.salesid IS NULL AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_tododate"));
+                    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE (tb.board_security='Company' AND tb.company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%') AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND (tl.salesid IS NULL OR tl.salesid = 0) AND tl.task_path > 0 AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_tododate"));
                 } elseif ( $enabled_tab=='Project Tasks' ) {
                     $enabled_tab = 'Project '.TASK_TILE;
-                    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl WHERE tl.projectid > 0 AND (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 ORDER BY tl.task_tododate"));
+
+                    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl, project p WHERE tl.projectid = p.projectid AND p.deleted = 0 AND tl.projectid > 0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 ORDER BY tl.task_tododate"));
+
+                    //$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl, project p WHERE tl.projectid = p.projectid AND p.deleted = 0 AND tl.projectid > 0 AND (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 ORDER BY tl.task_tododate"));
                 } elseif ( $enabled_tab=='Client Tasks' ) {
                     $enabled_tab = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' '.TASK_TILE : CONTACTS_TILE.' '.TASK_TILE;
                     $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND (tb.board_security='Client' AND tb.company_staff_sharing LIKE '%,". $_SESSION['contactid'] .",%') AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tb.deleted=0 ORDER BY tl.task_tododate"));
-                }  elseif ( $enabled_tab=='Sales Tasks' ) {
+                }  elseif ( $enabled_tab=='Sales Tasks') {
                     $enabled_tab = 'Sales '.TASK_TILE;
-                    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl WHERE tl.salesid > 0 AND (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 ORDER BY tl.task_tododate"));
+                    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) task_count FROM tasklist tl WHERE tl.salesid > 0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.deleted=0 AND tl.task_milestone_timeline = ''"));
                 } else {
                     //$board_security = str_replace(' Tasks', '', $enabled_tab);
                    // $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board=tb.taskboardid AND tb.board_security='$board_security' AND tl.deleted=0 AND tb.deleted=0"));

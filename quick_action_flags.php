@@ -23,7 +23,14 @@ if(isset($_POST['submit'])) {
         $flag_start = filter_var($_POST['flag_start'],FILTER_SANITIZE_STRING);
         $flag_end = filter_var($_POST['flag_end'],FILTER_SANITIZE_STRING);
         $flag_user = filter_var(implode(',',$_POST['flag_user']),FILTER_SANITIZE_STRING);
+
+        if($flag_end == '' || $flag_end == '0000-00-00') {
+            $flag_end = '9999-12-31';
+        }
     }
+
+    $flag_colour = str_replace("#","",$flag_colour);
+
 	$error = '';
 
     switch ($tile) {
@@ -71,15 +78,35 @@ if(isset($_POST['submit'])) {
             mysqli_query($dbc, "UPDATE `ticket_comment` SET `deleted`=1, `date_of_archival`=DATE(NOW()) WHERE `ticketid`='$id' AND `type`='flag_comment'");
             if(!empty($flag_label)) {
                 mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`,`type`,`comment`,`created_date`,`created_by`) VALUES ('$id','flag_comment','$flag_label',DATE(NOW()),'".$_SESSION['contactid']."')");
-            }
-            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$ticketid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
-            break;
+            } ?>
+            <script type="text/javascript">
+                window.parent.setManualFlag('<?=$ticketid ?>', '<?= $flag_colour ?>', '<?= $flag_label ?>');
+                if(typeof window.parent.$('.iframe_overlay iframe')[0].contentWindow.setManualFlag != 'undefined') {
+                    window.parent.$('.iframe_overlay iframe')[0].contentWindow.setManualFlag('<?=$ticketid ?>', '<?= $flag_colour ?>', '<?= $flag_label ?>');
+                }
+            </script>
+            <?php break;
 
         case 'tasks':
             $tasklistid = $id;
-            mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$flag_colour',`flag_label`='$flag_label', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `tasklistid`='$tasklistid'");
+            if($_GET['type'] == 'task') {
+                mysqli_query($dbc, "UPDATE `tasklist` SET `flag_colour`='$flag_colour',`flag_label`='$flag_label', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `tasklistid`='$tasklistid'");
 
-            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$tasklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+                $note = '<em>Flag added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].']: </em>';
+
+                mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$tasklistid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+
+                echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$tasklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+            } else {
+
+                mysqli_query($dbc, "UPDATE `task_board` SET `flag_colour`='$flag_colour',`flag_label`='$flag_label', `flag_start`='$flag_start', `flag_end`='$flag_end' WHERE `taskboardid`='$tasklistid'");
+
+                $note = '<em>Flag added by '.get_contact($dbc, $_SESSION['contactid']).' [PROFILE '.$_SESSION['contactid'].'] on Task board.</em>';
+
+                mysqli_query($dbc, "INSERT INTO `task_comments` (`tasklistid`, `comment`, `created_by`, `created_date`) VALUES ('$tasklistid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
+
+                echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$tasklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+            }
             break;
 
         case 'tasklist':
@@ -125,11 +152,27 @@ if(isset($_POST['submit'])) {
             </script>
             <?php break;
 
+
         case 'checklist_name':
             $checklistid = $id;
             mysqli_query($dbc, "UPDATE `checklist_name` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `checklistnameid`='$id'");
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             ?>
+            <?php break;
+
+        case 'contacts':
+            $contactid = $id;
+            mysqli_query($dbc, "UPDATE `contacts` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `contactid`='$id'");
+            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$contactid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+            ?>
+            <?php break;
+
+        case 'equipment':
+            $checklistid = $id;
+            mysqli_query($dbc, "UPDATE `equipment` SET `flag_colour`='$flag_colour', `flag_start`='$flag_start', `flag_end`='$flag_end', `flag_label`='$flag_label' WHERE `equipmentid`='$id'");
+            echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
+        	?>
+
             <?php break;
         case 'common_checklist_flag':
             $checklistid = $id;
@@ -137,6 +180,7 @@ if(isset($_POST['submit'])) {
             echo '<script type="text/javascript"> window.parent.setManualFlag(\''.$checklistid.'\', \''.$flag_colour.'\', \''.$flag_label.'\'); </script>';
             ?>
             <?php break;
+
 
         default:
             break;
@@ -155,7 +199,11 @@ if(isset($_POST['submit'])) {
         break;
 
     case 'tasks':
+        if($_GET['type'] == 'task') {
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `tasklist` WHERE `tasklistid`='$id'")->fetch_assoc();
+        } else {
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `task_board` WHERE `taskboardid`='$id'")->fetch_assoc();
+        }
         break;
 
     case 'tasklist':
@@ -175,14 +223,28 @@ if(isset($_POST['submit'])) {
     case 'checklist_name':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist_name` WHERE `checklistnameid`='$id'")->fetch_assoc();
         break;
-
+    case 'equipment_name':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `equipment_name` WHERE `equipmentnameid`='$id'")->fetch_assoc();
+        break;
     case 'common_checklist_flag':
         $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `checklist` WHERE `checklistid`='$id'")->fetch_assoc();
+        break;
+    case 'contacts':
+        $row = $dbc->query("SELECT `flag_colour`,`flag_label`,`flag_start`,`flag_end` FROM `contacts` WHERE `contactid`='$id'")->fetch_assoc();
         break;
 
     default:
         break;
-} ?>
+}
+
+if(empty($row['flag_start']) || $row['flag_start'] == '0000-00-00') {
+    $row['flag_start'] = date('Y-m-d');
+}
+
+if(empty($row['flag_end']) || $row['flag_end'] == '0000-00-00') {
+    $row['flag_start'] = '';
+}
+?>
 
 <div class="container">
 	<div class="row">
@@ -202,12 +264,7 @@ if(isset($_POST['submit'])) {
         	<div class="form-group">
         		<label class="col-sm-4 control-label">Flag Colour:</label>
         		<div class="col-sm-8">
-                    <select name='flag_colour' class="form-control" style="background-color:#<?= $row['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
-                        <option value="" style="background-color:#FFFFFF;">No Flag</option>
-                        <?php foreach(explode(',', get_config($dbc, "ticket_colour_flags")) as $flag_colour) { ?>
-                            <option <?= $row['flag_colour'] == $flag_colour ? 'selected' : '' ?> value="<?= $flag_colour ?>" style="background-color:#<?= $flag_colour ?>;"><?= $flag_colour ?></option>
-                        <?php } ?>
-                    </select>
+                    <input type="color" class="color_picker" name="flag_colour" value="#<?= $row['flag_colour'] ?>" />
                 </div>
         	</div>
         	<div class="form-group">

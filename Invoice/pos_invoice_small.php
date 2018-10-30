@@ -178,7 +178,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
             if ( $misc_product != '' ) {
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= $misc_product .'<br />';
+                        $html .= ($quantity < 0 ? 'Return: ' : '').$misc_product .'<br />';
                         $html .= number_format($quantity, 0) .' @ $' . number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -210,7 +210,7 @@ if ( $num_rows3 > 0 ) {
                 $amount = $row['sub_total'];
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= get_package($dbc, $inventoryid, 'heading') .'<br />';
+                        $html .= ($quantity < 0 ? 'Refund: ' : '').get_package($dbc, $inventoryid, 'heading') .'<br />';
                         $html .= number_format($quantity, 0) .' @ $' . number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -229,7 +229,7 @@ $result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invo
 $num_rows3 = mysqli_num_rows($result);
 if($num_rows3 > 0) {
 	if($num_rows > 0 || $num_rows2 > 0) { $html .= '<br>'; }
-	
+
     $html .= '<h3>Product(s)</h3><table border="0" cellpadding="2">';
         while ( $row=mysqli_fetch_array($result) ) {
             $inventoryid = $row['item_id'];
@@ -241,7 +241,7 @@ if($num_rows3 > 0) {
                 $amount = $row['sub_total'];
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= get_products($dbc, $inventoryid, 'heading') .'<br />';
+                        $html .= ($quantity < 0 ? 'Refund: ' : '').get_products($dbc, $inventoryid, 'heading') .'<br />';
                         $html .= number_format($quantity, 0) .' @ $'. number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -260,7 +260,7 @@ $result = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invo
 $num_rows4 = mysqli_num_rows($result);
 if($num_rows4 > 0) {
 	if($num_rows > 0 || $num_rows2 > 0 || $num_rows3 > 0) { $html .= '<br>'; }
-	
+
     $html .= '<h3>Service(s)</h3><table border="0" cellpadding="2">';
         while ( $row=mysqli_fetch_array($result) ) {
             $inventoryid = $row['item_id'];
@@ -272,7 +272,7 @@ if($num_rows4 > 0) {
                 $amount = $row['sub_total'];
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= get_services($dbc, $inventoryid, 'heading') .'<br />';
+                        $html .= ($quantity < 0 ? 'Refund: ' : '').get_services($dbc, $inventoryid, 'heading') .'<br />';
                         $html .= number_format($quantity, 0) .' @ $'. number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -304,7 +304,7 @@ if($num_rows5 > 0) {
 
                 $html .= '<tr>';
                     $html .= '<td>';
-                        $html .= get_vpl($dbc, $inventoryid, 'name') .'<br />';
+                        $html .= ($quantity < 0 ? 'Return: ' : '').get_vpl($dbc, $inventoryid, 'name') .'<br />';
                         $html .= number_format($quantity, 0) .' @ $'. number_format($price, 2);
                     $html .= '</td>';
                     if($return_result > 0) {
@@ -409,4 +409,6 @@ if ( !file_exists('download') ) {
 }
 
 $pdf->writeHTML($html, true, false, true, false, '');
+$invoice_type = $get_invoice['type'];
+include('../Invoice/pos_invoice_append_ticket.php');
 $pdf->Output('download/invoice_'.$invoiceid.'.pdf', 'F');

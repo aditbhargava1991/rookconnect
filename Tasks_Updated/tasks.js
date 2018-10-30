@@ -2,6 +2,68 @@ $(document).ready(function() {
 	tasksInit();
 });
 
+function task_status(sel) {
+    var status = sel.value;
+	var tasklistid = sel.id.split('_')[1];
+	var status = status.replace(" ", "FFMSPACE");
+	var status = status.replace("&", "FFMEND");
+	var status = status.replace("#", "FFMHASH");
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=task_status&tasklistid="+tasklistid+'&status='+status,
+        dataType: "html",
+		success: function(response){
+			//window.location.reload();
+		}
+    });
+}
+
+function saveTaskDefaultStatus(sel) {
+    var status = sel.value;
+	var status = status.replace(" ", "FFMSPACE");
+	var status = status.replace("&", "FFMEND");
+	var status = status.replace("#", "FFMHASH");
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=task_default_status&task_default_status="+status,
+        dataType: "html",
+		success: function(response){
+			//window.location.reload();
+		}
+    });
+}
+
+function mark_task_date(sel) {
+    var todo_date = sel.value;
+	var tasklistid = sel.id.split('_')[1];
+
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_date&tasklistid="+tasklistid+'&todo_date='+todo_date,
+        dataType: "html",
+        success: function(response){
+		}
+    });
+}
+
+function mark_task_staff(sel) {
+	var tasklistid = sel.id.split('_')[1];
+	var staff = [];
+
+	$('#taskid_'+tasklistid+' [name="task_userid[]"]').find('option:selected').each(function() {
+        staff.push(this.value);
+	});
+
+    $.ajax({
+        type: "GET",
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_staff&tasklistid="+tasklistid+'&staff='+staff,
+        dataType: "html",
+        success: function(response) {
+			//window.location.reload();
+		}
+    });
+}
+
 function saveTaskChecklist() {
 	var checklist = 0;
 
@@ -179,6 +241,7 @@ function tasksInit() {
 				url: "task_ajax_all.php?fill=tasklist&tasklistid="+taskid+"&table="+table+"&id_field="+id_field+"&task_milestone_timeline="+status,
 				dataType: "html",   //expect html to be returned
 				success: function(response){
+					location.reload();
 				}
 			});
 		}
@@ -196,6 +259,7 @@ function DoubleScroll(element) {
 	scrollbar.style.overflowY= 'hidden';
 	scrollbar.style.width= '';
 	scrollbar.firstChild.style.width= element.scrollWidth+'px';
+	scrollbar.firstChild.style.height= '0px';
 	scrollbar.firstChild.style.paddingTop= '1px';
 	scrollbar.firstChild.appendChild(document.createTextNode('\xA0'));
 	scrollbar.onscroll= function() {
@@ -245,6 +309,46 @@ function handleClick(sel) {
 		dataType: "html",   //expect html to be returned
 		success: function(response){
 			location.reload();
+		}
+	});
+}
+
+function addStaff(sel) {
+	var taskid = $(sel).data('taskid');
+    //var block = $('div.add_staff').last();
+	var block = $('div#taskid_'+taskid).last();
+    destroyInputs('.add_staff');
+    clone = block.clone();
+    clone.find('.form-control').val('');
+    block.after(clone);
+    initInputs('.add_staff');
+}
+
+function removeStaff(button) {
+    if($('div.add_staff').length <= 1) {
+        addStaff();
+    }
+	var taskid = $(button).data('taskid');
+
+    $(button).closest('div#taskid_'+taskid).remove();
+    $('div.add_staff').first().find('[name="task_userid[]"]').change();
+}
+
+function sync(task) {
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "task_ajax_all.php?fill=is_sync&sync="+$(task).data('sync')+"&tasklistid="+$(task).closest('[data-task]').data('task'),
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+            // $(task).hide();
+            $(task).data('sync',$(task).data('sync') > 0 ? 0 : 1);
+            $(task).closest('li.t_item,.standard-body-title').find('.sync_visible_icon').toggle()
+            $(task).find('img').prop('title',($(task).data('sync') > 0 ? 'Not Synced To Customer Scrum Board' : 'Synced To Customer Scrum Board'));
+            try {
+                $(task).find('img').tooltip('destroy');
+            } catch (err) { }
+            initTooltips();
+			// location.reload();
 		}
 	});
 }

@@ -49,13 +49,12 @@ if (isset($_POST['submit_btn'])) {
 
 	// PDF
 	$invoice_design = get_config($dbc, 'invoice_design');
+
     if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
         $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
     }
+
 	switch($invoice_design) {
-		case 1:
-			include('pos_invoice_1.php');
-			break;
 		case 2:
 			include('pos_invoice_2.php');
 			break;
@@ -89,6 +88,10 @@ if (isset($_POST['submit_btn'])) {
         case 'custom_ticket':
             include ('pos_invoice_custom_ticket.php');
             break;
+		case 1:
+        default:
+			include('pos_invoice_1.php');
+			break;
 	}
 
     if($_POST['survey'] != '') {
@@ -110,23 +113,17 @@ if (isset($_POST['submit_btn'])) {
         </script>';
     } else if($invoicefrom == 'calendar') {
         echo '<script type="text/javascript"> window.top.close(); window.opener.location.reload(); </script>';
-    } else { ?>
-        <script>
-        <?php if($search_user != '') { ?>
-            alert("Invoice Updated.");
-            window.location.replace("index.php?tab=all&search_user=<?= $search_user ?>");
-        <?php } else if($search_invoice != '') { ?>
-            alert("Invoice Updated.");
-            window.location.replace("index.php?tab=all&search_invoice=<?= $search_invoice ?>");
-        <?php } else { ?>
-            alert("Invoice Generated.");
-            window.location.replace("index.php");
-        <?php } ?>
-        if('<?= $invoiceid ?>' * 1 > 0) {
-            window.open("download/invoice_<?= $invoiceid ?>.pdf", "fullscreen=yes");
+    } else {
+        if($search_user != '') {
+            echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("index.php?tab=all&search_user='.$search_user.'");</script>';
+        } else if($search_invoice != '') {
+            echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("index.php?tab=all&search_invoice='.$search_invoice.'");</script>';
+        } else {
+            echo '<script type="text/javascript"> alert("Invoice Generated."); window.location.replace("index.php");
+            window.open("download/invoice_'.$invoiceid.'.pdf", "fullscreen=yes");
+            </script>';
         }
-        </script>
-    <?php }
+    }
 
     mysqli_close($dbc); //Close the DB Connection
 }

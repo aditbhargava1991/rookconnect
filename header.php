@@ -21,22 +21,9 @@ function updateQueryStringParameter(uri, key, value) {
 }
 
 // Javascript Stored User Preferences
-var time_format_style = '<?php
-switch($_SESSION['user_preferences']['time_format'] > 0 ? $_SESSION['user_preferences']['time_format'] : get_config($dbc, 'system_time_format')) {
-	case 4: echo 'H:mm'; break;
-	case 3: echo 'HH:mm'; break;
-	case 2: echo 'h:mm tt'; break;
-	default: echo 'hh:mm tt'; break;
-}
-?>';
-var time_format_seconds = '<?php
-switch($_SESSION['user_preferences']['time_format'] > 0 ? $_SESSION['user_preferences']['time_format'] : get_config($dbc, 'system_time_format')) {
-	case 4: echo 'H:mm:ss'; break;
-	case 3: echo 'HH:mm:ss'; break;
-	case 2: echo 'h:mm:ss tt'; break;
-	default: echo 'hh:mm:ss tt'; break;
-}
-?>';
+var time_format_style = '<?= TIME_FORMAT ?>';
+var time_format_seconds = '<?= TIME_FORMAT_SEC ?>';
+var time_out_notified = false;
 </script>
 
 <!-- css -->
@@ -178,6 +165,12 @@ if($software_config == 'swr') {
 <!-- <link rel="stylesheet" href="<?php //echo WEBSITE_URL;?>/gantti-master/styles/css/screen.css" /> -->
 
 <script src="<?= WEBSITE_URL; ?>/js/isMobile.js"></script>
+<script src="<?= WEBSITE_URL; ?>/js/circlos.js"></script>
+<script>
+$(document).ready(function(){
+    $(".radial_chart").circlos();
+});
+</script>
 <script src="<?= WEBSITE_URL;?>/js/custom.js"></script>
 <script src="<?= WEBSITE_URL;?>/js/ajax_functions.js"></script>
 <script> setInterval(function() { $.ajax({ url: '<?= WEBSITE_URL ?>/refresh_session.php' }); }, 1200000); </script>

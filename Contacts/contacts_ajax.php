@@ -4,6 +4,17 @@ error_reporting(0);
 checkAuthorised();
 ob_clean();
 
+if($_GET['action'] == 'setting_quick_icon') {
+    $tab_list = $_GET['tab_list'];
+	set_config($dbc, 'contact_quick_action_icons', filter_var($tab_list,FILTER_SANITIZE_STRING));
+}
+
+if($_GET['action'] == 'contact_highlight') {
+	$contactid = $_GET['contactid'];
+	$contactcolor = $_GET['contactcolor'];
+    mysqli_query($dbc, "UPDATE `contacts` SET `flag_colour`='$contactcolor' WHERE `contactid`='$contactid'");
+}
+
 if($_GET['action'] == 'contact_fields') {
 	$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
 	$fields = filter_var($_POST['field_list'],FILTER_SANITIZE_STRING);
@@ -1079,6 +1090,10 @@ if($_GET['action'] == 'update_url_send_email') {
 	echo (empty($error) ? 'Successfully sent.' : $error);
 }
 
+if($_GET['action'] == 'get_contact_name') {
+	echo $contact_name = array_shift(sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$_GET['contactid']."'")))['full_name'];
+}
+
 function copy_data($dbc, $contactid, $other_contactid) {
 	$contacts_tables = ['contacts','contacts_cost','contacts_dates','contacts_description','contacts_medical','contacts_upload'];
 
@@ -1096,4 +1111,3 @@ function copy_data($dbc, $contactid, $other_contactid) {
 		mysqli_query($dbc, "UPDATE `$contacts_table` SET $query_update WHERE `contactid` = '$other_contactid'");
 	}
 }
- 

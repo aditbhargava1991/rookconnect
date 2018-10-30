@@ -30,7 +30,7 @@ if($_GET['type'] == 'schedule' && $_GET['view'] == 'summary') {
 	include('monthly_display_events.php');
 } else if($_GET['type'] == 'estimates') {
 	include('monthly_display_estimates.php');
-} else if($_GET['type'] == 'schedule') {
+} else if($_GET['type'] == 'schedule' || $_GET['block_type'] == 'equipment') {
 	include('monthly_display_equip.php');
 } else if($wait_list == 'ticket') {
 	include('monthly_display_tickets.php');

@@ -135,7 +135,7 @@ $(document).ready(function() {
 
 			<div id="collapse_2" class="panel-collapse collapse">
 				<div class="panel-body">
-					<?php $description_array=array("Serial #","Unit #","VIN #","Licence Plate","Label","Nickname"); ?>
+					<?php $description_array=array("Serial #","Part Serial","Unit #","VIN #","Licence Plate","Label","Nickname"); ?>
 					<?php $equipment_config_array = array_intersect($description_array, array_filter(explode(",", $equipment_config))); ?>
 					<?php foreach($equipment_config_array as $equipment_field): ?>
 						<input type="checkbox" <?php if (strpos($equipment_mandatory_config, ','.$equipment_field.',') !== FALSE) { echo " checked"; } ?> value="<?php echo $equipment_field; ?>" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;<?php echo $equipment_field; ?>

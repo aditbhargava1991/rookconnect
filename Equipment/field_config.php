@@ -13,6 +13,10 @@ switch($_GET['settings']) {
 		$include_file = 'field_config_dashboard.php';
 		$title = 'Dashboard';
 		break;
+	case 'overview':
+		$include_file = 'field_config_overview.php';
+		$title = 'Overview';
+		break;
 	case 'inspection':
 		$include_file = 'field_config_inspection.php';
 		$title = 'Inspections';
@@ -131,6 +135,21 @@ function loadPanel() {
 	<div class="panel panel-default">
 		<div class="panel-heading mobile_load">
 			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_overview">
+					Overview<span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_overview" class="panel-collapse collapse">
+			<div class="panel-body" data-file-name="field_config_overview.php">
+				Loading...
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading mobile_load">
+			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_inspection">
 					Inspections<span class="glyphicon glyphicon-plus"></span>
 				</a>
@@ -241,6 +260,7 @@ function loadPanel() {
 		<a href="?settings=field"><li class="<?= $_GET['settings'] == 'field' ? 'active blue' : '' ?>">Fields</li></a>
 		<a href="?settings=mandatory_fields"><li class="<?= $_GET['settings'] == 'mandatory_fields' ? 'active blue' : '' ?>">Mandatory Fields</li></a>
 		<a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard</li></a>
+		<a href="?settings=overview"><li class="<?= $_GET['settings'] == 'overview' ? 'active blue' : '' ?>">Overview</li></a>
 		<a href="?settings=inspection"><li class="<?= $_GET['settings'] == 'inspection' ? 'active blue' : '' ?>">Inspections</li></a>
 		<a href="?settings=expenses"><li class="<?= $_GET['settings'] == 'expenses' ? 'active blue' : '' ?>">Expenses</li></a>
 		<a href="?settings=service_request"><li class="<?= $_GET['settings'] == 'service_request' ? 'active blue' : '' ?>">Service Request</li></a>

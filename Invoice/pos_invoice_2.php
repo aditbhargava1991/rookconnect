@@ -211,7 +211,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 					$html .= '<td>' . get_inventory ( $dbc, $inventoryid, 'part_no' ) . '</td>';
 				}
 
-				$html .= '<td>'.get_inventory($dbc, $inventoryid, 'name').'</td>';
+				$html .= '<td>'.($quantity < 0 ? 'Return: ' : '').get_inventory($dbc, $inventoryid, 'name').'</td>';
 				$html .= '<td>'.number_format($quantity,0).'</td>';
 				if($return_result > 0) {
 					$html .= '<td>'.$returned.'</td>';
@@ -233,7 +233,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 		if($misc_product != '') {
 			$html .= '<tr>';
 			$html .=  '<td>Not Available</td>';
-			$html .=  '<td>'.$misc_product.'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').$misc_product.'</td>';
 			$html .=  '<td>' . number_format($quantity,0) . '</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -270,7 +270,7 @@ if($num_rows3 > 0) {
 			$amount = $row['sub_total'];
 			$html .= '<tr>';
 			$html .=  '<td>'.get_package($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_package($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Refund: ' : '').get_package($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -307,7 +307,7 @@ if($num_rows3 > 0) {
 			$amount = $row['sub_total'];
 			$html .= '<tr>';
 			$html .=  '<td>'.get_products($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_products($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_products($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -344,7 +344,7 @@ if($num_rows4 > 0) {
 			$amount = $row['sub_total'];
 			$html .= '<tr>';
 			$html .=  '<td>'.get_services($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_services($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Refund: ' : '').get_services($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -446,7 +446,7 @@ $html .= '
 			$html .= '<tr><td style="text-align:right;" width="75%"><strong>Discount</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($get_invoice['discount'], 2).'</td></tr>';
             $html .= '<tr><td style="text-align:right;" width="75%"><strong>Total After Discount</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($get_invoice['total_price'] - $get_invoice['discount'], 2).'</td></tr>';
 		}
-        
+
 		if($get_invoice['delivery'] !='' && $get_invoice['delivery'] != 0) {
 			$html .= '<tr><td style="text-align:right;" width="75%"><strong>Delivery</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($get_invoice['delivery'], 2).'</td></tr>';
 		}
@@ -489,5 +489,6 @@ if (!file_exists('download')) {
 }
 
 $pdf->writeHTML($html, true, false, true, false, '');
-?><?php
+$invoice_type = $get_invoice['type'];
+include('../Invoice/pos_invoice_append_ticket.php');
 $pdf->Output('download/invoice_'.$invoiceid.'.pdf', 'F');

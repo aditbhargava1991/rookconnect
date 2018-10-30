@@ -77,6 +77,47 @@ if(!empty($calendar_auto_refresh)) {
 }
 
 // Calendar Main Screen ?>
+<script>
+function resize_rows() {
+    <?php if(get_config($dbc, 'auto_size_calendar_blocks') == 'true') { ?>
+        var min_size = 0;
+        $('.used-block').each(function() {
+            var blocks = $(this).data('blocks');
+            if(blocks == 0) {
+                blocks = 1;
+            }
+            if(min_size < $(this).find('span').innerHeight() / blocks + 5) {
+                min_size = $(this).find('span').innerHeight() / blocks + 5;
+            }
+        });
+        var max_size = $('.calendar_view').height() / 2;
+        if(min_size > max_size) {
+        	min_size = max_size;
+        }
+        $('.calendar_view td').innerHeight(min_size).find('div.used_block').each(function() {
+            $(this).innerHeight($(this).data('blocks') * min_size);
+        });
+    <?php } ?>
+    <?php if(get_config($dbc, 'auto_show_time') == 'true') { ?>
+        var top = $('td.today-active a[data-currenttime]').filter(function() { return Date.parse($(this).data('currentdate')+' '+$(this).data('currenttime')) < Date.now(); }).last();
+        if(top.offset() != undefined) {
+            $('.calendar_view').scrollTop(top.offset().top);
+        }
+    <?php } ?>
+}
+var unbooked_reload = '';
+$(document).on("overlayIFrameSliderLoad", function() {
+	clearInterval(unbooked_reload);
+	if(window.parent.$('#unbooked_list').is(':visible') && typeof window.parent.retrieveUnbookedData != 'undefined') {
+		unbooked_reload = setInterval(function() {
+			if(!(window.parent.$('.iframe_overlay').is(':visible'))) {
+				clearInterval(unbooked_reload);
+				window.parent.retrieveUnbookedData();
+			}
+		},1000);
+	}
+});
+</script>
 </head>
 <body>
 <?php include_once ('../navigation.php');
@@ -146,13 +187,13 @@ checkAuthorised('calendar_rook');
 			</div>
 			<div class="clearfix"></div>
 		</div>
-		<div class="form-group">
+		<!--<div class="form-group">
 			<label class="col-sm-4 control-label">Scheduled End Time:</label>
 			<div class="col-sm-8">
 				<input type="text" name="change_to_do_end_time" value="" class="form-control datetimepicker">
 			</div>
 			<div class="clearfix"></div>
-		</div>
+		</div>-->
 	</div>
 	<div id="dialog_create_recurrence_cal" title="Recurrence Details" style="display: none;">
 		<script type="text/javascript">
@@ -243,6 +284,10 @@ checkAuthorised('calendar_rook');
 	</div>
 	<div class="row hide_on_iframe">
 		<div class="main-screen" style="background-color: #fff; border-width: 0; margin-top: -20px;">
+            <div id="camera_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+            <div id="signature_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+            <div id="star_rating_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
+            <div id="customer_notes_hover" class="block-button" style="position:absolute; z-index:9999; display:none;">Loading...</div>
 			<div class="subtab-menu pull-left">
 				<a href="" onclick="toggleMenu(this); return false;"><span class="block-item"><?= $calendar_label ?><img src="<?= WEBSITE_URL ?>/img/icons/dropdown-arrow.png" style="height: 1em; margin: 0.25em 0;" class="counterclockwise pull-right"></span></a>
 				<?php if($_GET['type'] != 'my' && in_array('My Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'My Calendar')) { ?><a href="?type=my&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item">My Calendar</span></a><?php } ?>
@@ -269,10 +314,10 @@ checkAuthorised('calendar_rook');
 				<a href="?type=staff&mode=client&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'client' ? 'active' : '' ?>" style="float: left;"><?= (!empty(get_config($dbc, 'staff_schedule_client_type')) ? get_config($dbc, 'staff_schedule_client_type') : 'Clients') ?></span></a>
 				<!-- <a href="?type=staff&mode=tickets&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'tickets' ? 'active' : '' ?>" style="float: left;"><?= TICKET_TILE ?></span></a> -->
 			<?php } else if($_GET['type'] == 'schedule' && in_array('Dispatch Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Dispatch Calendar')) { ?>
-				<a href="?type=schedule&mode=schedule&view=<?= $_GET['mode'] == 'summary' ? 'daily' : $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'schedule' ? 'active' : '' ?>" style="float: left;">Schedule</span></a>
-				<?php if($allowed_dispatch_staff > 0 && !$is_customer) { ?><a href="?type=schedule&view=<?= $_GET['mode'] == 'summary' ? 'daily' : $_GET['view'] ?>&region=<?= $_GET['region'] ?>&mode=staff"><span class="block-item <?= $_GET['mode'] == 'staff' ? 'active' : '' ?>" style="float: left;">Staff</span></a><?php } ?>
-				<?php if($allowed_dispatch_staff > 0 && !empty($contractor_category) && !$is_customer) { ?><a href="?type=schedule&view=<?= $_GET['mode'] == 'summary' ? 'daily' : $_GET['view'] ?>&region=<?= $_GET['region'] ?>&mode=contractors"><span class="block-item <?= $_GET['mode'] == 'contractors' ? 'active' : '' ?>" style="float: left;">Contractors</span></a><?php } ?>
-				<?php if($scheduling_summary_view == 1 && !$is_customer) { ?><a href="?type=schedule&view=monthly&mode=summary"><span class="block-item <?= $_GET['mode'] == 'summary' ? 'active' : '' ?>" style="float: left;">Summary</span></a><?php } ?>
+				<a href="?type=schedule&mode=schedule&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>"><span class="block-item <?= $_GET['mode'] == 'schedule' ? 'active' : '' ?>" style="float: left;">Schedule</span></a>
+				<?php if($allowed_dispatch_staff > 0 && !$is_customer) { ?><a href="?type=schedule&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>&mode=staff"><span class="block-item <?= $_GET['mode'] == 'staff' ? 'active' : '' ?>" style="float: left;">Staff</span></a><?php } ?>
+				<?php if($allowed_dispatch_staff > 0 && !empty($contractor_category) && !$is_customer) { ?><a href="?type=schedule&view=<?= $_GET['view'] ?>&region=<?= $_GET['region'] ?>&mode=contractors"><span class="block-item <?= $_GET['mode'] == 'contractors' ? 'active' : '' ?>" style="float: left;">Contractors</span></a><?php } ?>
+				<?php if($scheduling_summary_view == 1 && !$is_customer) { ?><a href="?type=schedule&view=<?= $_GET['view'] ?>&mode=summary"><span class="block-item <?= $_GET['mode'] == 'summary' ? 'active' : '' ?>" style="float: left;">Summary</span></a><?php } ?>
 			<?php } else if($_GET['type'] == 'shift' && $_GET['view'] != 'monthly' && in_array('Shift Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Shift Calendar')) {
 				$shift_client_type = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['contact_category'];
 				if(!empty($shift_client_type)) { ?>
@@ -408,33 +453,35 @@ checkAuthorised('calendar_rook');
 						}
 						break;
 					case 'schedule':
-						switch($_GET['view']) {
-							case 'weekly':
-								if(in_array('Dispatch Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Dispatch Calendar')) {
-									include('schedule_weekly.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							case 'daily':
-								if(in_array('Dispatch Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Dispatch Calendar')) {
-									include('schedule_daily.php');
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
-							case 'monthly':
-							default:
-								if(in_array('Dispatch Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Dispatch Calendar')) {
-									if($_GET['mode'] == 'summary') {
-										include('schedule_summary.php');
+						if($_GET['mode'] == 'summary') {
+							if($_GET['mode'] == 'summary') {
+								include('schedule_summary.php');
+							}
+						} else {
+							switch($_GET['view']) {
+								case 'weekly':
+									if(in_array('Dispatch Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Dispatch Calendar')) {
+										include('schedule_weekly.php');
 									} else {
-										include('schedule_monthly.php');
+										echo 'This Calendar is either not enabled or you do not have access.';
 									}
-								} else {
-									echo 'This Calendar is either not enabled or you do not have access.';
-								}
-								break;
+									break;
+								case 'daily':
+									if(in_array('Dispatch Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Dispatch Calendar')) {
+										include('schedule_daily.php');
+									} else {
+										echo 'This Calendar is either not enabled or you do not have access.';
+									}
+									break;
+								case 'monthly':
+								default:
+									if(in_array('Dispatch Calendar', $calendar_types) && check_subtab_persmission($dbc, 'calendar_rook', ROLE, 'Dispatch Calendar')) {
+										include('schedule_monthly.php');
+									} else {
+										echo 'This Calendar is either not enabled or you do not have access.';
+									}
+									break;
+							}
 						}
 						break;
 					case 'estimates':

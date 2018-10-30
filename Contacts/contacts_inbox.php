@@ -1,4 +1,5 @@
 <?php // Contacts View
+
 error_reporting(0);
 include_once('../include.php'); ?>
 </head>
@@ -33,7 +34,23 @@ checkAuthorised($security_folder);
 $view_access = tile_visible($dbc, $security_folder);
 $edit_access = vuaed_visible_function($dbc, $security_folder);
 $config_access = config_visible_function($dbc, $security_folder);
-include_once ('../navigation.php'); ?>
+include_once ('../navigation.php');
+
+$breadcrumbs = '';
+if(empty($_GET['settings'])) {
+	if(!empty($_GET['edit']) && $_GET['edit'] > 0) {
+		$contact_category = get_contact($dbc, $_GET['edit'], 'category');
+		$breadcrumbs .= ': <a href="?list='.$contact_category.'&status=active">'.$contact_category.'</a>';
+		$contact_name = array_shift(sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$_GET['edit']."'")))['full_name'];
+		$breadcrumbs .= ': <a href="?edit='.$_GET['edit'].'" class="breadcrumb_contact">'.$contact_name.'</a>';
+	} else if($_GET['edit'] == 'new') {
+		if(!empty($_GET['category'])) {
+			$breadcrumbs .= ': <a href="?list='.$_GET['category'].'&status=active">'.$_GET['category'].'</a>';
+		}
+		$breadcrumbs .= ': <a href="?edit=new" class="breadcrumb_contact">New '.(!empty($_GET['category']) ? $_GET['category'] : ($folder_label != 'Contacts' ? $folder_label : CONTACTS_NOUN)).'</a>';
+	}
+}
+?>
 <?php if(!IFRAME_PAGE) { ?>
 	<div class="container">
 		<div id="dialog_copy_contact" title="Choose a Category" style="display: none;">
@@ -51,7 +68,7 @@ include_once ('../navigation.php'); ?>
 			</div>
 		</div>
 		<div id="dialog_email_credentials" title="Email Credentials" style="display:none;">
-			<?php $email_subject = 'Login Credentials for '.WEBSITE_URL;
+			<?php $email_creds_subjectbject = 'Login Credentials for '.WEBSITE_URL;
 				$email_body = 'Your login credentials are:<br>
 					<ul>
 					<li>Username: [USERNAME]</li>
@@ -130,14 +147,16 @@ include_once ('../navigation.php'); ?>
 		</div>
 		<div class="row hide_on_iframe icons_div" data-id="<?= $_GET['edit'] ?>">
 			<div class="main-screen" style="background-color: #fff; border-width: 0; height: auto; margin-top: -20px;">
-				<h1 class="no-gap-top padded"><a href="<?= !empty($_GET['from']) ? urldecode(strpos($_GET['from'],'list_common') !== FALSE ? '?'.explode('?',$_GET['from'])[1] : $_GET['from']) : '?' ?>"><?= $folder_label ?><?= ($_GET['edit'] > 0 ? ': '.(!empty(get_client($dbc, $_GET['edit'])) ? get_client($dbc, $_GET['edit']) : get_contact($dbc, $_GET['edit'])) : '') ?></a><?php if($config_access > 0) {
+				<h1 class="no-gap-top padded"><a href="<?= !empty($_GET['from']) ? urldecode(strpos($_GET['from'],'list_common') !== FALSE ? '?'.explode('?',$_GET['from'])[1] : $_GET['from']) : '?' ?>"><?= $folder_label ?></a><?= $breadcrumbs ?><?php if($config_access > 0) {
 					echo "<div class='pull-right'><a href='?settings=fields'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me settings-icon'></a></div>";
 				} ?>
 				<?php
 				if($edit_access > 0) {
-					echo "<div class='pull-right' style='height: 1em; padding: 0 0.25em;'><a href='?edit=new&category=".$_GET['list']."' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New Contact</button>";
+					echo "<div class='pull-right' style='height: 1em; padding: 0 0.25em;'><a href='?edit=new' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>New ".($folder_label != 'Contacts' ? $folder_label : CONTACTS_NOUN)."</button>";
 					echo "<img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='show-on-mob add-icon-lg'></a></div>";
-					echo "<div class='pull-right'><a href='Add Reminder' onclick='return false;'><img src='".WEBSITE_URL."/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width:1.5em;'></a></div>";
+					if($_GET['category']=='Customers' && $_GET['edit']!=''){
+						echo "<div class='pull-right'><a href='Add Reminder' onclick='return false;'><img src='".WEBSITE_URL."/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width:1.5em;'></a></div>";
+					}
 				} ?>
 				<!--
                 <?php /* if($view_access > 0) { ?>

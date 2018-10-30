@@ -111,7 +111,7 @@ if (isset($_POST['submit'])) {
 
 if (isset($_POST['submit_pay'])) {
 	$all_invoice = implode(',',$_POST['invoice']);
-	header('Location: add_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
+	header('Location: create_invoice.php?action=pay&from=patient&invoiceid='.$all_invoice);
 }
 
 if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
@@ -128,7 +128,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -275,7 +275,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
             <div id="no-more-tables" class="table-responsive double-gap-top">
             <?php
-            //echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
+            //echo '<a href="create_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             // Display Pager
 
             /* Pagination Counting */
@@ -296,16 +296,16 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             } else if(!empty($_GET['from'])) {
                 $from = $_GET['from'];
                 $to = $_GET['to'];
-                $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND (invoice_date >= '".$from."' AND invoice_date <= '".$to."') ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND (invoice_date >= '".$from."' AND invoice_date <= '".$to."') ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
             } else {
                 if($search_user != '') {
-                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND patientid='$search_user' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND patientid='$search_user' ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                     //$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND patientid='$search_user' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                 } else if($search_invoiceid != '') {
-                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoiceid='$search_invoiceid' ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                     //$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                 }  else if($search_date != '') {
-                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_date='$search_date' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
+                    $query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 AND invoice_date='$search_date' ".(!empty(MATCH_CONTACTS) ? "AND `patientid` IN (".MATCH_CONTACTS.")" : '')." ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                     //$query = "SELECT count(*) as numrows FROM invoice WHERE deleted = 0 AND invoiceid='$search_invoiceid' ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC";
                 } else {
                     //$query_check_credentials = "SELECT * FROM invoice WHERE deleted = 0 ORDER BY invoiceid DESC, paid ASC,payment_type ASC,final_price DESC LIMIT $offset, $rowsPerPage";
@@ -394,9 +394,9 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                     echo $insurer.$patient.'</td>';
 
-				$patient_paid = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`patient_price`) total_paid FROM `invoice_patient` WHERE `invoiceid`='".$row['invoiceid']."' AND IFNULL(`paid`,'') NOT IN ('On Account','')"))['total_paid'];
-				$insurer_paid = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`insurer_price`) total_paid FROM `invoice_insurer` WHERE `invoiceid`='".$row['invoiceid']."' AND `paid`='Yes'"))['total_paid'];
-				$insurer_owing = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`insurer_price`) total_paid FROM `invoice_insurer` WHERE `invoiceid`='".$row['invoiceid']."' AND `paid`!='Yes'"))['total_paid'];
+				$patient_paid = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`patient_price`) total_paid FROM `invoice_patient` WHERE `invoiceid`='".$row['invoiceid']."' AND IFNULL(`paid`,'') NOT IN ('On Account','') ".(!empty(MATCH_CONTACTS) ? "AND `contactid` IN (".MATCH_CONTACTS.")" : '')))['total_paid'];
+				$insurer_paid = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`insurer_price`) total_paid FROM `invoice_insurer` WHERE `invoiceid`='".$row['invoiceid']."' AND `paid`='Yes' ".(!empty(MATCH_CONTACTS) ? "AND `contactid` IN (".MATCH_CONTACTS.")" : '')))['total_paid'];
+				$insurer_owing = mysqli_fetch_array(mysqli_query($dbc, "SELECT SUM(`insurer_price`) total_paid FROM `invoice_insurer` WHERE `invoiceid`='".$row['invoiceid']."' AND `paid`!='Yes' ".(!empty(MATCH_CONTACTS) ? "AND `contactid` IN (".MATCH_CONTACTS.")" : '')))['total_paid'];
 				if($row['final_price'] == $patient_paid + $insurer_paid) {
 					$paid = 'Paid in Full';
 				} else if ($row['final_price'] == $patient_paid + $insurer_paid + $insurer_owing) {
@@ -456,10 +456,10 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
 
                 //if($row['paid'] != 'Yes' && $row['final_price'] != '') {
 					if($row['invoice_type'] == 'Saved') {
-						echo '<td><a href=\'add_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Edit</a>';
+						echo '<td><a href=\'create_invoice.php?invoiceid='.$row['invoiceid'].'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Edit</a>';
 						$role = $_SESSION['role'];
 						if($role== 'super' || $role == ',office_admin,' || $role == ',executive_front_staff,') {
-							echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'today_invoice.php?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
+							echo ' | <a onclick="return confirm(\'Are you sure you want to archive this invoice?\')" href=\'index.php?tab=today?invoiceid='.$row['invoiceid'].'&action=delete\' >Archive</a>';
 						}
 					} else {
 						echo '<td><a href=\'adjust_invoice.php?invoiceid='.($row['invoiceid_src'] == 0 ? $row['invoiceid'] : $row['invoiceid_src']).'&contactid='.$row['patientid'].'&search_user='.$search_user.'&search_invoice='.$search_invoiceid.'\' >Refund / Adjustments</a>';
@@ -527,7 +527,7 @@ $ux_options = explode(',',get_config($dbc, FOLDER_NAME.'_ux'));
             //    echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
             //}
             //echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-            //echo '<a href="add_invoice.php" class="btn brand-btn pull-right">Sell</a>';
+            //echo '<a href="create_invoice.php" class="btn brand-btn pull-right">Sell</a>';
             ?>
 
 

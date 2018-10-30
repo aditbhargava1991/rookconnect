@@ -68,42 +68,37 @@ $num_rows = mysqli_num_rows($result);
 	<div class='main-screen form-horizontal'>
         <div class="standard-body-title">
             <h3 class="inline">Performance Reviews</h3>
-            <?php if(vuaed_visible_function($dbc, 'preformance_review')) { ?>
-                <a href="?performance_review=add" class="btn brand-btn pull-right">Add Performance Review</a>
-            <?php } ?>
         </div>
         <div class="clearfix"></div>
-        <div class="standard-body-content form-group" style="padding: 1.5em;">
+        <div class="standard-body-content" style="padding: 1.5em;">
             <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-                <div class="col-sm-3">
-                    <label class="super-label">Form
-                        <select name="select_form" class="chosen-select-deselect form-control">
+                <div class="col-sm-6">
+                    <label class="col-sm-12">Form:
+                        <div class="col-sm-8 pull-right"><select name="select_form" class="chosen-select-deselect form-control">
                             <option></option>
                             <?php $pr_forms = implode(',',array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `field_config_performance_reviews` WHERE `enabled` = 1 AND (CONCAT(',',`limit_staff`,',') LIKE '%,".$_SESSION['contactid'].",%' OR IFNULL(`limit_staff`,'') = '')"),MYSQLI_ASSOC),'user_form_id'));
                             $pr_forms = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE `form_id` IN ($pr_forms) AND `deleted` = 0 ORDER BY `name`"),MYSQLI_ASSOC);
                             foreach ($pr_forms as $pr_form) {
                                 echo '<option value="'.$pr_form['form_id'].'" '.($select_form == $pr_form['form_id'] ? 'selected' : '').'>'.$pr_form['name'].'</option>'; 
                             } ?>
-                        </select>
+                        </select></div>
                     </label>
-                </div>
-                <div class="col-sm-3">
-                    <label class="super-label">Staff
-                        <select name="select_staff" class="chosen-select-deselect">
+                    <label class="col-sm-12">Staff:
+                        <div class="col-sm-8 pull-right"><select name="select_staff" class="chosen-select-deselect">
                             <option></option>
                             <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
                             foreach ($staff_list as $staff_id) { ?>
                                 <option value="<?= $staff_id ?>" <?= $select_staff == $staff_id ? 'selected' : '' ?>><?= get_contact($dbc, $staff_id) ?></option>
                             <?php } ?>
-                        </select>
+                        </select></div>
                     </label>
                 </div>
-                <div class="col-sm-3">
-                    <label class="super-label">Since
-                        <input type="text" name="select_date" class="form-control datepicker" value="<?= $select_date ?>">
+                <div class="col-sm-6">
+                    <label class="col-sm-12">Since:
+                        <div class="col-sm-8 pull-right"><input type="text" name="select_date" class="form-control datepicker" value="<?= $select_date ?>"></div>
                     </label>
                 </div>
-                <div class="col-sm-3">
+                <div class="pull-right gap">
                     <p style="font-size: 0.6em;"></p>
                     <button type="submit" name="search_pr" class="btn brand-btn">Submit</button>
                     <button type="submit" name="search_all" class="btn brand-btn">Display All</button>

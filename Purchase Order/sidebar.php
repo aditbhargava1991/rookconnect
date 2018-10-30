@@ -15,6 +15,10 @@
 	<a href="?settings=promo"><li class="<?= $_GET['settings'] == 'promo' ? 'active blue' : '' ?>">Promotions</li></a>
 <?php } else {
 	$po_tabs = explode(',',get_config($dbc,'po_tabs'));
+    $ticket_tabs = [ '' => TICKET_TILE ];
+    foreach(explode(',',get_config($dbc,'ticket_tabs')) as $ticket_tab) {
+        $ticket_tabs[config_safe_str($ticket_tab)] = $ticket_tab;
+    }
 
 	if(in_array_starts('summary ',$po_tabs) && check_subtab_persmission($dbc, 'purchase_order', ROLE, 'summary') === TRUE ) {
 		if(empty($_GET['tab'])) {
@@ -41,6 +45,20 @@
 									<?php }
 								} else { ?>
 									<li>No <?= PROJECT_TILE ?> Found</li>
+								<?php } ?>
+							</ul>
+						</li>
+					<?php } ?>
+					<?php if(in_array('ticket',$po_tabs)) { ?>
+						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'pending' && $_GET['subtab'] == 'ticket' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'pending' && $_GET['subtab'] == 'ticket' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#pending_ticket"><?= TICKET_TILE ?><span class="arrow" /></a>
+							<ul class="collapse <?= $_GET['tab'] == 'pending' && $_GET['subtab'] == 'ticket' ? 'in' : '' ?>" id="pending_ticket">
+								<?php $ticket_list = $dbc->query("SELECT `t`.`ticket_type` FROM `purchase_orders` `po` LEFT JOIN `tickets` `t` ON `po`.`ticketid`=`t`.`ticketid` WHERE `po`.`deleted`=0 AND `t`.`deleted`=0 AND `po`.`status`='Pending' GROUP BY `t`.`ticket_type`");
+								if($ticket_list->num_rows) {
+									while($ticket = $ticket_list->fetch_assoc()) { ?>
+										<li><a href="?tab=pending&subtab=ticket&ticket=<?= $ticket['ticket_type'] ?>"><?= $ticket_tabs[$ticket['ticket_type']] ?></a></li>
+									<?php }
+								} else { ?>
+									<li>No <?= TICKET_TILE ?> Found</li>
 								<?php } ?>
 							</ul>
 						</li>
@@ -111,6 +129,20 @@
 							</ul>
 						</li>
 					<?php } ?>
+					<?php if(in_array('ticket',$po_tabs)) { ?>
+						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'receiving' && $_GET['subtab'] == 'ticket' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'receiving' && $_GET['subtab'] == 'ticket' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#receiving_ticket"><?= TICKET_TILE ?><span class="arrow" /></a>
+							<ul class="collapse <?= $_GET['tab'] == 'receiving' && $_GET['subtab'] == 'ticket' ? 'in' : '' ?>" id="receiving_ticket">
+								<?php $ticket_list = $dbc->query("SELECT `t`.`ticket_type` FROM `purchase_orders` `po` LEFT JOIN `tickets` `t` ON `po`.`ticketid`=`t`.`ticketid` WHERE `po`.`deleted`=0 AND `t`.`deleted`=0 AND `po`.`status`='Receiving' GROUP BY `t`.`ticket_type`");
+								if($ticket_list->num_rows) {
+									while($ticket = $ticket_list->fetch_assoc()) { ?>
+										<li><a href="?tab=receiving&subtab=ticket&ticket=<?= $ticket['ticket_type'] ?>"><?= $ticket_tabs[$ticket['ticket_type']] ?></a></li>
+									<?php }
+								} else { ?>
+									<li>No <?= TICKET_TILE ?> Found</li>
+								<?php } ?>
+							</ul>
+						</li>
+					<?php } ?>
 					<?php if(in_array('business',$po_tabs)) { ?>
 						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'receiving' && $_GET['subtab'] == 'business' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'receiving' && $_GET['subtab'] == 'business' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#receiving_business"><?= BUSINESS_CAT ?><span class="arrow" /></a>
 							<ul class="collapse <?= $_GET['tab'] == 'receiving' && $_GET['subtab'] == 'business' ? 'in' : '' ?>" id="receiving_business">
@@ -173,6 +205,20 @@
 									<?php }
 								} else { ?>
 									<li>No <?= PROJECT_TILE ?> Found</li>
+								<?php } ?>
+							</ul>
+						</li>
+					<?php } ?>
+					<?php if(in_array('ticket',$po_tabs)) { ?>
+						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'payable' && $_GET['subtab'] == 'ticket' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'payable' && $_GET['subtab'] == 'ticket' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#payable_ticket"><?= TICKET_TILE ?><span class="arrow" /></a>
+							<ul class="collapse <?= $_GET['tab'] == 'payable' && $_GET['subtab'] == 'ticket' ? 'in' : '' ?>" id="payable_ticket">
+								<?php $ticket_list = $dbc->query("SELECT `t`.`ticket_type` FROM `purchase_orders` `po` LEFT JOIN `tickets` `t` ON `po`.`ticketid`=`t`.`ticketid` WHERE `po`.`deleted`=0 AND `t`.`deleted`=0 AND `po`.`status`='Paying' GROUP BY `t`.`ticket_type`");
+								if($ticket_list->num_rows) {
+									while($ticket = $ticket_list->fetch_assoc()) { ?>
+										<li><a href="?tab=payable&subtab=ticket&ticket=<?= $ticket['ticket_type'] ?>"><?= $ticket_tabs[$ticket['ticket_type']] ?></a></li>
+									<?php }
+								} else { ?>
+									<li>No <?= TICKET_TILE ?> Found</li>
 								<?php } ?>
 							</ul>
 						</li>
@@ -275,6 +321,20 @@
 									<?php }
 								} else { ?>
 									<li>No <?= PROJECT_TILE ?> Found</li>
+								<?php } ?>
+							</ul>
+						</li>
+					<?php } ?>
+					<?php if(in_array('ticket',$po_tabs)) { ?>
+						<li class="sidebar-higher-level highest-level"><a class="<?= ($_GET['tab'] == 'completed' && $_GET['subtab'] == 'ticket' ? 'active blue' : '') ?> cursor-hand <?= ($_GET['tab'] == 'completed' && $_GET['subtab'] == 'ticket' ? '' : 'collapsed') ?>" data-toggle="collapse" data-target="#completed_ticket"><?= TICKET_TILE ?><span class="arrow" /></a>
+							<ul class="collapse <?= $_GET['tab'] == 'completed' && $_GET['subtab'] == 'ticket' ? 'in' : '' ?>" id="completed_ticket">
+								<?php $ticket_list = $dbc->query("SELECT `t`.`ticket_type` FROM `purchase_orders` `po` LEFT JOIN `tickets` `t` ON `po`.`ticketid`=`t`.`ticketid` WHERE `po`.`deleted`=0 AND `t`.`deleted`=0 AND `po`.`status`='Completed' GROUP BY `t`.`ticket_type`");
+								if($ticket_list->num_rows) {
+									while($ticket = $ticket_list->fetch_assoc()) { ?>
+										<li><a href="?tab=completed&subtab=ticket&ticket=<?= $ticket['ticket_type'] ?>"><?= $ticket_tabs[$ticket['ticket_type']] ?></a></li>
+									<?php }
+								} else { ?>
+									<li>No <?= TICKET_TILE ?> Found</li>
 								<?php } ?>
 							</ul>
 						</li>

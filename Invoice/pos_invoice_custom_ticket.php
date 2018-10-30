@@ -71,10 +71,12 @@ if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_footer_'.$
     $invoice_footer = get_config($dbc, 'invoice_footer_'.$point_of_sell['type']);
 }
 
+
 $logo = get_config($dbc, 'invoice_logo');
 if(!empty($point_of_sell['type']) && !empty(get_config($dbc, 'invoice_logo_'.$point_of_sell['type']))) {
     $logo = get_config($dbc, 'invoice_logo_'.$point_of_sell['type']);
 }
+
 
 $logo = 'download/'.$logo;
 if(!file_exists($logo)) {
@@ -242,7 +244,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 					$html .= '<td>' . get_inventory ( $dbc, $inventoryid, 'part_no' ) . '</td>';
 				}
 
-				$html .= '<td>'.get_inventory($dbc, $inventoryid, 'name').'</td>';
+				$html .= '<td>'.($quantity < 0 ? 'Return: ' : '').get_inventory($dbc, $inventoryid, 'name').'</td>';
 				$html .= '<td>'.number_format($quantity,0).'</td>';
 				if($return_result > 0) {
 					$html .= '<td>'.$returned.'</td>';
@@ -260,7 +262,7 @@ if($num_rows > 0 || $num_rows2 > 0) {
 		if($misc_product != '') {
 			$html .= '<tr>';
 			$html .=  '<td>Not Available</td>';
-			$html .=  '<td>'.$misc_product.'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').$misc_product.'</td>';
 			$html .=  '<td>'.number_format($row['quantity'],0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$row['returned_qty'].'</td>';
@@ -297,7 +299,7 @@ if($num_rows3 > 0) {
 			$amount = $price*($quantity-$returned);
 			$html .= '<tr>';
 			$html .=  '<td>'.get_products($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_products($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_products($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -334,7 +336,7 @@ if($num_rows4 > 0) {
 			$amount = $price*($quantity-$returned);
 			$html .= '<tr>';
 			$html .=  '<td>'.get_services($dbc, $inventoryid, 'category').'</td>';
-			$html .=  '<td>'.get_services($dbc, $inventoryid, 'heading').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Refund: ' : '').get_services($dbc, $inventoryid, 'heading').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -380,7 +382,7 @@ if($num_rows5 > 0) {
 
 			$html .= '<tr>';
 			$html .=  '<td>'.get_vpl($dbc, $inventoryid, 'part_no').'</td>';
-			$html .=  '<td>'.get_vpl($dbc, $inventoryid, 'name').'</td>';
+			$html .=  '<td>'.($quantity < 0 ? 'Return: ' : '').get_vpl($dbc, $inventoryid, 'name').'</td>';
 			$html .=  '<td>'.number_format($quantity,0).'</td>';
 			if($return_result > 0) {
 				$html .= '<td>'.$returned.'</td>';
@@ -411,7 +413,7 @@ if($num_rows6 > 0) {
 
 		$html .= '<tr>';
 		$html .=  '<td>'.$row['heading'].'</td>';
-		$html .=  '<td>'.number_format($row['quantity'],0).'</td>';
+		$html .=  '<td>'.($amount < 0 ? 'Refund: ' : '').number_format($row['quantity'],0).'</td>';
 		$html .=  '<td>$'.$row['unit_price'].'</td>';
 		$html .=  '<td style="text-align:right;">$'.number_format($amount,2).'</td>';
 		$html .= '</tr>';
@@ -421,7 +423,7 @@ if($num_rows6 > 0) {
 // START TIME SHEET
 
 // START TICKETS
-$result = mysqli_query($dbc, "SELECT DISTINCT(`ticketid`) FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id IS NOT NULL AND `ticketid` > 0");
+$result = mysqli_query($dbc, "SELECT `ticketid`, `stop_id` FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id IS NOT NULL AND `ticketid` > 0 GROUP BY `ticketid`".(in_array('delivery_group',$invoice_custom_ticket_fields) ? ", `stop_id`" : ''));
 $num_rows7 = mysqli_num_rows($result);
 if($num_rows7 > 0) {
 	if($num_rows > 0 || $num_rows2 > 0 || $num_rows3 > 0 || $num_rows4 > 0 || $num_rows5 > 0|| $num_rows6 > 0) { $html .= '<br>'; }
@@ -441,12 +443,21 @@ if($num_rows7 > 0) {
 			$service_width_diff += 10;
 			$html .= '<th width="10%">Stops</th>';
 		}
-        /* 
+
+        /*
 		if(in_array('customer_code',$custom_ticket_fields)) {
 			$service_width_diff += 10;
 			$html .= '<th width="10%">Customer Code</th>';
 		}
          */
+		if(in_array('pro_number',$custom_ticket_fields)) {
+			$service_width_diff += 10;
+			$html .= '<th width="10%">Pro Number</th>';
+		}
+		if(in_array('volume',$custom_ticket_fields)) {
+			$service_width_diff += 10;
+			$html .= '<th width="10%">Volume</th>';
+		}
 		if(in_array('location',$custom_ticket_fields)) {
 			$service_width_diff += 10;
 			$html .= '<th width="10%">Location</th>';
@@ -459,11 +470,16 @@ if($num_rows7 > 0) {
 			$service_width_diff += 10;
 			$html .= '<th width="10%">Destination</th>';
 		}
+
 		$service_widths = count($invoice_custom_ticket) + 1;
 		$service_widths = (70 - $service_width_diff) / $service_widths;
 		foreach($invoice_custom_ticket as $service_id) {
-			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
-			$html .= '<th width="'.$service_widths.'%">'.$service['heading'].'</th>';
+            if($service_id > 0) {
+                $service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
+                $html .= '<th width="'.$service_widths.'%">'.$service['heading'].'</th>';
+            } else if(explode('|',$service_id)[0] == 'multi_srv_group') {
+                $html .= '<th width="'.$service_widths.'%">'.explode('|',$service_id)[1].'</th>';
+            }
 		}
 		$html .= '<th width="'.$service_widths.'%">All Other Items</th><th width="10%">Total</th></tr>';
 	while($ticketid = mysqli_fetch_array( $result )) {
@@ -474,69 +490,127 @@ if($num_rows7 > 0) {
 		$html .= '<tr>';
 		$html .= '<td>'.$ticket['to_do_date'].'</td>';
 		$html .= '<td>'.get_ticket_label($dbc, $ticket).'</td>';
+        $num_stops = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`id`) num_rows FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'"))['num_rows'];
 		if(in_array('num_stops',$custom_ticket_fields)) {
-			$num_stops = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`id`) num_rows FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'"))['num_rows'];
 			$html .= '<td>'.$num_stops.'</td>';
 		}
+
         /*
 		if(in_array('customer_code',$custom_ticket_fields)) {
 			$customer_code = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`id`) num_rows FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'"))['num_rows'];
 			$html .= '<td>'.$customer_code.'</td>';
 		}
         */
+        if(in_array('pro_number',$custom_ticket_fields)) {
+			$pro_numbers = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT `order_number` FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'order_number');
+			$html .= '<td>';
+                foreach ( $pro_numbers as $pro_number ) {
+                	if(!empty($pro_number)) {
+	                    $html .= $pro_number .'<br />';
+	                }
+                }
+            $html .= '</td>';
+        }
+        if(in_array('volume',$custom_ticket_fields)) {
+			$volumes = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT `volume` FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'order_number');
+			$html .= '<td>';
+                foreach ( $volumes as $volume ) {
+                	if(!empty($volume)) {
+	                    $html .= $volume .'<br />';
+	                }
+                }
+            $html .= '</td>';
+        }
 		if(in_array('location',$custom_ticket_fields)) {
-			$locations = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'"))['locations'];
+			$locations = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'locations');
 			$html .= '<td>';
                 foreach ( $locations as $location ) {
-                    $html .= $location .'<br />';
+                	if(!empty($location)) {
+	                    $html .= $location .'<br />';
+	                }
                 }
             $html .= '</td>';
 		}
 		if(in_array('departure_location',$custom_ticket_fields)) {
-			$departure_locations = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Pick Up'"))['locations'];
+			$departure_locations = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Pick Up'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'locations');
 			$html .= '<td>';
                 foreach ( $departure_locations as $departure_location ) {
-                    $html .= $departure_location .'<br />';
+                	if(!empty($departure_location)) {
+	                    $html .= $departure_location .'<br />';
+	                }
                 }
             $html .= '</td>';
 		}
 		if(in_array('destination',$custom_ticket_fields)) {
-			$destinations = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Drop Off'"))['locations'];
+			$destinations = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT CONCAT(IF(`address`='', '', `address`), IF(`city`='', '', CONCAT(', ', `city`)), IF(`postal_code`='', '', CONCAT(', ', `postal_code`))) locations FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` = 'Drop Off'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `id`='".$ticketid['stop_id']."'" : '')),MYSQLI_ASSOC),'locations');
 			$html .= '<td>';
                 foreach ( $destinations as $destination ) {
-                    $html .= $destination .'<br />';
+                	if(!empty($destination)) {
+	                    $html .= $destination .'<br />';
+	                }
                 }
             $html .= '</td>';
 		}
 
-		foreach($invoice_custom_ticket as $service_id) {
-			$html .= '<td>';
-			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
-			$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id = '$service_id' AND `ticketid` = '".$ticket['ticketid']."'");
-			while($row = mysqli_fetch_assoc($result2)) {
-				$inventoryid = $row['item_id'];
-				$price = $row['unit_price'];
-				$quantity = $row['quantity'];
-				$returned		= $row['returned_qty'];
 
-				if($inventoryid != '') {
-					$amount = $price*($quantity-$returned);
-					$line_total += $amount;
-
-					$html .= '<table border="0"><tr>';
-					$html .= '<td width="75%">'.$service['heading'].'<br />$'.number_format($price,2).' x '.$quantity.'</td>';
-					$html .= '<td width="25%" style="text-align:right;">$'.number_format($amount,2).'</td>';
-					$html .= '</tr></table><p style="font-size:1px;"></p>';
-				}
-			}
-			$html .= '</td>';
-		}
 		$item_id_query = '';
-		if(!empty($invoice_custom_ticket)) {
-			$item_id_query = "AND item_id NOT IN ('".implode("','", $invoice_custom_ticket)."')";
+		foreach($invoice_custom_ticket as $service_id) {
+            if($service_id > 0) {
+                $html .= '<td>';
+                $service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$service_id'"));
+                $result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id = '$service_id' AND `ticketid` = '".$ticket['ticketid']."'");
+                while($row = mysqli_fetch_assoc($result2)) {
+                    $inventoryid = $row['item_id'];
+                    $price = $row['unit_price'];
+                    $quantity = $row['quantity'];
+                    $returned		= $row['returned_qty'];
+
+                    if($inventoryid != '') {
+                        $amount = $price*($quantity-$returned);
+                        $line_total += $amount;
+
+                        $html .= '<table border="0"><tr>';
+                        $html .= '<td width="75%">'.$service['heading'].'<br />$'.number_format($price,2).' x '.$quantity.'</td>';
+                        $html .= '<td width="25%" style="text-align:right;">$'.number_format($amount,2).'</td>';
+                        $html .= '</tr></table><p style="font-size:1px;"></p>';
+                    }
+                }
+                $html .= '</td>';
+                $item_id_query .= " AND item_id NOT IN ('".$service_id."')";
+
+            } else if(explode('|',$service_id)[0] == 'multi_srv_group') {
+                $html .= '<td>';
+                $service_id = explode('|',$service_id);
+                unset($service_id[1]);
+                unset($service_id[0]);
+                if(count($service_id) > 0) {
+                    $service_id = implode(',',$service_id);
+                    $result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND item_id IN ($service_id) AND `ticketid` = '".$ticket['ticketid']."'".(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `stop_id`='".$ticketid['stop_id']."'" : ''));
+                    while($row = mysqli_fetch_assoc($result2)) {
+                        $service = $row['item_id'];
+                        $service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid`='$service'"));
+                        $inventoryid = $row['item_id'];
+                        $price = $row['unit_price'];
+                        $quantity = $row['quantity'];
+                        $returned		= $row['returned_qty'];
+
+                        if($inventoryid != '') {
+                            $amount = $price*($quantity-$returned);
+                            $line_total += $amount;
+
+                            $html .= '<table border="0"><tr>';
+                            $html .= '<td width="75%">'.$service['heading'].'<br />$'.number_format($price,2).' x '.$quantity.'</td>';
+                            $html .= '<td width="25%" style="text-align:right;">$'.number_format($amount,2).'</td>';
+                            $html .= '</tr></table><p style="font-size:1px;"></p>';
+                        }
+                    }
+                    $item_id_query .= " AND item_id NOT IN (".$service_id.")";
+                }
+                $html .= '</td>';
+            }
 		}
 		$html .= '<td>';
-		$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND `ticketid` = '".$ticket['ticketid']."' AND `item_id` IS NOT NULL ".$item_id_query);
+		$result2 = mysqli_query($dbc, "SELECT * FROM invoice_lines WHERE invoiceid='$invoiceid' AND category = 'service' AND `ticketid` = '".$ticket['ticketid']."' AND `item_id` IS NOT NULL ".$item_id_query.(in_array('delivery_group',$invoice_custom_ticket_fields) ? " AND `stop_id`='".$ticketid['stop_id']."'" : ''));
 		while($row = mysqli_fetch_assoc($result2)) {
 			$inventoryid = $row['item_id'];
 			$service = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `services` WHERE `serviceid` = '$inventoryid'"));
@@ -711,5 +785,6 @@ if (!file_exists('download')) {
 }
 
 $pdf->writeHTML($html, true, false, true, false, '');
-?><?php
+$invoice_type = $point_of_sell['type'];
+include('../Invoice/pos_invoice_append_ticket.php');
 $pdf->Output('download/invoice_'.$posid.$edited.'.pdf', 'F');

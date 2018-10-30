@@ -513,8 +513,8 @@ if($_GET['action'] == 'setting_fields') {
 	$ticket_fields = ','.filter_var($_GET['ticket_fields'],FILTER_SANITIZE_STRING);
 
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(fieldconfigid) AS fieldconfigid FROM field_config"));
-    if($get_field_config['fieldconfigid'] > 0) {
-        echo $query_update_employee = "UPDATE `field_config` SET `sales`=concat(ifnull(sales,''), '$ticket_fields') WHERE `fieldconfigid`=1";
+    if($get_field_config['fieldconfigid'] > 0) { //concat(ifnull(sales,''), '$ticket_fields')
+        echo $query_update_employee = "UPDATE `field_config` SET `sales`='$ticket_fields' WHERE `fieldconfigid`=1";
         $result_update_employee = mysqli_query($dbc, $query_update_employee);
     } else {
         $query_insert_config = "INSERT INTO `field_config` (`sales`) VALUES ('$ticket_fields')";
@@ -563,6 +563,7 @@ if($_GET['action'] == 'setting_lead_status') {
         }
     }
 	set_config($dbc, 'sales_lead_status', filter_var($_POST['sales_lead_status'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'lead_status_default', filter_var($_POST['lead_status_default'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_won', filter_var($_POST['lead_status_won'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_lost', filter_var($_POST['lead_status_lost'],FILTER_SANITIZE_STRING));
 	set_config($dbc, 'lead_status_retained', filter_var($_POST['lead_status_retained'],FILTER_SANITIZE_STRING));

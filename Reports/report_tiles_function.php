@@ -18,11 +18,11 @@ function reports_tiles($dbc) {
             },500);
         });
     });
+
     function printPDF() {
         $('[name=printpdf]').closest('form').prop('target', '_blank');
     }
     function email_doc(report){
-        var documents=[];
         var url = window.location.href;
         var subject = $(report).data('title');
         var body = '<a href="'+encodeURIComponent(url)+'" target="_blank">View Report</a>'
@@ -224,6 +224,8 @@ function reports_tiles($dbc) {
             <?php } ?>
         </div>
 
+    <?php $reports_dashboard_navigation = explode(',', get_config($dbc, 'reports_dashboard_navigation')); ?>
+    <?php if(in_array('show', $reports_dashboard_navigation) || empty(array_filter($reports_dashboard_navigation))): ?>
         <!-- Desktop View -->
     	<div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
             <ul>
@@ -261,6 +263,7 @@ function reports_tiles($dbc) {
 
             </ul>
     	</div>
+    <?php endif; ?>
 
         <div class="scale-to-fill has-main-screen hide-titles-mob">
             <div class="main-screen standard-body form-horizontal">
@@ -309,9 +312,20 @@ function reports_tiles($dbc) {
                         <?= $title ?>
                         <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
                             <div class="pull-right">
-                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/pdf.png" class="no-toggle" title="Print Report" /></a>
+
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle" title="Print Report" width="25" /></a>
                                 <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
                                 <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
+
+                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
+                            </div>
+                        <?php } else if ( $_GET['report'] == 'Ticket Activity Extra Report' ) { ?>
+                            <div class="pull-right">
+
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle" title="Print Report" width="25" /></a>
+                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
+                                <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
+
                                 <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
                             </div>
                         <?php } ?>
@@ -375,7 +389,7 @@ function reports_tiles($dbc) {
                                     $sorted_reports[$report[1]] = [$report[0],$key,'staff'];
                                 }
                             }
-                            
+
                             if(!empty($sorted_reports)) {
                                 ksort($sorted_reports);
                                 foreach($sorted_reports as $key => $report) {
@@ -385,7 +399,7 @@ function reports_tiles($dbc) {
                                 echo '<div class="dashboard-item">No Record Found</div>';
                             } ?>
                         </div><?php
-                    
+
                     } else {
                         reports_tiles_content($dbc);
                     } ?>

@@ -1151,7 +1151,6 @@ a {
 a:hover,
 a:focus {
     color: #fff;
-    text-decoration: underline;
 }
 
 a:focus {
@@ -1238,7 +1237,6 @@ h6,
     font-family: inherit;
     font-weight: 300;
     line-height: 1.1;
-    color: #e5eaec;
 }
 
 h1 small,
@@ -7961,22 +7959,35 @@ th {
 a:hover, a:active, a:focus, table td a { color:#04EBB0 !important; }
 a.btn { color:#fff !important; }
 .default-color, h1 a, a h1, h3, h4, .dashboard-item label, .dashboard a:hover, .main-item label, .text-blue { color:#000 !important; }
-ul.sidebar a, ul.sidebar a li.active, .info-block-header:hover { color:#000 !important; }
-ul.sidebar .active.blue, .tile-sidebar ul li.active, div.calendar-screen .block-item.active {color:#000 !important; background-color:#04EBB0 !important; }
+ul.sidebar a { color:#000 !important; }
+ul.sidebar .active.blue, .tile-sidebar ul li.active, div.calendar-screen .block-item.active {color:#fff !important; background-color:#04EBB0 !important; }
 .blue span { background-color:transparent !important; }
-.summary-block, .main-screen-white { border-color:#04EBB0 !important; }
-.info-block-header {background-color:#04EBB0 !important; border-bottom:4px solid #018880 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable {
+    border-color:#04EBB0 !important;
+    }
+.info-block-header {background-color:#bdfbeb !important; }
 table th a, table th a:hover { color:#fff !important; }
 .standard-sidebar-searchbox {
   background-color: rgba(4,235,176,0.7) !important;
 }
 .sidebar-higher-level a.cursor-hand.active {
   background-color: #04EBB0 !important;
+  color:#fff !important;
 }
 .sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
   color:#04EBB0 !important;
   background-color:#fff !important;
 }
+.sidebar-higher-level.active a, #dashboard_sidebar li.active a { color:#fff !important; }
 li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
   background-color: #fff !important;
   color: #04EBB0 !important;
@@ -7999,7 +8010,8 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
   background-color: #b4feeb;
 }
 .theme-color-icon {
-  filter: invert(80%) sepia(92%) saturate(1785%) hue-rotate(80deg) brightness(95%) contrast(104%) !important;
+  //filter: invert(80%) sepia(92%) saturate(1785%) hue-rotate(80deg) brightness(95%) contrast(104%) !important;
+  filter: invert(69%) sepia(20%) saturate(3174%) hue-rotate(114deg) brightness(99%) contrast(103%) !important;
 }
 .calendar .main-screen .panel .panel-title > a:hover { color:#04EBB0 !important; }
 body.innerframe h3, body.innerframe h4 { color:#fff !important; }

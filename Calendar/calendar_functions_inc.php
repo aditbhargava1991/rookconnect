@@ -196,7 +196,7 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 	if($reset_active == 1) {
 		$active_equipment = [];
 	}
-	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
+	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
 	switch($view) {
 		case 'weekly':
 			$calendar_start = $date;
@@ -385,29 +385,29 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $
 		$assigned_staff[] = get_contact($dbc, $contactid);
 	}
 	$assigned_staff = implode(', ',$assigned_staff);
+	$tickettype = '';
+	foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+        $ticket_type_value = config_safe_str($ticket_type);
+        if($ticket_type_value == $ticket['ticket_type']) {
+        	$tickettype = $ticket_type;
+        }
+    }
 	
 	$row_html = '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
 	(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
+	(in_array('ticket_type',$calendar_ticket_card_fields) ? '<br />'.TICKET_NOUN.' Type: '.$tickettype : '').
 	(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
 	(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
 	(in_array('assigned',$calendar_ticket_card_fields) ? '<br />'.'Staff: '.$assigned_staff : '').
 	(in_array('site_address',$calendar_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
 	(in_array('service_template',$calendar_ticket_card_fields) ? '<br />'.'Service Template: '.$service_template : '').
 	(in_array('start_date',$calendar_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '').
-	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
+	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '').
+	(in_array('eta',$calendar_ticket_card_fields) ? '<br />ETA: '.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
 	if(in_array('available',$calendar_ticket_card_fields)) {
-		if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-			$row_html .= '<br />'."Available ";
-			if($ticket['pickup_end_available'] == '') {
-				$row_html .= "After ".$ticket['pickup_start_available'];
-			} else if($ticket['pickup_start_available'] == '') {
-				$row_html .= "Before ".$ticket['pickup_end_available'];
-			} else {
-				$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-			}
-		}
+		$row_html .= '<br />Time Frame: '.$ticket['availability'];
 	}
-	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
+	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
 	if(in_array('status',$calendar_ticket_card_fields)) {
 		$row_html .= '<br />'."Status: ".$ticket['status'];
 	}
@@ -423,6 +423,15 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $
 	}
 	if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
 		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
+	}
+	if(in_array('delivery_sign_off',$calendar_ticket_card_fields) && !empty($ticket['stop_id'])) {
+        $dispatch_tile_ticket_card_fields = get_config($dbc, 'dispatch_tile_ticket_card_fields');
+        if(empty($dispatch_tile_ticket_card_fields)) {
+            $dispatch_tile_ticket_card_fields = 'camera,signature,star_rating,customer_notes_hover';
+        }
+        $dispatch_tile_ticket_card_fields = explode(',', $dispatch_tile_ticket_card_fields);
+        include_once('../Dispatch/dashboard_functions.php');
+		$row_html .= '<br />'.dispatch_delivery_hover_icons($dbc, $ticket, $ticket['stop_id'], (vuaed_visible_function($dbc, 'ticket') > 0 ? 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"' : ''), $dispatch_tile_ticket_card_fields);
 	}
 
 	return $row_html;

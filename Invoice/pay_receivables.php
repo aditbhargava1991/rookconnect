@@ -37,53 +37,56 @@ if (isset($_POST['submit_patient'])) {
 
     $staff = get_contact($dbc, $therapistsid);
 
-//
+	$next_booking = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `booking` WHERE `appoint_date` > NOW() AND `deleted`=0 AND `patientid`='".$get_invoice['patientid']."' ORDER BY `appoint_date` ASC"));
+	if($next_booking['bookingid'] > 0) {
+		$footer_text = '<p style="color: #37C6F4; font-size: 14; font-weight: bold; text-align: center;">Your next appointment is '.date('d/m/y',strtotime($next_booking['appoint_date']))." at ".date('G:ia',strtotime($next_booking['appoint_date'])).'</p>';
+	}
+
 	$invoice_design = get_config($dbc, 'invoice_design');
     if(!empty($get_invoice['type']) && !empty(get_config($dbc, 'invoice_design_'.$get_invoice['type']))) {
         $invoice_design = get_config($dbc, 'invoice_design_'.$get_invoice['type']);
     }
 	switch($invoice_design) {
 		case 1:
-			include('pos_invoice_1.php');
+            include ('pos_receivables_1.php');
 			break;
 		case 2:
-			include('pos_invoice_2.php');
+            include ('pos_receivables_2.php');
 			break;
 		case 3:
-			include('pos_invoice_3.php');
+            include ('pos_receivables_3.php');
 			break;
 		case 4:
-			include ('patient_invoice_pdf.php');
-			if($insurerid != '') {
-				include ('insurer_invoice_pdf.php');
-			}
+			//include ('patient_invoice_pdf.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 5:
-            include('pos_invoice_small.php');
+            //include('pos_invoice_small.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 'service':
-            include('pos_invoice_service.php');
+            include ('pos_receivables_service.php');
 			break;
 		case 'pink':
 			include ('pos_receivables_pink.php');
 			break;
 		case 'cnt1':
-			include ('pos_invoice_contractor_1.php');
+			//include ('pos_invoice_contractor_1.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 'cnt2':
-			include ('pos_invoice_contractor_2.php');
+			//include ('pos_invoice_contractor_2.php');
+            include ('pos_receivables_pink.php');
 			break;
 		case 'cnt3':
-			include ('pos_invoice_contractor_3.php');
+			//include ('pos_invoice_contractor_3.php');
+            include ('pos_receivables_pink.php');
 			break;
         case 'custom_ticket':
-            include ('pos_invoice_custom_ticket.php');
+            //include ('pos_invoice_custom_ticket.php');
+            include ('pos_receivables_pink.php');
             break;
 	}
-//
-    if (!file_exists('download')) {
-        mkdir('download', 0777, true);
-    }
 
 	$pdf->writeHTML(utf8_encode($html), true, false, true, false, '');
 	$pdf->Output($payment_receipt, 'F');
@@ -102,7 +105,9 @@ if (isset($_POST['submit_patient'])) {
     $result_insert_vendor = mysqli_query($dbc, "UPDATE `contacts_ln_".$table_name."` SET `amount_credit` = amount_credit + '$total_amt' WHERE `contactid` = '$patientid'");
 
     echo '<script> window.open("'.$payment_receipt.'"); window.location.replace("../blank_loading_page.php"); </script>';
-} ?>
+}
+
+?>
 <form class="form-horizontal col-sm-12" method="POST" action="">
     <h2>Selected Invoices<a href="../blank_loading_page.php" class="pull-right small"><img src="../img/icons/cancel.png" class="inline-img"></a></h2>
     <div class="clearfix"></div>

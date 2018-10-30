@@ -42,7 +42,9 @@ foreach(explode(',',get_config($dbc, 'hr_tabs')) as $cat) {
 }
 $tab = $_GET['tab'] == '' ? ($tile == 'hr' ? (in_array('Pinned',$categories) ? 'pinned' : 'favourites') : $tile) : filter_var($_GET['tab'],FILTER_SANITIZE_STRING);
 $label = $tile == 'hr' ? 'HR' : $categories[$tile];
-if($_GET['reports'] == 'view') {
+if($_GET['request_update'] == 1) {
+	$tab = 'request_update';
+} else if($_GET['reports'] == 'view') {
 	$tab = 'reporting';
 } else if(isset($_GET['hr_edit']) || isset($_GET['manual_edit'])) {
 	$tab = 'editforms';
@@ -87,18 +89,25 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 						}
 						if($security['edit'] > 0) {
 							echo "<div class='pull-right gap-left'><a href='?hr_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Form</button></a></div>";
-							echo "<div class='pull-right gap-left'><a href='?manual_edit=0&tile_name=$tile'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Manual</button></a></div>";
+                            $back_url = $_GET['tab'];
+							echo "<div class='pull-right gap-left'><a href='?manual_edit=0&tile_name=$tile&tab=$back_url'><img src='".WEBSITE_URL."/img/icons/ROOK-add-icon.png' class='inline-img show-on-mob' /><button class='btn brand-btn hide-on-mobile'>Add Manual</button></a></div>";
 						} ?>
+                        <?php if(vuaed_visible_function($dbc, 'preformance_review')) { ?>
+                            <a href="?performance_review=add" class="btn brand-btn pull-right">Add Performance Review</a>
+                        <?php } ?>
 					</div>
 					<div class="scale-to-fill"><h1 class="gap-left"><a href="?tile_name=<?= $tile ?>"><span class="hide-on-mobile"><?= $label ?></span><span class="show-on-mob">HR</span></a></h1></div>
 					<div class="clearfix"></div>
 				</div><!-- .tile-header -->
 			<?php } ?>
-            
+
 			<div class="clearfix"></div>
 			<?php $device = new Mobile_Detect;
 			if($device->isMobile) {
 				include('mobile_hr.php');
+			} else if($_GET['request_update'] == 1) {
+				include('sidebar.php');
+				include('request_update.php');
 			} else if(!empty($_GET['settings']) && $security['config'] > 0) {
 				include('field_config.php');
 			} else if(isset($_GET['hr'])) {
@@ -110,6 +119,7 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 				include('fill_hr.php');
 			} else if(isset($_GET['hr_edit'])) {
 				checkAuthorised($tile);
+                $tab = config_safe_str(get_field_value('category','hr','hrid',$_GET['hr_edit']));
 				include('sidebar.php');
 				include('edit_hr.php');
 			} else if(isset($_GET['manual'])) {
@@ -117,6 +127,7 @@ if($_GET['performance_review'] == 'add' && !empty($_GET['form_id'])) {
 				include('fill_manual.php');
 			} else if(isset($_GET['manual_edit'])) {
 				checkAuthorised($tile);
+                $tab = config_safe_str(get_field_value('category','manuals','manualtypeid',$_GET['manual_edit']));
 				include('sidebar.php');
 				include('edit_manual.php');
 			} else if(isset($_GET['manualid_pdf'])) {

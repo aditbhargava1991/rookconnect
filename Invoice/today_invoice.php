@@ -66,7 +66,7 @@ if((!empty($_GET['action'])) && ($_GET['action'] == 'email')) {
 
     send_email('', $to, '', '', $subject, $body, $attachment);
 
-    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("today_invoice.php"); </script>';
+    echo '<script type="text/javascript"> alert("Invoice Successfully Sent to Patient."); window.location.replace("index.php?tab=today"); </script>';
 
 	//header('Location: unpaid_invoice.php');
     // Send Email to Client
@@ -81,7 +81,7 @@ $(document).ready(function() {
             $('#invoice_div .standard-body').height(available_height);
         }
     }).resize();
-    
+
     $('.selectall').click(
 		function() {
 			if($('.selectall').hasClass("deselectall")) {
@@ -134,78 +134,85 @@ function show_hide_email() {
 		$('[name=send_email_div]').hide();
 	}
 }
+function view_today_invoices()
+{
+    $('.view_today_invoices').toggleClass('hidden');
+}
 </script>
 
-<!-- Summary Blocks --><?php
-$search_contact = 0;
-$search_invoiceid = '';
-$search_from = date('Y-m-d');
-$search_to = date('Y-m-d');
-if (isset($_GET['search_invoice_submit'])) {
-    $search_contact = $_GET['contactid'] != '' ? $_GET['contactid'] : $search_contact;
-    $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
-}
-$search_clause = $search_contact > 0 ? " AND `patientid`='$search_contact'" : '';
-$search_clause .= $search_from != '' ? " AND `invoice_date` >= '$search_from'" : '';
-$search_clause .= $search_to != '' ? " AND `invoice_date` <= '$search_to'" : '';
-$search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
-?>
-
-<div class="view_summary double-gap-bottom" style="display:none;">
-    <div class="col-xs-12 col-sm-4 gap-top">
-        <div class="summary-block">
-            <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
-
-            <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_invoices['final_price'], 2).'</a>' : '$'. 0; ?></div>
-
-            <div>Total Invoices</div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-4 gap-top">
-        <div class="summary-block"><?php
-            $ar_types = array('On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days');
-            $ar_amounts = 0;
-            $nonar_amounts = 0;
-            $ar_invoices = mysqli_query($dbc, "SELECT `payment_type` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause");
-            while ( $row = mysqli_fetch_assoc($ar_invoices) ) {
-                list($payment_types, $payment_amounts) = explode('#*#', $row['payment_type']);
-                $types = explode(',', $payment_types);
-                $amounts = explode(',', $payment_amounts);
-                $count = count($types);
-                for ( $i=0; $i <= $count; $i++ ) {
-                    if ( in_array($types[$i], $ar_types) ) {
-                        $ar_amounts += $amounts[$i];
-                    } else {
-                        $nonar_amounts += $amounts[$i];
-                    }
-                }
-            } ?>
-
-            <div class="text-lg"><?= ( $ar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($ar_amounts, 2).'</a>' : '$'. 0; ?></div>
-
-            <div>Total A/R Invoices</div>
-        </div>
-    </div>
-    <div class="col-xs-12 col-sm-4 gap-top">
-        <div class="summary-block">
-
-            <div class="text-lg"><?= ( $nonar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($nonar_amounts, 2).'</a>' : '$'. 0; ?></div>
-            <div>Total Paid Invoices</div>
-
-        </div>
-    </div>
-    <div class="clearfix"></div>
-</div><!-- .view_summary -->
-
 <div class="standard-body-title hide-titles-mob">
-    <h3>Today's Invoices</h3>
+    <h3 class="pull-left">Today's Invoices</h3>
+    <div class="pull-right"><img src="../img/icons/pie-chart.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="View Summary" onclick="view_summary();" />
+        </div>
+    <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
+<div class="standard-body-content padded-desktop ">
+    <!-- Summary Blocks --><?php
+    $search_contact = 0;
+    $search_invoiceid = '';
+    $search_from = date('Y-m-d');
+    $search_to = date('Y-m-d');
+    if (isset($_GET['search_invoice_submit'])) {
+        $search_contact = $_GET['contactid'] != '' ? $_GET['contactid'] : $search_contact;
+        $search_invoiceid = isset($_POST['search_invoiceid']) ? preg_replace('/[^0-9]/', '', $_POST['search_invoiceid']) : '';
+    }
+    $search_clause = $search_contact > 0 ? " AND `patientid`='$search_contact'" : '';
+    $search_clause .= $search_from != '' ? " AND `invoice_date` >= '$search_from'" : '';
+    $search_clause .= $search_to != '' ? " AND `invoice_date` <= '$search_to'" : '';
+    $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_invoiceid'" : '';
+    ?>
+
+    <div class="view_summary double-gap-bottom" style="display:none;">
+        <div class="col-xs-12 col-sm-4 gap-top">
+            <div class="summary-block">
+                <?php $total_invoices = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`final_price`) `final_price` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause")); ?>
+
+                <div class="text-lg"><?= ( $total_invoices['final_price'] > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($total_invoices['final_price'], 2).'</a>' : '$'. 0; ?></div>
+
+                <div>Total Invoices</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 gap-top">
+            <div class="summary-block"><?php
+                $ar_types = array('On Account', 'Net 30', 'Net 30 Days', 'Net 60', 'Net 60 Days', 'Net 90', 'Net 90 Days', 'Net 120', 'Net 120 Days');
+                $ar_amounts = 0;
+                $nonar_amounts = 0;
+                $ar_invoices = mysqli_query($dbc, "SELECT `payment_type` FROM `invoice` WHERE `deleted`=0 $search_clause $search_invoice_clause");
+                while ( $row = mysqli_fetch_assoc($ar_invoices) ) {
+                    list($payment_types, $payment_amounts) = explode('#*#', $row['payment_type']);
+                    $types = explode(',', $payment_types);
+                    $amounts = explode(',', $payment_amounts);
+                    $count = count($types);
+                    for ( $i=0; $i <= $count; $i++ ) {
+                        if ( in_array($types[$i], $ar_types) ) {
+                            $ar_amounts += $amounts[$i];
+                        } else {
+                            $nonar_amounts += $amounts[$i];
+                        }
+                    }
+                } ?>
+
+                <div class="text-lg"><?= ( $ar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($ar_amounts, 2).'</a>' : '$'. 0; ?></div>
+
+                <div>Total A/R Invoices</div>
+            </div>
+        </div>
+        <div class="col-xs-12 col-sm-4 gap-top">
+            <div class="summary-block">
+
+                <div class="text-lg"><?= ( $nonar_amounts > 0 ) ? '<a href="../Reports/report_tiles.php?type=sales&report=POS%20Advanced%20Sales%20Summary&landing=true&pos_submit=yes&from='.$search_from.'&to='.$search_to.'">$'.number_format($nonar_amounts, 2).'</a>' : '$'. 0; ?></div>
+                <div>Total Paid Invoices</div>
+
+            </div>
+        </div>
+        <div class="clearfix"></div>
+    </div><!-- .view_summary -->
+    <div class="view_today_invoices hidden"></div>
     <form name="invoice" method="post" action="" class="form-horizontal" role="form">
         <?php $value_config = ','.get_config($dbc, 'invoice_dashboard').','; ?>
-        
-        <div class="search-group double-gap-top">
+
+        <div class="search-group hidden double-gap-top">
             <div class="row">
                 <div class="col-sm-12">
                     <div class="row">
@@ -232,9 +239,9 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
             </div>
         </div>
     </form>
-    
+
     <div class="clearfix"></div>
-    
+
     <form method="POST" action="" name="send_email" class="form-horizontal">
         <?php
         // Display Pager
@@ -247,7 +254,7 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
         }
 
         $offsett = ($pageNumm - 1) * $rowsPerPagee;
-                                                     
+
         /* Pagination Counting */
         $rowsPerPage = 25;
         $pageNum = 1;
@@ -285,6 +292,7 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
                         if (strpos($value_config, ','."total_price".',') !== FALSE) { echo '<th>Total Price</th>'; }
                         if (strpos($value_config, ','."payment_type".',') !== FALSE) { echo '<th>Payment Type</th>'; }
                         if (strpos($value_config, ','."delivery".',') !== FALSE) { echo '<th>Delivery/Shipping Type</th>'; }
+                        if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) { echo '<th>Customer Billing Status</th>'; }
                         if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) { echo '<th>Invoice PDF</th>'; }
                         if (strpos($value_config, ','."comment".',') !== FALSE) { echo '<th>Comment</th>'; }
                         if (strpos($value_config, ','."status".',') !== FALSE) { echo '<th>Status</th>'; }
@@ -314,13 +322,13 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
                 echo "<tr>";
 
                 if (strpos($value_config, ','."invoiceid".',') !== FALSE) {
-                    echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : '<a href="add_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'">Edit '.$invoice['invoice_type'].'</a> #'). $invoice['invoiceid'].($invoice['invoiceid_src'] > 0 ? '<br />For Invoice #'.$invoice['invoiceid_src'] : '') . '</td>';
+                    echo '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : '<a href="create_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'">Edit '.$invoice['invoice_type'].'</a> #'). $invoice['invoiceid'].($invoice['invoiceid_src'] > 0 ? '<br />For Invoice #'.$invoice['invoiceid_src'] : '') . '</td>';
                 }
                 if (strpos($value_config, ','."invoice_date".',') !== FALSE) {
                     echo '<td data-title="Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
                 }
                 if (strpos($value_config, ','."customer".',') !== FALSE) {
-                    echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid, 'name_company') . '</a></td>';
+                    echo '<td data-title="'.$purchaser_label.'"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Contacts/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $contactid, 'name_company') . '</a></td>';
                 }
                 if (strpos($value_config, ','."total_price".',') !== FALSE) {
                     echo '<td data-title="Total" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
@@ -331,13 +339,23 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
                 if (strpos($value_config, ','."delivery".',') !== FALSE) {
                     echo '<td data-title="Delivery">' . $invoice['delivery_type'] . '</td>';
                 }
+                if (strpos($value_config, ','."Customer Billing Status".',') !== FALSE) {
+                    echo '<td data-title="Customer Billing Status">' . $invoice['customer_billing_status'] . '</td>';
+                }
                 if (strpos($value_config, ','."invoice_pdf".',') !== FALSE) {
                     echo '<td data-title="Invoice PDF">';
                     if(file_exists($invoice_pdf)) {
-                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice #'.$invoice['invoiceid'].'<img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice PDF" class="no-toggle inline-img" /></a>';
                     }
-                    if($invoice['invoiceid_src'] > 0 && file_exists('../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
-                        echo '<a target="_blank" href="'.'../'.FOLDER_NAME.'/Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"></a><br />';
+                    echo '<br /><div class="clearfix"></div>';
+                    foreach(glob('download/invoice_'.$invoice['invoiceid'].'_*') as $i => $invoice_pdf) {
+                        echo '<a target="_blank" href="'.$invoice_pdf.'">Invoice '.TICKET_TILE.' Details PDF'.($i > 0 ? ' #'.($i+1) : '').' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Invoice '.TICKET_TILE.' Details" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
+                    }
+
+                    if($invoice['invoiceid_src'] > 0 && file_exists('download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
+                        echo '<a target="_blank" href="'.'download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
+                    } else if($invoice['invoiceid_src'] > 0 && file_exists('Download/invoice_'.$invoice['invoiceid_src'].'.pdf')) {
+                        echo '<a target="_blank" href="'.'Download/invoice_'.$invoice['invoiceid_src'].'.pdf'.'">Primary Invoice #'.$invoice['invoiceid_src'].' <img src="'.WEBSITE_URL.'/img/icons/pdf.png" title="Primary Invoice PDF" class="no-toggle inline-img" /></a><br /><div class="clearfix"></div>';
                     }
                     echo '</td>';
                 }
@@ -362,7 +380,7 @@ $search_invoice_clause = !empty($search_invoiceid) ? " AND `invoiceid`='$search_
                                 break;
                         }
                         echo ' <a class="cursor-hand" onclick="void_invoice('.$invoice['invoiceid'].');"><img src="../img/icons/void.png" class="no-toggle inline-img" title="Void Invoice" /></a>';
-                        echo ' <a class="cursor-hand" href="adjust_invoice.php?invoiceid='.$invoice['invoiceid'].'&contactid='.$contactid.'&search_user=&search_invoice="><img src="../img/icons/refund.png" class="no-toggle inline-img" title="Refund / Adjustment" /></a>';
+                        echo ' <a class="cursor-hand" href="create_invoice.php?invoiceid='.$invoice['invoiceid'].'&inv_mode=adjust"><img src="../img/icons/refund.png" class="no-toggle inline-img" title="Refund / Adjustment" /></a>';
                     echo '</td>';
                     }
                     if (strpos($value_config, ','."send") !== FALSE) {

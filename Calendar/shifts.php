@@ -596,7 +596,7 @@ function createShiftFor(input) {
 }
 </script>
 
-<?php $lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
+<?php $lock_date = get_staff_schedule_lock_date($dbc); ?>
 
 <h3 class="gap-left gap-right">
     <?= $shift_heading ?>
@@ -647,6 +647,7 @@ function createShiftFor(input) {
                     <div class="col-xs-8">
                         <label class="form-checkbox"><input type="radio" id="create_shift_for" name="create_shift_for" value="staff"<?= empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)"> Staff</label>
                         <label class="form-checkbox"><input type="radio" id="create_shift_for" name="create_shift_for" value="security_level"<?= !empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)"> Security Level</label>
+
                     </div>
                 </div>
 
@@ -661,22 +662,8 @@ function createShiftFor(input) {
                             }
                             ?>
                         </select>
-                    </div>
-                </div>
-            <?php } ?>
 
-            <div class="staff_div form-group" <?= !empty($security_level) ? 'style="display:none;"' : '' ?>>
-                <label for="contactid" class="col-xs-4">Staff:</label>
-                <div class="col-xs-8">
-                    <select data-placeholder="Select Staff" name="shift_contactid" class="chosen-select-deselect">
-                        <option></option>
-                        <?php
-                            $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
-                            foreach ($query as $id) {
-                                echo '<option value="'.$id.'"'.($id == $contactid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
-                            }
-                        ?>
-                    </select>
+                    </div>
                 </div>
             <?php } ?>
 
@@ -724,7 +711,7 @@ function createShiftFor(input) {
             <hr>
 
             <?php if (strpos($enabled_fields, ',dates,') !== FALSE) {
-        		$lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
+        		$lock_date = get_staff_schedule_lock_date($dbc); ?>
                 <div class="form-group">
                     <div class="col-sm-4">
                         <div class="pull-left" style="width:25px;"><img src="../img/month-overview-blue.png" alt="Date" width="18" /></div>
@@ -777,7 +764,7 @@ function createShiftFor(input) {
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                
+
                 <?php if (strpos($enabled_fields, ',dayoff_type,') !== FALSE) { ?>
                     <div class="col-xs-6">
                         <div class="form-group">
@@ -874,7 +861,7 @@ function createShiftFor(input) {
                             <div class="pull-left pad-left pad-right"> - </div>
                             <div class="pull-left"><input type="text" placeholder="End Time" name="shift_break_endtime" class="form-control datetimepicker" value="<?= $break_endtime ?>"></div>
                         </div>
-                        
+
                         <div class="clearfix"></div>
                         <hr class="offset-bottom-5">
                     </div>
@@ -890,9 +877,9 @@ function createShiftFor(input) {
 
             <div class="pull-right" style="padding-top: 1em;">
                 <a href="?<?= http_build_query($page_query) ?>" class="btn brand-btn mobile-anchor">Cancel</a>
-                <?php if($recurring == 'yes' && ($startdate >= $lock_date || $startdate == '')) { ?>
+                <?php if($recurring == 'yes' && ($startdate >= $lock_date || $startdate == '' || empty($lock_date))) { ?>
                     <button type="submit" name="submit" value="calendar_shifts" class="btn brand-btn">Submit</button>
-                <?php } else if($startdate >= $lock_date || $startdate == '') { ?>
+                <?php } else if($startdate >= $lock_date || $startdate == '' || empty($lock_date)) { ?>
                     <button type="submit" name="submit" value="calendar_shifts" class="btn brand-btn">Submit</button>
                 <?php } ?>
                 <?php

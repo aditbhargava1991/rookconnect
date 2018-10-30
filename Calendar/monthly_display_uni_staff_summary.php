@@ -30,16 +30,26 @@ while($row = mysqli_fetch_assoc($tickets)) {
 		$all_contacts = array_filter(array_unique(explode(',', $row['contactid'])));
 		sort($all_contacts);
 	}
+	$all_clients = array_filter(array_unique(explode(',', $row['clientid'])));
 
 	if(!empty($all_contacts)) {
 		if($teams_list[implode(',', $all_contacts)] > 0) {
-			$all_teams[$teams_list[implode(',', $all_contacts)]]++;
+			$all_teams[$teams_list[implode(',', $all_contacts)]]['count']++;
+			foreach($all_clients as $clientid) {
+				$all_teams[$teams_list[implode(',', $all_contacts)]]['clients'][] = $clientid;
+			}
 		}
 		foreach($all_contacts as $contact_id) {
-			$all_staff[$contact_id]['tickets']++;
+			$all_staff[$contact_id]['tickets']['count']++;
+			foreach($all_clients as $clientid) {
+				$all_staff[$contact_id]['tickets']['clients'][] = $clientid;
+			}
 		}
 	} else {
-		$all_staff['Unassigned']['tickets']++;
+		$all_staff['Unassigned']['tickets']['count']++;
+		foreach($all_clients as $clientid) {
+			$all_staff['Unassigned']['tickets']['clients'][] = $clientid;
+		}
 	}
 }
 
@@ -48,14 +58,21 @@ while($row = mysqli_fetch_assoc($bookings)) {
 	$all_contacts = array_filter(array_unique(array_merge(explode('*#*',$row['therapistsid']),[$row['patientid']])));
 	if(!empty($all_contacts)) {
 		foreach($all_contacts as $contact_id) {
-			$all_staff[$contact_id]['appt']++;
+			$all_staff[$contact_id]['appt']['count']++;
 		}
 	} else {
-		$all_staff['Unassigned']['appt']++;
+		$all_staff['Unassigned']['appt']['count']++;
 	}
 }
 
-foreach($all_teams as $contact_id => $ticket_count) {
+foreach($all_teams as $contact_id => $ticket) {
+	$ticket_clients = [];
+	foreach(array_filter(array_unique($ticket['clients'])) as $clientid) {
+		$ticket_clients[] = !empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid);
+	}
+	$ticket_clients = implode(', ', $ticket_clients);
+	
+	$ticket_count = $ticket['count'];
 	$row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `teams` WHERE `teamid` = '".$contact_id."'"));
 	$staff = (!empty($row['team_name']) ? get_team_name($dbc, $row['teamid']) : 'Team #'.$row['teamid']).' ('.get_team_name($dbc, $row['teamid'], ', ', 1).')';
     if(empty($row['calendar_color'])) {
@@ -67,18 +84,27 @@ foreach($all_teams as $contact_id => $ticket_count) {
 		$column .= '<span class="sortable-blocks" style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$row['calendar_color'].'">';
 		$column .= '<b>'.$staff.'</b>';
 		if(strpos(','.$wait_list.',',',ticket,') !== FALSE) {
+			if(in_array('client',$calendar_ticket_staff_summary_fields)) {
+				$column .= '<br /><b>Client:</b> '.$ticket_clients;
+			}
 			$column .= '<br />('.$ticket_count.' '.($ticket_count == 1 ? TICKET_NOUN : TICKET_TILE).')';
 		}
 		$column .= '</span>';
 		$column .= '</div>';
 	}
 }
-foreach($all_staff as $contact_id => $item_count) {
-	if(empty($item_count['tickets'])) {
-		$item_count['tickets'] = 0;
+foreach($all_staff as $contact_id => $item) {
+	$ticket_clients = [];
+	foreach(array_filter(array_unique($item['tickets']['clients'])) as $clientid) {
+		$ticket_clients[] = !empty(get_client($dbc, $clientid)) ? get_client($dbc, $clientid) : get_contact($dbc, $clientid);
 	}
-	if(empty($item_count['appt'])) {
-		$item_count['appt'] = 0;
+	$ticket_clients = implode(', ', $ticket_clients);
+
+	if(empty($item['tickets']['count'])) {
+		$item['tickets']['count'] = 0;
+	}
+	if(empty($item['appt']['count'])) {
+		$item['appt']['count'] = 0;
 	}
 	$row = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$contact_id."'"));
 	if($contact_id == 'Unassigned' || empty($contact_id)) {
@@ -93,11 +119,14 @@ foreach($all_staff as $contact_id => $item_count) {
     $column .= '<div class="calendar_block calendarSortable" data-region="'.$row['region'].'" data-blocktype="'.$row['block_type'].'" data-contact="'.$row['contactid'].'" data-team="'.$row['teamid'].'">';
 	$column .= '<span class="sortable-blocks" style="display:block; margin: 0.5em; padding:5px; color:black; border-radius: 10px; background-color:'.$row['calendar_color'].'">';
 	$column .= '<b>'.$staff.'</b>';
+	if(in_array('client',$calendar_ticket_staff_summary_fields)) {
+		$column .= '<br /><b>Client:</b> '.$ticket_clients;
+	}
 	if(strpos(','.$wait_list.',',',ticket,') !== FALSE) {
-		$column .= '<br />('.$item_count['tickets'].' '.($item_count['tickets'] == 1 ? TICKET_NOUN : TICKET_TILE).')';
+		$column .= '<br />('.$item['tickets']['count'].' '.($item['tickets']['count'] == 1 ? TICKET_NOUN : TICKET_TILE).')';
 	}
 	if(strpos(','.$wait_list.',',',appt,') !== FALSE) {
-		$column .= '<br />('.$item_count['appt'].' '.($item_count['appt'] == 1 ? 'Appointment' : 'Appointments').')';
+		$column .= '<br />('.$item['appt']['count'].' '.($item['appt']['count'] == 1 ? 'Appointment' : 'Appointments').')';
 	}
 	$column .= '</span>';
 	$column .= '</div>';

@@ -92,9 +92,11 @@ if(!empty($sales_order_types)) { ?>
                 </div>
             </div>
 			<img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
-            <div class="icons_div" data-id="<?= $_GET['sotid'] ?>">
-                <a href='Add Reminder' onclick='return false;'><img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width: 2.5em;margin-right: 1em;'></a>
-            </div>
+            <?php if( $_GET['p']=='preview' && $_GET['sotid']!=''){ ?>
+                <div class="icons_div" data-id="<?= $_GET['sotid'] ?>">
+                    <a href='Add Reminder' onclick='return false;'><img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width: 2.5em;margin-right: 1em;'></a>
+                </div>
+            <?php } ?>
 		<?php } ?>
     </div>
     <div class="clearfix"></div>

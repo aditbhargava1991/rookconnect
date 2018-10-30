@@ -104,7 +104,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 						'.(INVOICE_LOGO != '' ? '<img src="'.INVOICE_LOGO.'" style="width:100px;">' : '').'
 					</td>
 					<td width="32%" colspan="3" style="border:1px solid black;">
-						Invoice To '.get_contact($dbc, $point_of_sell['businessid'],'name').'
+						Invoice To '.get_contact($dbc, $point_of_sell['businessid']).'
 					</td>
 					<td width="32%" colspan="3" style="border:1px solid black;">
 						Ship To
@@ -354,7 +354,7 @@ $html .= '<table style="border: 2px solid black;" width="100%" cellspacing="0" c
 	</tr>';
 $html .= '</table>';
 $html .= '<br /><h4 style="text-align:center;"><b>Distribution White &amp; Canary</b> Accounting <b>Pink</b> Customer</h4>';
-echo $html;
+//echo $html;
 if (!file_exists('download')) {
 	mkdir('download', 0777, true);
 }
@@ -374,4 +374,6 @@ $pdf->AddPage();
 $pdf->SetFont('helvetica', '', 7);
 
 $pdf->writeHTML($html, true, false, true, false, '');
+$invoice_type = $point_of_sell['type'];
+include('../Invoice/pos_invoice_append_ticket.php');
 $pdf->Output('download/invoice_'.$invoiceid.'.pdf', 'F');

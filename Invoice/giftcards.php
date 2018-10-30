@@ -25,15 +25,21 @@ $(document).ready(function() {
 function view_tabs() {
     $('.view_tabs').toggle();
 }
+function view_gf()
+{
+    $('.view_gf').toggleClass('hidden');
+}
 </script><?php ?>
 
 <div class="standard-body-title hide-titles-mob">
-    <h3>Gift Cards</h3>
+    <h3 class="pull-left">Gift Cards</h3>
+    <div class="pull-right"><img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Gift Cards" onclick="view_gf()"></div>
+    <div class="clearfix"></div>
 </div>
 
-<div class="standard-body-content padded-desktop">
-    <form name="form_coupons" method="post" action="" class="form-inline">
-        <div class="row pad-top pad-bottom">
+<div class="standard-body-content padded-desktop ">
+    <form name="form_coupons " method="post" action="" class="form-inline">
+        <div class="row pad-top pad-bottom view_gf hidden">
             <div class="col-sm-3">
                 <label for="search_vendor" class="control-label">Search By Any:</label>
             </div>

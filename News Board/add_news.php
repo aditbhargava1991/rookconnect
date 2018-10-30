@@ -11,13 +11,13 @@ $rookconnect = get_software_name();
 
 if (isset($_POST['add_news'])) {
     $contactid = $_SESSION['contactid'];
-	
+
     if ( !empty($_POST['newsboard_type']) ) {
 		$newsboard_type = filter_var($_POST['newsboard_type'],FILTER_SANITIZE_STRING);
 	} else {
 		$newsboard_type = 'Local';
 	}
-    
+
     if ( isset($_POST['new_newsboard_board']) && !empty($_POST['new_newsboard_board']) ) {
         $new_newsboard_board = filter_var($_POST['new_newsboard_board'],FILTER_SANITIZE_STRING);
         mysqli_query($dbc, "INSERT INTO `newsboard_boards` (`board_name`, `shared_staff`) VALUES ('$new_newsboard_board', ',$contactid,')");
@@ -25,12 +25,12 @@ if (isset($_POST['add_news'])) {
     } else {
         $newsboard_board = filter_var($_POST['newsboard_board'],FILTER_SANITIZE_STRING);
     }
-    
+
     foreach ( $_POST['tags'] as $tag ) {
         $tags_arr[] = str_replace(',', ' ', filter_var($tag, FILTER_SANITIZE_STRING));
     }
     $tags = implode(',', $tags_arr);
-    
+
     $title = filter_var($_POST['title'],FILTER_SANITIZE_STRING);
     $issue_date = date('Y-m-d');
     $expiry_date = ( !empty($_POST['expiry_date']) && $_POST['expiry_date'] != '0000-00-00' ) ? date('Y-m-d', strtotime($_POST['expiry_date'])) : $_POST['expiry_date'];
@@ -47,12 +47,40 @@ if (isset($_POST['add_news'])) {
             $result_insert_newsboard = mysqli_query($dbc, $query_insert) or die(mysqli_error($dbc));
             $newsboardid = mysqli_insert_id($dbc);
         }
+
+        // Tag all the staff by default to the new post in a news board
+        $boardid = $newsboard_board;
+        $tag_newsboardid = $newsboardid;
+        $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`,`email_address` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"));
+        foreach($staff_list as $staff) {
+          $tag_staff_array[] = $staff['contactid'];
+          $tag_staff_email_array[] = $staff['email_address'];
+        }
+
+        $tag_staff = implode(",", $tag_staff_array);
+        $tag_staff_query = "INSERT INTO newsboard_tag(`boardid`, `newsboardid`, `staff`) VALUES('$boardid', '$tag_newsboardid', '$tag_staff')";
+        mysqli_query($dbc, $tag_staff_query);
         $url = 'Added';
-    
+
+        //foreach($tag_staff_email_array as $tag_staff_email) {
+        try {
+            $sender = '';
+            $cc_emails = '';
+            $bcc_emails = '';
+            $title = "test";
+            $user = $tag_staff_email_array;
+            $subject = "New post -> $title has been added to the News Board.";
+            $body = "New Post with Name $title has been added to the news Board. <br>";
+            $body .= 'For more details <a href="'.'https://' . $_SERVER['SERVER_NAME'] . '/News Board/index.php">click here</a>';
+            send_email($sender, $user, $cc_emails, $bcc_emails, $subject, html_entity_decode($body), '');
+        } catch (Exception $e) {
+            $error .= "Unable to send email: ".$e->getMessage()."\n";
+        }
+        //}
     } else {
         $newsboardid = $_POST['newsboardid'];
         $query_update = "UPDATE `newsboard` SET `contactid`='$contactid', `boardid`='$newsboard_board', `newsboard_type`='$newsboard_type', `tags`='$tags', `title`='$title', `expiry_date`='$expiry_date', `description`='$description' WHERE `newsboardid`='$newsboardid'";
-        
+
         if ( $newsboard_type=='Softwarewide' ) {
             $result_update_vendor = mysqli_query($dbc_htg, $query_update);
         } else {
@@ -102,7 +130,7 @@ if (isset($_POST['add_news'])) {
                 }
             }
         });
-        
+
         $('#newsboard_board').on('change', function() {
             var boardid = $('#newsboard_board option:selected').val();
             if ( boardid == 'NEW' ) {
@@ -111,7 +139,7 @@ if (isset($_POST['add_news'])) {
                 $('input[name="new_newsboard_board"]').hide();
             }
         });
-        
+
         $('.delete_image').on('click', function() {
             var ans = confirm('Are you sure you want to delete this image?');
             if ( ans == true ) {
@@ -127,10 +155,10 @@ if (isset($_POST['add_news'])) {
             }
         });
     });
-    
+
     $(document).on('change', '#newsboard_type', changeBoardType);
     $(document).on('change', '#newsboard_board', changeBoard);
-    
+
     function addTag(button) {
         var block = $(button).closest('.tags_class');
         clone = block.clone();
@@ -189,7 +217,7 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
             <div class="pull-right gap-right offset-top-15"><a class="cursor-hand" onclick="closeSlider();"><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img"></a></div>
             <div class="clearfix"></div>
         </div>
-        
+
         <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
             $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT newsboard FROM field_config"));
             $value_config = ','.$get_field_config['newsboard'].',';
@@ -218,11 +246,11 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
 
             <?php if ( $rookconnect=='rook' || $rookconnect=='localhost' ) { ?>
                 <div class="form-group">
-                    <label class="col-sm-4 control-label">
-                        <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the type from the dropdown menu. Add Softwarewide News Boards only from FFM Software."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                        News Board Type<span class="red">*</span>:
-                    </label>
-                    <div class="col-sm-8">
+                    <div class="col-sm-12">
+                        <label class="control-label">
+                            News Board Type<span class="red">*</span>:
+                            <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the type from the dropdown menu. Add Softwarewide News Boards only from FFM Software."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                        </label>
                         <select id="newsboard_type" name="newsboard_type" class="chosen-select-deselect form-control" required>
                             <option value=""></option>
                             <?php
@@ -235,13 +263,13 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
                     </div>
                 </div>
             <?php } ?>
-            
+
             <div class="form-group">
-                <label class="col-sm-4 control-label">
-                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    News Board<span class="red">*</span>:
-                </label>
-                <div class="col-sm-8">
+                <div class="col-sm-12">
+                    <label class="control-label">
+                        <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Select the News Board this news item should go under."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                        News Board<span class="red">*</span>:
+                    </label>
                     <select id="newsboard_board" name="newsboard_board" class="chosen-select-deselect form-control" required>
                         <option value=""></option>
                         <option value="NEW">Add New News Board</option>
@@ -261,10 +289,10 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
                     <input type="text" name="new_newsboard_board" class="form-control" style="display:none;" />
                 </div>
             </div>
-            
+
             <div class="form-group">
-                <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="These are the tags this news item should go under. Add or remove as necessary."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Tags<span class="red">*</span>:</label>
-                <div class="col-sm-8 tags_container">
+                <div class="col-sm-12 tags_container">
+                    <label for="company_name" class="control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="These are the Sub Tabs this news item should go under. Add or remove as necessary."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Sub Tabs<span class="red">*</span>:</label>
                     <?php
                         foreach ( explode(',', $tags) as $tag ) {
                             echo '<div class="tags_class">';
@@ -278,20 +306,21 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
                     ?>
                 </div>
             </div>
-            
+
             <div class="form-group">
-                <label for="company_name" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is the title of the news item that will display on the New Board dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Title<span class="red">*</span>:</label>
-                <div class="col-sm-8">
+                <div class="col-sm-12">
+                    <label for="company_name" class="control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is the title of the news item that will display on the New Board dashboard."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Title<span class="red">*</span>:</label>
                     <input name="title" value="<?= $title; ?>" type="text" id="title" class="form-control" />
                 </div>
             </div>
-                
+
             <div class="form-group">
-                <label for="additional_note" class="col-sm-4 control-label">
-                    <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    Header Image:
-                </label>
-                <div class="col-sm-8"><?php
+                <div class="col-sm-12">
+                    <label for="additional_note" class="control-label">
+                        <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                        Header Image:
+                    </label>
+                    <?php
                     if(!empty($newsboardid)) {
                         $query_check_credentials = "SELECT * FROM newsboard_uploads WHERE newsboardid='$newsboardid' AND type = 'Document' ORDER BY certuploadid DESC";
                         $result = mysqli_query($dbc, $query_check_credentials);
@@ -315,17 +344,17 @@ $newsboardid = isset($_GET['news']) ? preg_replace('/[^0-9]/', '', $_GET['news']
                     </div>
                 </div>
             </div>
-            
+
             <div class="form-group">
-                <label for="company_name" class="col-sm-4 control-label">Expiry Date:</label>
-                <div class="col-sm-8">
+                <div class="col-sm-12">
+                    <label for="company_name" class="control-label">Expiry Date:</label>
                     <input name="expiry_date" value="<?= $expiry_date; ?>" id="expiry_date" type="text" class="datepicker form-control" style="width:150px;" />
                 </div>
             </div>
-            
+
             <div class="form-group">
-                <label for="first_name[]" class="col-sm-4 control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is where the body of your message will go."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>Description:</label>
-                <div class="col-sm-8">
+                <div class="col-sm-12">
+                    <label for="first_name[]" class="control-label"><span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="This is where the body of your message will go."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Description:</label>
                     <textarea name="description" rows="5" cols="50" class="form-control"><?= html_entity_decode($description); ?></textarea>
                 </div>
             </div>

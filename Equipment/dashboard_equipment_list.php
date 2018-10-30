@@ -23,13 +23,13 @@ if(!empty($equipment)) {
 } else {
     if((empty($_GET['category'])) || ($_GET['category'] == 'Top')) {
         $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search $access_query ORDER BY ABS(unit_number) DESC LIMIT 25";
+        $query = "SELECT 25 as numrows";
     } else {
         $category = $_GET['category'];
         $query_check_credentials = "SELECT * FROM equipment WHERE deleted = 0 $status_search AND category='$category' $access_query ORDER BY ABS(unit_number) LIMIT $offset, $rowsPerPage";
         $query = "SELECT count(*) as numrows FROM equipment WHERE deleted = 0 $status_search AND category='$category'".$access_query;
     }
 }
-
 $result = mysqli_query($dbc, $query_check_credentials);
 
 $num_rows = mysqli_num_rows($result);
@@ -77,7 +77,17 @@ if($num_rows > 0) {
 
 		$quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
         echo '<span class="pull-right action-icons double-gap-bottom gap-top" style="width: 100%;">';
+
+        if($row['favorite'] == 0) {
+            $fav_image = 'ROOK-star-empty-icon.png';
+        } else {
+            $fav_image = 'ROOK-star-icon.png';
+        }
+        echo in_array('favorite',$quick_actions) ? '<span class="no-toggle" title="Favorite" onclick="favorite_item(\''.$row['equipmentid'].'\',this); return false;"><img src="'.WEBSITE_URL.'/img/icons/'.$fav_image.'" style="height:100%;" onclick="return false;" class="inline-img favorite"></span>' : '';
+
         echo in_array('preview', $quick_actions) ? '<span title="View Equipment" onclick="overlayIFrameSlider(\'edit_equipment.php?edit='.$row['equipmentid'].'&view=readonly&iframe_slider=1\',\'auto\',true,true); return false;"><img title="View Equipment" src="../img/icons/eyeball.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+        echo in_array('flag_manual',$quick_actions) ? '<span class="no-toggle" title="Flag This!" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_flags.php?tile=equipment&id='.$row['equipmentid'].'\',\'auto\',true,true);  return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
+        echo !in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions) ? '<span class="no-toggle" title="Flag This!" onclick="flag_item(\''.$row['equipmentid'].'\',this); return false;"><img src="'.WEBSITE_URL.'/img/icons/ROOK-flag-icon.png" style="height:100%;" onclick="return false;" class="inline-img"></span>' : '';
         if (in_array('edit', $quick_actions)) { ?>
             <span  onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Equipment/edit_equipment.php?edit=<?=$row['equipmentid']?>&iframe_slider=1'); return false;"><img src="<?=WEBSITE_URL?>/img/icons/ROOK-edit-icon.png" title="Edit Equipment" class="inline-img no-toggle" onclick="return false;"></span><?php
         }
@@ -589,3 +599,32 @@ if(isset($query)) {
 }
 // Pagination Finish //
 ?>
+<script>
+function setManualFlag(tasklistid, colour, label) {
+    window.location.reload();
+}
+function flag_item(checklist,eve) {
+	checklist_id = checklist;
+	$.ajax({
+		method: "POST",
+		url: "../Equipment/equipment_ajax.php?fill=equipmentflag",
+		data: { id: checklist_id },
+		complete: function(result) {
+			console.log(result.responseText);
+			$(eve).closest('div.dashboard-item').css('background-color',(result.responseText == '' ? '' : '#'+result.responseText));
+		}
+	});
+}
+
+function favorite_item(checklist,eve) {
+	checklist_id = checklist;
+	$.ajax({
+		method: "POST",
+		url: "../Equipment/equipment_ajax.php?fill=equipmentfavorite",
+		data: { id: checklist_id },
+		complete: function(result) {
+            window.location.reload();
+		}
+	});
+}
+</script>

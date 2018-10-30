@@ -1,7 +1,7 @@
-<?php include_once('../include.php');
+<?php include_once('config.php');
 if($user_category == 'Staff') {
 	echo "<a href='add_services.php' class='btn brand-btn pull-right'>Add Service Information</a>";
-} ?><h2>Services</h2>
+} ?><h2 class="double-gap-top">Services</h2>
 <?php $query = mysqli_query($dbc_support, "SELECT * FROM `support_services` WHERE `type`='service' AND `deleted`=0 ORDER BY `priority`");
 echo '<div class="panel-group" id="accordion2">';
 if(mysqli_num_rows($query) > 0) {
@@ -33,7 +33,7 @@ if(mysqli_num_rows($query) > 0) {
 } else {
 	echo "Coming Soon!";
 } ?>
-<h2>Products</h2>
+<h2 class="double-gap-top">Products</h2>
 <?php $query = mysqli_query($dbc_support, "SELECT * FROM `support_services` WHERE `type`='product' AND `deleted`=0 ORDER BY `priority`");
 if(mysqli_num_rows($query) > 0) {
 	//echo '<div class="panel-group" id="accordion2">';
@@ -65,7 +65,7 @@ if(mysqli_num_rows($query) > 0) {
 } else {
 	echo "Coming Soon!";
 } ?>
-<h2>Service Plans</h2>
+<h2 class="double-gap-top">Service Plans</h2>
 <?php $query = mysqli_query($dbc_support, "SELECT * FROM `support_services` WHERE `type`='plan' AND `deleted`=0 ORDER BY `priority`");
 if(mysqli_num_rows($query) > 0) {
 	//echo '<div class="panel-group" id="accordion3">';
