@@ -580,8 +580,6 @@ function saveFieldMethod(field) {
             if((save_value == '' || save_value == undefined) && !(id_num > 0)) {
                 doneSaving();
                 return;
-            } else {
-                console.log(field_name+' = '+save_value+' on '+id_num);
             }
 			if((field_name == 'item_id' || field_name == 'deleted') && $(field).data('type') == 'equipment') {
 				var equipmentids = [];
