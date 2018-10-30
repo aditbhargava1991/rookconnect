@@ -860,7 +860,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		<div class="form-group">
 			<label for="first_name" class="col-sm-4 control-label"><!--<span class="text-red">*</span>--> Heading:</label>
 			<div class="col-sm-8">
-				<input name="heading" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?php echo $heading; ?>" class="form-control" onkeyup="if($('[name=heading_auto]').val() == 1) { $('[name=heading_auto]').val(0).change(); }">
+				<input name="heading" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?php echo $heading; ?>" class="form-control">
 				<input name="heading_auto" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $heading_auto ?>">
 			</div>
 		</div>

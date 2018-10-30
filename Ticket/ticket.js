@@ -13,6 +13,10 @@ var delay_notify = false;
 $(document).ready(function() {
 	// Mark fields manually set as manual
 	$('input').keyup(function() {
+        $(this).off('keyup');
+        if(this.name == 'heading' && $('[name=heading_auto]').val() == 1) {
+            $('[name=heading_auto]').val(0).change();
+        }
 		$(this).data('manual','1');
 	});
 	ticketid = $("#ticketid").val();
