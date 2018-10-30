@@ -1730,18 +1730,22 @@ function setInventoryWeight(value, target) {
 		}, 250);
 	}
 }
+var updateTicketLabelTimer = null;
 function updateTicketLabel() {
-	if(updateLabel) {
-		ticketid_list.forEach(function(ticket) {
-			$.ajax({
-				url: 'ticket_ajax_all.php?action=get_ticket_label&ticketid='+ticket,
-				success: function(response) {
-					if(response != '') {
-						$('.ticketid_span').html(response);
-					}
-				}
-			});
-		});
+	if(updateLabel && ticketid > 0 || ticketid == 'multi') {
+        clearTimeout(updateTicketLabelTimer);
+        updateTicketLabelTimer = setTimeout(function() {
+            ticketid_list.forEach(function(ticket) {
+                $.ajax({
+                    url: 'ticket_ajax_all.php?action=get_ticket_label&ticketid='+ticket,
+                    success: function(response) {
+                        if(response != '') {
+                            $('.ticketid_span').html(response);
+                        }
+                    }
+                });
+            });
+        }, 1000);
 	}
 }
 function add_stop() {
@@ -2016,7 +2020,7 @@ function reload_service_checklist() {
 			$('.service_checklist').html(response);
 			initInputs('.service_checklist');
 			initSelectOnChanges();
-			if(typeof calculateTimeEstimate == 'function') {
+			if(response != '' && $('.service_checklist').length > 0 && typeof calculateTimeEstimate == 'function') {
 				calculateTimeEstimate();
 			}
 			reload_hidden_services();
@@ -2032,7 +2036,7 @@ function reload_hidden_services() {
 			$('.hidden_services').html(response);
 			initInputs('.hidden_services');
 			initSelectOnChanges();
-			if(typeof calculateTimeEstimate == 'function') {
+			if(response != '' && $('.hidden_services').length > 0 && typeof calculateTimeEstimate == 'function') {
 				calculateTimeEstimate();
 			}
 		}
