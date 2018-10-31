@@ -256,14 +256,18 @@ function send_csv(a) {
         </form>
 
 			<?php if(get_config($dbc, 'timesheet_approval_import_export') == '1') { ?>
-             <form id="form_csv" name="form_csv" action="time_cards_csv.php?import_csv=1&back_url=<?= urlencode($_SERVER['REQUEST_URI']) ?>" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
-				<div class="pull-right">
-					<a href="time_cards_csv.php?<?= http_build_query($_GET) ?>&approv=N&approv_type=Manager&export_csv=1" class="btn brand-btn pull-right">Export CSV</a>
-					<a href="" class="btn brand-btn pull-right" onclick="send_csv(this); return false;">Import CSV</a>
-					<input type="file" name="import_csv_file" style="display:none;">
-				</div>
-				<div class="clearfix"></div>
-			</form>
+                <div class="pull-right" style="margin:1em;">
+                <a href="time_cards_csv.php?<?= http_build_query($_GET) ?>&approv=N&approv_type=Manager&export_pdf=1"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a>
+                </div>
+
+                <form id="form_csv" name="form_csv" action="time_cards_csv.php?import_csv=1&back_url=<?= urlencode($_SERVER['REQUEST_URI']) ?>" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
+                    <div class="pull-right">
+                        <a href="time_cards_csv.php?<?= http_build_query($_GET) ?>&approv=N&approv_type=Manager&export_csv=1" class="btn brand-btn pull-right">Export CSV</a>
+                        <a href="" class="btn brand-btn pull-right" onclick="send_csv(this); return false;">Import CSV</a>
+                        <input type="file" name="import_csv_file" style="display:none;">
+                    </div>
+                    <div class="clearfix"></div>
+			    </form>
 			<?php } ?>
 
 			 <form id="form1" name="form1" action="add_time_card_approvals.php?tab=<?= $_GET['tab'] ?>&pay_period=<?= $_GET['pay_period'] ?>&search_start_date=<?= $_GET['search_start_date'] ?>&search_end_date=<?= $_GET['search_end_date'] ?>&search_site=<?= $_GET['search_site'] ?>" method="POST" enctype="multipart/form-data" class="form-horizontal timesheet_form" role="form">
