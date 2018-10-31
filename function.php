@@ -45,9 +45,9 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 
 	$_SESSION['JOBS_TILE'] = get_config($dbc, 'jobs_tile_name') ?: 'Jobs';
 
-	$pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Point of Sale#*#Point of Sale');
+	$pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Point of Sale#*#Invoice');
 	$_SESSION['POS_ADVANCE_TILE'] = $pos_advance_tile_name[0] ?: 'Point of Sale';
-	$_SESSION['POS_ADVANCE_NOUN'] = !empty($pos_advance_tile_name[1]) ? $pos_advance_tile_name[1] : ($pos_advance_tile_name[0] == 'Point of Sale' ? 'Point of Sale' : $pos_advance_tile_name[0]) ?: 'Point of Sale';
+	$_SESSION['POS_ADVANCE_NOUN'] = !empty($pos_advance_tile_name[1]) ? $pos_advance_tile_name[1] : ($pos_advance_tile_name[0] == 'Point of Sale' ? 'Invoice' : $pos_advance_tile_name[0]) ?: 'Invoice';
 
 	$ticket_tile_name = explode('#*#',get_config($dbc, 'ticket_tile_name') ?: 'Tickets#*#Ticket');
 	$_SESSION['TICKET_TILE'] = $ticket_tile_name[0] ?: 'Tickets';
@@ -617,6 +617,10 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
             }
             $value[] = 'closed';
 			return implode(',',$value);
+		} else if($name == 'invoice_email_subject') {
+			return 'Attached is your '.POS_ADVANCE_NOUN;
+		} else if($name == 'invoice_email_body') {
+			return '&lt;p&gt;[CUSTOMER]&lt;/p&gt;&lt;p&gt;Attached is your invoice. Thank you for your business!&lt;/p&gt;';
 		}
 	}
 
