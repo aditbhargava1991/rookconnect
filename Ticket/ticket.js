@@ -581,7 +581,7 @@ function saveFieldMethod(field) {
 			} else if(field.type == 'checkbox' && !field.checked) {
 				save_value = '';
 			}
-            if((save_value == '' || save_value == undefined) && !(id_num > 0)) {
+            if((save_value == '' || save_value == undefined) && !(id_num > 0) && field.name != 'ticket_type') {
                 doneSaving();
                 return;
             }
