@@ -1221,4 +1221,9 @@ if(!empty($_GET['action']) && $_GET['action'] == 'export_pos_file') {
 	echo $html;die;
 } else if($_GET['action'] == 'get_tax_exempt') {
     echo get_field_value('client_tax_exemption', 'contacts', 'contactid', $_POST['contactid']);
+} else if($_GET['action'] == 'get_email_address') {
+    $contactid = filter_var($_POST['contactid'],FILTER_SANITIZE_STRING);
+    echo get_email($dbc, $contactid);
+} else if($_GET['action'] == 'set_email_address') {
+    set_field_value($_POST['email'], 'email_address', 'contacts', 'contactid', $_POST['contactid']);
 }

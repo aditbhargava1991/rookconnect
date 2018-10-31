@@ -399,6 +399,18 @@
             <div id="add_here_new_payment"></div>
         </div>
     </div>
+    
+    <?php if(in_array('send_email',$field_config)) { ?>
+        <div class="form-group">
+            <label class="col-sm-3 pull-left">Send <?= POS_ADVANCE_NOUN ?> by Email:</label>
+            <div class="inline pull-left" style="width:5em;">
+                <label class="no-pad form-checkbox"><input type="checkbox" name="email_invoice" value="yes" onclick="$('.email_validate').toggle();"> Yes</label>
+            </div>
+            <div class="scale-to-fill email_validate" style="display:none;">
+                <div class="col-sm-12"><input type="text" name="invoice_email_address" placeholder="Email Address" class="form-control" value="<?= $patient > 0 ? get_email($dbc, $patient) : '' ?>"></div>
+            </div>
+        </div>
+    <?php } ?>
 
        <div class="form-group" <?= (in_array('comment',$field_config) ? '' : 'style="display:none;"') ?>followup>
         <label for="site_name" class="col-sm-3 control-label">Comment:</label>
@@ -460,6 +472,15 @@ $(document).ready(function() {
                             $('[name=tax_rate]').val($('[name=tax_rate]').data('value'));
                         }
                     });
+                    if(this.name == 'invoice_email_address') {
+                        $.post('invoice_ajax.php?action=set_email_address', { contactid: $('select[name=patientid]').val(), email: this.value }, function(response) {
+                            console.log(response);
+                        });
+                    } else {
+                        $.post('invoice_ajax.php?action=get_email_address', { contactid: $('select[name=patientid]').val() }, function(response) {
+                            $('[name=invoice_email_address]').val(response);
+                        });
+                    }
                 }
 				if($('#injuryid_chosen').is(':visible')) {
 					$('.detail_patient_injury').html($('[name=injuryid] option:selected').text() == '' ? 'Please Select' : $('[name=injuryid] option:selected').text()).closest('h4').show();

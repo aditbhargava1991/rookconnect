@@ -105,6 +105,34 @@ if (isset($_POST['submit_btn'])) {
     $invoicefrom = $_POST['invoicefrom'];
     $search_user = $_POST['search_user'];
     $search_invoice = $_POST['search_invoice'];
+    
+    $email_msg = [];
+    if($_POST['email_invoice'] == 'yes' && !empty($_POST['invoice_email_address']) && file_exists('download/invoice_'.$invoiceid.'.pdf')) {
+        $subject = '';
+        if(!empty($get_invoice['type'])) {
+            $subject = get_config($dbc, 'invoice_email_subject_'.config_safe_str($get_invoice['type']));
+        }
+        if(empty($subject)) {
+            $subject = get_config($dbc, 'invoice_email_subject');
+        }
+        $subject = str_replace(['[CUSTOMER]'],[get_contact($dbc, $get_invoice['patientid'])], $subject);
+        $body = '';
+        if(!empty($get_invoice['type'])) {
+            $body = get_config($dbc, 'invoice_email_body_'.config_safe_str($get_invoice['type']));
+        }
+        if(empty($body)) {
+            $body = get_config($dbc, 'invoice_email_body');
+        }
+        $body = str_replace(['[CUSTOMER]'],[get_contact($dbc, $get_invoice['patientid'])], $body);
+        try {
+            send_email('',[$_POST['invoice_email_address']=>get_contact($dbc, $get_invoice['patientid'])],'','',$subject,$body,'download/invoice_'.$invoiceid.'.pdf');
+            $email_msg[] = 'Invoice successfully emailed to '.$_POST['invoice_email_address'];
+        } catch (Exception $e) {
+            $email_msg[] = 'Unable to Send Invoice: '.$e->getMessage();
+        }
+    } else if($_POST['email_invoice'] == 'yes') {
+        $email_msg[] = 'No Email Address Provided: Unable to Send Invoice.';
+    }
 
     if($invoicefrom == 'report') {
         $invoicefrom_start = $_POST['invoicefrom_start'];
@@ -119,7 +147,7 @@ if (isset($_POST['submit_btn'])) {
         } else if($search_invoice != '') {
             echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("index.php?tab=all&search_invoice='.$search_invoice.'");</script>';
         } else {
-            echo '<script type="text/javascript"> alert("Invoice Generated."); window.location.replace("index.php");
+            echo '<script type="text/javascript"> alert("'.implode('\n',$email_msg).(!empty($email_msg) ? '\n' : '').'Invoice Generated."); window.location.replace("index.php");
             window.open("download/invoice_'.$invoiceid.'.pdf", "fullscreen=yes");
             </script>';
         }

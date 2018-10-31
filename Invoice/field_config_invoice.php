@@ -122,6 +122,17 @@ if (isset($_POST['submit'])) {
             $result_insert_config = mysqli_query($dbc, $query_insert_config);
         }
         //Header & Footer
+        
+        // Invoice Email Options
+        $email_subject = get_config($dbc, 'invoice_email_subject_'.config_safe_str($invoice_type));
+        if(!empty($email_subject) || !empty($_POST['email_subject'])) {
+            set_config($dbc, 'invoice_email_subject_'.config_safe_str($invoice_type), $_POST['email_subject']);
+        }
+        $email_body = get_config($dbc, 'invoice_email_body_'.config_safe_str($invoice_type));
+        if(!empty($email_body) || !empty($_POST['email_body'])) {
+            set_config($dbc, 'invoice_email_body_'.config_safe_str($invoice_type), htmlentities($_POST['email_body']));
+        }
+        // Invoice Email Options
 
         echo '<script type="text/javascript"> window.location.replace("field_config_invoice.php?type='.$invoice_type.'"); </script>';
     } else {
@@ -369,6 +380,17 @@ if (isset($_POST['submit'])) {
             $result_insert_config = mysqli_query($dbc, $query_insert_config);
         }
         //Header & Footer
+        
+        // Invoice Email Options
+        $email_subject = get_config($dbc, 'invoice_email_subject');
+        if(!empty($email_subject) || !empty($_POST['email_subject'])) {
+            set_config($dbc, 'invoice_email_subject', $_POST['email_subject']);
+        }
+        $email_body = get_config($dbc, 'invoice_email_body');
+        if(!empty($email_body) || !empty($_POST['email_body'])) {
+            set_config($dbc, 'invoice_email_body', htmlentities($_POST['email_body']));
+        }
+        // Invoice Email Options
 
         echo '<script type="text/javascript"> window.location.replace("field_config_invoice.php"); </script>';
     }
@@ -576,7 +598,7 @@ if(!empty($invoice_types)) { ?>
             <div class="panel-heading">
                 <h4 class="panel-title">
                     <a data-toggle="collapse" data-parent="#accordion" href="#collapse_pdf" >
-                        PDF Settings<span class="glyphicon glyphicon-plus"></span>
+                        Invoice Settings<span class="glyphicon glyphicon-plus"></span>
                     </a>
                 </h4>
             </div>
@@ -655,7 +677,6 @@ if(!empty($invoice_types)) { ?>
                         <label class="col-sm-4">Append <?= TICKET_TILE ?> in Groups of:<br /><em>If there are several <?= TICKET_TILE ?>, there will be no more than this number appended to the invoice. After it hits this number, the <?= TICKET_TILE ?> will be split into their own PDF.</em></label>
                         <div class="col-sm-8"><input type="number" min="1" step="1" class="form-control" name="invoice_ticket_append_qty" value="<?= get_config($dbc, 'invoice_ticket_append_qty'.(empty($_GET['type']) ? '' : '_'.config_safe_str($_GET['type']))) ?>"></div>
                     </div>
-
 
                     <?php $invoice_custom_ticket = (!empty($_GET['type']) ? (!empty(get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type']))) ? get_config($dbc, 'invoice_custom_ticket_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_custom_ticket')) : get_config($dbc, 'invoice_custom_ticket')); ?>
                     <div class="form-group custom_ticket" <?= $invoice_design != 'custom_ticket' ? 'style="display: none;"' : '' ?>>
@@ -755,6 +776,24 @@ if(!empty($invoice_types)) { ?>
                     <div class="col-sm-8">
                         <textarea name="invoice_unpaid_footer" rows="5" cols="50" class="form-control"><?php echo $invoice_unpaid_footer; ?></textarea>
                     </div>
+                    </div>
+
+                    <?php $email_subject = !empty($_GET['type']) ? get_config($dbc, 'invoice_email_subject_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_email_subject'); ?>
+                    <div class="form-group">
+                        <label class="col-sm-4">Emailed Invoice Subject:</label>
+                        <div class="col-sm-8">
+                            <?= empty($_GET['type']) || !empty($email_subject) ? '' : '<em><small>Default: '.get_config($dbc, 'invoice_email_subject').'</small></em>' ?>
+                            <input type="text" name="email_subject" value="<?= $email_subject ?>" class="form-control">
+                        </div>
+                    </div>
+
+                    <?php $email_body = !empty($_GET['type']) ? get_config($dbc, 'invoice_email_body_'.config_safe_str($_GET['type'])) : get_config($dbc, 'invoice_email_body'); ?>
+                    <div class="form-group">
+                        <label class="col-sm-4">Emailed Invoice Body:</label>
+                        <div class="col-sm-8">
+                            <?= empty($_GET['type']) || !empty($email_body) ? '' : '<em><small>Default: '.html_entity_decode(get_config($dbc, 'invoice_email_body')).'</small></em>' ?>
+                            <textarea name="email_body"><?= html_entity_decode($email_body) ?></textarea>
+                        </div>
                     </div>
 
                     <div class="form-group">
@@ -1070,6 +1109,7 @@ if(!empty($invoice_types)) { ?>
 					<label class="form-checkbox"><input <?= (in_array('survey',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="survey"> Send Survey</label>
 					<label class="form-checkbox"><input <?= (in_array('request_recommend',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="request_recommend"> Request Recommendation</label>
 					<label class="form-checkbox"><input <?= (in_array('followup',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="followup"> Send Follow Up Email</label>
+					<label class="form-checkbox"><input <?= (in_array('send_email',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="send_email"> Email Invoice</label>
                     <label class="form-checkbox"><input <?= (in_array('giftcard',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="giftcard"> Gift Card</label>
                     <label class="form-checkbox"><input <?= (in_array('reference',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="reference"> Reference</label>
                     <label class="form-checkbox"><input <?= (in_array('Customer Billing Status',$invoice_fields) ? 'checked' : '') ?> type="checkbox" name="invoice_fields[]" value="Customer Billing Status"> Customer Billing Status</label>
