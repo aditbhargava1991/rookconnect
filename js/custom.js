@@ -305,6 +305,7 @@ function initIconColors() {
             !src.match('/ROOK-status-rejected.jpg') &&
             !src.match('/ROOK-back-icon.png') &&
             !src.match('/ROOK-trash-icon.png') &&
+            !$(this).is('.no-colour') &&
             !src.match('/ROOK-status-error.png')) {
 	        if ( src.match('/ROOK-') ||
 	            src.match('/drag_handle.png') ||

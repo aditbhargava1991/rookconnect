@@ -127,7 +127,8 @@ var projectFilter = function() {
 	if($access_project == TRUE) { ?>
 		<?php if ( strpos($value_config, ',Detail Business,') !== false && $field_sort_field == 'Detail Business') { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right"><span class="text-red">*</span> Business:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right"><span class="text-red">*</span> Business:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-7">
 					<select name="businessid" id="businessid" data-placeholder="Select a Business..." data-category="<?= BUSINESS_CAT ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
 						<option value=''></option>
@@ -146,7 +147,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Contact,') !== false && $field_sort_field == 'Detail Contact' ) { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Contact Name:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Contact Name:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-7">
 					<select name="clientid" id="clientid" data-placeholder="Select a Contact..." data-category="<?= get_config($dbc, 'ticket_business_contact_'.$ticket_type) ?: (get_config($dbc, 'ticket_business_contact') ?: '%') ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
 						<option value=''></option>
@@ -166,7 +168,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Contact Phone,') !== false && $field_sort_field == 'Detail Contact Phone' ) { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right">Phone Numbers:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right">Phone Numbers:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<?php $show_names = false;
 					if($get_ticket['businessid'] > 0 && $get_ticket['clientid'] > 0) {
@@ -190,7 +193,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Rate Card,') !== false && $field_sort_field == 'Detail Rate Card' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label">Rate Card:</label>
+			  <label for="site_name" class="col-sm-4 control-label">Rate Card:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<select data-placeholder="Select Rate Card..." name="rate_card" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control"><option/>
 					<?php $query = mysqli_query($dbc,"SELECT ratecardid, clientid, rate_card_name FROM `rate_card` WHERE `on_off`=1 AND `hide`=0 AND deleted=0 ORDER BY `rate_card_name`");
@@ -208,7 +212,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Project,') !== false && $field_sort_field == 'Detail Project' && ($force_project == 'manual' || $force_project == '')) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><span class="text-red">*</span> <?= PROJECT_NOUN ?> Name:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><span class="text-red">*</span> <?= PROJECT_NOUN ?> Name:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<select data-placeholder="Select <?= PROJECT_NOUN ?>..." name="projectid" id="projectid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
 				  <option value=""></option>
@@ -230,7 +235,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Heading,') !== false && $field_sort_field == 'Detail Heading') { ?>
 			<div class="form-group clearfix">
-				<label for="heading" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Name:</label>
+				<label for="heading" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Name:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<input name="heading" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control" value="<?= $get_ticket['heading'] ?>">
 				</div>
@@ -239,7 +245,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Date,') !== false && $field_sort_field == 'Detail Date') { ?>
 			<div class="form-group clearfix">
-				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Date:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Date:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8 date_div">
 					<input name="to_do_date" type="text" autocomplete="off" data-placeholder="Select a Date..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>" onchange="$(this).closest('.date_div').find('[name=to_do_end_date]').val(this.value).change();">
 					<input type="hidden" name="to_do_end_date" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control datepicker" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_end_date'])) ?>">
@@ -258,7 +265,8 @@ var projectFilter = function() {
 			}
 			</script>
 			<div class="form-group clearfix">
-				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Start Date &amp; Time:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Start Date &amp; Time:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<input type="text" name="start_date_time" onchange="updateStartDateTime(this);" value="<?= $get_ticket['to_do_date'].' '.$get_ticket['start_time'] ?>" class="form-control dateandtimepicker">
 					<input name="to_do_date" type="hidden" autocomplete="off" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_date'] ?>">
@@ -278,7 +286,8 @@ var projectFilter = function() {
 			}
 			</script>
 			<div class="form-group clearfix">
-				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled End Date &amp; Time:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled End Date &amp; Time:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<input type="text" name="end_date_time" onchange="updateEndDateTime(this);" value="<?= $get_ticket['to_do_end_date'].' '.$get_ticket['end_time'] ?>" class="form-control dateandtimepicker">
 					<input name="to_do_end_date" type="hidden" autocomplete="off" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datepicker form-control" value="<?= $get_ticket['to_do_end_date'] ?>">
@@ -289,7 +298,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Staff,') !== false && $field_sort_field == 'Detail Staff' ) { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Staff:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right"><!--<span class="text-red">*</span>--> Staff:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<select name="contactid" id="contactid" data-placeholder="Select a Staff..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control" width="380">
 						<option value=''></option><?php
@@ -305,6 +315,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Staff Start Time:
 					<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the time that Staff should arrive. This should be entered as hh:mm pp."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span>
 				</label>
 				<div class="col-sm-8">
 					<input name="start_time" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['start_time'] ?>">
@@ -313,6 +324,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Staff End Time:
 					<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the time that Staff should be done. This should be entered as hh:mm pp."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span>
 				</label>
 				<div class="col-sm-8">
 					<input name="end_time" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['end_time'] ?>">
@@ -324,6 +336,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Member Drop Off:
 					<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the time that Members will arrive. This should be entered as hh:mm pp."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span>
 				</label>
 				<div class="col-sm-8">
 					<input name="member_start_time" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['member_start_time'] ?>">
@@ -332,6 +345,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Member Pick Up:
 					<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the time that Members will be picked up. This should be entered as hh:mm pp."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span>
 				</label>
 				<div class="col-sm-8">
 					<input name="member_end_time" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['member_end_time'] ?>">
@@ -343,6 +357,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Start Time:
 					<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the time the <?= TICKET_NOUN ?> will start. This should be entered as hh:mm pp."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span>
 				</label>
 				<div class="col-sm-8">
 					<input name="to_do_start_time" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['to_do_start_time'] ?>">
@@ -351,6 +366,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled End Time:
 					<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the time the <?= TICKET_NOUN ?> will end. This should be entered as hh:mm pp."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span>
 				</label>
 				<div class="col-sm-8">
 					<input name="to_do_end_time" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="datetimepicker-15 form-control" value="<?= $get_ticket['to_do_end_time'] ?>">
@@ -362,6 +378,7 @@ var projectFilter = function() {
 			<div class="form-group clearfix">
 				<label for="first_name" class="col-sm-4 control-label text-right">Scheduled Duration:
 					<span class="popover-examples list-inline"><a data-toggle="tooltip" data-placement="top" title="Enter the duration for the <?= TICKET_NOUN ?>. This should be entered as hh:mm."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span>
 				</label>
 				<div class="col-sm-8">
 					<input name="max_time" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="timepicker-5 form-control" value="<?= $get_ticket['max_time'] ?>">
@@ -371,7 +388,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Notes,') !== false && $field_sort_field == 'Detail Notes') { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right">Notes:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right">Notes:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-12">
 					<textarea name="notes" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control"><?= $get_ticket['notes'] ?></textarea>
 				</div>
@@ -380,7 +398,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Max Capacity,') !== false && $field_sort_field == 'Detail Max Capacity') { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right">Max Capacity:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right">Max Capacity:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<input name="max_capacity" type="number" min="0" step="1" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control" value="<?= $get_ticket['max_capacity'] ?>">
 				</div>
@@ -389,7 +408,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Staff Capacity,') !== false && $field_sort_field == 'Detail Staff Capacity') { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right">Staff Capacity:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right">Staff Capacity:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<input name="staff_capacity" type="number" min="0" step="1" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control" value="<?= $get_ticket['staff_capacity'] ?>">
 				</div>
@@ -398,7 +418,8 @@ var projectFilter = function() {
 
 		<?php if(strpos($value_config,',Detail Status,') !== FALSE && $field_sort_field == 'Detail Status') { ?>
 			<div class="form-group">
-				<label for="site_name" class="col-sm-4 control-label">Status:</label>
+				<label for="site_name" class="col-sm-4 control-label">Status:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 
 					<select data-placeholder="Select a Status..." name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="status" class="chosen-select-deselect form-control input-sm">
@@ -427,7 +448,8 @@ var projectFilter = function() {
 
 		<?php if ( strpos($value_config, ',Detail Image,') !== false && $field_sort_field == 'Detail Image') { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right">Attach Image:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right">Attach Image:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<?php if(!empty($get_ticket['attached_image'])) {
 						if(file_exists('../Ticket/download/'.$get_ticket['attached_image'])) {
@@ -443,7 +465,8 @@ var projectFilter = function() {
 
 		<?php if(strpos($value_config,',Detail Total Budget Time,') !== FALSE && $field_sort_field == 'Detail Total Budget Time') { ?>
 			<div class="form-group">
-				<label for="site_name" class="col-sm-4 control-label">Total Budget Time:</label>
+				<label for="site_name" class="col-sm-4 control-label">Total Budget Time:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<input type="text" name="total_budget_time" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="timepicker-15 form-control" value="<?= $get_ticket['total_budget_time'] ?>">
 				</div>

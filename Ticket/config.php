@@ -107,3 +107,6 @@ if($update_time == 'auto_sort' && $_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpR
     <script src="../Calendar/map_sorting.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= DIRECTIONS_KEY ?>"></script>
 <?php }
+if($ticketid > 0) {
+    $incognito_fields = explode(',',get_field_value('incognito_fields','tickets','ticketid',$ticketid));
+}

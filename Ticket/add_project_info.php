@@ -136,7 +136,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php if (( strpos($value_config, ',PI Business,') !== false  || ( strpos($value_config, ',PI ') === false) ) && $field_sort_field == 'PI Business' ) {
 			$businessid_inserted = true; ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI Business', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= BUSINESS_CAT ?> Name:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI Business', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= BUSINESS_CAT ?> Name:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-7">
 					<select name="businessid" id="businessid" data-placeholder="Select a <?= (substr(BUSINESS_CAT, -1)=='s' && substr(BUSINESS_CAT, -2)!='ss') ? substr(BUSINESS_CAT, 0, -1) : BUSINESS_CAT; ?>..." data-category="<?= BUSINESS_CAT ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control <?php echo (in_array('PI Business', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 						<option value=''></option>
@@ -158,7 +159,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Name,') !== false && $field_sort_field == 'PI Name' ) { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI Name', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><!----> Contact Name:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI Name', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><!----> Contact Name:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-7">
 					<select name="clientid" id="clientid" data-placeholder="Select a Contact specific to above <?= BUSINESS_CAT ?>..." data-table="tickets" data-id="<?= $ticketid ?>" data-category="<?= get_config($dbc, 'ticket_business_contact_'.$ticket_type) ?: (get_config($dbc, 'ticket_business_contact') ?: '%') ?>" data-id-field="ticketid" class="chosen-select-deselect form-control <?php echo (in_array('PI Name', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 						<option value=''></option>
@@ -183,7 +185,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Guardian,') !== false && $field_sort_field == 'PI Guardian' ) { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI Guardian', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><!----> Parent/Guardian:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI Guardian', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><!----> Parent/Guardian:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-7">
 					<select name="guardianid" id="guardianid" data-placeholder="Select a Parent/Guardian..." data-table="tickets" data-id="<?= $ticketid ?>" data-category="<?= get_config($dbc, 'ticket_guardian_contact_'.$ticket_type) ?: (get_config($dbc, 'ticket_guardian_contact') ?: '%') ?>" data-id-field="ticketid" class="chosen-select-deselect form-control <?php echo (in_array('PI Guardian', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 						<option value=''></option>
@@ -208,7 +211,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI AFE,') !== false && $field_sort_field == 'PI AFE' ) { ?>
 			<div class="form-group clearfix completion_date">
-				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI AFE', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>AFE#:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI AFE', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>AFE#:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<input type="text" name="afe_number" id="clientid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI AFE', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['afe_number'] ?>">
 				</div>
@@ -217,7 +221,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Project,') !== false && $field_sort_field == 'PI Project' && ($force_project == 'manual' || $force_project == '')) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Project', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?> <?= PROJECT_NOUN ?> Name:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Project', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?> <?= PROJECT_NOUN ?> Name:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-7">
 				<select data-placeholder="Select <?= PROJECT_NOUN ?> related to file #'s (e.g. 67, 77, etc.)..." name="projectid" id="projectid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control <?php echo (in_array('PI Project', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 				  <option value=""></option>
@@ -243,7 +248,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Pieces,') !== false && $field_sort_field == 'PI Pieces' ) { ?>
 			<div class="form-group">
-				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI Pieces', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Piece Work:</label>
+				<label for="first_name" class="col-sm-4 control-label text-right"><?php echo (in_array('PI Pieces', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Piece Work:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<input name="piece_work" value="<?php echo $piece_work; ?>" id="project_name" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" type="text" class="form-control <?php echo (in_array('PI Pieces', $value_mandatory_config) ? 'required' : ''); ?>"></p>
 				</div>
@@ -253,7 +259,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php if ( strpos($value_config, ',PI Sites,') !== false && $field_sort_field == 'PI Sites' ) { ?>
 			<div class="site_group">
 				<div class="form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Sites', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Site:</label>
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Sites', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Site:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				  <div class="col-sm-7">
 					<select data-placeholder="Select Site..." multiple name="siteid[]" id="siteid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="," class="chosen-select-deselect form-control <?php echo (in_array('PI Sites', $value_mandatory_config) ? 'required' : ''); ?>">
 						<?php if(empty($site_list)) {
@@ -281,7 +288,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Rate Card,') !== false && $field_sort_field == 'PI Rate Card' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Rate Card', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Rate Card:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Rate Card', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Rate Card:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<select data-placeholder="Select Rate Card..." name="rate_card" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control <?php echo (in_array('PI Rate Card', $value_mandatory_config) ? 'required' : ''); ?>"><option/>
 					<?php $query = mysqli_query($dbc,"SELECT ratecardid, clientid, rate_card_name FROM `rate_card` WHERE `on_off`=1 AND `hide`=0 AND deleted=0 ORDER BY `rate_card_name`");
@@ -300,7 +308,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php if ( strpos($value_config, ',PI Customer Order,') !== false && $field_sort_field == 'PI Customer Order' ) {
 			foreach(explode('#*#',trim($get_ticket['customer_order_num'],'#*')) as $customer_order_line) { ?>
 				<div class="multi-block form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Customer Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Customer Order #:</label>
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Customer Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Customer Order #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				  <div class="col-sm-7">
 					<input type="text" name="customer_order_num" id="customer_order_num" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="#*#" class="form-control <?php echo (in_array('PI Customer Order', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $customer_order_line ?>" placeholder="The Customer Order # provided by the customer">
 				  </div>
@@ -314,7 +323,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Sales Order,') !== false && $field_sort_field == 'PI Sales Order' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Sales Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Invoice #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Sales Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Invoice #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<select data-placeholder="Select Invoice..." name="salesorderid" id="salesorderid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control <?php echo (in_array('PI Sales Order', $value_mandatory_config) ? 'required' : ''); ?>">
 					<option value=""></option>
@@ -327,21 +337,24 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 			</div>
 		<?php } else if ( strpos($value_config, ',PI Invoice,') !== false && $field_sort_field == 'PI Invoice' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Invoice', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Invoice #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Invoice', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Invoice #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="salesorderid" id="salesorderid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Invoice', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['salesorderid'] ?>">
 			  </div>
 			</div>
 		<?php } else if ( strpos($value_config, ',PI Order,') !== false && $field_sort_field == 'PI Order' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Order #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Order #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="salesorderid" id="salesorderid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Order', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['salesorderid'] ?>">
 			  </div>
 			</div>
 		<?php } else if ( strpos($value_config, ',PI WTS Order,') !== false && $field_sort_field == 'PI WTS Order' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI WTS Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>WTS Order #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI WTS Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>WTS Order #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="salesorderid" id="salesorderid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI WTS Order', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['salesorderid'] ?>" placeholder="PO issued to WTS for logistics related charges (e.g. Blanket PO)...">
 			  </div>
@@ -351,7 +364,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php if ( strpos($value_config, ',PI Purchase Order,') !== false && $field_sort_field == 'PI Purchase Order' ) {
 			foreach(explode('#*#',trim($get_ticket['purchase_order'],'#*')) as $po_num_line) { ?>
 				<div class="multi-block form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Purchase Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Purchase Order #:</label>
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Purchase Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Purchase Order #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				  <div class="col-sm-7">
 					<input type="text" name="purchase_order" id="purchase_order" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-concat="#*#" class="form-control <?php echo (in_array('PI Purchase Order', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $po_num_line ?>" placeholder="The PO# provided by the customer">
 				  </div>
@@ -365,7 +379,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Cross Ref,') !== false && $field_sort_field == 'PI Cross Ref' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Cross Ref', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Cross Reference #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Cross Ref', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Cross Reference #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="notes" id="notes" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Cross Ref', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['notes'] ?>" placeholder="Internal reference tracking...">
 			  </div>
@@ -374,7 +389,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Invoiced Out,') !== false && $field_sort_field == 'PI Invoiced Out' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Invoiced Out', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Invoiced:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Invoiced Out', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Invoiced:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<label class="form-checkbox"><input type="radio" name="invoiced" <?= $get_ticket['invoiced'] > 0 ? 'checked' : '' ?> data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Invoiced Out', $value_mandatory_config) ? 'required' : ''); ?>" value="1"> Yes</label>
 				<label class="form-checkbox"><input type="radio" name="invoiced" <?= $get_ticket['invoiced'] > 0 ? '' : 'checked' ?> data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Invoiced Out', $value_mandatory_config) ? 'required' : ''); ?>" value="0"> No</label>
@@ -384,7 +400,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Work Order,') !== false && $field_sort_field == 'PI Work Order' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Work Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Work Order #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Work Order', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Work Order #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="heading" id="heading" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Work Order', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['heading'] ?>" placeholder="Turn around only...">
 			  </div>
@@ -393,7 +410,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Scheduled Date,') !== false && $field_sort_field == 'PI Scheduled Date' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Scheduled Date', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Scheduled Date:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Scheduled Date', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Scheduled Date:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8 date_div">
 				<input type="text" name="to_do_date" class="form-control datepicker" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_date'] != '' ? $get_ticket['to_do_date'] : 'today')) ?>" onchange="$(this).closest('.date_div').find('[name=to_do_end_date]').val(this.value).change();">
 				<input type="hidden" name="to_do_end_date" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control datepicker" value="<?= date('Y-m-d',strtotime($get_ticket['to_do_end_date'])) ?>">
@@ -403,7 +421,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Date of Entry,') !== false && $field_sort_field == 'PI Date of Entry' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Date of Entry', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Date of Entry:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Date of Entry', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Date of Entry:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="created_date" readonly class="form-control <?php echo (in_array('PI Date of Entry', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= date('Y-m-d',strtotime($get_ticket['created_date'] != '' ? $get_ticket['created_date'] : 'today')) ?>">
 			  </div>
@@ -412,7 +431,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 
 		<?php if ( strpos($value_config, ',PI Time of Entry,') !== false && $field_sort_field == 'PI Time of Entry' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI AFE', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Time of Entry:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI AFE', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Time of Entry:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="created_date" readonly class="form-control <?php echo (in_array('PI Time of Entry', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= date('h:i a',strtotime($get_ticket['created_date'])) ?>">
 			  </div>
@@ -423,7 +443,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 			$default_contact_category = get_config($dbc, 'ticket_project_contact');
 			$contact_category = ($ticket_type == '' ? $default_contact_category : get_config($dbc, 'ticket_project_contact_'.$ticket_type)); ?>
 			<div class="form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Agent', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= $contact_category ?>:</label>
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Agent', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= $contact_category ?>:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				  <div class="col-sm-7 select-div" style="<?= trim($get_ticket['agentid'],',') > 0 || $get_ticket['agentid'] == '' ? '' : 'display:none;' ?>">
 					<select data-placeholder="Select <?= $contact_category ?>..." name="agentid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-category="<?= $contact_category ?>" class="chosen-select-deselect form-control <?php echo (in_array('PI Agent', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 					  <option value=""></option>
@@ -449,7 +470,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 			$default_contact_category = get_config($dbc, 'ticket_notify_contact');
 			$contact_category = ($ticket_type == '' ? $default_contact_category : get_config($dbc, 'ticket_notify_contact_'.$ticket_type)); ?>
 			<div class="form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Notify Party', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Notify Party:</label>
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Notify Party', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Notify Party:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				  <div class="col-sm-7 select-div" style="<?= trim($get_ticket['notifyid'],',') > 0 || $get_ticket['notifyid'] == '' ? '' : 'display:none;' ?>">
 					<select data-placeholder="Select <?= $contact_category ?>..." name="notifyid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-category="<?= (!empty($contact_category) ? $contact_category : '%') ?>" class="chosen-select-deselect form-control <?php echo (in_array('PI Notify Party', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 					  <option value=""></option>
@@ -474,7 +496,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php if ( strpos($value_config, ',PI Ban,') !== false && $field_sort_field == 'PI Ban' ) {
 			$contact_category = 'Ban'; ?>
 			<div class="form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Ban', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= $contact_category ?>:</label>
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Ban', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= $contact_category ?>:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				  <div class="col-sm-7 select-div" style="<?= trim($get_ticket['banid'],',') > 0 || $get_ticket['banid'] == '' ? '' : 'display:none;' ?>">
 					<select data-placeholder="Select <?= $contact_category ?>..." name="banid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-category="<?= $contact_category ?>" class="chosen-select-deselect form-control <?php echo (in_array('PI Ban', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 					  <option value=""></option>
@@ -499,7 +522,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php if ( strpos($value_config, ',PI Vendor,') !== false && $field_sort_field == 'PI Vendor' ) {
 			$contact_category = 'Vendor'; ?>
 			<div class="form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Vendor', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= $contact_category ?>:</label>
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Vendor', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= $contact_category ?>:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				  <div class="col-sm-7 select-div" style="<?= trim($get_ticket['vendorid'],',') > 0 || $get_ticket['vendorid'] == '' ? '' : 'display:none;' ?>">
 					<select data-placeholder="Select <?= $contact_category ?>..." name="vendorid" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-category="<?= $contact_category ?>" class="chosen-select-deselect form-control <?php echo (in_array('PI Vendor', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 					  <option value=""></option>
@@ -523,7 +547,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php } ?>
 		<?php if ( strpos($value_config, ',PI Operator,') !== false && $field_sort_field == 'PI Operator' ) { ?>
 			<div class="form-group">
-				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Operator', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Operators:</label>
+				  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Operator', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Operators:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				  <div class="col-sm-8">
 					<select data-placeholder="Select Operator..." multiple id="contactid" name="contactid[]" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control <?php echo (in_array('PI Operator', $value_mandatory_config) ? 'required' : ''); ?>" width="380">
 						  <?php $staff_query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND status>0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
@@ -538,7 +563,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php } ?>
 		<?php if(strpos($value_config,',PI Status,') !== FALSE && $field_sort_field == 'PI Status') { ?>
 			<div class="form-group">
-				<label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Status', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Status:</label>
+				<label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Status', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Status:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
                     <?php $invoice_status = '';
                     if(get_config($dbc, 'ticket_invoice_status') > 0 && $ticketid > 0) {
@@ -591,7 +617,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php } ?>
 		<?php if ( strpos($value_config, ',PI Waste Manifest,') !== false && $field_sort_field == 'PI Waste Manifest' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Waste Manifest', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Waste Manifest #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Waste Manifest', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Waste Manifest #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="waste_manifest" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Waste Manifest', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['waste_manifest'] ?>">
 			  </div>
@@ -599,7 +626,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php } ?>
 		<?php if ( strpos($value_config, ',PI Reference Ticket,') !== false && $field_sort_field == 'PI Reference Ticket' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Reference Ticket', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Reference Ticket #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI Reference Ticket', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>Reference Ticket #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="ref_ticket" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI Reference Ticket', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['ref_ticket'] ?>">
 			  </div>
@@ -607,7 +635,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php } ?>
 		<?php if ( strpos($value_config, ',PI TDG Doc Num,') !== false && $field_sort_field == 'PI TDG Doc Num' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI TDG Doc Num', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>TDG Doc. #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI TDG Doc Num', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>TDG Doc. #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="tdg_doc_num" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI TDG Doc Num', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['tdg_doc_num'] ?>">
 			  </div>
@@ -615,7 +644,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 		<?php } ?>
 		<?php if ( strpos($value_config, ',PI VTI Num,') !== false && $field_sort_field == 'PI VTI Num' ) { ?>
 			<div class="form-group">
-			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI VTI Num', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>VTI #:</label>
+			  <label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI VTI Num', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?>VTI #:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 			  <div class="col-sm-8">
 				<input type="text" name="vti_num" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="form-control <?php echo (in_array('PI VTI Num', $value_mandatory_config) ? 'required' : ''); ?>" value="<?= $get_ticket['vti_num'] ?>">
 			  </div>
@@ -628,7 +658,8 @@ $value_mandatory_config = explode(',',get_mandatory_field_config($dbc, 'tickets'
 			$tab_ticket_custom_field_values = explode('#*#',get_config($dbc, 'ticket_custom_field_values'.($ticket_type == '' ? '' : '_'.$ticket_type)));
 			$value_list = array_filter(array_unique(array_merge($ticket_custom_field_values,$tab_ticket_custom_field_values))); ?>
 			<div class="form-group">
-				<label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI TEXT FIELD', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= $tab_ticket_custom_field != '' ? $tab_ticket_custom_field : $ticket_custom_field ?>:</label>
+				<label for="site_name" class="col-sm-4 control-label"><?php echo (in_array('PI TEXT FIELD', $value_mandatory_config) ? '<span class="text-red">* </span>' : ''); ?><?= $tab_ticket_custom_field != '' ? $tab_ticket_custom_field : $ticket_custom_field ?>:
+                    <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($field_sort_field,$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $field_sort_field ?>" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($field_sort_field,$incognito_fields) ? '' : $field_sort_field ?>"></span></label>
 				<div class="col-sm-8">
 					<?php if(count($value_list) > 0) { ?>
 						<select name="custom_field" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" data-placeholder="Select <?= $tab_ticket_custom_field != '' ? $tab_ticket_custom_field : $ticket_custom_field ?>" class="chosen-select-deselect form-control <?php echo (in_array('PI TEXT FIELD', $value_mandatory_config) ? 'required' : ''); ?>"><option />

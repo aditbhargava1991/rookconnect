@@ -695,6 +695,7 @@ if(!($strict_view > 0) && !isset($_GET['intake_key'])) {
 	$quick_action_html .= (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">' : '');
 	$quick_action_html .= (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
 	$quick_action_html .= (in_array('history',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img history-icon no-toggle" title="History" onclick="displayCustomerHistory();">' : '');
+	$quick_action_html .= (strpos($value_config, ',Set Incognito Fields,') !== FALSE ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-incognito-icon.png" class="inline-img history-icon no-toggle" title="Incognito Fields" onclick="$(\'.incognito\').toggle();">' : '');
 	$quick_action_html .= (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon no-toggle" title="Archive">' : '');
 	$quick_action_html .= '</div><br />
 		<input type="text" name="emailpdf" value="" class="form-control" style="display:none;">
@@ -1281,7 +1282,8 @@ var setHeading = function() {
     }
 	if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['estimate_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
 		<div class="form-group clearfix <?= $calendar_ticket_slider != 'accordion' ? 'show-on-mob' : '' ?>" <?= isset($_GET['intake_key']) ? 'style="display:none;"' : '' ?>>
-			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Tab:</label>
+			<label for="ticket_type" class="col-sm-4 control-label text-right"><?= TICKET_NOUN ?> Tab:
+                <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array('ticket_type',$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="ticket_type" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array('ticket_type',$incognito_fields) ? '' : 'ticket_type' ?>"</span></label>
 			<div class="col-sm-8">
 				<select name="ticket_type" id="ticket_type" data-placeholder="Select a Tab..." data-initial="<?= $ticket_type ?>" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
 					<option value=''></option>
@@ -2975,7 +2977,8 @@ var setHeading = function() {
 			<?php if((count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['estimate_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) || isset($_GET['intake_key'])) { ?>
 				<div class="tab-section col-sm-12" id="tab_section_ticket_type" <?= isset($_GET['intake_key']) ? 'style="display:none;"' : '' ?>>
 					<h3><?= TICKET_NOUN ?> Tab</h3>
-					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Tab:</label>
+					<label for="ticket_type" class="col-sm-4 control-label" style="text-align: left;"><?= TICKET_NOUN ?> Tab:
+                        <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array('ticket_type',$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="ticket_type" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>"data-id="<?= $ticketid ?>" value="<?= !in_array('ticket_type',$incognito_fields) ? '' : 'ticket_type' ?>"></span></label>
 					<div class="col-sm-8">
 						<select name="ticket_type" id="ticket_type" data-initial="<?= $ticket_type ?>" data-placeholder="Select a Tab..." data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" class="chosen-select-deselect form-control">
 							<option value=''></option>

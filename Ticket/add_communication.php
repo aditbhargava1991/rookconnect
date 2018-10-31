@@ -7,7 +7,8 @@
 </div>
 
 <?php if($communication_type == 'External') { ?>
-    <h4>Tagged for Communication</h4>
+    <h4>Tagged for Communication
+        <span class="incognito" style="display:none;"><img class="cursor-hand inline-img no-toggle no-colour <?= !in_array($communication_type.' Communication',$incognito_fields) ? 'black-color' : 'red-color' ?>" src="../img/icons/ROOK-incognito-icon.png" title="Hide this Field on <?= POS_ADVANCE_TILE ?>" data-field="<?= $communication_type ?> Communication" onclick="toggleIncognito(this);"><input type="hidden" name="incognito_fields" data-concat="," data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" value="<?= !in_array($communication_type.' Communication',$incognito_fields) ? '' : $communication_type.' Communication' ?>"></span></h4>
     <?php $tags = explode(',',$get_ticket['communication_tags']);
     $contact_list = sort_contacts_query($dbc->query("SELECT `contactid`,`category`,`name`,`last_name`,`first_name`,`email_address` FROM `contacts` WHERE `contactid` IN ('".implode("','",$tags)."') OR (`status` > 0 AND `deleted`=0 AND (`contactid` IN ('".implode("','",array_filter(explode(',',$get_ticket['businessid'].','.$get_ticket['clientid'])))."') OR `category`='Staff' OR `businessid`='".$get_ticket['businessid']."'))"));
     foreach($tags as $tag_contact) { ?>

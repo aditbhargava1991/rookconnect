@@ -3731,6 +3731,15 @@ function setHoursOfOperationToDoDate(input) {
 		setRestrictedHours($(input).closest('.scheduled_stop').find('[name="to_do_start_time"]'));
 	}
 }
+function toggleIncognito(img) {
+    if($(img).hasClass('black-color')) {
+        $(img).removeClass('black-color').addClass('red-color');
+        $('img[src*=incognito][data-field="'+$(img).data('field')+'"]').closest('span').find('[name=incognito_fields]').val($(img).data('field')).change();
+    } else {
+        $(img).addClass('black-color').removeClass('red-color');
+        $('img[src*=incognito][data-field="'+$(img).data('field')+'"]').closest('span').find('[name=incognito_fields]').val('').change();
+    }
+}
 function initSelectOnChanges() {
 	try {
 		setServiceFilters();
