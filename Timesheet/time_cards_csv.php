@@ -232,8 +232,8 @@ if($_GET['import_csv'] == 1 && !empty($_FILES['import_csv_file']['tmp_name'])) {
 			$report_data .=  '<td>'.$row['date'].'</td>';
 			$report_data .=  '<td>'.$row['start_time'].'</td>';
 			$report_data .=  '<td>'.$row['end_time'].'</td>';
-			$report_data .=  '<td>'.$row['total_hrs'].'</td>';
-			$report_data .=  '<td>'.strip_tags($row['comment_box'], '<br>').'</td>';
+			$report_data .=  '<td>'.number_format($row['total_hrs'],1).'</td>';
+			$report_data .=  '<td>'.$row['comment_box'].'</td>';
 			$report_data .=  '<td>'.$row['approv'].'</td>';
 		}
         $report_data .=  '</tr>';
