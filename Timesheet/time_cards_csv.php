@@ -226,8 +226,9 @@ if($_GET['import_csv'] == 1 && !empty($_FILES['import_csv_file']['tmp_name'])) {
 
 		$sql = mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `staff`='$search_staff' AND `date` >= '$search_start_date' AND `date` <= '$search_end_date' AND `deleted`=0 $filter ORDER BY `date`, `start_time`, `end_time` ASC");
 
-        $report_data .=  '<tr>';
+
 		while($row = mysqli_fetch_assoc($sql)) {
+            $report_data .=  '<tr>';
             $report_data .=  '<td>'.$staff_name.'</td>';
 			$report_data .=  '<td>'.$row['date'].'</td>';
 			$report_data .=  '<td>'.$row['start_time'].'</td>';
@@ -235,8 +236,9 @@ if($_GET['import_csv'] == 1 && !empty($_FILES['import_csv_file']['tmp_name'])) {
 			$report_data .=  '<td>'.number_format($row['total_hrs'],1).'</td>';
 			$report_data .=  '<td>'.$row['comment_box'].'</td>';
 			$report_data .=  '<td>'.$row['approv'].'</td>';
+            $report_data .=  '</tr>';
 		}
-        $report_data .=  '</tr>';
+
 	}
 
     $report_data .=  '</table>';
