@@ -1,6 +1,7 @@
 <?php include('../include.php');
 checkAuthorised('optimize'); ?>
 <script>
+var scaleFunction = function() {}
 $(document).ready(function() {
 	$(window).resize(function() {
 		$('.main-screen').css('padding-bottom',0);
@@ -19,6 +20,7 @@ $(document).ready(function() {
 				}
 			}
 		}
+        scaleFunction();
 	}).resize();
 });
 </script>
