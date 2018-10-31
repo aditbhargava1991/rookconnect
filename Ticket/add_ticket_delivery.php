@@ -589,10 +589,10 @@ if(strpos($value_config, ',Service Rate Card,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Lat/Lng:</label>
 										<div class="col-sm-4">
-											<input type="text" name="coordinates" placeholder="Latitude Coordinates" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" data-concat="#*#" value="<?= explode('#*#',$stop['coordinates'])[0] ?>">
+											<input type="text" name="coordinates" placeholder="Latitude Coordinates" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" data-concat="#*#" value="<?= explode('#*#',$stop['coordinates'])[0] ?>" data-manual="<?= $stop['coord_auto'] ?>" data-manual-field="coord_auto">
 										</div>
 										<div class="col-sm-4">
-											<input type="text" name="coordinates" placeholder="Longitude Coordinates" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" data-concat="#*#" value="<?= explode('#*#',$stop['coordinates'])[1] ?>">
+											<input type="text" name="coordinates" placeholder="Longitude Coordinates" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" data-concat="#*#" value="<?= explode('#*#',$stop['coordinates'])[1] ?>" data-manual="<?= $stop['coord_auto'] ?>" data-manual-field="coord_auto">
 										</div>
 									</div>
 								<?php } ?>

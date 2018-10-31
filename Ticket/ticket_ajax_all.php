@@ -684,6 +684,8 @@ if($_GET['action'] == 'update_fields') {
             $end = date('H:i:s', strtotime($value) + strtotime($end) - strtotime($start));
             set_field_value($end,'to_do_end_time',$table_name,$id_field,$id);
         }
+    } else if(in_array($table_name,['ticket_schedule']) && !(get_field_value('coord_auto',$table_name,$id_field,$id) > 0) && in_array($field_name,['address','city','province','postal_code','country'])) {
+        set_field_value('','coordinates',$table_name,$id_field,$id);
     }
     if($table_name == 'ticket_comment' && $type == 'member_note') {
         $table_name = 'client_daily_log_notes';
