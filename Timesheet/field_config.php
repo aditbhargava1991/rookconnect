@@ -141,7 +141,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	set_config($dbc, 'holiday_update_date', filter_var($_POST['holiday_update_date']));
 }
 ?>
-<script type="text/javascript" src="column_order.js"></script>
+<!-- <script type="text/javascript" src="column_order.js"></script> -->
 <style>
 .config_ulli li {
     list-style: none;
@@ -834,7 +834,7 @@ if($_GET['tab'] == 'approvals') {
 			</div>
 		</div>
 
-
+        <!--
 		<div class="panel panel-default">
 			<div class="panel-heading">
 				<h4 class="panel-title">
@@ -865,11 +865,11 @@ if($_GET['tab'] == 'approvals') {
 		                        <li class="ui-state-default ui-state-disabled no-sort" style="cursor:pointer; font-size: 2em;">Payroll Fields Sort Order</li>';
 
                             echo (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<li class="ui-state-default" id="expenses_owed"><span style="cursor:pointer; font-size: 1em;">Total Expenses Owed<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('payable_hrs',$value_config) ? '<li class="ui-state-default" id="payable_hrs"><span style="cursor:pointer; font-size: 1em;">Total Payable Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
                             (in_array('total_tracked_hrs',$value_config) ? '<li class="ui-state-default" id="total_tracked_hrs"><span style="cursor:pointer; font-size: 1em;">Total Tracked Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('overtime_hrs',$value_config) ? '<li class="ui-state-default" id="overtime_hrs"><span style="cursor:pointer; font-size: 1em;">Total Over Time<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
                             (in_array('reg_hrs',$value_config) ? '<li class="ui-state-default" id="reg_hrs"><span style="cursor:pointer; font-size: 1em;">Total Reg. Time<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
                             (in_array('start_day_tile_separate',$value_config) ? '<li class="ui-state-default" id="start_day_tile_separate"><span style="cursor:pointer; font-size: 1em;">Total '.$timesheet_start_tile.'<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
-                            (in_array('payable_hrs',$value_config) ? '<li class="ui-state-default" id="payable_hrs"><span style="cursor:pointer; font-size: 1em;">Total Payable Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
-                            (in_array('overtime_hrs',$value_config) ? '<li class="ui-state-default" id="overtime_hrs"><span style="cursor:pointer; font-size: 1em;">Total Over Time<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
                             (in_array('doubletime_hrs',$value_config) ? '<li class="ui-state-default" id="doubletime_hrs"><span style="cursor:pointer; font-size: 1em;">Total Double Time<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
                             (in_array('direct_hrs',$value_config) ? '<li class="ui-state-default" id="direct_hrs"><span style="cursor:pointer; font-size: 1em;">Total Direct Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
                             (in_array('indirect_hrs',$value_config) ? '<li class="ui-state-default" id="indirect_hrs"><span style="cursor:pointer; font-size: 1em;">Total Indirect Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
@@ -893,6 +893,7 @@ if($_GET['tab'] == 'approvals') {
 				</div>
 			</div>
 		</div>
+        -->
 
 
 	</div>
