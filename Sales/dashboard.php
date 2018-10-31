@@ -104,12 +104,12 @@ function allow_sort() {
                     <input type="text" class="form-control pull-left" name="status_name" value="<?= $status ?>" style="display:none;">
                 <?php } ?>
                 <a href="?p=filter&s=<?= $status ?>"><div class="info-block-header">
-                    <h4><span><?= $status; ?></span>
-                        <img src="../img/icons/drag_handle.png" class="inline-img small pull-right status_handle no-toggle" onclick="return false;" title="Drag">
+                    <h4 class="no-gap-bottom"><span><?= $status; ?></span>
+                        <img src="../img/icons/drag_handle.png" class="inline-img small pull-right status_handle no-toggle milestone_drag offset-top-5" onclick="return false;" title="Drag">
                         <?php if(!in_array($status, [$get_config_won_status,$get_config_lost_status,$get_config_retained])) { ?>
-                            <img src="../img/icons/ROOK-edit-icon.png" class="inline-img small no-toggle" onclick="edit_status(this); return false;" title="Edit">
-                            <img src="../img/remove.png" class="inline-img small pull-right" onclick="rem_status(this); return false;">
-                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img small pull-right" onclick="add_status(this); return false;">
+                            <img src="../img/icons/ROOK-edit-icon.png" class="inline-img no-toggle" onclick="edit_status(this); return false;" title="Edit">
+                            <img src="../img/remove.png" class="inline-img pull-right" onclick="rem_status(this); return false;">
+                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_status(this); return false;">
                         <?php } ?>
                     </h4>
                     <?php $count = mysqli_fetch_assoc ( mysqli_query($dbc, "SELECT COUNT(`status`) AS `count` FROM `sales` WHERE `status`='{$status}' AND `deleted`=0" . $query_mod) );
@@ -139,7 +139,7 @@ function allow_sort() {
                                     <img src="../img/icons/drag_handle.png" class="inline-img pull-right lead-handle no-toggle" title="Drag" />
                                 <?php } ?>
                                 <?php if($row['primary_staff'] > 0) { ?>
-                                    <div class="pull-right"><?= profile_id($dbc, $row['primary_staff']); ?></div>
+                                    <div class="pull-right offset-top-neg-5"><?= profile_id($dbc, $row['primary_staff']); ?></div>
                                 <?php } ?>
 
                                 <?php
