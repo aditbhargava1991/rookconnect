@@ -492,6 +492,12 @@
 			echo "Error: ".mysqli_error($dbc)."<br />\n";
 		}
         // Ticket 9488
+
+        // October 31, 2018 - Ticket 9721
+		if(!mysqli_query($dbc, "ALTER TABLE `ticket_schedule` ADD `coord_auto` TINYINT(1) UNSIGNED DEFAULT 0 AFTER `coordinates`")) {
+			echo "Error: ".mysqli_error($dbc)."<br />\n";
+		}
+        // Ticket 9721
 		
 		set_config($dbc, 'db_version_jonathan', 8);
     }

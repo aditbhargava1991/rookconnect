@@ -30,7 +30,7 @@ if($city_target['address'] != '' || $city_target['address'] != '') {
 	}
 	$map_url = 'https://maps.googleapis.com/maps/api/staticmap?center='.urlencode(implode(',',$city_target)).'&zoom='.$zoom.'&size='.$width.'x'.$height.'&maptype=roadmap&key='.EMBED_MAPS_KEY;
 }
-$ticket_list = $dbc->query("SELECT `tickets`.`ticket_label`, IF(`ticket_schedule`.`id` IS NULL, `tickets`.`ticketid`,`ticket_schedule`.`id`) `id`, IF(`ticket_schedule`.`id` IS NULL, 'ticketid','id') `id_field`, IF(`ticket_schedule`.`id` IS NULL, 'tickets','ticket_schedule') `table`, IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipment`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`) `to_do_start_time`, IFNULL(`ticket_schedule`.`to_do_end_time`,`tickets`.`to_do_end_time`) `to_do_end_time`, IF(`ticket_schedule`.`id` IS NULL, CONCAT(IFNULL(`tickets`.`address`,''),',',IFNULL(`tickets`.`city`,'')),CONCAT(IFNULL(`ticket_schedule`.`address`,''),',',IFNULL(`ticket_schedule`.`city`,''))) `address` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` WHERE `tickets`.`deleted`=0 AND IFNULL(`ticket_schedule`.`deleted`,0)=0 AND IFNULL(NULLIF(IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`),''),'$date')='$date' AND IFNULL(IFNULL(`ticket_schedule`.`city`,`tickets`.`city`),'') != '' AND CONCAT(',',IFNULL(`tickets`.`region`,''),',') LIKE '%,$region,%' AND CONCAT(',',IFNULL(`tickets`.`con_location`,''),',') LIKE '%,$location,%' AND CONCAT(',',IFNULL(`tickets`.`classification`,''),',') LIKE '%,$classification,%' AND IFNULL(NULLIF(IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`),''),0)=0 AND TRIM(IF(`ticket_schedule`.`id` IS NULL, CONCAT(IFNULL(`tickets`.`address`,''),',',IFNULL(`tickets`.`city`,'')),CONCAT(IFNULL(`ticket_schedule`.`address`,''),',',IFNULL(`ticket_schedule`.`city`,'')))) != '' AND (IFNULL(`type`,'') != 'warehouse' AND TRIM(IF(`ticket_schedule`.`id` IS NULL, CONCAT(IFNULL(`tickets`.`address`,''),',',IFNULL(`tickets`.`city`,'')),CONCAT(IFNULL(`ticket_schedule`.`address`,''),',',IFNULL(`ticket_schedule`.`city`,'')))) NOT IN (SELECT TRIM(CONCAT(IFNULL(`address`,''),IFNULL(`city`,''))) FROM `contacts` WHERE `category`='Warehouses'))");
+$ticket_list = $dbc->query("SELECT `tickets`.`ticket_label`, IF(`ticket_schedule`.`id` IS NULL, `tickets`.`ticketid`,`ticket_schedule`.`id`) `id`, IF(`ticket_schedule`.`id` IS NULL, 'ticketid','id') `id_field`, IF(`ticket_schedule`.`id` IS NULL, 'tickets','ticket_schedule') `table`, IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipment`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date`, IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`) `to_do_start_time`, IFNULL(`ticket_schedule`.`to_do_end_time`,`tickets`.`to_do_end_time`) `to_do_end_time`, IF(`ticket_schedule`.`id` IS NULL, CONCAT(IFNULL(`tickets`.`address`,''),',',IFNULL(`tickets`.`city`,'')),CONCAT(IFNULL(`ticket_schedule`.`address`,''),',',IFNULL(`ticket_schedule`.`city`,''))) `address`, `ticket_schedule`.`coordinates`, `ticket_schedule`.`coord_auto` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` WHERE `tickets`.`deleted`=0 AND IFNULL(`ticket_schedule`.`deleted`,0)=0 AND IFNULL(NULLIF(IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`),''),'$date')='$date' AND IFNULL(IFNULL(`ticket_schedule`.`city`,`tickets`.`city`),'') != '' AND CONCAT(',',IFNULL(`tickets`.`region`,''),',') LIKE '%,$region,%' AND CONCAT(',',IFNULL(`tickets`.`con_location`,''),',') LIKE '%,$location,%' AND CONCAT(',',IFNULL(`tickets`.`classification`,''),',') LIKE '%,$classification,%' AND IFNULL(NULLIF(IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`),''),0)=0 AND TRIM(IF(`ticket_schedule`.`id` IS NULL, CONCAT(IFNULL(`tickets`.`address`,''),',',IFNULL(`tickets`.`city`,'')),CONCAT(IFNULL(`ticket_schedule`.`address`,''),',',IFNULL(`ticket_schedule`.`city`,'')))) != '' AND (IFNULL(`type`,'') != 'warehouse' AND TRIM(IF(`ticket_schedule`.`id` IS NULL, CONCAT(IFNULL(`tickets`.`address`,''),',',IFNULL(`tickets`.`city`,'')),CONCAT(IFNULL(`ticket_schedule`.`address`,''),',',IFNULL(`ticket_schedule`.`city`,'')))) NOT IN (SELECT TRIM(CONCAT(IFNULL(`address`,''),IFNULL(`city`,''))) FROM `contacts` WHERE `category`='Warehouses'))");
 $equipment_list = $dbc->query("SELECT `equipmentid`, CONCAT(`category`,': ',`make`,' ',`model`,' ',`unit_number`) `label` FROM `equipment` WHERE `deleted`=0 ORDER BY `make`, `model`, `unit_number`")->fetch_all(MYSQLI_ASSOC);
 if($map_url != '') {
 	$ch = curl_init();
@@ -48,12 +48,22 @@ if($map_url != '') {
     <img class="inline-img cursor-hand no-toggle" title="Zoom In Map" style="position:absolute;top:calc(<?= $_GET['y'] ?>px - 4.5em);left:calc(<?= $_GET['x'] ?>px + 20% - 2.5em);" onclick="if(zoom < 16) { zoom++; get_map_view(); } else { console.log('Maximum Zoom Reached!'); }" src="../img/icons/ROOK-ZoomIn-icon.png">
     <img class="inline-img cursor-hand no-toggle" title="Zoom Out Map" style="position:absolute;top:calc(<?= $_GET['y'] ?>px - 2.5em);left:calc(<?= $_GET['x'] ?>px + 20% - 2.5em);" onclick="if(zoom > 6) { zoom--; get_map_view(); } else { console.log('Minimum Zoom Reached!'); }" src="../img/icons/ROOK-ZoomOut-icon.png">
 	<?php while($ticket = $ticket_list->fetch_assoc()) {
-		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_URL, 'https://maps.google.com/maps/api/geocode/xml?address='.urlencode($ticket['address']).'&key='.EMBED_MAPS_KEY);
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-		curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
-		$ticket_coordinates = simplexml_load_string(curl_exec($ch))->result->geometry->location;
-		curl_close($ch);
+        $coordinates = explode('#*#',$ticket['coordinates']);
+        if(!empty(array_filter($coordinates))) {
+            $ticket_coordinates = new stdClass();
+            $ticket_coordinates->lat = $coordinates[0];
+            $ticket_coordinates->lng = $coordinates[1];
+        } else {
+            $ch = curl_init();
+            curl_setopt($ch, CURLOPT_URL, 'https://maps.google.com/maps/api/geocode/xml?address='.urlencode($ticket['address']).'&key='.EMBED_MAPS_KEY);
+            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
+            curl_setopt($ch, CURLOPT_SSL_VERIFYPEER, false);
+            $ticket_coordinates = simplexml_load_string(curl_exec($ch))->result->geometry->location;
+            curl_close($ch);
+            if($ticket['table'] == 'ticket_schedule' && !($ticket['coord_auto'] > 0)) {
+                set_field_value($ticket_coordinates->lat.'#*#'.$ticket_coordinates->lng,'coordinates',$ticket['table'],$ticket['id_field'],$ticket['id']);
+            }
+        }
         if($ticket_coordinates->lat > 0 || $ticket_coordinates->lat < 0 || $ticket_coordinates->lng > 0 || $ticket_coordinates->lng < 0) { ?>
             <script>
             var y_pos = Math.round(height * <?= isset($zoom_ratios[$zoom]) ? $zoom_ratios[$zoom][0] : $zoom_ratios[10][0] ?> * <?= $ratio > 1 ? $ratio : 1 ?> * (<?= $map_center->lat ?> - <?= $ticket_coordinates->lat ?>) + height - 20);
