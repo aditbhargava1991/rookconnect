@@ -9,10 +9,32 @@
 // 	include_once ('../email.php');
 // 	include_once ('../user_font_settings.php');
 // }
-checkAuthorised('staff');
+checkAuthorised('staff'); 
 $rookconnect = get_software_name(); ?>
 <script type="text/javascript">
+	/*$(window).scroll(scrollScreen);
+    function scrollScreen() {
+    	var cutoff = $(window).scrollTop();
+        $('div h4').each(function(){
+        	$(".sidebar a li").removeClass('active blue');
+            if($(this).offset().top + $(this).height() > cutoff){
+            	var tab_title = $("div h4:visible").html();
+            	$(".sidebar a li").each(function(){
+    	        	if($(this).html() == tab_title){
+    	        		$(this).addClass('active blue');
+    	        		$(window).scrollTop($(this).offset().top);
+    	        	}
+            	});
+            }
+        });
+    }*/
+
     $(document).ready(function () {
+
+    	$("#form1").find('input').addClass('saveonajax');
+    	$("#form1").find('select').addClass('saveonajax');
+    	$("#form1").find('textarea').addClass('saveonajax');
+        	
     	$('input,select,textarea,.select2').each(function() {
     		if($(this).prop('readonly') == true) {
     			$(this).closest('div.form-group').addClass('viewonly_fields');
@@ -61,6 +83,31 @@ $rookconnect = get_software_name(); ?>
 			} else {
 				$(this).css('pointer-events', 'none');
 				$(this).css('opacity', '0.5');
+			}
+		});
+	}
+
+	$(document).on('change', '.saveonajax', function(){
+	    addStaffData();
+	});
+	
+	/*$(".saveonajax").blur(function(){
+		addStaffData();
+	});*/
+	function addStaffData() {
+		var formData = new FormData($("#form1")[0]);
+		$.ajax({
+			type: 'POST',
+			url: '../Staff/staff_ajax.php?action=add_update_staff',
+			//data: $('#form1').serialize(),
+			data:formData,
+			cache:false,
+			processData: false,
+	        contentType: false,
+			success: function(response) {
+				if(response!=''){
+					$('#contact_id_val').val(response);
+				}
 			}
 		});
 	}
@@ -177,7 +224,7 @@ $subtabs_hidden = [];
 $subtabs_viewonly = [];
 $fields_hidden = [];
 $fields_viewonly = [];
-$i = 0;
+$i = 0; $mobile_mode = '0';
 foreach($security_levels as $security_level) {
 	$security_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_staff_security` WHERE `security_level` = '$security_level'"));
 	if(!empty($security_config)) {
@@ -208,7 +255,7 @@ foreach($security_levels as $security_level) {
 				</div>
 			</div>
 		</div>
-	<?php } else if(!isset($_GET['mobile_view'])) { include('mobile_view.php'); } ?>
+	<?php } else if(!isset($_GET['mobile_view'])) { include('mobile_view.php'); }else{ $mobile_mode = '1';} ?>
 	<div class="row hide-titles-mob" style="<?= $_GET['view_only'] == 'id_card' ? 'display:none;' : '' ?>">
 		<!-- <div id="no-more-tables" class="main-screen contacts-list"> -->
 		<div class="main-screen">
@@ -237,6 +284,7 @@ foreach($security_levels as $security_level) {
 			<form id="form1" name="form1" method="post"	action="staff_edit.php?contactid=<?= $_GET['contactid'] ?>" enctype="multipart/form-data" class="form-horizontal" role="form">
 
 				<input type="hidden" name="from_url" value="<?= $from_url ?>">
+				<input type="hidden" name="contact_id_val" id="contact_id_val" value="<?php echo $_GET['contactid']?>">
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar set-section-height">
                 	<?php include('tile_sidebar.php'); ?>
@@ -250,11 +298,19 @@ foreach($security_levels as $security_level) {
 								<h3><?= $sidebar_fields[$subtab][1]; ?></h3>
 							</div>
 						<?php } ?>
-						<div class='standard-body-dashboard-content pad-top pad-left pad-right'>
-							<?php if($subtab == 'id_card') {
+						<div class='standard-body-dashboard-content pad-top pad-left pad-right' style="background-color:#fff">
+							<?php 
+							if($mobile_mode == '1'){
+							    if($subtab == 'id_card'){ $display_this = '1'; }else{ $display_this = '0'; }
+							    if($subtab != 'id_card'){ $display_this1 = '1'; }else{ $display_this1 = '0'; }
+							}else{
+							    $display_this = $display_this1 = '1';
+							}
+							if($display_this) {
 								include('../Contacts/contact_profile.php');
 								echo '<input type="hidden" name="overview_page" value="1">';
-							} else {
+							} 
+							if($display_this1) {
 								$staff_cat_query = [];
 								if(!empty($staff_category)) {
 									foreach(array_filter(explode(',', $staff_category)) as $staff_cat) {
@@ -314,14 +370,19 @@ foreach($security_levels as $security_level) {
 										}
 										$edit_config = ','.implode(',',$edit_config).',';
 									}
-
+									
 									$value_config_hidden = ','.implode(',',$value_config_hidden).',';
 									$value_config = ','.implode(',',$value_config).',';
 									$contacts_mandatory_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_mandatory_contacts`"))['contacts'];
 									if(str_replace(',','',$value_config) != '') {
 										?>
-
-										<div <?php echo ($row_main['subtab'] == $subtab ? '' : 'style="display:none;"'); ?> <?= (in_array($sidebar_fields[$subtab][0], $subtabs_viewonly) || (edit_visible_function($dbc, 'staff') == 0 && add_visible_function($dbc, 'staff') == 0)) ? 'class="viewonly_fields"' : '' ?>>
+<!--   echo ($row_main['subtab'] == $subtab ? '' : 'style="display:none;"');  (in_array($sidebar_fields[$subtab][0], $subtabs_viewonly) || (edit_visible_function($dbc, 'staff') == 0 && add_visible_function($dbc, 'staff') == 0)) ? 'class="viewonly_fields"' : ''  -->
+										<?php if($mobile_mode == '1'){ ?>
+										    <div <?php echo ($row_main['subtab'] == $subtab ? '' : 'style="display:none;"');  (in_array($sidebar_fields[$subtab][0], $subtabs_viewonly) || (edit_visible_function($dbc, 'staff') == 0 && add_visible_function($dbc, 'staff') == 0)) ? 'class="viewonly_fields"' : ''?>>
+										<?php }else{ ?>
+										    <div>
+										<?php } ?>
+											<hr>
 											<h4><?= $row_main['accordion'] ?></h4>
 
 											<div>
@@ -339,7 +400,12 @@ foreach($security_levels as $security_level) {
 										$value_config = $value_config_hidden;
 										?>
 
-										<div style="display:none;">
+										<?php if($mobile_mode == '1'){ ?>
+										    <div style="display:none">
+										<?php }else{ ?>
+										    <div>
+										<?php } ?>
+											<hr>
 											<h4><?= $row_main['accordion'] ?></h4>
 
 											<div>
@@ -355,18 +421,20 @@ foreach($security_levels as $security_level) {
 									<?php }
 									$j++;
 								}
-							}
-							if($subtab == 'software_access' && check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
-								include('../Staff/staff_edit_software_access.php');
-							} else if($subtab == 'project') {
-								$value_config = ',Project,';
-								include ('../Contacts/add_contacts_data.php');
-							} else if($subtab == 'ticket') {
-								$value_config = ',Ticket,';
-								include ('../Contacts/add_contacts_data.php');
-							} else if($subtab == 'time_off') {
-								$tab = '%';
-								$form = 'Time Off Request'; ?>
+							}//$subtab == 'software_access' && 
+							
+							if($mobile_mode == '1'){
+							    if($subtab == 'software_access' && check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
+							        include('../Staff/staff_edit_software_access.php');
+							    }else if($subtab == 'project') {
+							    $value_config = ',Project,';
+							    include ('../Contacts/add_contacts_data.php');
+							    } else if($subtab == 'ticket') {
+							    $value_config = ',Ticket,';
+							    include ('../Contacts/add_contacts_data.php');
+							    } else if($subtab == 'time_off') {
+							    $tab = '%';
+							    $form = 'Time Off Request'; ?>
 								<style>
 								.external-form-submit .panel .panel-title a {
 									color: #FFF !important;
@@ -415,10 +483,72 @@ foreach($security_levels as $security_level) {
 								}
 							} else if($subtab == 'rate_card') {
                                 include('edit_staff_rate_card.php');
-                            } ?>
-						<?php if($subtab != 'id_card') { ?><button type='submit' name='<?= $subtab=='rate_card' ? 'submit_rate_card' : 'contactid' ?>' value='<?php echo $contactid; ?>' onclick="return presave();" class="btn brand-btn pull-right">Submit</button><?php }
+                            }
+							}else{
+							    if(check_subtab_persmission($dbc, 'staff', ROLE, 'software_access') === TRUE) {
+							        include('../Staff/staff_edit_software_access.php');
+							    }
+							    $value_config = ',Project,';
+							    include ('../Contacts/add_contacts_data.php');
+							    $value_config = ',Ticket,';
+							    include ('../Contacts/add_contacts_data.php');
+							    $tab = '%';
+							    $form = 'Time Off Request'; ?>
+							    <style>
+								.external-form-submit .panel .panel-title a {
+									color: #FFF !important;
+								}
+								</style>
+								<div class="external-form-submit">
+									<input type="hidden" name="subtab" value="time_off_requests">
+									<?php include('../HR/time_off_request/time_off_request.php'); ?>
+									<button class="btn brand-btn pull-right" type="submit" name="time_off_request" value="time_off">Submit Request</button>
+									<div class="clearfix"></div>
+								</div>
+								<?php //} else if($subtab == 'time_off_requests') {
+								if($_POST['time_off_request'] == 'time_off') {
+									$hrid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `hrid` FROM `hr` WHERE `form`='Time Off Request'"))['hrid'];
+									$url_redirect = 'N/A';
+									$tab = 'Form';
+									include('../HR/time_off_request/save_time_off_request.php');
+								}
+								$requests = mysqli_query($dbc, "SELECT * FROM `hr_time_off_request` WHERE `contactid`='$contactid' ORDER BY `today_date`");
+								if(mysqli_num_rows($requests) > 0) { ?>
+									<div id="no-more-tables">
+										<h3>Time Off Requests</h3>
+										<table class="table table-bordered">
+											<tr class="hide-titles-mob">
+												<th>Type of Time Off</th>
+												<th>Dates</th>
+												<th>Reason</th>
+												<th>Signed</th>
+												<th>Function</th>
+											</tr>
+											<?php while($request = mysqli_fetch_assoc($requests)) {
+												$fields = explode('**FFM**',$request['fields']); ?>
+												<tr>
+													<td data-title="Type of Time Off"><?= $fields[0] == 'Other' ? $fields[1] : $fields[0] ?></td>
+													<td data-title="Dates"><?= $fields[2].' - '.$fields[3] ?></td>
+													<td data-title="Reason"><?= html_entity_decode($request['desc']) ?></td>
+													<td data-title="Signed"><?= get_contact($dbc, $request['contactid']) ?><br /><?= $request['today_date'] ?></td>
+													<td data-title=""><a href="../HR/time_off_request/download/hr_<?= $request['fieldlevelriskid'] ?>.pdf">View Request</a><br />
+														<?= $request['status'] == 'New' && approval_visible_function($dbc, 'staff') > 0 ? '<a href="../HR/time_off_request/approve_request.php?hrid='.$request['fieldlevelriskid'].'&status=Approved">Approve Request</a><br /><a href="../HR/time_off_request/approve_request.php?hrid='.$request['fieldlevelriskid'].'&status=Denied">Deny Request</a>' : 'Status: '.$request['status'] ?></td>
+												</tr>
+											<?php } ?>
+										</table>
+									</div>
+								<?php } else {
+									echo "<h3>No Requests Found.</h3>";
+								}
+                                include('edit_staff_rate_card.php');
+							}
+							
+							if($subtab != 'id_card') { ?>
+							<!-- <button type='submit' name='<?= $subtab=='rate_card' ? 'submit_rate_card' : 'contactid' ?>' value='<?php echo $contactid; ?>' class="btn brand-btn pull-right">Submit</button> -->
+							<button type='submit' name='contactid' value='<?php echo $contactid; ?>' class="btn brand-btn pull-right">Submit</button>
+						<?php }
 						else if(!isset($_GET['mobile_view']) && vuaed_visible_function($dbc, 'staff') > 0) { ?><a href='?contactid=<?php echo $contactid; ?>&subtab=staff_information' class="hide-on-mobile btn brand-btn pull-right">Edit Staff</a><?php } ?>
-						<a href='<?php echo $from_url; ?>' class="btn brand-btn pull-right">Back</a>
+						<!-- <a href='<?php echo $from_url; ?>' class="btn brand-btn pull-right">Back</a> -->
 							<div class="clearfix"></div>
 						</div>
 					</div>
