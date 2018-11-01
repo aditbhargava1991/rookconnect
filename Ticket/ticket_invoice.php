@@ -2,187 +2,254 @@
 $ticket_accounting_fields = explode(',', get_config($dbc, 'ticket_accounting_fields'));
 $value_config = ','.get_config($dbc, 'project_admin_fields').',';
 
-if(isset($_POST['display_all_accounting'])) {
-	$_POST['search_region'] = '';
-	$_POST['search_classification'] = '';
-	$_POST['search_business'] = '';
-	$_POST['search_ticket_type'] = '';
-	$_POST['search_start_date'] = '';
-	$_POST['search_end_date'] = '';
-}
+if($_GET['status'] == 'unbilled') {
+    if(isset($_POST['display_all_accounting'])) {
+        $_POST['search_region'] = '';
+        $_POST['search_classification'] = '';
+        $_POST['search_business'] = '';
+        $_POST['search_all_contact'] = '';
+        $_POST['search_contact'] = '';
+        $_POST['search_contact_type'] = '';
+        $_POST['search_ticket_type'] = '';
+        $_POST['search_start_date'] = '';
+        $_POST['search_end_date'] = '';
+    }
 
-$filter_query = '';
-if(!empty($_POST['search_region'])) {
-	$filter_query .= " AND `tickets`.`region` = '".$_POST['search_region']."'";
-}
-if(!empty($_POST['search_classification'])) {
-	$filter_query .= " AND `tickets`.`classification` = '".$_POST['search_classification']."'";
-}
-if(!empty($_POST['search_business'])) {
-	$filter_query .= " AND `tickets`.`businessid` = '".$_POST['search_business']."'";
-}
-if(!empty($_POST['search_ticket_type'])) {
-	$filter_query .= " AND `tickets`.`ticket_type` = '".$_POST['search_ticket_type']."'";
-}
-if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
-	$filter_query .= " AND ('".$_POST['search_start_date']."' BETWEEN `tickets`.`to_do_date` AND IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) OR '".$_POST['search_end_date']."' BETWEEN `tickets`.`to_do_date` AND IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) OR `tickets`.`to_do_date` BETWEEN '".$_POST['search_start_date']."' AND '".$_POST['search_end_date']."' OR IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) BETWEEN '".$_POST['search_start_date']."' AND '".$_POST['search_end_date']."' OR (SELECT COUNT(`id`) FROM `ticket_schedule` WHERE `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `deleted` = 0 AND ('".$_POST['search_start_date']."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) OR '".$_POST['search_end_date']."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) OR `ticket_schedule`.`to_do_date` BETWEEN '".$_POST['search_start_date']."' AND '".$_POST['search_end_date']."' OR IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) BETWEEN '".$_POST['search_start_date']."' AND '".$_POST['search_end_date']."')) > 0)";
-} else if(!empty($_POST['search_start_date'])) {
-	$filter_query .= " AND ('".$_POST['search_start_date']."' BETWEEN `tickets`.`to_do_date` AND IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) OR `tickets`.`to_do_date` >= '".$_POST['search_start_date']."' OR (SELECT COUNT(`id`) FROM `ticket_schedule` WHERE `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 AND ('".$_POST['search_start_date']."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) OR `ticket_schedule`.`to_do_date` >= '".$_POST['search_start_date']."')) > 0)";
-} else if(!empty($_POST['search_end_date'])) {
-	$filter_query .= " AND ('".$_POST['search_end_date']."' BETWEEN `tickets`.`to_do_date` AND IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) OR IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) <= '".$_POST['search_end_date']."' OR (SELECT COUNT(`id`) FROM `ticket_schedule` WHERE `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 AND ('".$_POST['search_end_date']."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) OR IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) <= '".$_POST['search_end_date']."')) > 0)";
-}
-?>
+    $filter_query = '';
+    if(!empty($_POST['search_region'])) {
+        $filter_query .= " AND `tickets`.`region` = '".$_POST['search_region']."'";
+    }
+    if(!empty($_POST['search_classification'])) {
+        $filter_query .= " AND `tickets`.`classification` = '".$_POST['search_classification']."'";
+    }
+    if(!empty($_POST['search_business'])) {
+        $filter_query .= " AND `tickets`.`businessid` = '".$_POST['search_business']."'";
+    }
+    if(!empty($_POST['search_contact'])) {
+        $filter_query .= " AND CONCAT(',',`tickets`.`clientid`,',') LIKE '%,".$_POST['search_contact'].",%'";
+    }
+    if(!empty($_POST['search_all_contact'])) {
+        $filter_query .= " AND (`tickets`.`businessid` = '".$_POST['search_all_contact']."' OR CONCAT(',',`tickets`.`clientid`,',') LIKE '%,".$_POST['search_all_contact'].",%')";
+    }
+    if(!empty($_POST['search_contact_type'])) {
+        $filter_query .= " AND `tickets`.`ticketid` IN (SELECT `ticketid` FROM `tickets` LEFT JOIN `contacts` ON `tickets`.`businessid`=`contacts`.`contactid` OR CONCAT(',',`tickets`.`clientid`,',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `contacts`.`category`='".$_POST['search_contact_type']."')";
+    }
+    if(!empty($_POST['search_ticket_type'])) {
+        $filter_query .= " AND `tickets`.`ticket_type` = '".$_POST['search_ticket_type']."'";
+    }
+    if(!empty($_POST['search_start_date']) && !empty($_POST['search_end_date'])) {
+        $filter_query .= " AND ('".$_POST['search_start_date']."' BETWEEN `tickets`.`to_do_date` AND IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) OR '".$_POST['search_end_date']."' BETWEEN `tickets`.`to_do_date` AND IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) OR `tickets`.`to_do_date` BETWEEN '".$_POST['search_start_date']."' AND '".$_POST['search_end_date']."' OR IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) BETWEEN '".$_POST['search_start_date']."' AND '".$_POST['search_end_date']."' OR (SELECT COUNT(`id`) FROM `ticket_schedule` WHERE `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `deleted` = 0 AND ('".$_POST['search_start_date']."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) OR '".$_POST['search_end_date']."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) OR `ticket_schedule`.`to_do_date` BETWEEN '".$_POST['search_start_date']."' AND '".$_POST['search_end_date']."' OR IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) BETWEEN '".$_POST['search_start_date']."' AND '".$_POST['search_end_date']."')) > 0)";
+    } else if(!empty($_POST['search_start_date'])) {
+        $filter_query .= " AND ('".$_POST['search_start_date']."' BETWEEN `tickets`.`to_do_date` AND IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) OR `tickets`.`to_do_date` >= '".$_POST['search_start_date']."' OR (SELECT COUNT(`id`) FROM `ticket_schedule` WHERE `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 AND ('".$_POST['search_start_date']."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) OR `ticket_schedule`.`to_do_date` >= '".$_POST['search_start_date']."')) > 0)";
+    } else if(!empty($_POST['search_end_date'])) {
+        $filter_query .= " AND ('".$_POST['search_end_date']."' BETWEEN `tickets`.`to_do_date` AND IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) OR IFNULL(NULLIF(`tickets`.`to_do_end_date`,''),`tickets`.`to_do_date`) <= '".$_POST['search_end_date']."' OR (SELECT COUNT(`id`) FROM `ticket_schedule` WHERE `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 AND ('".$_POST['search_end_date']."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) OR IFNULL(NULLIF(`ticket_schedule`.`to_do_end_date`,''),`ticket_schedule`.`to_do_date`) <= '".$_POST['search_end_date']."')) > 0)";
+    }
+    ?>
 
-<?php if(!empty(array_filter($ticket_accounting_fields))) { ?>
-	<script type="text/javascript">
-	$(document).ready(function() {
-		filterRegLoc();
-	});
-	$(document).on('change', 'select[name="search_region"],select[name="search_classification"]', function() { filterRegLoc(); });
-	function filterRegLoc() {
-		var region = $('[name="search_region"]').val();
-		var classification = $('[name="search_classification"]').val();
+    <?php if(!empty(array_filter($ticket_accounting_fields))) { ?>
+        <script type="text/javascript">
+        $(document).ready(function() {
+            filterRegLoc();
+        });
+        $(document).on('change', 'select[name="search_region"],select[name="search_classification"]', function() { filterRegLoc(); });
+        function filterRegLoc() {
+            var region = $('[name="search_region"]').val();
+            var classification = $('[name="search_classification"]').val();
 
-		var filter_query = '';
-		if(region != undefined && region != '') {
-			$('[name="search_classification"] option[data-regions]').hide();
-			$('[name="search_classification"] option[data-regions]').each(function() {
-				var class_regions = $(this).data('regions');
-				if(class_regions.length == 0) {
-					class_regions = [""];
-				}
-				if(class_regions.indexOf(region) != -1) {
-					$(this).show();
-				}
-			});
-			filter_query += '[data-region="'+region+'"]';
-		} else {
-			$('[name="search_classification"] option').show();
-		}
-		if(classification != undefined && classification != '') {
-			filter_query += '[data-classification"'+classification+'"]';
-		}
-		if(filter_query != '') {
-			$('[name="search_business"] option').hide();
-			$('[name="search_business"] option'+filter_query).show();
-		} else {
-			$('[name="search_business"] option').show();
-		}
-		$('[name="search_classification"]').trigger('change.select2');
-		$('[name="search_business"]').trigger('change.select2');
-	}
-	</script>
-	<form name="search_accounting" method="post" action="" class="form-horizontal" role="form">
-		<?php if(in_array('Region',$ticket_accounting_fields)) { ?>
-			<div class="gap-bottom col-sm-6 col-xs-12">
-				<div class="col-sm-4">
-					<label class="control-label">Region:</label>
-				</div>
-				<div class="col-sm-8">
-					<select name="search_region" data-placeholder="Select a Region" class="chosen-select-deselect">
-						<option></option>
-						<?php $region_list = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
-						foreach ($region_list as $con_region) {
-							if(in_array($con_region, $allowed_regions)) {
-								echo "<option ".($_POST['search_region'] == $con_region ? 'selected' : '')." value='$con_region'>$con_region</option>";
-							}
-						} ?>
-					</select>
-				</div>
-			</div>
-		<?php } ?>
-		<?php if(in_array('Classification',$ticket_accounting_fields)) { ?>
-			<div class="gap-bottom col-sm-6 col-xs-12">
-				<div class="col-sm-4">
-					<label class="control-label">Classification:</label>
-				</div>
-				<div class="col-sm-8">
-					<select name="search_classification" data-placeholder="Select a Classification" class="chosen-select-deselect">
-						<option></option>
-						<?php $class_regions = explode(',',get_config($dbc, '%_class_regions', true, ','));
-						$contact_classifications = [];
-						$classification_regions = [];
-						foreach(explode(',',get_config($dbc, '%_classification', true, ',')) as $i => $contact_classification) {
-							$row = array_search($contact_classification, $contact_classifications);
-							if($class_regions[$i] == 'ALL') {
-								$class_regions[$i] = '';
-							}
-							if($row !== FALSE && $class_regions[$i] != '') {
-								$classification_regions[$row][] = $class_regions[$i];
-							} else {
-								$contact_classifications[] = $contact_classification;
-								$classification_regions[] = array_filter([$class_regions[$i]]);
-							}
-						}
-						foreach ($contact_classifications as $i => $con_classification) {
-							$hidden_classification = '';
-							if(!empty($_POST['search_region']) && !in_array($_POST['search_region'], $classification_regions[$i]) && !empty($classification_regions[$i])) {
-								$hidden_classification = 'style="display:none;"';
-							}
-							echo "<option ".($_POST['search_classification'] == $con_classification ? 'selected' : '')." data-regions='".json_encode($classification_regions[$i])."' value='$con_classification' $hidden_classification>$con_classification</option>";
-						} ?>
-					</select>
-				</div>
-			</div>
-		<?php } ?>
-		<?php if(in_array('Business',$ticket_accounting_fields)) { ?>
-			<div class="gap-bottom col-sm-6 col-xs-12">
-				<div class="col-sm-4">
-					<label class="control-label"><?= BUSINESS_CAT ?>:</label>
-				</div>
-				<div class="col-sm-8">
-					<select name="search_business" data-placeholder="Select a <?= BUSINESS_CAT ?>" class="chosen-select-deselect">
-						<option></option>
-						<?php $business_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `name`, `region`, `con_locations`, `classification` FROM `contacts` WHERE `category`='".BUSINESS_CAT."' AND `deleted`=0"));
-						foreach($business_list as $row) { ?>
-							<option data-region="<?= $row['region'] ?>" data-location="<?= $row['con_locations'] ?>" data-classification="<?= $row['classification'] ?>" <?= $row['contactid'] == $_POST['search_business'] ? 'selected' : '' ?> value="<?= $row['contactid'] ?>"><?= $row['name'] ?></option>
-						<?php } ?>
-					</select>
-				</div>
-			</div>
-		<?php } ?>
-		<?php if(in_array('Ticket Type',$ticket_accounting_fields)) { ?>
-			<div class="gap-bottom col-sm-6 col-xs-12">
-				<div class="col-sm-4">
-					<label class="control-label"><?= TICKET_NOUN ?> Type:</label>
-				</div>
-				<div class="col-sm-8">
-					<select name="search_ticket_type" data-placeholder="Select a <?= TICKET_NOUN ?> Type" class="chosen-select-deselect">
-						<option></option>
-						<?php foreach($ticket_tabs as $type_key => $type_label) { ?>
-							<option <?= $type_key == $_POST['search_ticket_type'] ? 'selected' : '' ?> value="<?= $type_key ?>"><?= $type_label ?></option>
-						<?php } ?>
-					</select>
-				</div>
-			</div>
-		<?php } ?>
-		<?php if(in_array('Dates',$ticket_accounting_fields)) { ?>
-			<div class="gap-bottom col-sm-6 col-xs-12">
-				<div class="col-sm-4">
-					<label class="control-label">Start Date:</label>
-				</div>
-				<div class="col-sm-8">
-					<input type="text" name="search_start_date" class="form-control datepicker" value="<?= $_POST['search_start_date'] ?>">
-				</div>
-			</div>
-			<div class="gap-bottom col-sm-6 col-xs-12">
-				<div class="col-sm-4">
-					<label class="control-label">End Date:</label>
-				</div>
-				<div class="col-sm-8">
-					<input type="text" name="search_end_date" class="form-control datepicker" value="<?= $_POST['search_end_date'] ?>">
-				</div>
-			</div>
-		<?php } ?>
-        <div class="col-xs-12 text-right">
-            <button type="submit" name="search_accounting" value="Search" class="btn brand-btn mobile-block">Search</button>
-            <button type="submit" name="display_all_accounting" value="Display All" class="btn brand-btn mobile-block">Display All</button>
-        </div>
-		<div class="clearfix"></div>
-	</form>
-<?php } ?>
+            var filter_query = '';
+            if(region != undefined && region != '') {
+                $('[name="search_classification"] option[data-regions]').hide();
+                $('[name="search_classification"] option[data-regions]').each(function() {
+                    var class_regions = $(this).data('regions');
+                    if(class_regions.length == 0) {
+                        class_regions = [""];
+                    }
+                    if(class_regions.indexOf(region) != -1) {
+                        $(this).show();
+                    }
+                });
+                filter_query += '[data-region="'+region+'"]';
+            } else {
+                $('[name="search_classification"] option').show();
+            }
+            if(classification != undefined && classification != '') {
+                filter_query += '[data-classification"'+classification+'"]';
+            }
+            if(filter_query != '') {
+                $('[name="search_business"] option').hide();
+                $('[name="search_business"] option'+filter_query).show();
+                $('[name="search_all_contact"] option').hide();
+                $('[name="search_all_contact"] option'+filter_query).show();
+                $('[name="search_contact"] option').hide();
+                $('[name="search_contact"] option'+filter_query).show();
+            } else {
+                $('[name="search_business"] option').show();
+                $('[name="search_all_contact"] option').show();
+                $('[name="search_contact"] option').show();
+            }
+            $('[name="search_classification"]').trigger('change.select2');
+            $('[name="search_business"]').trigger('change.select2');
+            $('[name="search_all_contact"]').trigger('change.select2');
+            $('[name="search_contact"]').trigger('change.select2');
+        }
+        </script>
+        <form name="search_accounting" method="post" action="" class="form-horizontal" role="form">
+            <?php if(in_array('Region',$ticket_accounting_fields)) { ?>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label">Region:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <select name="search_region" data-placeholder="Select a Region" class="chosen-select-deselect">
+                            <option></option>
+                            <?php $region_list = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(`value` SEPARATOR ',') FROM `general_configuration` WHERE `name` LIKE '%_region'"))[0])));
+                            foreach ($region_list as $con_region) {
+                                if(in_array($con_region, $allowed_regions)) {
+                                    echo "<option ".($_POST['search_region'] == $con_region ? 'selected' : '')." value='$con_region'>$con_region</option>";
+                                }
+                            } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php if(in_array('Classification',$ticket_accounting_fields)) { ?>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label">Classification:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <select name="search_classification" data-placeholder="Select a Classification" class="chosen-select-deselect">
+                            <option></option>
+                            <?php $class_regions = explode(',',get_config($dbc, '%_class_regions', true, ','));
+                            $contact_classifications = [];
+                            $classification_regions = [];
+                            foreach(explode(',',get_config($dbc, '%_classification', true, ',')) as $i => $contact_classification) {
+                                $row = array_search($contact_classification, $contact_classifications);
+                                if($class_regions[$i] == 'ALL') {
+                                    $class_regions[$i] = '';
+                                }
+                                if($row !== FALSE && $class_regions[$i] != '') {
+                                    $classification_regions[$row][] = $class_regions[$i];
+                                } else {
+                                    $contact_classifications[] = $contact_classification;
+                                    $classification_regions[] = array_filter([$class_regions[$i]]);
+                                }
+                            }
+                            foreach ($contact_classifications as $i => $con_classification) {
+                                $hidden_classification = '';
+                                if(!empty($_POST['search_region']) && !in_array($_POST['search_region'], $classification_regions[$i]) && !empty($classification_regions[$i])) {
+                                    $hidden_classification = 'style="display:none;"';
+                                }
+                                echo "<option ".($_POST['search_classification'] == $con_classification ? 'selected' : '')." data-regions='".json_encode($classification_regions[$i])."' value='$con_classification' $hidden_classification>$con_classification</option>";
+                            } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php if(in_array('Business',$ticket_accounting_fields)) { ?>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label"><?= BUSINESS_CAT ?>:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <select name="search_business" data-placeholder="Select a <?= BUSINESS_CAT ?>" class="chosen-select-deselect">
+                            <option></option>
+                            <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contacts`.`contactid`, `contacts`.`name`, `contacts`.`region`, `contacts`.`con_locations`, `contacts`.`classification` FROM `contacts` LEFT JOIN `tickets` ON `contacts`.`contactid`=`tickets`.`businessid` WHERE `contacts`.`category`='".BUSINESS_CAT."' AND `contacts`.`status` > 0 AND `contacts`.`deleted`=0 AND `tickets`.`deleted`=0"));
+                            foreach($contact_list as $row) { ?>
+                                <option data-region="<?= $row['region'] ?>" data-location="<?= $row['con_locations'] ?>" data-classification="<?= $row['classification'] ?>" <?= $row['contactid'] == $_POST['search_business'] ? 'selected' : '' ?> value="<?= $row['contactid'] ?>"><?= $row['full_name'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php if(in_array('All Contact',$ticket_accounting_fields)) { ?>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label"><?= CONTACTS_TILE ?>:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <select name="search_all_contact" data-placeholder="Select <?= CONTACTS_NOUN ?>" class="chosen-select-deselect">
+                            <option></option>
+                            <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`name`, `contacts`.`region`, `contacts`.`con_locations`, `contacts`.`classification` FROM `contacts` LEFT JOIN `tickets` ON `tickets`.`businessid`=`contacts`.`contactid` OR CONCAT(',',`tickets`.`clientid`,',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `contacts`.`status` > 0 AND `contacts`.`deleted`=0 AND `tickets`.`deleted`=0"));
+                            foreach($contact_list as $row) { ?>
+                                <option data-region="<?= $row['region'] ?>" data-location="<?= $row['con_locations'] ?>" data-classification="<?= $row['classification'] ?>" <?= $row['contactid'] == $_POST['search_all_contact'] ? 'selected' : '' ?> value="<?= $row['contactid'] ?>"><?= $row['full_name'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php if(in_array('Contact',$ticket_accounting_fields)) { ?>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label"><?= CONTACTS_TILE ?>:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <select name="search_contact" data-placeholder="Select <?= CONTACTS_NOUN ?>" class="chosen-select-deselect">
+                            <option></option>
+                            <?php $contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`name`, `contacts`.`region`, `contacts`.`con_locations`, `contacts`.`classification` FROM `contacts` LEFT JOIN `tickets` ON CONCAT(',',`tickets`.`clientid`,',') LIKE CONCAT('%,',`contacts`.`contactid`,',%') WHERE `contacts`.`status` > 0 AND `contacts`.`deleted`=0 AND `tickets`.`deleted`=0"));
+                            foreach($contact_list as $row) { ?>
+                                <option data-region="<?= $row['region'] ?>" data-location="<?= $row['con_locations'] ?>" data-classification="<?= $row['classification'] ?>" <?= $row['contactid'] == $_POST['search_contact'] ? 'selected' : '' ?> value="<?= $row['contactid'] ?>"><?= $row['full_name'] ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php if(in_array('Ticket Contact Type',$ticket_accounting_fields)) { ?>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label"><?= CONTACTS_NOUN ?> Type:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <select name="search_contact_type" data-placeholder="Select <?= CONTACTS_NOUN ?> Type" class="chosen-select-deselect">
+                            <option></option>
+                            <?php foreach(explode(',',get_config($dbc, 'contacts_tabs')) as $row) { ?>
+                                <option <?= $row == $_POST['search_contact_type'] ? 'selected' : '' ?> value="<?= $row ?>"><?= $row ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php if(in_array('Ticket Type',$ticket_accounting_fields)) { ?>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label"><?= TICKET_NOUN ?> Type:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <select name="search_ticket_type" data-placeholder="Select a <?= TICKET_NOUN ?> Type" class="chosen-select-deselect">
+                            <option></option>
+                            <?php foreach($ticket_tabs as $type_key => $type_label) { ?>
+                                <option <?= $type_key == $_POST['search_ticket_type'] ? 'selected' : '' ?> value="<?= $type_key ?>"><?= $type_label ?></option>
+                            <?php } ?>
+                        </select>
+                    </div>
+                </div>
+            <?php } ?>
+            <?php if(in_array('Dates',$ticket_accounting_fields)) { ?>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label">Start Date:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="text" name="search_start_date" class="form-control datepicker" value="<?= $_POST['search_start_date'] ?>">
+                    </div>
+                </div>
+                <div class="gap-bottom col-sm-6 col-xs-12">
+                    <div class="col-sm-4">
+                        <label class="control-label">End Date:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <input type="text" name="search_end_date" class="form-control datepicker" value="<?= $_POST['search_end_date'] ?>">
+                    </div>
+                </div>
+            <?php } ?>
+            <div class="col-xs-12 text-right">
+                <button type="submit" name="search_accounting" value="Search" class="btn brand-btn mobile-block">Search</button>
+                <button type="submit" name="display_all_accounting" value="Display All" class="btn brand-btn mobile-block">Display All</button>
+            </div>
+            <div class="clearfix"></div>
+        </form>
+    <?php } ?>
 
-<?php if($_GET['status'] == 'unbilled') { ?>
 	<h4>Create Invoices</h4>
 	<script>
 	function create_invoice(id) {
