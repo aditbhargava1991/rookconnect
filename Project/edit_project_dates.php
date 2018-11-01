@@ -23,7 +23,7 @@ $value_config = array_filter(array_unique(array_merge(explode(',',mysqli_fetch_a
 	</div>
 	<?php if (in_array("Dates Project Created Date",$value_config) !== FALSE) { ?>
 	<div class="form-group">
-		<label class="col-sm-4">Created Date:</label>	
+		<label class="col-sm-4">Created Date:</label>
 		<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
 			<input name="created_date" value="<?php echo (empty($project['projectid']) ? date('Y-m-d') : $project['created_date']); ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="datepicker form-control"></p>
 		</div>
@@ -64,6 +64,38 @@ $value_config = array_filter(array_unique(array_merge(explode(',',mysqli_fetch_a
 			<input name="estimated_completed_date" value="<?php echo $project['estimated_completed_date']; ?>" data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="datepicker form-control"></p>
 		</div>
 	</div>
+
+        <?php
+            $number_of_days = $project['number_of_days'];
+            $number_of_days_start_date = $project['number_of_days_start_date'];
+        ?>
+
+        <div class="form-group">
+            <label class="col-sm-4">Total Number of Days:</label>
+            <div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+                <input data-table="project" name="number_of_days" value="<?= $number_of_days; ?>" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" type="text" class="form-control" /></p>
+            </div>
+        </div>
+
+        <div class="clearfix"></div>
+
+        <?php
+        if($number_of_days > 0) { ?>
+
+        <div class="form-group">
+            <label class="col-sm-4">Time Line Countdown:</label>
+            <div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
+                <?php
+                    $now = time(); // or your date as well
+                    $your_date = strtotime($number_of_days_start_date);
+                    $datediff = $now - $your_date;
+
+                    echo round($datediff / (60 * 60 * 24)).'/'.$number_of_days.' Days';
+                ?>
+            </div>
+        </div>
+        <?php } ?>
+
 	<?php } ?>
 
 	<?php if (in_array("Dates Effective Date",$value_config) !== FALSE) { ?>
