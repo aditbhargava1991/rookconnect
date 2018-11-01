@@ -104,11 +104,12 @@ if (isset($_POST['submit'])) {
 			$ticket_options = $dbc->query("SELECT GROUP_CONCAT(`fields` SEPARATOR ',') `field_config` FROM (SELECT `value` `fields` FROM `general_configuration` LEFT JOIN `tickets` ON `general_configuration`.`name` LIKE CONCAT('ticket_fields_',`tickets`.`ticket_type`) WHERE `ticketid`='$ticketid' UNION SELECT `tickets` `fields` FROM `field_config`) `options`")->fetch_assoc();
 			if(strpos(','.$ticket_options['field_config'].',',',External Response,') !== FALSE) {
 				$send_body .= '<p><a href="'.WEBSITE_URL.'/external_response.php?r='.urlencode(encryptIt(json_encode(['ticketid'=>$ticketid]))).'" target="_blank">You can reply to this message by clicking here.</a></p>';
-				// $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.urlencode(encryptIt(json_encode(['ticketid'=>$ticketid]))).'" target="_blank">You can reply to this message by clicking here.</a></p>');
 			}
+            $tagged = explode(',',get_field_value('communication_tags','tickets','ticketid',$ticketid));
+            $tagged[] = $_SESSION['contactid'];
+            set_field_value(implode(',',array_unique($tagged)),'communication_tags','tickets','ticketid',$ticketid);
 		} else if($ticketid > 0 && $communication_type == 'Internal') {
             $send_body .= '<p><a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid.'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>';
-            // $email_body .= htmlentities('<p><a href="'.WEBSITE_URL.'/external_response.php?r='.encryptIt(json_encode(['ticketid'=>$ticketid])).'" target="_blank">Click here</a> to view the '.TICKET_NOUN.'</p>');
 		}
 
     if($_POST['submit'] == 'draft') {
