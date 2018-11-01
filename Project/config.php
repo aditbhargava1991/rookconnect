@@ -14,7 +14,6 @@ if(!empty($_GET['tile_name'])) {
 } else {
 	checkAuthorised('project');
 }
-$project_tabs = ['favourite'=>'Favourite'];
 $pending_projects = get_config($dbc, 'project_status_pending');
 if($pending_projects != 'disable') {
 	$project_tabs['pending'] = 'Pending';
