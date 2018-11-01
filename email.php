@@ -62,6 +62,10 @@ function send_email($from, $to, $cc, $bcc, $subject, $body, $attachment = '') {
 	$recipient = array_filter($recipient);
 	$cc = array_filter(is_array($cc) ? $cc : [$cc]);
 	$bcc = array_filter(is_array($bcc) ? $bcc : [$bcc]);
+    if(defined('OVERRIDE_SEND_EMAIL_TO')) {
+		$cc = [];
+        $bcc = [];
+	}
 	if(count($recipient) == 0 && count($cc) == 0 && count($bcc) == 0) {
 		throw new Exception('No Recipient Address Given');
 	}

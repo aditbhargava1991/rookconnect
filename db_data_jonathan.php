@@ -555,6 +555,16 @@
 		set_config($dbc, 'update_start_day', 1);
 	}
     // Ticket 9491
+    
+    // Ticket 9791
+	if(get_config($dbc, 'update_communication_tags') < 1) {
+		// November 1, 2018
+        if(!mysqli_query($dbc, "UPDATE `tickets` LEFT JOIN (SELECT CONCAT(IFNULL(GROUP_CONCAT(DISTINCT `email_communication`.`created_by`),''),',',IFNULL(`tickets`.`communication_tags`,'')) `tag`, `tickets`.`ticketid` FROM `tickets` LEFT JOIN `email_communication` ON `email_communication`.`ticketid`=`tickets`.`ticketid` WHERE `tickets`.`deleted`=0 AND `email_communication`.`ticketid` > 0 AND `email_communication`.`communication_type`='External' GROUP BY `tickets`.`ticketid`) `tags` ON `tickets`.`ticketid`=`tags`.`ticketid` SET `tickets`.`communication_tags`=`tags`.`tag` WHERE `tags`.`ticketid` > 0")) {
+            echo "Error: ".mysqli_error($dbc)."<br />\n";
+        }
+		set_config($dbc, 'update_communication_tags', 1);
+	}
+    // Ticket 9791
 	
 	echo "Jonathan's DB Changes Done<br />\n";
 ?>
