@@ -184,7 +184,7 @@ if(ucwords($category) == 'Vendors') {
 			<a href="?list=<?= $_GET['list'] ?>&status=archive" class="btn brand-btn <?= $status == 'archive' ? 'active_tab' : '' ?>">Archived</a>
 			-->
             <!-- <input type="submit" value="Filter" class="btn brand-btn" name="search_<?php //echo $category; ?>_submit"> -->
-			
+
 			<?php if($_GET['list'] != 'summary') { ?>
 				<a href="?edit=new&category=<?= $category ?>" class="btn brand-btn pull-right">New <?= $category ?></a>
 				<button type="submit" value="<?= $category ?>" class="image-btn no-toggle" name="export_contacts" title="Export CSV"><img src="../img/icons/csv.png" width="30" /></button>
@@ -499,17 +499,18 @@ if(strpos($contacts_summary_config,'Per Classification') !== false) {
 
 if(strpos($contacts_summary_config,'Per City') !== false) {
     echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per City</h3>';
-    $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_city, `city` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 GROUP BY `city`");
-    while($service_row = $service_categories->fetch_assoc()) {
-        echo '<div class="col-sm-6">';
-            echo '<div class="overview-block">';
-                if($service_row['city'] == '') {
-                    $service_row['city'] = 'Not specified';
-                }
-                echo $service_row['city'].': '.$service_row['total_city'];
-            echo '</div>';
+    $service_categories = $dbc->query("SELECT `name`, `first_name`, `last_name`, COUNT(contactid) AS total_city, `city` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `status`=1 AND city != '' GROUP BY `city`");
+
+    echo '<div class="col-sm-6">';
+        echo '<div class="overview-block">';
+        while($service_row = $service_categories->fetch_assoc()) {
+            if($service_row['city'] == '') {
+                $service_row['city'] = 'Not specified';
+            }
+            echo $service_row['city'].': '.$service_row['total_city'].'<br>';
+        }
         echo '</div>';
-    }
+    echo '</div>';
     echo '<div class="clearfix"></div>';
 }
 

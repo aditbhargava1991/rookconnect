@@ -658,17 +658,18 @@ if($_GET['action'] == 'update_fields') {
                         }
                     }
                 }
-            }
-        }
-        if(!empty($_POST['auto_create_unscheduled']) && !empty($value) && strpos($_POST['auto_create_unscheduled'], ','.$value.',') !== FALSE) {
-            $latest_ticket_schedule = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '".$ticketid."' WHERE `deleted` = 0 ORDER BY `sort` DESC"));
-            mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, `sort`, `warehouse_location`, `container`, `manifest_num`) SELECT `ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, (`sort` + 1), `warehouse_location`, `container`, `manifest_num` FROM `ticket_schedule` WHERE `ticketid` = '".$ticketid."' AND `deleted` = 0 ORDER BY `sort` DESC LIMIT 1");
-            echo 'created_unscheduled_stop';
-        }
-    }
-    if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
-        $value = date('Y-m-d '.TIME_FORMAT_SEC, strtotime($value));
-    } else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['est_time','max_time'])) {
+			}
+		}
+		if(!empty($_POST['auto_create_unscheduled']) && !empty($value) && strpos($_POST['auto_create_unscheduled'], ','.$value.',') !== FALSE) {
+			$latest_ticket_schedule = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '".$ticketid."' WHERE `deleted` = 0 ORDER BY `sort` DESC"));
+			mysqli_query($dbc, "INSERT INTO `ticket_schedule` (`ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, `sort`, `warehouse_location`, `container`, `manifest_num`) SELECT `ticketid`, `type`, `location_name`, `client_name`, `address`, `city`, `province`, `postal_code`, `country`, `map_link`, `details`, `email`, `carrier`, `vendor`, `lading_number`, `volume`, `order_number`, (`sort` + 1), `warehouse_location`, `container`, `manifest_num` FROM `ticket_schedule` WHERE `ticketid` = '".$ticketid."' AND `deleted` = 0 ORDER BY `sort` DESC LIMIT 1");
+			echo 'created_unscheduled_stop';
+		}
+        $dbc->query("UPDATE `$table_name` SET `status_contact`='".$_SESSION['contactid']."' WHERE `$id_field`='$id'");
+	}
+	if($table_name == 'mileage' && ($field_name == 'start' || $field_name == 'end')) {
+		$value = date('Y-m-d '.TIME_FORMAT_SEC, strtotime($value));
+	} else if(in_array($table_name,['tickets','ticket_schedule']) && in_array($field_name,['est_time','max_time'])) {
         $start = get_field_value('to_do_start_time',$table_name,$id_field,$id);
         if(!empty($start)) {
             $end = date('H:i:s', strtotime($start) + ($value * 3600));
@@ -2243,29 +2244,30 @@ if($_GET['action'] == 'update_fields') {
     // Output the row ids
     echo $ticketid.'*#*'.$ticket_schedule_id;
 } else if($_GET['action'] == 'ticket_log_config') {
-    $template = $_POST['template'];
-    if($template == 'template_a') {
-        $header = filter_var(htmlentities($_POST['header']),FILTER_SANITIZE_STRING);
-        $footer = filter_var(htmlentities($_POST['footer']),FILTER_SANITIZE_STRING);
-        $fields = filter_var(implode(',', json_decode($_POST['fields'])),FILTER_SANITIZE_STRING);
+	$template = $_POST['template'];
+	if($template == 'template_a') {
+		$header = filter_var(htmlentities($_POST['header']),FILTER_SANITIZE_STRING);
+		$header_logo_align = filter_var(htmlentities($_POST['header_logo_align']),FILTER_SANITIZE_STRING);
+		$footer = filter_var(htmlentities($_POST['footer']),FILTER_SANITIZE_STRING);
+		$fields = filter_var(implode(',', json_decode($_POST['fields'])),FILTER_SANITIZE_STRING);
 
-        mysqli_query($dbc, "INSERT INTO `field_config_ticket_log` (`template`) SELECT 'template_a' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_log` WHERE `template` = 'template_a') num WHERE num.rows = 0");
-        mysqli_query($dbc, "UPDATE `field_config_ticket_log` SET `header` = '$header', `footer` = '$footer', `fields` = '$fields' WHERE `template` = 'template_a'");
+		mysqli_query($dbc, "INSERT INTO `field_config_ticket_log` (`template`) SELECT 'template_a' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_log` WHERE `template` = 'template_a') num WHERE num.rows = 0");
+		mysqli_query($dbc, "UPDATE `field_config_ticket_log` SET `header` = '$header', `header_logo_align` = '$header_logo_align', `footer` = '$footer', `fields` = '$fields' WHERE `template` = 'template_a'");
 
-        if(!file_exists('download')) {
-            mkdir('download', 0777, true);
-        }
-        if(!empty($_FILES['header_logo']['name'])) {
-            $header_logo = $basename = preg_replace('/[^a-z0-9.]*/','',strtolower($_FILES['header_logo']['name']));
-            $j = 0;
-            while(file_exists('download/'.$header_logo)) {
-                $header_logo = preg_replace('/(\.[a-z0-9]*)/', ' ('.++$j.')$1', $basename);
-            }
-            move_uploaded_file($_FILES['header_logo']['tmp_name'], 'download/'.$header_logo);
-            mysqli_query($dbc, "UPDATE `field_config_ticket_log` SET `header_logo` = '$header_logo' WHERE `template` = 'template_a'");
-            echo "header_logo*#*download/".$header_logo;
-        }
-    }
+		if(!file_exists('download')) {
+	        mkdir('download', 0777, true);
+		}
+		if(!empty($_FILES['header_logo']['name'])) {
+	        $header_logo = $basename = preg_replace('/[^a-z0-9.]*/','',strtolower($_FILES['header_logo']['name']));
+	        $j = 0;
+	        while(file_exists('download/'.$header_logo)) {
+	            $header_logo = preg_replace('/(\.[a-z0-9]*)/', ' ('.++$j.')$1', $basename);
+	        }
+	        move_uploaded_file($_FILES['header_logo']['tmp_name'], 'download/'.$header_logo);
+	        mysqli_query($dbc, "UPDATE `field_config_ticket_log` SET `header_logo` = '$header_logo' WHERE `template` = 'template_a'");
+	        echo "header_logo*#*download/".$header_logo;
+		}
+	}
 } else if($_GET['action'] == 'ticket_log_delete_logo') {
     $template = $_POST['template'];
     $logo = $_POST['logo'];
@@ -2841,94 +2843,104 @@ if($_GET['action'] == 'update_fields') {
     $insertid = mysqli_insert_id($dbc);
     mysqli_query($dbc, "INSERT INTO `ticket_history` (`ticketid`, `userid`, `description`) VALUES ('$ticketid','{$_SESSION['contactid']}','Row #$insertid of ticket_comment inserted)");
 } else if($_GET['action'] == 'create_recurrence_tickets') {
-    //Initialize variables
-    $edit = $_GET['edit'];
-    $start_date = $_POST['start_date'];
-    $end_date = $_POST['end_date'];
-    $repeat_type = $_POST['repeat_type'];
-    $repeat_monthly = $_POST['repeat_monthly'];
-    $repeat_interval = $_POST['repeat_interval'];
-    $repeat_days = $_POST['repeat_days'];
-    $create_starting_at = '';
-    if($edit == 1) {
-        if(strtotime($start_date) < strtotime(date('Y-m-d'))) {
-            $create_starting_at = date('Y-m-d');
-        } else {
-            $create_starting_at = $start_date;
-        }
-    }
-    $result = [success => false, message => $start_date.$end_date.$repeat_type.$repeat_interval.implode(',',$repeat_days)];
-    if($_GET['validate'] == 1) {
-        //Validate form fields
-        $validated = true;
-        $validate_errors = [];
-        $start_date_arr = explode('-',$start_date);
-        $end_date_arr = explode('-',$end_date);
-        if(!checkdate($start_date_arr[1], $start_date_arr[2], $start_date_arr[0])) {
-            $validated = false;
-            $validate_errors[] = "Invalid Start Date";
-        }
-        if(strtotime($start_date) > strtotime($end_date) && !empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
-            $validated = false;
-            $validate_errors[] = "Start Date greater than End Date";
-        }
-        if(!in_array($repeat_type, ['day','week','month'])) {
-            $validated = false;
-            $validate_errors[] = "Invalid Repeat Type";
-        }
-        if(!($repeat_interval > 0)) {
-            $validated = false;
-            $validate_errors[] = "Invalid Repeat Interval";
-        }
-        if(($repeat_type == 'week' && empty($repeat_days)) || ($repeat_type == 'month' && $repeat_monthly != 'day' && empty($repeat_days))) {
-            $validated = false;
-            $validate_errors[] = "No repeat days selected";
-        }
-        if($validated) {
-            //If validated, get the first 10 recurring dates and send it as a response so the user can verify that the dates are correct
-            $ongoing_recurrence = false;
-            if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
-                $sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
-                $end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
-                $ongoing_recurrence = true;
-            }
-            $recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
-            $validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date.($ongoing_recurrence ? " ongoing" : " until ".$end_date).". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
-            $result = [success=>true, message=>$validate_message, first_date=>array_shift($recurring_dates)];
-        } else {
-            //If validate fails, return the message
-            $result = [success=>false, message=>'Error: '.implode(', ',$validate_errors).'.'];
-        }
-        echo json_encode($result);
-    } else {
-        $ticketid = $_POST['ticketid'];
+	//Initialize variables
+	$edit = $_GET['edit'];
+	$start_date = $_POST['start_date'];
+	$end_date = $_POST['end_date'];
+	$repeat_type = $_POST['repeat_type'];
+	$repeat_monthly = $_POST['repeat_monthly'];
+	$repeat_interval = $_POST['repeat_interval'];
+	$repeat_days = $_POST['repeat_days'];
+	$create_starting_at = '';
+	if($edit == 1) {
+		if(strtotime($start_date) < strtotime(date('Y-m-d'))) {
+			$create_starting_at = date('Y-m-d');
+		} else {
+			$create_starting_at = $start_date;
+		}
+	}
+	$result = [success => false, message => $start_date.$end_date.$repeat_type.$repeat_interval.implode(',',$repeat_days)];
+	if($_GET['validate'] == 1) {
+		//Validate form fields
+		$validated = true;
+		$validate_errors = [];
+		$start_date_arr = explode('-',$start_date);
+		$end_date_arr = explode('-',$end_date);
+		if(!checkdate($start_date_arr[1], $start_date_arr[2], $start_date_arr[0])) {
+			$validated = false;
+			$validate_errors[] = "Invalid Start Date";
+		}
+		if(strtotime($start_date) > strtotime($end_date) && !empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
+			$validated = false;
+			$validate_errors[] = "Start Date greater than End Date";
+		}
+		if(!in_array($repeat_type, ['day','week','month'])) {
+			$validated = false;
+			$validate_errors[] = "Invalid Repeat Type";
+		}
+		if(!($repeat_interval > 0)) {
+			$validated = false;
+			$validate_errors[] = "Invalid Repeat Interval";
+		}
+		if(($repeat_type == 'week' && empty($repeat_days)) || ($repeat_type == 'month' && $repeat_monthly != 'day' && empty($repeat_days))) {
+			$validated = false;
+			$validate_errors[] = "No repeat days selected";
+		}
+		if($validated) {
+			$ongoing_recurrence = false;
+			if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
+				$sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
+				$end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
+				$ongoing_recurrence = true;
+			}
+			$recurring_dates = get_recurrence_days(10, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
+			if(empty($recurring_dates)) {
+				$validated = false;
+				$validate_errors[] = "No dates found in recurrence range";
+			}
+		}
+		//If validated, get the first 10 recurring dates and send it as a response so the user can verify that the dates are correct
+		if($validated) {
+			$validate_message = "You are creating Recurring ".TICKET_TILE." every ".$repeat_interval. " ".$repeat_type.($repeat_interval > 1 ? "s" : "")." from ".$start_date.($ongoing_recurrence ? " ongoing" : " until ".$end_date).". Here is an example of what the following Recurring dates will look like:\n\n".implode(", ", $recurring_dates).(count($recurring_dates) > 10 ? ", ..." : "")."\n\nIf this is correct, please confirm to create your Recurring ".TICKET_TILE.".";
+			$result = [success=>true, message=>$validate_message, first_date=>array_shift($recurring_dates)];
+		} else {
+			//If validate fails, return the message
+			$result = [success=>false, message=>'Error: '.implode(', ',$validate_errors).'.'];
+		}
+		echo json_encode($result);
+	} else {
+		$ticketid = $_POST['ticketid'];
 
-        if($ticketid > 0) {
-            $recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
-            mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
+		if($ticketid > 0) {
+			if(empty(str_replace(['0000-00-00','1969-12-31'],'',$end_date))) {
+				$sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
+				$end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
+			}
+			$recurring_dates = get_recurrence_days(1, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
+			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_date` = '".$recurring_dates[0]."', `to_do_end_date` = '".$recurring_dates[0]."' WHERE `ticketid` = '$ticketid'");
 
-            if($edit == 1) {
-                $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
-                $main_ticketid = $ticket['main_ticketid'];
-                mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
-                mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND (`to_do_date` >= '$create_starting_at' OR IFNULL(`to_do_date`,'0000-00-00') = '0000-00-00') AND `ticketid` != '$ticketid'");
-                mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
-            }
+			if($edit == 1) {
+				$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+				$main_ticketid = $ticket['main_ticketid'];
+				mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `main_ticketid` = '$main_ticketid' AND `to_do_date` < '$create_starting_at'");
+				mysqli_query($dbc, "UPDATE `tickets` SET `deleted` = 1 WHERE `main_ticketid` = '$main_ticketid' AND (`to_do_date` >= '$create_starting_at' OR IFNULL(NULLIF(`to_do_date`,'0000-00-00'),'') = '') AND `ticketid` != '$ticketid'");
+				mysqli_query($dbc, "UPDATE `ticket_recurrences` SET `deleted` = 1 WHERE `ticketid` = '$main_ticketid'");
+			}
 
-            //Insert into ticket_recurrences table to save settings for ongoing Recurrences cron job
-            mysqli_query($dbc, "INSERT INTO `ticket_recurrences` (`ticketid`, `start_date`, `end_date`, `repeat_type`, `repeat_monthly`, `repeat_interval`, `repeat_days`) VALUES ('$ticketid', '$start_date', '$end_date', '$repeat_type', '$repeat_monthly', '$repeat_interval', '".implode(',',$repeat_days)."')");
+			//Insert into ticket_recurrences table to save settings for ongoing Recurrences cron job
+			mysqli_query($dbc, "INSERT INTO `ticket_recurrences` (`ticketid`, `start_date`, `end_date`, `repeat_type`, `repeat_monthly`, `repeat_interval`, `repeat_days`) VALUES ('$ticketid', '$start_date', '$end_date', '$repeat_type', '$repeat_monthly', '$repeat_interval', '".implode(',',$repeat_days)."')");
 
-            //Set main_ticketid and main_ids for records so they can be synced together
-            mysqli_query($dbc, "UPDATE `tickets` SET `main_ticketid` = '$ticketid', `is_recurrence` = 1 WHERE `ticketid` = '$ticketid'");
-            mysqli_query($dbc, "UPDATE `ticket_attached` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
-            mysqli_query($dbc, "UPDATE `ticket_schedule` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
-            mysqli_query($dbc, "UPDATE `ticket_comment` SET `main_id` = `ticketcommid`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
+		    //Set main_ticketid and main_ids for records so they can be synced together
+		    mysqli_query($dbc, "UPDATE `tickets` SET `main_ticketid` = '$ticketid', `is_recurrence` = 1 WHERE `ticketid` = '$ticketid'");
+		    mysqli_query($dbc, "UPDATE `ticket_attached` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
+		    mysqli_query($dbc, "UPDATE `ticket_schedule` SET `main_id` = `id`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
+		    mysqli_query($dbc, "UPDATE `ticket_comment` SET `main_id` = `ticketcommid`, `is_recurrence` = 1 WHERE `ticketid` = '$ticketid' AND `deleted` = 0");
 
-            create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $_POST['skip_first'], $create_starting_at);
-            sync_recurring_tickets($dbc, $ticketid);
-            echo 'Successfully created Recurring '.TICKET_TILE;
-        }
-    }
+			create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $_POST['skip_first'], $create_starting_at);
+			sync_recurring_tickets($dbc, $ticketid);
+			echo 'Successfully created Recurring '.TICKET_TILE;
+		}
+	}
 } else if($_GET['action'] == 'removePdfForm') {
     $form = filter_var($_POST['formid'],FILTER_SANITIZE_STRING);
     $ticket = filter_var($_POST['ticket'],FILTER_SANITIZE_STRING);

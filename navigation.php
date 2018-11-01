@@ -127,6 +127,13 @@ $(document).ready(function() {
             }
         });
     }
+    
+    $('.nav_more_options').click(function() {
+        $('.nav_icons_mobile').toggle();
+    });
+    $(window).scroll(function() {
+        $('.nav_icons_mobile').hide();
+    });
 });
 
 var software_search_shifted = false;
@@ -262,7 +269,7 @@ if(!isset($_SESSION['fullscreen'])) {
                     <?php if($_SESSION['contactid'] > 0) { ?>
                         <ul class="nav navbar-nav navbar-right pad-right pull-right">
                             <?php //include('Navigation/social_media_links.php'); ?>
-                            <li><?= $active_ticket_buttons ?></li><?php
+                            <li class="nav-active-ticket"><?= $active_ticket_buttons ?></li><?php
                             $contact_category = $_SESSION['category'];
                             /*
                             if(tile_enabled($dbc, 'contacts_rolodex')) {
@@ -287,6 +294,7 @@ if(!isset($_SESSION['fullscreen'])) {
                                 <div class="pullup"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" class="no-toggle" title="Hide Header &amp; Footer" data-placement="bottom" /></div>
                             </li>
                             <li><a class="logout-button" href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="no-toggle" title="Logout" data-placement="bottom" /></a></li>
+                            <li class="show-on-mob"><img title="More Options" data-placement="bottom" src="<?= WEBSITE_URL; ?>/img/icons/ROOK-3dot-icon.png" width="30p" class="nav_more_options offset-top-13 offset-right-15 no-toggle cursor-hand" /></li>
                         </ul>
                     <?php } ?>
                     <ul class="nav navbar-nav scale-to-fill" style="overflow: hidden;">
@@ -387,6 +395,44 @@ if(!isset($_SESSION['fullscreen'])) {
                 </div><!--/.nav-collapse -->
             </div><!--/.container-fluid -->
         </div>
+        
+        <?php
+            /*
+             * Show on mobile when the user click the 3 dots icons
+             * Duplicate the nav li items
+             */
+        ?>
+        <div class="nav_icons_mobile">
+            <div class="pull-left"><?php
+                if ( isset($_SESSION[ 'newsboard_menu_choice' ]) && $_SESSION[ 'newsboard_menu_choice' ] != NULL ) { ?>
+                    <div class="pull-left"><?php include('Notification/newsboard.php'); ?></div><?php
+                }
+                if ( tile_visible($dbc, 'calendar_rook') ) { ?>
+                    <div class="pull-left"><a href="<?php echo WEBSITE_URL;?>/Calendar/calendars.php" title="Calendar" class="calendar-button"><img src="<?= WEBSITE_URL ?>/img/month-overview-blue.png" class="inline-img white-color no-toggle" title="Calendar" data-placement="bottom"></a></div><?php
+                }
+                if ( $_SESSION['contactid'] > 0 ) { ?>
+                    <div class="pull-left"><?php include('Notification/alert_software.php'); ?></div>
+                    <div class="pull-left"><p class="no-pad-right no-pad-horiz-mobile offset-right-5"><a id="info_toggle" title="Info i Toggle"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-off.png" style='display:none; position: relative; top: 5px;' width="50px" class="switch_info_off"><img src="<?php echo WEBSITE_URL; ?>/img/icons/switch-on.png" class="switch_info_on"  style='display:none; position: relative; top: 5px;'  width="50px"></a></p></div><?php
+                } ?>
+            </div>
+            <div class="pull-right"><?php
+                $contact_category = $_SESSION['category'];
+                $contacts_folder = 'Contacts';
+                if ( strtolower($contact_category) != 'staff' ) {
+                    $profile_access = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_security` WHERE `category` = '$contact_category' AND `security_level` = '".ROLE."'"))['profile_access'];
+                    if($profile_access == 'disable') {
+                        $profile_html = profile_id($dbc, $_SESSION['contactid'], false);
+                    } else {
+                        $profile_html = '<a href="'.WEBSITE_URL.'/'.$contacts_folder.'/contacts_inbox.php?edit='.$_SESSION['contactid'].'" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
+                    }
+                } else {
+                    $profile_html = '<a href="'.WEBSITE_URL.'/Profile/my_profile.php" title="My Profile">'.profile_id($dbc, $_SESSION['contactid'], false).'</a>';
+                }
+                echo '<div class="pull-left">'.$profile_html .'</div>'; ?>
+                <div class="pull-left"><a href="<?= WEBSITE_URL; ?>/logout.php"><img src="<?= WEBSITE_URL; ?>/img/logout-icon.png" class="offset-top-15 no-toggle offset-right-15" title="Logout" data-placement="bottom" /></a></div>
+            </div>
+            <div class="clearfix"></div>
+        </div><!-- .nav_icons_mobile -->
 
         <div class="hide-header-footer-down">
             <div class="pullup down"><img src="<?= WEBSITE_URL;?>/img/pullup.png" alt="" /></div>

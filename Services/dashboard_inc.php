@@ -22,38 +22,36 @@
         $pageNum = $_GET['page'];
     }
     $offset = ($pageNum - 1) * $rowsPerPage;
-    
+
     $url_cat = isset($_GET['cat_mob']) && !empty($_GET['cat_mob']) ? trim(hex2bin($_GET['cat_mob'])) : $url_cat;
     $url_type = isset($_GET['type_mob']) && !empty($_GET['type_mob']) ? trim(hex2bin($_GET['type_mob'])) : $url_type;
     $url_key = filter_var($_GET['key'],FILTER_SANITIZE_STRING);
 ?>
-
+<!-- Notice -->
+<div class="notice gap-bottom double-gap-top popover-examples hide-on-mobile">
+    <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+    <div class="col-sm-11"><span class="notice-name">NOTE:</span>
+    In this section your business can outline all service headings and descriptions for quotes, ticketing systems, work orders, etc. Assigning your business services a Service Type, Category and Heading will enable reporting per service. Price points for services are added in the rate card section and may or may not be visible here. Services added here will display in the rate card; services added to the rate card may or may not be visible here.</div>
+    <div class="clearfix"></div>
+</div>
 <div class="standard-body-title hide-on-mobile">
     <h3><?= empty($url_cat) ? 'All Services' : $url_cat ?><?= !empty($url_type) ? ': '.$url_type : '' ?><?= !empty($url_key) ? ' - Searching for '.$url_key : '' ?></h3>
 </div>
 <div class="standard-dashboard-body-content pad-left pad-right">
-    <!-- Notice -->
-    <div class="notice gap-bottom double-gap-top popover-examples hide-on-mobile">
-        <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-        <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-        In this section your business can outline all service headings and descriptions for quotes, ticketing systems, work orders, etc. Assigning your business services a Service Type, Category and Heading will enable reporting per service. Price points for services are added in the rate card section and may or may not be visible here. Services added here will display in the rate card; services added to the rate card may or may not be visible here.</div>
-        <div class="clearfix"></div>
-    </div>
-    
     <?php
         $query_cat = !empty($url_cat) ? "AND `category`='".$url_cat."'" : "";
         $query_type = !empty($url_type) ? "AND `service_type`='".$url_type."'" : "";
         $query_key = !empty($url_key) ? "AND (`name` LIKE '%$url_key%' OR `heading` LIKE '%$url_key%')" : '';
-        
+
         $result = mysqli_query($dbc, "SELECT * FROM `services` WHERE `deleted`=0 $query_cat $query_type $query_key ORDER BY `category`, `service_type`, `heading` LIMIT $offset, $rowsPerPage");
         $num_rows = "SELECT COUNT(*) `numrows` FROM `services` WHERE `deleted`=0 $query_cat $query_type $query_key ORDER BY `category`, `service_type`, `heading`";
-        
+
 		$rate_card_access = get_security($dbc, 'rate_card');
         if ( $result->num_rows>0) {
             echo '<div class="pagination_links">';
                 echo display_pagination($dbc, $num_rows, $pageNum, $rowsPerPage);
             echo '</div>';
-            
+
             while ( $row=mysqli_fetch_assoc($result) ) { ?>
                 <div class="dashboard-item override-dashboard-item" data-searchable="<?= $row['category'].' '.$row['service_type'].' '.$row['heading'] ?>">
                     <div class="row">
@@ -83,7 +81,7 @@
                     </div>
                 </div><?php
             }
-            
+
             echo '<div class="pagination_links">';
                 echo display_pagination($dbc, $num_rows, $pageNum, $rowsPerPage);
             echo '</div>';
