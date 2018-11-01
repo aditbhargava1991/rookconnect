@@ -5217,8 +5217,19 @@ table th a:hover { color:#fff; }
 table td { background-color:#fff; }
 
 /* New Layout */
-.block-label, .block-item, .main-screen-white, .info-block-header, .dashboard-container, .summary-block { border-color:#dc6a2e !important; }
-.info-block-header { background-color:#cbcedf !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.block-button,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border { border-color:#dc6a2e !important; }
+.info-block-header { background-color:#cee5fc !important; }
 .blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#dc6a2e !important; }
 div.calendar-screen, .ui-state-disabled { background-color:#4c87c2 !important; }
 div.software_search_results a, .text-blue, .sidebar h3 a, .default-color { color:#dc6a2e !important; }
@@ -5233,18 +5244,30 @@ div.software_search_results a, .text-blue, .sidebar h3 a, .default-color { color
 .sidebar-higher-level a.cursor-hand.active {
   background-color: #dc6a2e !important;
 }
-.sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
+.sidebar-higher-level ul li.active.blue,
+.sidebar-higher-level ul li.active.blue a,
+.sidebar-higher-level ul li.active.blue span,
+.sidebar-higher-level ul li.sidebar-higher-level a.active,
+.tile-sidebar .sidebar-higher-level ul li.active,
+.tile-sidebar .sidebar-higher-level ul li.active a,
+.tile-sidebar .sidebar-higher-level ul li.active span {
   color:#dc6a2e !important;
   background-color:#fff !important;
 }
-li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
+li.sidebar-lower-level.active,
+li.sidebar-lower-level.active span,
+.tile-sidebar ul li.sidebar-higher-level ul li a.active {
   background-color: #fff !important;
   color: #dc6a2e !important;
 }
 .block-panels .panel-heading.active {
   background-color: #dc6a2e !important;
 }
-.block-panels .panel-heading.active a {
+.block-panels .panel-heading.active a,
+.tile-sidebar .sidebar-higher-level a.active:hover {
   color: #fff !important;
+}
+.theme-color-icon {
+  filter:invert(55%) sepia(8%) saturate(4760%) hue-rotate(336deg) brightness(89%) contrast(93%) !important;
 }
 .theme-color-border-bottom { border-bottom:2px solid #dc6a2e !important; }

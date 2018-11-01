@@ -44,6 +44,12 @@ if($_GET['mobile_view'] == 'true') {
         }
 		$('#mobile_tabs .panel-heading').click(loadPanel);
         
+        $('.search-text').keypress(function(e) {
+            if (e.which==13) {
+                var search = this.value;
+                window.location.replace('report_tiles.php?type=search&q='+search);
+            }
+        });
 	});
 	function loadPanel() {
 		var panel = $(this).closest('.panel').find('.panel-body');

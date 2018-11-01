@@ -1,4 +1,6 @@
-<?php include(substr(dirname(__FILE__), 0, -8).'include.php');
+<?php $guest_access = true;
+include(substr(dirname(__FILE__), 0, -8).'include.php');
+ob_clean();
 
 $sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
 $today_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));

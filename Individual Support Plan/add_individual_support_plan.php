@@ -300,7 +300,7 @@ if (isset($_POST['add_medication'])) {
 
 	$rating_behaviour_objective = filter_var($_POST['rating_behaviour_objective'],FILTER_SANITIZE_STRING);
     $rating_behaviour_child = filter_var(htmlentities($_POST['rating_behaviour_child']),FILTER_SANITIZE_STRING);
-    $rating_behaviour_child_date = filter_var($_POST['rating_behaviour_child_date'],FILTER_SANITIZE_STRING);	
+    $rating_behaviour_child_date = filter_var($_POST['rating_behaviour_child_date'],FILTER_SANITIZE_STRING);
     $rating_behaviour_child_rating = filter_var($_POST['rating_behaviour_child_rating'],FILTER_SANITIZE_STRING);
     $rating_behaviour_family = filter_var(htmlentities($_POST['rating_behaviour_family']),FILTER_SANITIZE_STRING);
     $rating_behaviour_family_date = filter_var($_POST['rating_behaviour_family_date'],FILTER_SANITIZE_STRING);
@@ -318,7 +318,7 @@ if (isset($_POST['add_medication'])) {
 
     $rating_comm_objective = filter_var($_POST['rating_comm_objective'],FILTER_SANITIZE_STRING);
     $rating_comm_child = filter_var(htmlentities($_POST['rating_comm_child']),FILTER_SANITIZE_STRING);
-    $rating_comm_child_date = filter_var($_POST['rating_comm_child_date'],FILTER_SANITIZE_STRING);    
+    $rating_comm_child_date = filter_var($_POST['rating_comm_child_date'],FILTER_SANITIZE_STRING);
     $rating_comm_child_rating = filter_var($_POST['rating_comm_child_rating'],FILTER_SANITIZE_STRING);
     $rating_comm_family = filter_var(htmlentities($_POST['rating_comm_family']),FILTER_SANITIZE_STRING);
     $rating_comm_family_date = filter_var($_POST['rating_comm_family_date'],FILTER_SANITIZE_STRING);
@@ -336,7 +336,7 @@ if (isset($_POST['add_medication'])) {
 
     $rating_physical_objective = filter_var($_POST['rating_physical_objective'],FILTER_SANITIZE_STRING);
     $rating_physical_child = filter_var(htmlentities($_POST['rating_physical_child']),FILTER_SANITIZE_STRING);
-    $rating_physical_child_date = filter_var($_POST['rating_physical_child_date'],FILTER_SANITIZE_STRING);    
+    $rating_physical_child_date = filter_var($_POST['rating_physical_child_date'],FILTER_SANITIZE_STRING);
     $rating_physical_child_rating = filter_var($_POST['rating_physical_child_rating'],FILTER_SANITIZE_STRING);
     $rating_physical_family = filter_var(htmlentities($_POST['rating_physical_family']),FILTER_SANITIZE_STRING);
     $rating_physical_family_date = filter_var($_POST['rating_physical_family_date'],FILTER_SANITIZE_STRING);
@@ -354,7 +354,7 @@ if (isset($_POST['add_medication'])) {
 
     $rating_cognitive_objective = filter_var($_POST['rating_cognitive_objective'],FILTER_SANITIZE_STRING);
     $rating_cognitive_child = filter_var(htmlentities($_POST['rating_cognitive_child']),FILTER_SANITIZE_STRING);
-    $rating_cognitive_child_date = filter_var($_POST['rating_cognitive_child_date'],FILTER_SANITIZE_STRING);    
+    $rating_cognitive_child_date = filter_var($_POST['rating_cognitive_child_date'],FILTER_SANITIZE_STRING);
     $rating_cognitive_child_rating = filter_var($_POST['rating_cognitive_child_rating'],FILTER_SANITIZE_STRING);
     $rating_cognitive_family = filter_var(htmlentities($_POST['rating_cognitive_family']),FILTER_SANITIZE_STRING);
     $rating_cognitive_family_date = filter_var($_POST['rating_cognitive_family_date'],FILTER_SANITIZE_STRING);
@@ -372,7 +372,7 @@ if (isset($_POST['add_medication'])) {
 
     $rating_safety_objective = filter_var($_POST['rating_safety_objective'],FILTER_SANITIZE_STRING);
     $rating_safety_child = filter_var(htmlentities($_POST['rating_safety_child']),FILTER_SANITIZE_STRING);
-    $rating_safety_child_date = filter_var($_POST['rating_safety_child_date'],FILTER_SANITIZE_STRING);    
+    $rating_safety_child_date = filter_var($_POST['rating_safety_child_date'],FILTER_SANITIZE_STRING);
     $rating_safety_child_rating = filter_var($_POST['rating_safety_child_rating'],FILTER_SANITIZE_STRING);
     $rating_safety_family = filter_var(htmlentities($_POST['rating_safety_family']),FILTER_SANITIZE_STRING);
     $rating_safety_family_date = filter_var($_POST['rating_safety_family_date'],FILTER_SANITIZE_STRING);
@@ -608,7 +608,7 @@ $(document).ready(function() {
 			});
 		});
 	}, 1000);
-	
+
     $("#form1").submit(function( event ) {
         var medication_type = $("#medication_type").val();
         var category = $("input[name=category]").val();
@@ -1102,12 +1102,12 @@ var default_contact_list = '';
 function contact_clone(btn) {
 	var contact = $(btn).closest('.contact_group').clone();
 	contact.find('select,input').val('');
-	
+
 	if(default_contact_list != '') {
 		contact.find('select:not([name*=category])').html(default_contact_list)
 	}
 	resetChosen(contact.find("select"));
-	
+
 	var group = $(btn).closest('.contact_group');
 	while(group.next('.contact_group').length > 0) {
 		group = group.next('.contact_group');
@@ -2633,7 +2633,7 @@ function removeSignature(div, btn) {
 			<div class="clearfix"></div>
         </div>
 
-        
+
 		<script>
 		function checkContactChange(sel) {
 			if(sel.value == 'NEW_CONTACT') {
@@ -2676,7 +2676,6 @@ function contact_call($dbc, $select_id, $select_name, $contact_value,$multiple, 
         <label for="fax_number"	class="col-sm-4	control-label">Contact:</label>
         <div class="col-sm-8">
             <select <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" id="<?php echo $select_id; ?>" data-value="<?= $contact_value ?>" data-category="<?= $from_contact ?>" class="chosen-select-deselect form-control contact_onchange" width="380">
-              <option value=""></option>
               <option value="NEW_CONTACT">Add New Contact</option>
             </select>
 			<input type="text" name="<?= str_replace('[]','',$select_name) ?>_new_contact<?= preg_replace('/[^\[\]]/','',$select_name) ?>" class="form-control" style="display:none;">

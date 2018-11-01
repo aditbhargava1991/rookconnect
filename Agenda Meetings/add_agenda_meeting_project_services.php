@@ -3,7 +3,6 @@
     <label for="first_name" class="col-sm-4 control-label text-right">Project:</label>
     <div class="col-sm-8">
         <select name="projectid[]" multiple <?php echo $disable_client; ?> data-placeholder="Select a Project..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php $query = mysqli_query($dbc,"SELECT * FROM (SELECT projectid, project_name FROM project WHERE `deleted`=0 AND (`businessid`='$businessid' OR '$businessid' = '') UNION SELECT CONCAT('C',`projectid`), CONCAT('Client Project: ',`project_name`) FROM `client_project` WHERE `deleted`=0 AND (`clientid`='$businessid' OR '$businessid'='')) PROJECTS ORDER BY project_name");
             while($row = mysqli_fetch_array($query)) {
                 ?>
@@ -21,7 +20,6 @@
     <label for="first_name" class="col-sm-4 control-label text-right">Service(s):</label>
     <div class="col-sm-8">
         <select name="servicecategory[]" multiple <?php echo $disable_client; ?> data-placeholder="Select a Service..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php $query = mysqli_query($dbc,"SELECT distinct(category) FROM services WHERE deleted=0 ORDER BY category");
             while($row = mysqli_fetch_array($query)) {
                 ?>

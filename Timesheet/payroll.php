@@ -96,8 +96,7 @@ function viewTicket(a) {
         if(config_visible_function_custom($dbc)) {
             echo '<a href="field_config.php?from_url=payroll.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
         }
-        ?>
-        <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
+        ?></h1>
 
         <form id="form1" name="form1" method="GET" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
             <input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
@@ -161,7 +160,7 @@ function viewTicket(a) {
                     $security_query = " AND (".implode(" OR ", $security_query).")";
                 }
                 ?>
-				
+
 			<?php if(strpos($field_config, ',search_by_groups,') !== FALSE) { ?>
 			  <div class="col-lg-2 col-md-3 col-sm-4 col-xs-12">
 				<label for="site_name" class="control-label">Search By Group:</label>
@@ -193,7 +192,6 @@ function viewTicket(a) {
             <div class="col-lg-4 col-md-3 col-sm-8 col-xs-12">
                 <?php if($timesheet_payroll_styling == 'EGS') { ?>
                     <select multiple data-placeholder="Select Staff Members" name="search_staff[]" class="chosen-select-deselect form-control">
-                        <option></option>
                         <option <?= in_array('ALL',$search_staff_list) ? 'selected' : '' ?> value="ALL">All Staff</option>
 						<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT distinct(`time_cards`.`staff`), `contacts`.`contactid`, `contacts`.`first_name`, `contacts`.`last_name`, `contacts`.`status` FROM `time_cards` LEFT JOIN `contacts` ON `contacts`.`contactid` = `time_cards`.`staff` WHERE `time_cards`.`staff` > 0 AND `contacts`.`deleted`=0".$security_query));
                         $prev_staff = '';
@@ -212,7 +210,6 @@ function viewTicket(a) {
                     </select>
                 <?php } else { ?>
                     <select data-placeholder="Select Staff Members" multiple name="search_staff[]" class="chosen-select-deselect form-control" onchange="$('[name=search_start_date]').val('');$('[name=search_end_date]').val('');">
-                        <option value=""></option>
                         <option value="ALL_STAFF">Select All Staff</option><?php
                         $query = mysqli_query($dbc,"SELECT `supervisor`, `position`, `staff_list`, `security_level_list` FROM `field_config_supervisor` WHERE `supervisor`='".$_SESSION['contactid']."' OR (SELECT CONCAT(',',`staff_list`,',') FROM `field_config_supervisor` WHERE `supervisor`='".$_SESSION['contactid']."' AND `position` = 'Manager') LIKE CONCAT('%,',`supervisor`,',%')");
                         $staff_members = [];
@@ -257,7 +254,7 @@ function viewTicket(a) {
 
                 <?php } ?>
             </div>
-            
+
             <?php if($timesheet_payroll_styling == 'Default') { ?>
                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
                     <label for="site_name" class="control-label">Search By Site:</label>
@@ -272,7 +269,7 @@ function viewTicket(a) {
                     </select>
                 </div>
             <?php } ?>
-            
+
             <div class="clearfix"></div>
 
             <div class="row">
@@ -282,7 +279,7 @@ function viewTicket(a) {
                 <div class="col-lg-4 col-md-3 col-sm-8 col-xs-8">
                     <input name="search_start_date" value="<?php echo $search_start_date; ?>" type="text" class="form-control datepicker">
                 </div>
-                
+
                 <div class="clearfix visible-xs"></div>
 
                 <div class="col-lg-2 col-md-3 col-sm-4 col-xs-4">
@@ -292,7 +289,7 @@ function viewTicket(a) {
                     <input name="search_end_date" value="<?php echo $search_end_date; ?>" type="text" class="form-control datepicker">
                 </div>
             </div>
-            
+
             <div class="form-group gap-top">
                 <div class="text-right">
                     <?php $search_staff_query = "search_staff%5B%5D=".implode('&search_staff%5B%5D=', $search_staff_list); ?>
@@ -300,7 +297,7 @@ function viewTicket(a) {
 					<a href="?tab=<?= $_GET['tab'] ?>&subtab=<?= $_GET['subtab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&<?= $search_staff_query ?>&see_staff=<?= $_GET['see_staff'] ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a>
                     <button type="submit" name="search_user_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
                     <button type="button" onclick="$('[name^=search_staff]').find('option').prop('selected',false); $('[name^=search_staff]').find('option[value=<?= $timesheet_payroll_styling == 'EGS' ? 'ALL' : 'ALL_STAFF' ?>]').prop('selected',true).change(); $('[name=search_user_submit]').click(); return false;" name="display_all_inventory" value="Display All" class="btn brand-btn mobile-block">Display All</button><?php
-                    
+
                     if($timesheet_payroll_styling == 'EGS') { ?>
                         <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/reporting.php?export=pdf_egs&search_staff=<?php echo (!empty($_GET['see_staff']) ? $_GET['see_staff'] : implode(',', $search_staff_list)); ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>&tab=<?= $_GET['tab'] ?>&see_staff=<?= $_GET['see_staff'] ?>&timesheet_tab=payroll" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/pdf.png" style="height:100%; margin:0;" class="no-toggle" title="PDF" /></a><?php
                     } ?>
@@ -333,8 +330,9 @@ function viewTicket(a) {
 
         if(!empty($search_staff_list)) {
             foreach(array_filter(array_unique($search_staff_list), function($id) { return $id != 'ALL_STAFF'; }) as $search_staff) {
+                echo '<div class="status_group">';
                 if(count($search_staff_list) > 1) {
-                    echo "<h2>".get_contact($dbc, $search_staff)."</h2>";
+                    echo "<h2>".get_contact($dbc, $search_staff)."<img src='../img/empty.png' class='statusIcon inline-img no-toggle no-margin'></h2>";
                 }
                 $filter = ' AND (staff = "'.$search_staff.'")';
                 if($search_site != '') {
@@ -430,6 +428,7 @@ function viewTicket(a) {
                         echo '<button type="submit" value="rate_timesheet" name="submit" class="btn brand-btn mobile-block pull-right">Update Hours</button>';
                     endif;
                 endif;
+                echo '</div>';
             }
         } else {
             echo "<h3>Please select a staff member.</h3>";

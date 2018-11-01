@@ -130,10 +130,14 @@ if (isset($_POST['add_sales'])) {
     $lead_source = filter_var($_POST['lead_source'],FILTER_SANITIZE_STRING);
     $next_action = filter_var($_POST['next_action'],FILTER_SANITIZE_STRING);
     $new_reminder = filter_var($_POST['new_reminder'],FILTER_SANITIZE_STRING);
+    $number_of_days = filter_var($_POST['number_of_days'],FILTER_SANITIZE_STRING);
+    if($number_of_days > 0) {
+        $number_of_days_start_date = date('Y-m-d');
+    }
     $status = $_POST['status'];
 
     if(empty($_POST['salesid'])) {
-        $query_insert_vendor = "INSERT INTO `sales` (`created_date`, `lead_created_by`, `primary_staff`, `share_lead`, `businessid`, `contactid`, `primary_number`, `email_address`, `lead_value`, `estimated_close_date`, `serviceid`, `productid`, `lead_source`, `marketingmaterialid`, `next_action`, `new_reminder`, `status`) VALUES ('$created_date', '$lead_created_by', '$primary_staff', '$share_lead', '$businessid', '$contactid', '$primary_number', '$email_address', '$lead_value', '$estimated_close_date', '$serviceid', '$productid', '$lead_source', '$marketingmaterialid', '$next_action', '$new_reminder', '$status')";
+        $query_insert_vendor = "INSERT INTO `sales` (`created_date`, `lead_created_by`, `primary_staff`, `share_lead`, `businessid`, `contactid`, `primary_number`, `email_address`, `lead_value`, `estimated_close_date`, `serviceid`, `productid`, `lead_source`, `marketingmaterialid`, `next_action`, `new_reminder`, `status`, `number_of_days`, `number_of_days_start_date`) VALUES ('$created_date', '$lead_created_by', '$primary_staff', '$share_lead', '$businessid', '$contactid', '$primary_number', '$email_address', '$lead_value', '$estimated_close_date', '$serviceid', '$productid', '$lead_source', '$marketingmaterialid', '$next_action', '$new_reminder', '$status', '$number_of_days', '$number_of_days_start_date')";
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $salesid = mysqli_insert_id($dbc);
 				$before_change = '';
@@ -151,7 +155,7 @@ if (isset($_POST['add_sales'])) {
 				$before_change .= capture_before_change($dbc, 'sales', 'primary_number', 'salesid', $salesid);
 				$before_change .= capture_before_change($dbc, 'sales', 'email_address', 'salesid', $salesid);
 				$before_change .= capture_before_change($dbc, 'sales', 'lead_value', 'salesid', $salesid);
-        $query_update_vendor = "UPDATE `sales` SET `primary_staff` = '$primary_staff', `share_lead` = '$share_lead', `businessid` = '$businessid', `contactid` = '$contactid', `primary_number` = '$primary_number', `email_address` = '$email_address', `lead_value` = '$lead_value', `estimated_close_date` = '$estimated_close_date', `serviceid` = '$serviceid', `productid` = '$productid', `lead_source` = '$lead_source', `marketingmaterialid` = '$marketingmaterialid', `next_action` = '$next_action', `new_reminder` = '$new_reminder', `status` = '$status' WHERE `salesid` = '$salesid'";
+        $query_update_vendor = "UPDATE `sales` SET `primary_staff` = '$primary_staff', `share_lead` = '$share_lead', `businessid` = '$businessid', `contactid` = '$contactid', `primary_number` = '$primary_number', `email_address` = '$email_address', `lead_value` = '$lead_value', `estimated_close_date` = '$estimated_close_date', `serviceid` = '$serviceid', `productid` = '$productid', `lead_source` = '$lead_source', `marketingmaterialid` = '$marketingmaterialid', `next_action` = '$next_action', `new_reminder` = '$new_reminder', `status` = '$status', `number_of_days` = '$number_of_days', `number_of_days_start_date` = '$number_of_days_start_date' WHERE `salesid` = '$salesid'";
 				$history = "Sales Updated.";
 				$history .= capture_after_change('primary_staff', $primary_staff);
 				$history .= capture_after_change('share_lead', $share_lead);
@@ -270,6 +274,8 @@ checkAuthorised('sales');
         $contactid = '';
         $primary_number = '';
         $email_address = '';
+        $number_of_days = '';
+        $number_of_days_start_date = '';
         $lead_value = '';
         $estimated_close_date = '';
         $serviceid = '';
@@ -295,6 +301,8 @@ checkAuthorised('sales');
             $businessid = $get_contact['businessid'];
             $contactid = $get_contact['contactid'];
             $primary_number = $get_contact['primary_number'];
+            $number_of_days = $get_contact['number_of_days'];
+            $number_of_days_start_date = $get_contact['number_of_days_start_date'];
             $email_address = $get_contact['email_address'];
             $lead_value = $get_contact['lead_value'];
             $estimated_close_date = $get_contact['estimated_close_date'];

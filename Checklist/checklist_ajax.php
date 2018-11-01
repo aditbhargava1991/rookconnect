@@ -213,7 +213,7 @@ if($_GET['fill'] == 'checklistedit') {
 	$checklist = mysqli_fetch_array(mysqli_query($dbc, "SELECT `checklist` FROM `checklist_name` WHERE `checklistnameid`='$id'"))['checklist'];
 	$checklist = explode('<p>',html_entity_decode($checklist));
 	unset($checklist[0]);
-	$checklist = filter_var(htmlentities($line.implode('<p>',$checklist)),FILTER_SANITIZE_STRING);
+	$checklist = filter_var(htmlentities($line.'<p>'.implode('</p></p>',$checklist).'</p>'),FILTER_SANITIZE_STRING);
   $before_change = capture_before_change($dbc, 'checklist_name', 'checklist', 'checklistnameid', $id);
 	$query = "UPDATE `checklist_name` SET `checklist`='$checklist' WHERE `checklistnameid`='$id'";
 	$result = mysqli_query($dbc,$query);

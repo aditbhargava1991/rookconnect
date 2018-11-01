@@ -12,6 +12,18 @@ $include_blanks = true;
 $row_item = 0;
 $inventory_fields = explode(',',$dbc->query("SELECT GROUP_CONCAT(DISTINCT `inventory` SEPARATOR ',') `fields` FROM `field_config_inventory`")->fetch_assoc()['fields']);
 do {
+	if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+		$general_inventory['weight_units'] = explode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = explode('#*#',$general_inventory['weight']);
+		foreach($general_inventory['weight'] as $id => $general_weight) {
+			if($general_inventory['weight_units'][$id] == 'kg' && $general_weight > 0) {
+				$general_inventory['weight'][$id] = number_format(($general_inventory['weight'][$id]*2.20462262185),2);
+				$general_inventory['weight_units'][$id] = 'lbs';
+			}
+		}
+		$general_inventory['weight_units'] = implode('#*#',$general_inventory['weight_units']);
+		$general_inventory['weight'] = implode('#*#',$general_inventory['weight']);
+	}
 	if(!($general_item['piece_num'] > 0)) {
 		$general_item['piece_num'] = 1;
 	}
@@ -26,6 +38,20 @@ do {
 			$inventory = mysqli_fetch_assoc($inventory_list);
 			$line_item = 0;
 			do {
+				if(strpos($value_config,',Inventory General Weight Convert KG to LB,') !== FALSE) {
+					if($inventory['weight_units'] == 'kg' && $inventory['weight'] > 0) {
+						$inventory['weight'] = number_format(($inventory['weight']*2.20462262185),2);
+						$inventory['weight_units'] = 'lbs';
+					}
+					if($inventory['net_units'] == 'kg' && $inventory['net_weight'] > 0) {
+						$inventory['net_weight'] = number_format(($inventory['net_weight']*2.20462262185),2);
+						$inventory['net_units'] = 'lbs';
+					}
+					if($inventory['gross_units'] == 'kg' && $inventory['gross_weight'] > 0) {
+						$inventory['gross_weight'] = number_format(($inventory['gross_weight']*2.20462262185),2);
+						$inventory['gross_units'] = 'lbs';
+					}
+				}
 				if($line_item++ > 0) {
 					echo '<hr />';
 				}
@@ -37,9 +63,9 @@ do {
 						<?php foreach($field_sort_order as $field_sort_field) { ?>
 							<?php if(strpos($value_config,',Inventory Detail Category,') !== FALSE && $field_sort_field == 'Inventory Detail Category') { ?>
 								<div class="form-group select-div" <?= $general_inventory['description'] == '' || $inventory['category'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Category:</label>
+									<label class="control-label col-sm-4">Tab:</label>
 									<div class="col-sm-8"><div class="col-sm-12">
-										<select name="inv_category" data-placeholder="Select a Category" class="chosen-select-deselect"><option></option>
+										<select name="inv_category" data-placeholder="Select a Tab" class="chosen-select-deselect"><option></option>
 											<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `inventory` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 											while($category = mysqli_fetch_assoc($groups)) { ?>
 												<option <?= $inventory['category'] == $category['category'] ? 'selected' : '' ?> value="<?= $category['category'] ?>"><?= $category['category'] ?></option>
@@ -50,7 +76,7 @@ do {
 								<?php $sub_cats = mysqli_query($dbc, "SELECT `category`, `sub_category` FROM `inventory` WHERE IFNULL(`sub_category`,'') != '' GROUP BY `sub_category` ORDER BY `sub_category`");
 								if(mysqli_num_rows($sub_cats) > 0) { ?>
 									<div class="form-group select-div" <?= $general_inventory['description'] == '' || $inventory['sub_category'] != '' ? '' : 'style="display:none;"' ?>>
-										<label class="control-label col-sm-4">Sub-Category:</label>
+										<label class="control-label col-sm-4">Sub-Tab:</label>
 										<div class="col-sm-8"><div class="col-sm-12">
 											<select name="inv_sub" data-placeholder="Select a Sub-Category" class="chosen-select-deselect"><option></option>
 												<?php while($sub_cat = mysqli_fetch_assoc($sub_cats)) { ?>
@@ -89,9 +115,9 @@ do {
 								<?php } ?>
 								<?php if(in_array('Category',$inventory_fields)) { ?>
 									<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['category'] != '' ? '' : 'style="display:none;"' ?>>
-										<label class="control-label col-sm-4">Category:</label>
+										<label class="control-label col-sm-4">Tab:</label>
 										<div class="col-sm-8"><div class="col-sm-12">
-											<select name="category" data-placeholder="Select a Category..." data-table="inventory" data-id="<?= $inventory['item_id'] ?>" data-id-field="inventoryid" class="chosen-select-deselect"><option></option>
+											<select name="category" data-placeholder="Select a Tab..." data-table="inventory" data-id="<?= $inventory['item_id'] ?>" data-id-field="inventoryid" class="chosen-select-deselect"><option></option>
 												<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `inventory` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 												while($category = mysqli_fetch_assoc($groups)) { ?>
 													<option <?= $inventory['category'] == $category['category'] ? 'selected' : '' ?> value="<?= $category['category'] ?>"><?= $category['category'] ?></option>
@@ -183,7 +209,7 @@ do {
 													<input name="brand" data-table="inventory" data-id="" data-id-field="inventoryid" class="form-control" placeholder="Enter Brand...">
 												<?php } ?>
 												<?php if(in_array('Category',$inventory_fields)) { ?>
-													<input name="category" data-table="inventory" data-id="" data-id-field="inventoryid" class="form-control" placeholder="Enter Category...">
+													<input name="category" data-table="inventory" data-id="" data-id-field="inventoryid" class="form-control" placeholder="Enter Tab">
 												<?php } ?>
 												<?php if(in_array('Description',$inventory_fields)) { ?>
 													<input name="description" data-table="inventory" data-id="" data-id-field="inventoryid" class="form-control" placeholder="Enter Description...">
@@ -206,7 +232,7 @@ do {
 											</div>
 											<div class="col-sm-1">
 												<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" data-attach="<?= $general_item['id'] ?>" data-attach-field="line_id" data-detail="<?= $i ?>" data-detail-field="piece_num" value="0">
-												<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-left" src="../img/icons/ROOK-add-icon.png"></a>
+												<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-left" data-history-label="New Inventory" src="../img/icons/ROOK-add-icon.png"></a>
 											</div>
 										<div class="clearfix"></div>
 									</div>
@@ -223,7 +249,7 @@ do {
 							<?php } ?>
 							<?php if(strpos($value_config,',Inventory Detail Piece Type,') !== FALSE && $field_sort_field == 'Inventory Detail Piece Type') { ?>
 								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Piece Type:</label>
+									<label class="control-label col-sm-4">Piece Tab:</label>
 									<div class="col-sm-8"><div class="col-sm-12">
 										<?php if(count($piece_types) > 0) { ?>
 											<select name="piece_type" data-placeholder="Package details (e.g. box/skid etc.)..." data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory" data-type-field="src_table" data-attach="<?= $general_item['id'] ?>" data-attach-field="line_id" data-detail="<?= $i ?>" data-detail-field="piece_num" class="chosen-select-deselect"><option></option>
@@ -242,20 +268,37 @@ do {
 								<div class="clearfix"></div>
 							<?php } ?>
 							<?php if(strpos($value_config,',Inventory Detail Site,') !== FALSE && $field_sort_field == 'Inventory Detail Site') { ?>
-								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
-									<div class="col-sm-8"><div class="col-sm-12">
-										<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect"><option></option>
-											<?php if(!isset($site_list)) {
-												$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
-											}
-											foreach($site_list as $site_row) { ?>
-												<option <?= $inventory['siteid'] == $site_row['contactid'] ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
-											<?php } ?>
-										</select>
-									</div></div>
+								<div class="site_group">
+									<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
+										<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
+										<div class="col-sm-8">
+											<div class="col-sm-10">
+												<select name="siteid[]" multiple data-concat="," data-placeholder="Select <?= SITES_CAT ?>" data-table="ticket_attached" data-id="<?= $inventory['id'] ?>" data-id-field="id" data-type="inventory_general" data-type-field="src_table" class="chosen-select-deselect">
+													<?php if(!isset($site_list)) {
+														$site_list = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='".SITES_CAT."' AND deleted=0 ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)"));
+													}
+													foreach($site_list as $site_row) { ?>
+														<option <?= $inventory['siteid'] == $site_row['contactid'] ? 'selected' : '' ?> value="<?= $site_row['contactid'] ?>"><?= $site_row['full_name'] ?></option>
+													<?php } ?>
+													<option value="MANUAL">Add New Site</option>
+												</select>
+											</div>
+											<div class="col-sm-2">
+												<a href="" onclick="viewSite(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
+												<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= SITES_CAT ?>" src="../img/icons/ROOK-add-icon.png"></a>
+											</div>
+										</div>
+									</div>
+									<div class="form-group clearfix site_name" style="display:none;">
+										<label class="control-label col-sm-4">Name of Location:</label>
+										<div class="col-sm-8">
+											<div class="col-sm-12">
+												<input type="text" name="site_name" data-table="contacts" data-id="" data-id-field="contactid" data-attach="Sites" data-attach-field="category" class="form-control">
+											</div>
+										</div>
+									</div>
+									<div class="clearfix"></div>
 								</div>
-								<div class="clearfix"></div>
 							<?php } ?>
 							<?php if(strpos($value_config,',Inventory Detail Customer Order,') !== FALSE && $field_sort_field == 'Inventory Detail Customer Order') { ?>
 								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['position'] != '' ? '' : 'style="display:none;"' ?>>
@@ -515,15 +558,15 @@ do {
 							<?php } ?>
 						<?php } ?>
 						<?php if(!$no_fetch || strpos($value_config,',Inventory General Manual Add Pieces,') === FALSE || strpos($value_config,',Inventory Detail Manual Add,') !== FALSE) { ?>
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+							<img class="inline-img pull-right" data-history-label="Inventory" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" data-history-label="Inventory" onclick="remMulti(this);" src="../img/remove.png">
 						<?php } ?>
 					</div>
 				<?php } else { ?>
 					<?php foreach($field_sort_order as $field_sort_field) { ?>
 						<?php if(strpos($value_config,',Inventory Detail Category,') !== FALSE && $field_sort_field == 'Inventory Detail Category') { ?>
 							<div class="form-group select-div" <?= $general_inventory['description'] == '' || $inventory['category'] != '' ? '' : 'style="display:none;"' ?>>
-								<label class="control-label col-sm-4">Category:</label>
+								<label class="control-label col-sm-4">Tab:</label>
 								<div class="col-sm-8">
 										<?= $inventory['category'] ?>
 								</div>
@@ -532,7 +575,7 @@ do {
 							<?php $sub_cats = mysqli_query($dbc, "SELECT `category`, `sub_category` FROM `inventory` WHERE IFNULL(`sub_category`,'') != '' GROUP BY `sub_category` ORDER BY `sub_category`");
 							if(mysqli_num_rows($sub_cats) > 0) { ?>
 								<div class="form-group select-div" <?= $general_inventory['description'] == '' || $inventory['sub_category'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Sub-Category:</label>
+									<label class="control-label col-sm-4">Sub-Tab:</label>
 									<div class="col-sm-8">
 										<?= $inventory['sub_category'] ?>
 									</div>
@@ -571,7 +614,7 @@ do {
 							<?php } ?>
 							<?php if(in_array('Category',$inventory_fields)) { ?>
 								<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['category'] != '' ? '' : 'style="display:none;"' ?>>
-									<label class="control-label col-sm-4">Category:</label>
+									<label class="control-label col-sm-4">Tab:</label>
 									<div class="col-sm-8"><div class="col-sm-12">
 										<?= $inventory['category'] ?>
 									</div></div>
@@ -656,15 +699,22 @@ do {
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['siteid'] != '' ? '' : 'style="display:none;"' ?>>
 								<label class="control-label col-sm-4"><?= SITES_CAT ?>:</label>
 								<div class="col-sm-8">
-									<?= get_contact($dbc, $inventory['siteid']) ?>
+									<?php $site_names = [];
+									foreach(array_filter(explode(',',$inventory['siteid'])) as $site_id) {
+										$query = mysqli_query($dbc,"SELECT contactid, site_name, `display_name`, businessid FROM `contacts` WHERE `category`='Sites' AND deleted=0 AND `contactid`='".$site_id."' ORDER BY IFNULL(NULLIF(`display_name`,''),`site_name`)");
+										$row = mysqli_fetch_array($query);
+										$site_names[] = ($row['display_name'] == '' ? $row['site_name'] : $row['display_name']);
+									}
+									$site_names = implode(', ',$site_names);
+									echo $site_names; ?>
 								</div>
 							</div>
 							<div class="clearfix"></div>
-							<?php $pdf_contents[] = [SITES_CAT, get_contact($dbc, $inventory['siteid'])]; ?>
+							<?php $pdf_contents[] = [SITES_CAT, $site_names]; ?>
 						<?php } ?>
 						<?php if(strpos($value_config,',Inventory Detail Piece Type,') !== FALSE && $field_sort_field == 'Inventory Detail Piece Type') { ?>
 							<div class="form-group" <?= $general_inventory['description'] == '' || $inventory['piece_type'] != '' ? '' : 'style="display:none;"' ?>>
-								<label class="control-label col-sm-4">Piece Type:</label>
+								<label class="control-label col-sm-4">Piece Tab:</label>
 								<div class="col-sm-8">
 									<?= $inventory['piece_type'] ?>
 								</div>

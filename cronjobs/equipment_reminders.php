@@ -1,8 +1,9 @@
-<?php
+<?php $guest_access = true;
 error_reporting(0);
 include(substr(dirname(__FILE__), 0, -8).'database_connection.php');
 include(substr(dirname(__FILE__), 0, -8).'function.php');
 include(substr(dirname(__FILE__), 0, -8).'phpmailer.php');
+ob_clean();
 
 if ( isset($_GET['reminderid']) ) {
 	$query = "`reminderid`={$_GET['reminderid']}";

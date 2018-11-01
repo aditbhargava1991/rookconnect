@@ -42,11 +42,12 @@ if (isset($_POST['submit'])) {
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Customer Balance by Invoice".',') !== FALSE) { echo " checked"; } ?> value="Customer Balance by Invoice" name="reports_dashboard[]"> Customer Balance by Invoice</label>
         </div>
-        <div class="col-sm-4">
+        <!-- <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Receivables (Basic)".',') !== FALSE) { echo " checked"; } ?> value="POS Receivables (Basic)" name="reports_dashboard[]"> POS Receivables (Basic)</label>
         </div>
+        -->
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Receivables (Advanced)".',') !== FALSE) { echo " checked"; } ?> value="POS Receivables (Advanced)" name="reports_dashboard[]"> POS Receivables (Advanced)</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Receivables".',') !== FALSE) { echo " checked"; } ?> value="POS Receivables" name="reports_dashboard[]"> POS Receivables</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Insurer Aging Receivable Summary".',') !== FALSE) { echo " checked"; } ?> value="Insurer Aging Receivable Summary" name="reports_dashboard[]"> Insurer Aging Receivable Summary</label>
@@ -71,7 +72,10 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Hourly Compensation".',') !== FALSE) { echo " checked"; } ?> value="Hourly Compensation" name="reports_dashboard[]"> Hourly Compensation</label>
         </div>
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Therapist Compensation".',') !== FALSE) { echo " checked"; } ?> value="Therapist Compensation" name="reports_dashboard[]"> Therapist Compensation</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Therapist Compensation".',') !== FALSE) { echo " checked"; } ?> value="Therapist Compensation" name="reports_dashboard[]"> Staff Compensation</label>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Vendor Compensation".',') !== FALSE) { echo " checked"; } ?> value="Vendor Compensation" name="reports_dashboard[]"> Vendor Compensation</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Compensation Print Appointment Reports".',') !== FALSE) { echo " checked"; } ?> value="Compensation Print Appointment Reports" name="reports_dashboard[]"> Compensation: Print Appt. Reports Button</label>
@@ -182,6 +186,12 @@ if (isset($_POST['submit'])) {
       <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Products History".',') !== FALSE) { echo " checked"; } ?> value="History Products History" name="reports_dashboard[]"> Products History</label>
         </div>
+      <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History DB Backup History".',') !== FALSE) { echo " checked"; } ?> value="History DB Backup History" name="reports_dashboard[]"> DB Backup History</label>
+        </div>
+      <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Field Jobs History".',') !== FALSE) { echo " checked"; } ?> value="History Field Jobs History" name="reports_dashboard[]"> Field Jobs History</label>
+        </div>
     <div class="clearfix"></div>
 
     <h3>Marketing</h3>
@@ -285,7 +295,7 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Field Jobs".',') !== FALSE) { echo " checked"; } ?> value="Field Jobs" name="reports_dashboard[]"> Field Jobs</label>
         </div>
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Site Work Time".',') !== FALSE) { echo " checked"; } ?> value="Site Work Time" name="reports_dashboard[]"> Site Work Order Time on Site</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Site Work Time".',') !== FALSE) { echo " checked"; } ?> value="Site Work Time" name="reports_dashboard[]"> Time on Site</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Equipment List".',') !== FALSE) { echo " checked"; } ?> value="Equipment List" name="reports_dashboard[]"> Equipment List</label>
@@ -294,7 +304,7 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Shop Work Orders".',') !== FALSE) { echo " checked"; } ?> value="Shop Work Orders" name="reports_dashboard[]"> Shop Work Orders</label>
         </div>
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Site Work Driving".',') !== FALSE) { echo " checked"; } ?> value="Site Work Driving" name="reports_dashboard[]"> Site Work Order Driving Logs</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Site Work Driving".',') !== FALSE) { echo " checked"; } ?> value="Site Work Driving" name="reports_dashboard[]"> Safety Driving Logs</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Shop Work Order Task Time".',') !== FALSE) { echo " checked"; } ?> value="Shop Work Order Task Time" name="reports_dashboard[]"> Shop Work Order Task Time</label>
@@ -316,9 +326,6 @@ if (isset($_POST['submit'])) {
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Scrum Business Productivity Summary".',') !== FALSE) { echo " checked"; } ?> value="Scrum Business Productivity Summary" name="reports_dashboard[]"> Scrum Business Productivity Summary</label>
-        </div>
-        <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Point of Sale".',') !== FALSE) { echo " checked"; } ?> value="Point of Sale" name="reports_dashboard[]"> Point of Sale (Basic)</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Work Order".',') !== FALSE) { echo " checked"; } ?> value="Work Order" name="reports_dashboard[]"> Work Order</label>
@@ -370,6 +377,9 @@ if (isset($_POST['submit'])) {
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Activity Report".',') !== FALSE) { echo " checked"; } ?> value="Ticket Activity Report" name="reports_dashboard[]"> <?= TICKET_NOUN ?> Activity Report per Customer</label>
+        </div>
+        <div class="col-sm-4">
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket Activity Extra Report".',') !== FALSE) { echo " checked"; } ?> value="Ticket Activity Extra Report" name="reports_dashboard[]"> <?= TICKET_NOUN ?> Activity Report for Extra Billing</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Ticket by Task".',') !== FALSE) { echo " checked"; } ?> value="Ticket by Task" name="reports_dashboard[]"> <?= TICKET_NOUN ?> by Task</label>
@@ -428,9 +438,9 @@ if (isset($_POST['submit'])) {
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Gross Revenue by Staff".',') !== FALSE) { echo " checked"; } ?> value="Gross Revenue by Staff" name="reports_dashboard[]"> Gross Revenue by Staff</label>
         </div>
-        <div class="col-sm-4">
+        <!-- <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Validation".',') !== FALSE) { echo " checked"; } ?> value="POS Validation" name="reports_dashboard[]"> POS (Basic) Validation</label>
-        </div>
+        </div> -->
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Inventory Analysis".',') !== FALSE) { echo " checked"; } ?> value="Inventory Analysis" name="reports_dashboard[]"> Inventory Analysis</label>
         </div>
@@ -438,14 +448,14 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Patient Invoices".',') !== FALSE) { echo " checked"; } ?> value="Patient Invoices" name="reports_dashboard[]"> Customer Invoices</label>
         </div>
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Advanced Validation".',') !== FALSE) { echo " checked"; } ?> value="POS Advanced Validation" name="reports_dashboard[]"> POS (Advanced) Validation</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Advanced Validation".',') !== FALSE) { echo " checked"; } ?> value="POS Advanced Validation" name="reports_dashboard[]"> POS Validation</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Unassigned/Error Invoices".',') !== FALSE) { echo " checked"; } ?> value="Unassigned/Error Invoices" name="reports_dashboard[]"> Unassigned/Error Invoices</label>
         </div>
-        <div class="col-sm-4">
+        <!-- <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Sales Summary".',') !== FALSE) { echo " checked"; } ?> value="POS Sales Summary" name="reports_dashboard[]"> POS (Basic) Sales Summary</label>
-        </div>
+        </div> -->
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Phone Communication".',') !== FALSE) { echo " checked"; } ?> value="Phone Communication" name="reports_dashboard[]"> Phone Communication</label>
         </div>
@@ -453,7 +463,7 @@ if (isset($_POST['submit'])) {
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Staff Revenue Report".',') !== FALSE) { echo " checked"; } ?> value="Staff Revenue Report" name="reports_dashboard[]"> Staff Revenue Report</label>
         </div>
         <div class="col-sm-4">
-            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Advanced Sales Summary".',') !== FALSE) { echo " checked"; } ?> value="POS Advanced Sales Summary" name="reports_dashboard[]"> POS (Advanced) Sales Summary</label>
+            <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."POS Advanced Sales Summary".',') !== FALSE) { echo " checked"; } ?> value="POS Advanced Sales Summary" name="reports_dashboard[]"> POS Sales Summary</label>
         </div>
         <div class="col-sm-4">
             <label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."Daily Deposit Report".',') !== FALSE) { echo " checked"; } ?> value="Daily Deposit Report" name="reports_dashboard[]"> Daily Deposit Report</label>
@@ -605,6 +615,16 @@ if (isset($_POST['submit'])) {
   <div class="col-sm-4">
 		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Products History".',') !== FALSE) { echo " checked"; } ?> value="History Products History" name="reports_dashboard[]"> Products History</label>
 	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Safety History".',') !== FALSE) { echo " checked"; } ?> value="History Safety History" name="reports_dashboard[]"> Safety History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History DB Backup History".',') !== FALSE) { echo " checked"; } ?> value="History DB Backup History" name="reports_dashboard[]"> DB Backup History</label>
+	</div>
+  <div class="col-sm-4">
+		<label class="form-checkbox-any"><input type="checkbox" <?php if (strpos($value_config, ','."History Field Jobs History".',') !== FALSE) { echo " checked"; } ?> value="History Field Jobs History" name="reports_dashboard[]"> Field Jobs History</label>
+	</div>
+
   <div class="clearfix"></div>
 
     <div class="form-group pull-right">

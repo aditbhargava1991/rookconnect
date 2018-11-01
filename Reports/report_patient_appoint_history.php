@@ -154,12 +154,14 @@ function report_history($dbc, $patient, $table_style, $table_row_style, $grand_t
     $query_check_credentials = "SELECT appoint_date, end_appoint_date, bookingid, injuryid, follow_up_call_status, therapistsid FROM booking WHERE deleted=0 AND patientid = '$patient' AND (str_to_date(substr(appoint_date,1,10),'%Y-%m-%d')) <= DATE(NOW()) ORDER BY appoint_date";
 
     $result = mysqli_query($dbc, $query_check_credentials);
+    $odd_even = 0;
     while($row = mysqli_fetch_array( $result ))
     {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $bookingid = $row['bookingid'];
         $invoice = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT serviceid, inventoryid, final_price, invoiceid FROM invoice WHERE bookingid='$bookingid'"));
 
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         $report_data .= '<td>'.$row['appoint_date'].'<br>'.$row['end_appoint_date'].'</td>';
         $report_data .= '<td>'.get_contact($dbc, $row['therapistsid']).'</td>';
         //$report_data .= '<td>'.$row['bookingid'].'</td>';
@@ -188,6 +190,7 @@ function report_history($dbc, $patient, $table_style, $table_row_style, $grand_t
         //$name_of_file = '../Invoice/Download/invoice_'.$invoice['invoiceid'].'.pdf';
         //$report_data .= '<td><a href="'.$name_of_file.'" target="_blank"> <img src="'.WEBSITE_URL.'/img/pdf.png" title="PDF"> </a></td>';
         $report_data .= '</tr>';
+        $odd_even++;
     }
 
     $report_data .= '</table>';

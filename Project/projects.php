@@ -39,50 +39,14 @@ $project_business = filter_var($_GET['businessid'],FILTER_SANITIZE_STRING);
 $project_region = filter_var($_GET['region_name'],FILTER_SANITIZE_STRING);
 $project_class = filter_var($_GET['classification'],FILTER_SANITIZE_STRING);
 $project_classify = explode(',',get_config($dbc, "project_classify"));
-$tile = filter_var($_GET['tile_name'],FILTER_SANITIZE_STRING);
-if($tile == '') {
-	$tile = 'project';
-}
-if(!empty($_GET['tile_name'])) {
-	checkAuthorised(false,false,'project_'.$_GET['tile_name']);
-} else {
-	checkAuthorised('project');
-}
-$security = get_security($dbc, $tile);
-$strict_view = strictview_visible_function($dbc, 'project');
-if($strict_view > 0) {
-	$security['edit'] = 0;
-	$security['config'] = 0;
-}
-$project_tabs = ['favourite'=>'Favourite'];
-$pending_projects = get_config($dbc, 'project_status_pending');
-if($pending_projects != 'disable') {
-	$project_tabs['pending'] = 'Pending';
-}
-if(in_array('All',$project_classify)) {
-	$project_tabs['VIEW_ALL'] = 'All '.PROJECT_TILE;
-}
-foreach(array_filter(explode(',',get_config($dbc, "project_tabs"))) as $type_name) {
-	if($tile == 'project' || $tile == config_safe_str($type_name)) {
-		$project_tabs[config_safe_str($type_name)] = $type_name;
-	}
-}
+include_once('../Project/config.php');
 $project = [];
-$projectid = 0;
 $label = ($tile == 'project' ? PROJECT_TILE : $project_tabs[$tile]);
 if($_GET['edit'] > 0 || isset($_GET['fill_user_form'])) {
-	$projectid = filter_var($_GET['edit'],FILTER_SANITIZE_STRING);
-	if(isset($_GET['fill_user_form'])) {
-		$projectid = $_GET['projectid'];
-	}
 	$project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
 	$label .= '</a>: '.($project['projecttype'] != '' && in_array('Types',$project_classify) ? '<a href="?tile_name='.$tile.'&type='.$project['projecttype'].'">'.$project_tabs[$project['projecttype']].'</a> - ' : '').' <a class="project_name" href="?edit='.$projectid.'">'.get_project_label($dbc, $project);
 } else if(isset($_GET['edit'])) {
 	$label .= '</a>: <a class="project_name" href="">New '.PROJECT_NOUN;
-}
-$tab_config = array_filter(array_unique(array_merge(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='$projecttype'"))['config_tabs']),explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `config_tabs` FROM field_config_project WHERE type='ALL'"))['config_tabs']))));
-if(count($tab_config) == 0) {
-	$tab_config = explode(',','Path,Information,Details,Documents,Dates,Scope,Estimates,Tickets,Work Orders,Tasks,Checklists,Email,Phone,Reminders,Agendas,Meetings,Gantt,Profit,Report Checklist,Billing,Field Service Tickets,Purchase Orders,Invoices');
 }
 $salesid = isset($_GET['salesid']) ? $_GET['salesid'] : '';
 if(!IFRAME_PAGE) { ?>
@@ -97,7 +61,7 @@ if(!IFRAME_PAGE) { ?>
 			<div class="<?= !isset($_GET['fill_user_form']) ? 'main-screen' : '' ?> main_full_screen">
 				<div class="tile-header standard-header">
 					<div class="pull-right settings-block"><?php
-						if($security['config'] > 0) {
+					if($security['config'] > 0 && $_GET['settings']!='fields') {
 							echo "<div class='pull-right gap-left'><a href='?settings=fields'><img src='".WEBSITE_URL."/img/icons/settings-4.png' class='settings-classic wiggle-me' width='30' /></a></div>";
 						}
 						if($security['edit'] > 0) {
@@ -119,7 +83,7 @@ if(!IFRAME_PAGE) { ?>
 								echo "<div class='pull-right gap-left'><a href='../Profile/daysheet.php' style='font-size: 0.5em;'><button class='btn brand-btn hide-titles-mob'>Planner</button></a></div>";
 							}
 						} ?>
-						<img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
+						<!-- <img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" /> -->
 						<?php if($_GET['edit'] > 0 && ($_GET['tab'] == 'path' || ($_GET['tab'] == '' && in_array('Path',$tab_config)))) { ?>
 							<img class="inline-img pull-right btn-horizontal-collapse" src="../img/icons/pie-chart.png">
 						<?php } ?>
@@ -138,7 +102,7 @@ if(!IFRAME_PAGE) { ?>
 							<?php if($summary_tasks['tasks'] > 0) { ?>
 								<div class="col-xs-6 col-sm-3 col-md-2 col-lg-2 gap-top">
 									<div class="summary-block">
-										<a href="?edit=<?= $projectid ?>&tab=tasks"><span class="text-lg"><?= number_format($summary_tasks['tasks'],0) ?></span><br />Total Tasks</a>
+										<a href="?edit=<?= $projectid ?>&tab=tasks"><span class="text-lg"><?= number_format($summary_tasks['tasks'],0) ?></span><br />Total <?= TASK_TILE ?></a>
 									</div>
 								</div>
 							<?php } ?>

@@ -79,6 +79,7 @@ foreach($calendar_incomplete_status as $i => $incomplete_status) {
 if(empty($calendar_incomplete_color)) {
     $calendar_incomplete_color = '#ff0000';
 }
+$calendar_ticket_color_code_tabs = get_config($dbc, 'calendar_ticket_color_code_tabs');
 $ticket_status_color_code = get_config($dbc, 'ticket_status_color_code');
 if($ticket_status_color_code == 1) {
     $status_color_codes = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color`"),MYSQLI_ASSOC);
@@ -92,19 +93,19 @@ if($ticket_status_color_code_legend == 1) {
     $ticket_status_legend = '<b>Status Color Code:</b><br>';
     foreach ($ticket_statuses as $ticket_status) {
         $ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = '$ticket_status'"))['color'];
-        $ticket_status_legend .= '<label><div class="ticket-status-color" style="background-color: '.$ticket_status_color_detail.';"></div>'.$ticket_status.'</label>&nbsp;&nbsp;';
+        $ticket_status_legend .= '<label><div class="ticket-status-color" style="background-color: '.$ticket_status_color_detail.';"></div>'.$ticket_status.'</label><br />';
     }
 	/*$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Today'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/green.png"> Today + Following Day</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/green.png"> Today + Following Day</label><br />';
 	/*}
 	$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Recent'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/orange	.png"> Last 2 Days</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/orange	.png"> Last 2 Days</label><br />';
 	/*}
 	$ticket_status_color_detail = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_status_color` WHERE `status` = 'Old'"))['color'];
 	if($ticket_status_color_detail != '') {*/
-		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/red.png"> Older than 2 Day</label>&nbsp;&nbsp;';
+		$ticket_status_legend .= '<label><img class="inline-img smaller" src="../img/block/red.png"> Older than 2 Day</label><br />';
 	/*}*/
 }
 $shift_conflicts_button = !empty(mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts` WHERE CONCAT(',',`enabled_fields`,',') LIKE '%,conflicts_button,%'"))) ? 1 : 0;
@@ -116,6 +117,8 @@ if($calendar_ticket_diff_label == 1) {
 }
 $calendar_ticket_status_icon = get_config($dbc, 'calendar_ticket_status_icon');
 $calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+$calendar_ticket_staff_summary_fields = explode(',',get_config($dbc, 'calendar_ticket_staff_summary_fields'));
+$lock_date = get_staff_schedule_lock_date($dbc);
 if($_GET['type'] == '' || $_GET['view'] == '') {
     $default = get_config($dbc, 'calendar_default');
     $user_default = mysqli_fetch_array(mysqli_query($dbc, "SELECT IFNULL(`calendar_view`,'default') view FROM `user_settings` WHERE `contactid`='{$_SESSION['contactid']}'"))['view'];
@@ -185,27 +188,6 @@ asort($contact_locations);
 asort($allowed_locations);
 asort($contact_classifications);
 
-$allowed_roles = [];
-$allowed_ticket_types = [];
-foreach(explode(',', ROLE) as $session_role) {
-    $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_calendar_security` WHERE `role` = '$session_role' AND `calendar_type` ='".$_GET['type']."'"));
-    $allowed_roles = array_merge($allowed_roles, explode(',', $field_config['allowed_roles']));
-    $allowed_ticket_types = array_merge($allowed_ticket_types, explode(',', $field_config['allowed_ticket_types']));
-}
-$allowed_roles = array_unique(array_filter($allowed_roles));
-$allowed_ticket_types = array_unique(array_filter($allowed_ticket_types));
-$allowed_roles_query = '';
-$allowed_ticket_types_query = '';
-if(!empty($allowed_roles)) {
-    $allowed_roles_query = " AND (CONCAT(',',`role`,',') LIKE '%,".implode(",%' OR CONCAT(',',`role`,',') LIKE '%,", $allowed_roles).",%')";
-}
-if(!empty($allowed_ticket_types)) {
-    if(in_array(get_config($dbc, 'default_ticket_type'), $allowed_ticket_types)) {
-        $allowed_ticket_types[] = '';
-    }
-    $allowed_ticket_types_query = " AND IFNULL(`tickets`.`ticket_type`,'') IN ('".implode("','", $allowed_ticket_types)."')";
-}
-
 $page_query = $_GET;
 
 $use_shifts = '';
@@ -228,6 +210,7 @@ switch($_GET['type']) {
             $_GET['mode'] = 'staff';
         }
         $wait_list = get_config($dbc, 'my_wait_list');
+        $combine_shift_items = get_config($dbc, 'my_combine_shift_items');
         $use_shift_tickets = get_config($dbc, 'my_use_shift_tickets');
         if($_GET['view'] != 'monthly') {
             $use_unbooked = get_config($dbc, 'my_use_unbooked');
@@ -242,6 +225,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'my_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'my_monthly_days'));
         $ticket_summary = get_config($dbc, 'my_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'my_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'my_availability_indication');
         $sidebar_file = 'my_sidebar.php';
         $all_tickets_button = '';
@@ -262,13 +246,14 @@ switch($_GET['type']) {
             $_GET['mode'] = 'staff';
         }
         $wait_list = get_config($dbc, 'uni_wait_list');
+        $combine_shift_items = get_config($dbc, 'uni_combine_shift_items');
         $use_shift_tickets = get_config($dbc, 'uni_use_shift_tickets');
         if($_GET['view'] != 'monthly') {
             $use_unbooked = get_config($dbc, 'uni_use_unbooked');
         }
         $offline_mode = get_config($dbc, 'uni_offline');
         $add_reminder = get_config($dbc, 'uni_reminders');
-        $teams = '';
+        $teams = get_config($dbc, 'uni_teams');
         $equipment_assignment = '';
         $weekly_start = get_config($dbc, 'uni_weekly_start');
         $weekly_days = explode(',', get_config($dbc, 'uni_weekly_days'));
@@ -276,9 +261,15 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'uni_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'uni_monthly_days'));
         $ticket_summary = get_config($dbc, 'uni_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'uni_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'uni_availability_indication');
         $sidebar_file = 'uni_sidebar.php';
         $all_tickets_button = '';
+        $staff_split_security = get_config($dbc, 'uni_staff_split_security');
+        $client_staff_freq = get_config($dbc, 'uni_client_staff_freq');
+        $client_draggable = get_config($dbc, 'uni_client_draggable');
+        $staff_summary = get_config($dbc, 'uni_staff_summary');
+        $day_summary_tab = get_config($dbc, 'uni_day_summary_tab');
 
         $mobile_calendar_views = ['staff'=>'Staff'];
         if($use_shifts != '') {
@@ -365,12 +356,8 @@ switch($_GET['type']) {
         $monthly_days = explode(',', get_config($dbc, 'scheduling_monthly_days'));
         $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
         $equipment_categories = array_filter(explode(',', $equipment_category));
-        if(empty($equipment_categories) || count($equipment_categories) > 1) {
-            $equipment_category = 'Equipment';
-        }
-        $equip_cat_query = '';
-        if(count($equipment_categories) > 0) {
-            $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
+        if(empty($equipment_categories)) {
+            $equipment_categories = array_filter(explode(',',get_config($dbc, 'equipment_tabs')));
         }
         echo '<input type="hidden" name="equipment_category_label" value="'.$equipment_category.'">';
         $dispatch_filters = get_config($dbc, 'scheduling_filters');
@@ -409,6 +396,7 @@ switch($_GET['type']) {
         $scheduling_summary_view = get_config($dbc, 'scheduling_summary_view');
         $warning_num_tickets = get_config($dbc, 'scheduling_warning_num_tickets');
         $equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+        $equip_display_classification_ticket = get_config($dbc, 'scheduling_equip_classification_ticket');
         $service_followup = get_config($dbc, 'scheduling_service_followup');
         $service_date = get_config($dbc, 'scheduling_service_date');
         $passed_service = get_config($dbc, 'scheduling_passed_service');
@@ -424,6 +412,8 @@ switch($_GET['type']) {
             }
         }
         $export_time_table = get_config($dbc, 'scheduling_export_time_table');
+        $dont_count_warehouse = get_config($dbc, 'scheduling_dont_count_warehouse');
+        $restrict_ticket_types = array_filter(explode(',',get_config($dbc, 'scheduling_restrict_ticket_types')));
         break;
     case 'estimates':
         $config_type = 'estimates';
@@ -465,6 +455,7 @@ switch($_GET['type']) {
         $monthly_start = get_config($dbc, 'ticket_monthly_start');
         $monthly_days = explode(',', get_config($dbc, 'ticket_monthly_days'));
         $ticket_summary = get_config($dbc, 'ticket_ticket_summary');
+        $ticket_summary_deleted = get_config($dbc, 'ticket_ticket_summary_deleted');
         $availability_indication = get_config($dbc, 'ticket_availability_indication');
         $sidebar_file = 'tickets_sidebar.php';
         $all_tickets_button = get_config($dbc, 'ticket_use_all_tickets');
@@ -473,7 +464,20 @@ switch($_GET['type']) {
         $client_draggable = get_config($dbc, 'ticket_client_draggable');
         $staff_summary = get_config($dbc, 'ticket_staff_summary');
         $ticket_summary_tab = get_config($dbc, 'ticket_ticket_summary_tab');
+        $ticket_summary_tab_deleted = get_config($dbc, 'ticket_ticket_summary_tab_deleted');
         $client_tab = get_config($dbc, 'ticket_client_tab');
+        $sidebar_filters = array_filter(explode(',',get_config($dbc, 'ticket_sidebar_filters')));
+        $restrict_ticket_types = array_filter(explode(',',get_config($dbc, 'ticket_restrict_ticket_types')));
+        $use_equipment = get_config($dbc, 'ticket_use_equipment');
+        $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
+        $equipment_categories = array_filter(explode(',', $equipment_category));
+        if(empty($equipment_categories)) {
+            $equipment_categories = array_filter(explode(',',get_config($dbc, 'equipment_tabs')));
+        }
+        if($use_equipment == 1) {
+            $retrieve_collapse2 = 'collapse_equipment';
+            $retrieve_contact2 = 'equipment';
+        }
 
         $mobile_calendar_views = [''=>'Staff'];
         $mobile_calendar_view = 'Staff';
@@ -551,4 +555,126 @@ switch($_GET['view']) {
         $date_string = date('F Y', strtotime($calendar_start));
         break;
 }
+
+$allowed_roles = [];
+$allowed_ticket_types = [];
+foreach(explode(',', ROLE) as $session_role) {
+    $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_calendar_security` WHERE `role` = '$session_role' AND `calendar_type` ='".$_GET['type']."'"));
+    $allowed_roles = array_merge($allowed_roles, explode(',', $field_config['allowed_roles']));
+    $allowed_ticket_types = array_merge($allowed_ticket_types, explode(',', $field_config['allowed_ticket_types']));
+}
+if(!empty(array_filter($allowed_ticket_types)) && !empty($restrict_ticket_types)) {
+    $allowed_ticket_types = array_intersect($allowed_ticket_types, $restrict_ticket_types);
+} else if(!empty($restrict_ticket_types)) {
+    $allowed_ticket_types = $restrict_ticket_types;
+}
+$allowed_roles = array_unique(array_filter($allowed_roles));
+$allowed_ticket_types = array_unique(array_filter($allowed_ticket_types));
+$allowed_roles_query = '';
+$allowed_ticket_types_query = '';
+if(!empty($allowed_roles)) {
+    $allowed_roles_query = " AND (CONCAT(',',`role`,',') LIKE '%,".implode(",%' OR CONCAT(',',`role`,',') LIKE '%,", $allowed_roles).",%')";
+}
+if(!empty($allowed_ticket_types)) {
+    if(in_array(get_config($dbc, 'default_ticket_type'), $allowed_ticket_types)) {
+        $allowed_ticket_types[] = '';
+    }
+    $allowed_ticket_types_query = " AND IFNULL(`tickets`.`ticket_type`,'') IN ('".implode("','", $allowed_ticket_types)."')";
+}
+
+$calendar_types = explode(',',get_config($dbc, 'calendar_types'));
+$edit_access = vuaed_visible_function($dbc, 'calendar_rook');
+if($is_customer) {
+    $edit_access = 0;
+}
+$ticket_view_access = tile_visible($dbc, 'ticket');
+echo '<input type="hidden" name="edit_access" value="'.$edit_access.'">';
+echo '<input type="hidden" name="ticket_view_access" value="'.$ticket_view_access.'">';
+// CALENDAR DATES
+$calendar_start = $_GET['date'];
+if($calendar_start == '') {
+    $calendar_start = date('Y-m-d');
+} else {
+    $calendar_start = date('Y-m-d', strtotime($calendar_start));
+}
+
+$day = date('w', strtotime($calendar_start));
+$week_start_date_check = date('Y-m-d', strtotime($calendar_start.' -'.($day - 1 + $weekly_start).' days'));
+$week_end_date_check = date('Y-m-d', strtotime($calendar_start.' -'.($day - 7 + $weekly_start).' days'));
+
+$calendar_dates = [];
+if($_GET['view'] == 'weekly') {
+    for($i = 1; $i <= 7; $i++) {
+        $calendar_date = date('Y-m-d', strtotime($calendar_start.' -'.($day - $i + $weekly_start).' days'));
+        $day_of_week = date('l', strtotime($calendar_date));
+        if(in_array($day_of_week, $weekly_days)) {
+            $calendar_dates[] = $calendar_date;
+        }
+    }
+} else if($_GET['view'] == 'daily') {
+    $calendar_dates = [$calendar_start];
+}
+
+// COLLAPSE AND DATA VARIABLE FOR CONTACTID
+if($_GET['type'] == 'schedule') {
+    if($_GET['mode'] == 'staff') {
+        $retrieve_collapse = 'collapse_staff';
+        $retrieve_block_type = 'dispatch_staff';
+        $retrieve_contact = 'staff';
+    } else if($_GET['mode'] == 'contractors') {
+        $retrieve_collapse = 'collapse_contractors';
+        $retrieve_block_type = 'dispatch_staff';
+        $retrieve_contact = 'staff';
+    } else {
+        $retrieve_collapse = 'collapse_equipment';
+        $retrieve_block_type = 'equipment';
+        $retrieve_contact = 'equipment';
+    }
+} else if($_GET['type'] == 'event') {
+    $retrieve_collapse = 'category_accordions';
+    $retrieve_block_type = '';
+    $retrieve_contact = 'projectid';
+} else if($_GET['type'] == 'shift' || $_GET['type'] == 'staff') {
+    $retrieve_collapse = 'collapse_contact';
+    $retrieve_block_type = '';
+    $retrieve_contact = 'contact';
+} else if($_GET['type'] == 'ticket' && $_GET['mode'] == 'client') {
+    $retrieve_collapse = 'collapse_clients';
+    $retrieve_block_type = '';
+    $retrieve_contact = 'client';
+} else {
+    $retrieve_collapse = 'collapse_staff';
+    $retrieve_block_type = '';
+    $retrieve_contact = 'staff';
+}
 ?>
+<input type="hidden" id="retrieve_collapse" value="<?= $retrieve_collapse ?>">
+<input type="hidden" id="retrieve_collapse2" value="<?= $retrieve_collapse2 ?>">
+<input type="hidden" id="retrieve_block_type" value="<?= $retrieve_block_type ?>">
+<input type="hidden" id="retrieve_contact" value="<?= $retrieve_contact ?>">
+<input type="hidden" id="retrieve_contact2" value="<?= $retrieve_contact2 ?>">
+<input type="hidden" id="calendar_view" value="<?= $_GET['view'] ?>">
+<input type="hidden" id="calendar_mode" value="<?= $_GET['mode'] ?>">
+<input type="hidden" id="calendar_start" value="<?= $calendar_start ?>">
+<input type="hidden" id="calendar_dates" value='<?= json_encode($calendar_dates); ?>'>
+<input type="hidden" id="calendar_type" value="<?= $_GET['type'] ?>">
+<input type="hidden" id="calendar_config_type" value="<?= $config_type ?>">
+<input type="hidden" id="calendar_auto_refresh" value="<?= $calendar_auto_refresh ?>">
+<input type="hidden" id="calendar_check_shifts" value="<?= get_config($dbc, 'calendar_ticket_check_shifts') ?>">
+<input type="hidden" id="calendar_check_days_off" value="<?= get_config($dbc, 'calendar_ticket_check_days_off') ?>">
+
+<?php $ticket_config = ','.get_field_config($dbc, 'tickets').',';
+$ticket_tabs_color_config = explode(',',get_config($dbc, 'ticket_tabs_color'));
+$ticket_tabs_color = [];
+foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $type_i => $ticket_type) {
+    $ticket_types[config_safe_str($ticket_type)] = $ticket_type;
+    if($ticket_tabs_color_config[$type_i] == '#000000') {
+        $ticket_tabs_color_config[$type_i] = '';
+    }
+    $ticket_tabs_color[config_safe_str($ticket_type)] = $ticket_tabs_color_config[$type_i];
+}
+foreach($ticket_types as $type_i => $type_label) {
+    $ticket_config .= get_config($dbc, 'ticket_fields_'.$type_i).',';
+}
+?>
+<input type="hidden" id="tickets_have_recurrence" value="<?= strpos($ticket_config, ',Create Recurrence Button,') !== FALSE ? 1 : 0 ?>">

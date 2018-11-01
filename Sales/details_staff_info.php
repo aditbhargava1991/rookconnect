@@ -1,5 +1,6 @@
 <!-- Staff Information -->
-<?php $limit_staff_cat = array_filter(explode(',',get_config($dbc, 'sales_limit_staff_cat')));
+<?php include_once('../Sales/config.php');
+$limit_staff_cat = array_filter(explode(',',get_config($dbc, 'sales_limit_staff_cat')));
 $cat_query = '';
 if(!empty($limit_staff_cat)) {
     $cat_query = [];
@@ -22,7 +23,7 @@ if(!empty($limit_staff_cat)) {
             </select>
         </div>
             <div class="col-sm-1">
-                <img class="inline-img cursor-hand pull-left no-toggle" title="View this staff's profile" src="../img/person.PNG" onclick="view_profile(this,'Staff/staff_edit.php?view_only=id_card&contactid=');">
+                <img class="inline-img cursor-hand pull-left no-toggle" title="View this staff's profile" src="../img/person.PNG" onclick="load_profile(this,'Staff/staff_edit.php?view_only=id_card&contactid=');">
             </div>
         <div class="clearfix"></div>
     </div>
@@ -39,7 +40,7 @@ if(!empty($limit_staff_cat)) {
                 </select>
             </div>
             <div class="col-sm-1">
-                <img class="inline-img cursor-hand pull-left no-toggle" title="View this staff's profile" src="../img/person.PNG" onclick="view_profile(this,'Staff/staff_edit.php?view_only=id_card&contactid=');">
+                <img class="inline-img cursor-hand pull-left no-toggle" title="View this staff's profile" src="../img/person.PNG" onclick="load_profile(this,'Staff/staff_edit.php?view_only=id_card&contactid=');">
                 <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this staff from sharing this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
                 <img class="inline-img cursor-hand pull-right no-toggle" title="Add another staff to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
             </div>

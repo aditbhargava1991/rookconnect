@@ -101,7 +101,7 @@ function filterRegLocClass(keep_hidden = '') {
 					}
 					foreach ($contact_classifications as $i => $con_classification) {
 						$hidden_classification = '';
-						if(!empty($get_ticket['region'] && !in_array($get_ticket['region'], $classification_regions[$i]) && !empty($classification_regions[$i]))) {
+						if(!empty($get_ticket['region']) && !in_array($get_ticket['region'], $classification_regions[$i]) && !empty($classification_regions[$i])) {
 							$hidden_classification = 'style="display:none;"';
 						}
 						echo "<option ".($get_ticket['classification'] == $con_classification ? 'selected' : '')." data-regions='".json_encode($classification_regions[$i])."' value='$con_classification' $hidden_classification>$con_classification</option>";

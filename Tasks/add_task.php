@@ -1125,7 +1125,6 @@ checkAuthorised('tasks');
                 <label for="site_name" class="col-sm-4 control-label">Assign Staff:</label>
                 <div class="col-sm-8">
                     <select data-placeholder="Select Users" multiple name="task_userid[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                        <option value=""></option>
                         <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
                         foreach($staff_list as $staff_id) { ?>
                             <!-- <option <?//= ($staff_id == $_SESSION['contactid'] ? "selected" : '') ?> value='<?//=  $staff_id; ?>' ><?//= get_contact($dbc, $staff_id) ?></option> -->
@@ -1151,7 +1150,6 @@ checkAuthorised('tasks');
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="alerts_enabled[]" data-table="tasklist" data-field="alerts_enabled" class="chosen-select-deselect form-control" width="380">
-						<option></option>
 						<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 						foreach($staff_list as $staff_id) { ?>
 							<option <?= (strpos(','.$get_task['alerts_enabled'].',', ','.$staff_id.',') !== false) ? ' selected' : ''; ?> value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>
@@ -1165,7 +1163,6 @@ checkAuthorised('tasks');
                 </label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." multiple name="emails_enabled[]" class="chosen-select-deselect form-control" width="380">
-						<option></option>
 						<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 						foreach($staff_list as $staff_id) { ?>
 							<option value="<?= $staff_id; ?>"><?= get_contact($dbc, $staff_id); ?></option>

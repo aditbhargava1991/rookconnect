@@ -41,6 +41,12 @@ if(!empty($_GET['edit'])) {
 ?>
 
 <div class="container" style="background-color: #fff;">
+	<div class="iframe_overlay" style="display:none;">
+        <div class="iframe">
+            <div class="iframe_loading">Loading...</div>
+            <iframe src=""></iframe>
+        </div>
+    </div>
 	<div class="row hide_on_iframe">
 		<div class="main-screen">
 			<div class="tile-header standard-header">
@@ -105,5 +111,4 @@ if(!empty($_GET['edit'])) {
 		</div>
 	</div>
 </div>
-
 <?php include ('../footer.php'); ?>

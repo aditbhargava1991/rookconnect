@@ -138,7 +138,7 @@ function removeRateCard(img) {
 							<input class="form-control datepicker" type="text" name="alert_date[]" value="<?= $row['alert_date'] ?>">
 						</td>
 						<td data-title="Alert Staff" <?= $edit_access > 0 && $subtab_access ? '' : 'class="field-disabled"' ?>>
-							<select name="alert_staff_<?= $row_i ?>[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect"><option></option>
+							<select name="alert_staff_<?= $row_i ?>[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect">
 								<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 								foreach($staff_list as $staffid) {
 									echo '<option value="'.$staffid.'" '.(strpos(','.$row['alert_staff'].',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';

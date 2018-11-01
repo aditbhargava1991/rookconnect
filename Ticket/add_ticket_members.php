@@ -27,8 +27,8 @@ do { ?>
 					<span class="show-on-mob pull-left" onclick="$(this).closest('div').find('img').first().click();">More details</span>
 					<img class="inline-img pull-left black-color counterclockwise small" onclick="showMember(this);" src="../img/icons/dropdown-arrow.png">
 					<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $member['id'] ?>" data-id-field="id" data-type="Members" data-type-field="src_table" value="0">
-					<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-					<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+					<img class="inline-img pull-right" data-history-label="Member" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+					<img class="inline-img pull-right" data-history-label="Member" onclick="remMulti(this);" src="../img/remove.png">
 				</div>
 				<div class="clearfix"></div>
 			</div>

@@ -166,7 +166,7 @@ if($pdf_footer_logo_align == "C") {
 		<table border="1" style="font-size:<?php echo $font_main_body_size; ?>px;font-style:<?php echo $font_main_body_type; ?>;font-family:<?php echo $font_main_body; ?>;color:<?php echo $main_body_color; ?>;border:3px solid black;width:100%">
 			<tr style="font-size:<?php echo $font_main_heading_size; ?>px;font-style:<?php echo $font_main_heading_type; ?>;font-family:<?php echo $font_main_heading; ?>;color:<?php echo $main_heading_color; ?>">
 				<td>Code</td>
-				<td>Category</td>
+				<td>Tab</td>
 				<td>Name</td>
 				<td>Unit Price</td>
 				<td>Final Retail Price</td>
@@ -174,7 +174,7 @@ if($pdf_footer_logo_align == "C") {
 			<?php for($i = 0; $i < 20; $i++) { ?>
 				<tr>
 					<td>Test Code</td>
-					<td>Test Category</td>
+					<td>Test Tab</td>
 					<td>Test Name</td>
 					<td>$100.00</td>
 					<td>$150.00</td>

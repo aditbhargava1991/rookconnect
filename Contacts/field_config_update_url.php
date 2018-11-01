@@ -71,7 +71,6 @@ function sendEmails(btn) {
 				<label class="col-sm-4 control-label">Categories:</label>
 				<div class="col-sm-8">
 					<select name="category[]" multiple class="chosen-select-deselect">
-						<option></option>
 						<?php $tabs = explode(',',get_config($dbc, FOLDER_NAME.'_tabs'));
 						$staff = array_search('Staff',$tabs);
 			            if($staff !== FALSE) {
@@ -87,7 +86,6 @@ function sendEmails(btn) {
 				<label class="col-sm-4 control-label">Contacts:</label>
 				<div class="col-sm-8">
 					<select name="contacts[]" multiple class="chosen-select-deselect">
-						<option></option>
 						<option value="ALL_CONTACTS">All Contacts</option>
 						<?php $contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE IFNULL(`email_address`,'') != '' AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1 AND `category` IN ('".implode("','", $tabs)."')"));
 						foreach($contacts as $contact) {

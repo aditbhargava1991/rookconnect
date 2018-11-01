@@ -16,6 +16,7 @@ var start_time = function() {
 
 var stop_time = function() {
     var item = $(this).closest('.info-block-detail,.standard-body-title');
+    var salesid = $(this).attr('data-salesId');
     item.find('.timer').timer('stop');
     $(this).hide();
     $(this).prev('.start').show();
@@ -26,7 +27,10 @@ var stop_time = function() {
         $.ajax({
             method: 'POST',
             url: 'sales_ajax_all.php?action=lead_time',
-            data: { id: item.data('id'), time: timer_value }
+            data: { id: salesid, time: timer_value },
+            success:function(response){
+                window.location.reload();
+            }
         });
     }
 }
@@ -46,8 +50,9 @@ var archive_sales_lead = function(sel) {
 
 var saveNote = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
-	var salesid = item.data('id');
-    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=sales&id='+salesid, 'auto', false, true);
+    //var salesid = item.data('id');
+	var salesid = $(sel).attr('data-salesId');
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=sales&id='+salesid, 'auto', false, false);
 }
 
 var viewHistory = function(sel) {
@@ -79,7 +84,8 @@ var flagLead = function(sel) {
 var flagLeadManual = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
     item.addClass('flag_target');
-	var salesid = item.data('id');
+	//var salesid = item.data('id');
+    var salesid = $(sel).attr('data-salesId');
 	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=sales&id='+salesid,'auto',false,true);
 	/*item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
 	item.find('[name=flag_cancel]').off('click').click(function() {
@@ -119,23 +125,28 @@ var flagLeadManual = function(sel) {
 
 var addDocument = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
+    var salesid = $(sel).attr('data-salesId');
 	item.find('[type=file]').off('change').change(function() {
 		var fileData = new FormData();
 		fileData.append('file',$(this)[0].files[0]);
-		fileData.append('id',item.data('id'));
+		fileData.append('id', salesid);
 		$.ajax({
 			contentType: false,
 			processData: false,
 			method: "POST",
 			url: "sales_ajax_all.php?action=add_document",
-			data: fileData
+			data: fileData,
+            success:function(response){
+                window.location.reload();
+            }
 		});
 	}).click();
 }
 
 var sendEmail = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
-	var salesid = item.data('id');
+	//var salesid = item.data('id');
+    var salesid = $(sel).attr('data-salesId');
 	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=sales&salesid='+salesid,'auto',false,true);
 }
 var email_action = function() {
@@ -165,12 +176,14 @@ var createProject = function(sel) {
 
 var setReminder = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
-	var salesid = item.data('id');
-	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=sales&id='+salesid,'auto',false,true);
+	//var salesid = item.data('id');
+    var salesid = $(sel).attr('data-salesId');
+	overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=sales&id='+salesid,'auto',false,false);
 }
 
 var addTime = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
+    var salesid = $(sel).attr('data-salesId');
 	item.find('[name=time_add]').timepicker('option', 'onClose', function(time) {
 		var time = $(this).val();
 		$(this).val('00:00');
@@ -178,19 +191,28 @@ var addTime = function(sel) {
 			$.ajax({
 				method: 'POST',
 				url: 'sales_ajax_all.php?action=lead_time',
-				data: { id: item.data('id'), time: time+':00' }
+				data: { id: salesid, time: time+':00' },
+                 success:function(response){
+                    window.location.reload();
+                }
 			});
 		}
 	});
 	item.find('[name=time_add]').timepicker('show');
 }
 
-var trackTime = function(sel) {
+/*var trackTime = function(sel) {
 	var item = $(sel).closest('.info-block-detail,.standard-body-title');
+    var salesid = $(sel).attr('data-salesId');
     item.find('.timer').timer('remove');
     item.find('.start').show();
     item.find('.stop').hide();
 	item.find('.track_time').toggle();
+}*/
+
+function trackTime(sel) {
+    var salesid = $(sel).attr('data-salesId');
+    overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=sales&id='+salesid, 'auto', false, false);
 }
 
 var openProjectDialog = function(sel) {
@@ -213,7 +235,7 @@ var openProjectDialog = function(sel) {
             'Assign': function() {
                 var projectid = $('select[name="projectid"] option:selected').val();
                 $.ajax({
-                    url: 'sales_ajax_all.php?fill=changeCustCat&salesid='+salesid,
+                    url: 'sales_ajax_all.php?fill=changeCustCat&salesid='+salesid+'&projectid='+projectid,
                     type: "GET",
                     success: function(response) {
                         location.replace('../Project/projects.php?edit='+projectid+'&tab=info&salesid='+salesid);
@@ -268,7 +290,7 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
 } ?>
 <input type='file' name='document' value='' style="display:none;">
 <div class="select_users" style="display:none;">
-    <select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+    <select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
     <?php foreach($staff_list as $staff) { ?>
         <option value="<?= $staff['contactid'] ?>"><?= $staff['full_name'] ?></option>
     <?php } ?>
@@ -282,7 +304,7 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
     <div class="col-sm-3"><input type="text" name="timer" style="float:left;" class="form-control timer" placeholder="0 sec" /></div>
     <div class="col-sm-4">
         <button class="btn brand-btn pull-right start">Start</button>
-        <button class="btn brand-btn pull-right stop" style="display:none;">Stop</button>
+        <button class="btn brand-btn pull-right stop" style="display:none;" data-salesId="<?php echo $_GET['id']?>">Stop</button>
         <button class="btn brand-btn pull-right cancel" onclick="trackTime(this);">Cancel</button>
     </div>
     <div class="clearfix"></div>
@@ -297,32 +319,33 @@ $(document).on('change', '.dialog select[name=clientid]', function() { contactFi
         <a href="<?= WEBSITE_URL; ?>/Sales/sale.php?p=details&id=<?= $row['salesid'] ?>&a=estimate#estimate"><img src="<?= WEBSITE_URL; ?>/img/icons/create_project.png" class="inline-img no-toggle" title="Add Estimate" /></a>
     <?php } ?>
     <?php if(in_array('reply',$quick_actions)) { ?>
-        <a href="Add Note" onclick="saveNote(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img no-toggle" title="Add Note" /></a>
+        <a href="Add Note" onclick="saveNote(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reply-icon.png" class="inline-img no-toggle" title="Add Note" /></a>
     <?php } ?>
     <?php if(!in_array('flag_manual',$quick_actions) && in_array('flag',$quick_actions)) { ?>
         <a href="Flag This!" onclick="flagLead(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" title="Flag This!" /></a>
     <?php } ?>
     <?php if(in_array('flag_manual',$quick_actions)) { ?>
-        <a href="Flag This!" onclick="flagLeadManual(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" title="Flag This!" /></a>
+        <a href="Flag This!" onclick="flagLeadManual(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" title="Flag This!" /></a>
     <?php } ?>
     <?php if(in_array('attach',$quick_actions)) { ?>
-        <a href="Attach File" onclick="addDocument(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img no-toggle" title="Attach File" /></a>
+        <a href="Attach File" onclick="addDocument(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-attachment-icon.png" class="inline-img no-toggle" title="Attach File" /></a>
     <?php } ?>
     <?php if(in_array('email',$quick_actions)) { ?>
-        <a href="Send Email" onclick="sendEmail(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img no-toggle" title="Send Email" /></a>
+        <a href="Send Email" onclick="sendEmail(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-email-icon.png" class="inline-img no-toggle" title="Send Email" /></a>
     <?php } ?>
     <?php if(in_array('reminder',$quick_actions)) { ?>
-        <a href="Schedule Reminder" onclick="setReminder(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" title="Schedule Reminder" /></a>
+        <a href="Schedule Reminder" onclick="setReminder(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" title="Schedule Reminder" /></a>
     <?php } ?>
     <?php if(in_array('time',$quick_actions)) { ?>
-        <a href="Add Time" onclick="addTime(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer-icon.png" class="inline-img no-toggle" title="Add Time" /></a>
+        <a href="Add Time" onclick="addTime(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer-icon.png" class="inline-img no-toggle" title="Add Time" /></a>
     <?php } ?>
     <?php if(in_array('timer',$quick_actions)) { ?>
-        <a href="Track Time" onclick="trackTime(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img no-toggle" title="Track Time" /></a>
+        <a href="Track Time" onclick="trackTime(this); return false;" data-salesId="<?php echo $_GET['id']?>"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-timer2-icon.png" class="inline-img no-toggle" title="Track Time" /></a>
     <?php } ?>
     <a href="View History" onclick="viewHistory(this); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/eyeball.png" class="inline-img no-toggle" title="View History" /></a>
     <?php if(in_array('archive',$quick_actions)) { ?>
         <a href="#" id="sales_<?= $row['salesid']; ?>" data-salesid="<?= $row['salesid']; ?>" onclick="archive_sales_lead(this); $(this).closest('.info-block-detail,.standard-body-title').hide(); return false;"><img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-trash-icon.png" class="inline-img no-toggle" title="Archive" /></a>
     <?php } ?>
+    <?= IFRAME_PAGE || $_GET['iframe_slider'] == 1 ? '<a href="../blank_loading_page.php"><img src="../img/icons/cancel.png" class="inline-img"></a>' : '' ?>
 </div>
 <div class="clearfix"></div>

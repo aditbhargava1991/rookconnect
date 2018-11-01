@@ -14,7 +14,7 @@ function colorCodeChange(sel) {
 <?php $delivery_types = get_config($dbc, 'delivery_types');
 if(!empty($delivery_types)) { ?>
 	<div class="block-group">
-		<h3>Delivery Type Calendar/Planner Colors</h3>
+		<h3>Delivery Tab Calendar/Planner Colors</h3>
 		<?php foreach(explode(',',$delivery_types) as $delivery_type) {
 			$delivery_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `color` FROM `field_config_ticket_delivery_color` WHERE `delivery` = '$delivery_type' AND `delivery` != 'Warehouse'"))['color']; ?>
 			<div class="form-group color_block">

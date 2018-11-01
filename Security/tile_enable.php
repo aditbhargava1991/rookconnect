@@ -294,6 +294,10 @@ $(document).ready(function() {
 										<td data-title="Comment">Customer Support</td>
 										<?php echo tile_config_function($dbc, 'customer_support'); ?>
 									</tr>
+                                    <tr>
+										<td data-title="Comment">Demo</td>
+										<?php echo tile_config_function($dbc, 'demo'); ?>
+									</tr>
 									<tr>
 										<td data-title="Comment">FFM Support</td>
 										<?php echo tile_config_function($dbc, 'ffmsupport'); ?>
@@ -592,6 +596,10 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'sign_in_time'); ?>
                                     </tr>
                                     <tr>
+                                        <td data-title="Comment"><?= START_DAY ?></td>
+                                        <?php echo tile_config_function($dbc, 'start_day_button'); ?>
+                                    </tr>
+                                    <tr>
                                         <td data-title="Comment">Time Clock</td>
                                         <?php echo tile_config_function($dbc, 'punch_card'); ?>
                                     </tr>
@@ -794,10 +802,6 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'client_documentation'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Client Documents</td>
-                                        <?php echo tile_config_function($dbc, 'client_documents'); ?>
-                                    </tr>
-                                    <tr>
                                         <td data-title="Comment">Contracts</td>
                                         <?php echo tile_config_function($dbc, 'contracts'); ?>
                                     </tr>
@@ -810,11 +814,7 @@ $(document).ready(function() {
                                         <?php echo tile_config_function($dbc, 'day_program'); ?>
                                     </tr>
                                     <tr>
-                                        <td data-title="Comment">Documents</td>
-                                        <?php echo tile_config_function($dbc, 'documents'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Documents">Documents (Updated)</td>
+                                        <td data-title="Documents">Documents</td>
                                         <?php echo tile_config_function($dbc, 'documents_all'); ?>
                                     </tr>
                                     <tr>
@@ -828,10 +828,6 @@ $(document).ready(function() {
                                     <tr>
                                         <td data-title="Daily Log Notes">Individual Service Plan (ISP)</td>
                                         <?php echo tile_config_function($dbc, 'individual_support_plan'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Internal Documents</td>
-                                        <?php echo tile_config_function($dbc, 'internal_documents'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Charts">Charts</td>
@@ -848,10 +844,6 @@ $(document).ready(function() {
                                     <tr>
                                         <td data-title="Daily Log Notes">Social Story</td>
                                         <?php echo tile_config_function($dbc, 'social_story'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Staff Documents">Staff Documents</td>
-                                        <?php echo tile_config_function($dbc, 'staff_documents'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Treatment Charts">Treatment Charts</td>
@@ -953,10 +945,6 @@ $(document).ready(function() {
                                         <td data-title="Comment">Intake Form</td>
                                         <?php echo tile_config_function($dbc, 'intake'); ?>
                                     </tr>
-									<tr>
-										<td data-title="Comment">Marketing Material</td>
-										<?php echo tile_config_function($dbc, 'marketing_material'); ?>
-									</tr>
 									<tr>
 										<td data-title="Comment">Sales</td>
 										<?php echo tile_config_function($dbc, 'sales'); ?>
@@ -1090,6 +1078,10 @@ $(document).ready(function() {
                                     <tr>
                                         <td data-title="Comment">Communication Tasks</td>
                                         <?php echo tile_config_function($dbc, 'communication'); ?>
+                                    </tr>
+                                    <tr>
+                                        <td data-title="Comment">Dispatch</td>
+                                        <?php echo tile_config_function($dbc, 'dispatch', 'admin'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Comment">Email Communication</td>
@@ -1293,10 +1285,6 @@ $(document).ready(function() {
                                     <tr>
                                         <td data-title="Comment"><?= POS_ADVANCE_TILE ?></td>
                                         <?php echo tile_config_function($dbc, 'posadvanced'); ?>
-                                    </tr>
-                                    <tr>
-                                        <td data-title="Comment">Point of Sale (Basic)</td>
-                                        <?php echo tile_config_function($dbc, 'pos'); ?>
                                     </tr>
                                     <tr>
                                         <td data-title="Comment">Promotions & Coupons</td>

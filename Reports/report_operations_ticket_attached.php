@@ -231,7 +231,10 @@ function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $se
 		$from = '&from='.urlencode(WEBSITE_URL.'/Reports/report_operations_ticket_attached.php');
 	}
 
-	$sql = "SELECT CONCAT(`tickets`.`ticketid`,' ',`tickets`.`heading`) ticket_label, `tickets`.`ticketid`, CONCAT(`project`.`projectid`,' ',`project`.`project_name`) project_label, `project`.`projectid`, IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),`ticket_attached`.`item_id`))) 'description', `ticket_attached`.`date_stamp` date, `ticket_attached`.`hours_tracked`
+	$sql = "SELECT CONCAT(`tickets`.`ticketid`,' ',`tickets`.`heading`) ticket_label, `tickets`.`ticketid`, CONCAT(`project`.`projectid`,' ',`project`.`project_name`) project_label, `project`.`projectid`, IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),`ticket_attached`.`item_id`))) 'description', `ticket_attached`.`date_stamp` date, `ticket_attached`.`qty`, `ticket_attached`.`src_table`, `ticket_attached`.`hours_tracked`
+		FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `equipment` ON `ticket_attached`.`item_id`=`equipment`.`equipmentid` LEFT JOIN `material` ON `ticket_attached`.`item_id`=`material`.`materialid`
+		WHERE `tickets`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `ticket_attached`.`deleted`=0 AND ('$search_ticket' IN ('',`tickets`.`ticketid`) OR '$search_extra_ticket' IN ('',`tickets`.`ticketid`)) AND '$search_project' IN ('',`project`.`projectid`) AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_task%' AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_material%' $limit";
+	$total_sql = "SELECT SUM(`ticket_attached`.`hours_tracked`) `all_hours`
 		FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `equipment` ON `ticket_attached`.`item_id`=`equipment`.`equipmentid` LEFT JOIN `material` ON `ticket_attached`.`item_id`=`material`.`materialid`
 		WHERE `tickets`.`deleted`=0 AND IFNULL(`project`.`deleted`,0)=0 AND `ticket_attached`.`deleted`=0 AND ('$search_ticket' IN ('',`tickets`.`ticketid`) OR '$search_extra_ticket' IN ('',`tickets`.`ticketid`)) AND '$search_project' IN ('',`project`.`projectid`) AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_task%' AND IF(`ticket_attached`.`src_table`='Staff_Tasks',`ticket_attached`.`position`,IF(`ticket_attached`.`src_table`='equipment',CONCAT(IFNULL(`equipment`.`unit_number`,''),' ',IFNULL(`equipment`.`category`,''),' ',IFNULL(`equipment`.`make`,''),' ',IFNULL(`equipment`.`model`,''),' ',IFNULL(`equipment`.`label`,''),' ',IFNULL(`equipment`.`nickname`,'')),IF(`ticket_attached`.`src_table`='material',CONCAT(IFNULL(`material`.`category`,''),' ',IFNULL(`material`.`sub_category`,''),' ',IFNULL(`material`.`name`,'')),''))) LIKE '%$search_material%' $limit";
 	$query = "SELECT COUNT(*) numrows FROM `tickets` LEFT JOIN `project` ON `tickets`.`projectid`=`project`.`projectid` LEFT JOIN `ticket_attached` ON `tickets`.`ticketid`=`ticket_attached`.`ticketid` LEFT JOIN `equipment` ON `ticket_attached`.`item_id`=`equipment`.`equipmentid` LEFT JOIN `material` ON `ticket_attached`.`item_id`=`material`.`materialid`
@@ -247,7 +250,7 @@ function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $se
     $report_data .= '<th>'.PROJECT_NOUN.'</th>';
 	$report_data .= '<th>Description</th>';
 	$report_data .= '<th>Date</th>';
-	$report_data .= '<th>Hours</th>';
+	$report_data .= '<th>Hours / Quantity</th>';
     $report_data .=  "</tr>";
 
     while($row = mysqli_fetch_array( $result )) {
@@ -256,12 +259,30 @@ function shop_work_orders($dbc, $search_from, $search_until, $search_ticket, $se
         $report_data .=  '<td data-title="'.PROJECT_NOUN.'">'.($edit_project > 0 ? '<a href="'.WEBSITE_URL.'/Project/projects.php?edit='.$row['projectid'].'">' : '').$row['project_label'].($edit_project > 0 ? '</a>' : '').'</td>';
         $report_data .=  '<td data-title="Description">' . ($row['description'] > 0 ? get_contact($dbc, $row['description']) : $row['description']) . '</td>';
         $report_data .=  '<td data-title="Date">' . $row['date'] . '</td>';
-        $report_data .=  '<td data-title="Hours">' . $row['hours_tracked'] . '</td>';
+        $report_data .=  '<td data-title="Hours">' . ($row['src_table'] == 'material' ? $row['qty'] : $row['hours_tracked']) . '</td>';
         $report_data .=  "</tr>";
     }
+    $report_data .= '<tr nobr="true" style="font-weight:bold;">';
+    $report_data .=  '<td colspan="4">Total Hours'.($no_page === false ? ' (from all pages)' : '').'</td>';
+    $report_data .=  '<td data-title="Total Hours">' . $dbc->query($total_sql)->fetch_assoc()['all_hours'] . '</td>';
+    $report_data .=  "</tr>";
 
     $report_data .=  '</table>';
 
     return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

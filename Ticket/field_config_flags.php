@@ -15,13 +15,18 @@ function saveGroups() {
 	$('[name="quick_action_icons[]"]:checked').each(function() {
 		quick_action_icons.push(this.value);
 	});
+	var history_fields = [];
+	$('[name="history_fields[]"]:checked').each(function() {
+		history_fields.push(this.value);
+	});
 	$.ajax({
 		url: '../Ticket/ticket_ajax_all.php?action=quick_action_settings',
 		method: 'POST',
 		data: {
 			quick_action_icons: quick_action_icons.join(','),
 			flags: flags.join(','),
-			names: names.join('#*#')
+			names: names.join('#*#'),
+			history_fields: history_fields.join(',')
 		}
 	});
 }
@@ -41,6 +46,7 @@ function saveGroups() {
 		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('reminder',$quick_action_icons) ? 'checked' : '' ?> value="reminder"> <img class="inline-img" src="../img/icons/ROOK-reminder-icon.png"> Reminders</label>
 		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('time',$quick_action_icons) ? 'checked' : '' ?> value="time"> <img class="inline-img" src="../img/icons/ROOK-timer-icon.png"> Add Time</label>
 		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('timer',$quick_action_icons) ? 'checked' : '' ?> value="timer"> <img class="inline-img" src="../img/icons/ROOK-timer2-icon.png"> Track Time</label>
+		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('history',$quick_action_icons) ? 'checked' : '' ?> value="history"> <img class="inline-img" src="../img/icons/eyeball.png"> History</label>
 		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('archive',$quick_action_icons) ? 'checked' : '' ?> value="archive"> <img class="inline-img" src="../img/icons/ROOK-trash-icon.png"> Archive</label>
 		<label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('hide_all',$quick_action_icons) ? 'checked' : '' ?> value="hide_all" onclick="$('[name^=quick_action_icons]').not('[value=hide_all]').removeAttr('checked');"> Disable All</label>
 	</div>
@@ -79,5 +85,21 @@ $flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names')); ?>
 		<label class="col-sm-4"><input type="checkbox" <?php echo (strpos($flag_colours, 'C8BFE7') !== false ? 'checked' : ''); ?> value="C8BFE7" name="flag_colours[]" style="height:1.5em; width: 1.5em;">
 		<div style="border: 1px solid black; border-radius: 0.25em; background-color: #C8BFE7; display: inline-block; height: 1.5em; margin: 0 0.25em; min-width: 4em; width: calc(100% - 3em);"></div></label>
 		<div class="col-sm-8"><input type="text" name="flag_name[]" value="<?php echo $flag_names[8]; ?>" class="form-control"></div><div class="clearfix"></div>
+	</div>
+</div>
+
+<?php $history_fields = explode(',',get_config($dbc, 'ticket_history_fields')); ?>
+<div class="form-group">
+	<label class="col-sm-4">History Fields:</label>
+	<div class="col-sm-8">
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Ticket History',$history_fields) ? 'checked' : '' ?> value="Ticket History"> <?= TICKET_NOUN ?> History</label>
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Customer History Business Ticket Type',$history_fields) ? 'checked' : '' ?> value="Customer History Business Ticket Type"> Business - Last 5 by <?= TICKET_NOUN ?> Tab</label>
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Customer History Business Project Type',$history_fields) ? 'checked' : '' ?> value="Customer History Business Project Type"> Business - Last 5 by <?= PROJECT_NOUN ?> Tab</label>
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Customer History Business Ticket Project Type',$history_fields) ? 'checked' : '' ?> value="Customer History Business Ticket Project Type"> Business - Last 5 by  <?= PROJECT_NOUN ?> Tab and <?= TICKET_NOUN ?> Tab</label>
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Customer History Customer Ticket Type',$history_fields) ? 'checked' : '' ?> value="Customer History Customer Ticket Type"> Customer - Last 5 by <?= TICKET_NOUN ?> Tab</label>
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Customer History Customer Project Type',$history_fields) ? 'checked' : '' ?> value="Customer History Customer Project Type"> Customer - Last 5 by <?= PROJECT_NOUN ?> Tab</label>
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Customer History Customer Ticket Project Type',$history_fields) ? 'checked' : '' ?> value="Customer History Customer Ticket Project Type"> Customer - Last 5 by  <?= PROJECT_NOUN ?> Tab and <?= TICKET_NOUN ?> Tab</label>
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Customer History Field Display Notes',$history_fields) ? 'checked' : '' ?> value="Customer History Field Display Notes"> Customer/Business History - Display Notes</label>
+		<label class="form-checkbox"><input type="checkbox" name="history_fields[]" <?= in_array('Customer History Field Service Template',$history_fields) ? 'checked' : '' ?> value="Customer History Field Service Template"> Customer/Business History - Display Service Template</label>
 	</div>
 </div>

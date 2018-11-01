@@ -571,7 +571,7 @@ function loadRates(select) {
 			<div class="form-group clearfix completion_date">
 				<label for="first_name" class="col-sm-4 control-label text-right">Alert Staff:</label>
 				<div class="col-sm-8">
-					<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect"><option></option>
+					<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect">
 						<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 						foreach($staff_list as $staffid) {
 							echo '<option value="'.$staffid.'" '.(strpos(','.$alert_staff.',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';

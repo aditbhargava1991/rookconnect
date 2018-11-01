@@ -83,9 +83,9 @@ $(document).on('change', 'select[name="equipmentid"]', function() { $('[name=cat
     			}
     			</script>
                 <div class="form-group">
-    			    <label for="phone_number" class="col-sm-4 control-label">Category:</label>
+    			    <label for="phone_number" class="col-sm-4 control-label">Tab:</label>
     			    <div class="col-sm-8">
-                        <select data-placeholder="Select Category..."  name="category" class="chosen-select-deselect form-control" width="380">
+                        <select data-placeholder="Select Tab..."  name="category" class="chosen-select-deselect form-control" width="380">
                             <option value=""></option>
                             <?php
                                 $query = mysqli_query($dbc,"SELECT category FROM equipment $access_query_where GROUP BY category ORDER BY category");

@@ -8,7 +8,7 @@ if (isset($_POST['submit'])) {
 
     <div class="notice popover-examples double-gap-top triple-gap-bottom">
         <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-        <div class="col-sm-11"><span class="notice-name">NOTE:</span> Setting a default markup will affect all inventory in all categories.</div>
+        <div class="col-sm-11"><span class="notice-name">NOTE:</span> Setting a default markup will affect all inventory in all tabs.</div>
         <div class="clearfix"></div>
     </div>
 

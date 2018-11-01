@@ -39,7 +39,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 	// Hide deselected columns
 	var visibles = [];
     var regions = [];
-    var clients = [];
+    var ticket_types = [];
 	var teams = [];
 	var all_staff = [];
     // Filter selected regions
@@ -47,21 +47,21 @@ function toggle_columns(type = '', reload_teams = 0) {
         var region = $(this).data('region');
         regions.push(region);
     });
-    // Hide clients that are not in selected regions
-    $('[id^=collapse_clients]').find('.block-item').each(function() {
-        var client_region = $(this).data('region');
-        if (regions.indexOf(client_region) == -1 && regions.length > 0) {
+    // Filter Ticket Types
+    $('#collapse_ticket_type').find('.block-item.active').each(function() {
+        var ticket_type = $(this).data('tickettype');
+        ticket_types.push(ticket_type);
+    });
+    // Hide teams that are not in selected regions
+    $('#collapse_teams').find('.block-item').each(function() {
+        var team_region = $(this).data('region');
+        if (regions.indexOf(team_region) == -1 && regions.length > 0) {
             $(this).hide();
             $(this).removeClass('active');
         } else {
             $(this).show();
         }
     });
-    // Filter selected clients
-    $('[id^=collapse_clients]').find('.block-item.active').each(function() {
-        var clientid = $(this).data('client');
-        clients.push(parseInt(clientid));
-    })
 	$('#collapse_teams').find('.block-item.active').each(function() {
 		var contactids = $(this).data('contactids').split(',');
 		var teamid = $(this).data('teamid');
@@ -74,6 +74,20 @@ function toggle_columns(type = '', reload_teams = 0) {
 			}
 		});
 	});
+    // Hide staff that are not in selected regions
+    $('[id^=collapse_staff]').find('.block-item').each(function() {
+        var staff_id = $(this).data('staff');
+        var staff_region = $(this).data('region');
+        if (regions.indexOf(staff_region) == -1 && regions.length > 0) {
+            if (all_staff.indexOf(parseInt(staff_id))) {
+                all_staff.splice(all_staff.indexOf(parseInt(staff_id)));
+            }
+            $(this).hide();
+            $(this).removeClass('active');
+        } else {
+            $(this).show();
+        }
+    });
 	$('[id^=collapse_staff]').find('.block-item.active').each(function() {
 		var contact_id = $(this).data('staff');
 		if(contact_id > 0) {
@@ -112,7 +126,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 	$.ajax({
 		url: 'calendar_ajax_all.php?fill=selected_contacts&offline='+offline_mode,
 		method: 'POST',
-		data: { contacts: visibles, teams: teams },
+		data: { contacts: visibles, teams: teams, region: regions },
 		success: function(response) {
 		}
 	});
@@ -120,10 +134,6 @@ function toggle_columns(type = '', reload_teams = 0) {
 	resize_calendar_view_monthly();
 
     displayActiveBlocksAuto();
-
-    <?php if($client_staff_freq == 1) { ?>
-        displayClientFrequency(clients);
-    <?php } ?>
 }
 </script>
 <input type="hidden" id="retrieve_summary" name="retrieve_summary" value="1">
@@ -131,7 +141,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 	<div class="pull-left collapsible">
 		<input type="text" class="search-text form-control" placeholder="Search All">
 		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
-            <?php if(count($contact_regions) > 0) { ?>
+            <?php if(count($contact_regions) > 0 && in_array('Region', $sidebar_filters)) { ?>
 	            <div class="panel panel-default">
 	                <div class="panel-heading">
 	                    <h4 class="panel-title">
@@ -150,7 +160,7 @@ function toggle_columns(type = '', reload_teams = 0) {
                             if(!empty($region_colours[$region_line])) {
                                 $color_styling = $region_colours[$region_line];
                             }
-                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right;"></span>';
+                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
                             echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-activevalue='".$region."' data-region='".$region."'>".$region.$color_box."</div></a>";
                         } ?>
 	                    </div>
@@ -318,11 +328,6 @@ function toggle_columns(type = '', reload_teams = 0) {
 				<img src="../img/legend-icon.png">
 			</div>
 		<?php } ?>
-		<div class="block-button" style="margin-left: 1em;">
-			<img src="<?= WEBSITE_URL ?>/img/block/green.png" width="10" height="10" border="0" alt="">&nbsp;&nbsp;Today + Following Day&nbsp;&nbsp;&nbsp;&nbsp;
-			<img src="<?= WEBSITE_URL ?>/img/block/orange.png" width="10" height="10" border="0" alt="">&nbsp;&nbsp;Last 2 Days&nbsp;&nbsp;&nbsp;&nbsp;
-			<img src="<?= WEBSITE_URL ?>/img/block/red.png" width="10" height="10" border="0" alt="">&nbsp;&nbsp;Older Than 2 Previous Days
-		</div>
 		<a href="" onclick="$('.set_date').focus(); return false;"><div class="block-button pull-right"><img src="../img/icons/calendar-button.png" style="height: 1em; margin-right: 1em;">Go To Date</div></a>
 		<?php unset($page_query['date']); ?>
 		<a href="" onclick="changeDate('<?= date('Y-m-d') ?>'); return false;"><div class="block-button pull-right">Today</div></a>

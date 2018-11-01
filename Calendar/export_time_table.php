@@ -4,6 +4,8 @@ include_once('calendar_settings_inc.php');
 
 if(isset($_POST['export_pdf'])) {
 	include('../tcpdf/tcpdf.php');
+	$scheduling_time_table_logo = get_config($dbc, 'scheduling_time_table_logo');
+	$scheduling_time_table_logo_align = !empty(get_config($dbc, 'scheduling_time_table_logo_align')) ? get_config($dbc, 'scheduling_time_table_logo_align') : 'L';
 	$region = $_POST['region'];
 	$export_by = $_POST['export_by'];
 	$equipmentid = $_POST['equipmentid'];
@@ -93,15 +95,40 @@ if(isset($_POST['export_pdf'])) {
 	}
 
 	DEFINE(FORM_HEADER_TEXT, 'Time Table ('.date('M j, Y', strtotime($start_date)).' - '.date('M j, Y', strtotime($end_date)).')');
+	DEFINE(FORM_HEADER_LOGO, $scheduling_time_table_logo);
+	$logo_height = 0;
+	$logo_width = 0;
+	if(file_exists('download/'.FORM_HEADER_LOGO)) {
+		list($image_width, $image_height) = getimagesize('download/'.FORM_HEADER_LOGO);
+		$logo_height = $image_height;
+		$logo_width = $image_width;
+		if($image_height > 180) {
+			$logo_width = (180 / $logo_height) * 100;
+			$logo_height = 180;
+		}
+		if($logo_width > 360) {
+			$logo_height = (360 / $logo_width) * 100;
+			$logo_width = 360;
+		}
+		$logo_height = $logo_height / 7.2;
+		$logo_width = $logo_width / 7.2;
+	}
+	DEFINE(FORM_HEADER_LOGO_HEIGHT, $logo_height);
+	DEFINE(FORM_HEADER_LOGO_WIDTH, $logo_width);
 
     class MYPDF extends TCPDF {
 
         //Page header
         public function Header() {
+            if(FORM_HEADER_LOGO != '') {
+                $image_file = '../Calendar/download/'.FORM_HEADER_LOGO;
+                $this->Image($image_file, 10, 5, FORM_HEADER_LOGO_WIDTH, FORM_HEADER_LOGO_HEIGHT, '', '', 'T', false, 300, FORM_HEADER_LOGO_ALIGN, false, false, 0, false, false, false);
+            }
+
             if(FORM_HEADER_TEXT != '') {
 	            $this->SetFont('helvetica', '', 14);
                 $this->setCellHeightRatio(0.7);
-                $this->writeHTMLCell(0, 0, 7.5, 5, FORM_HEADER_TEXT, 0, 0, false, true, 'C', true);
+                $this->writeHTMLCell(0, 0, 7.5, 10, FORM_HEADER_TEXT, 0, 0, false, true, 'C', true);
             }
         }
 
@@ -114,7 +141,7 @@ if(isset($_POST['export_pdf'])) {
     }
 
     $pdf = new MYPDF('L', PDF_UNIT, 'LETTER', true, 'UTF-8', false);
-    $pdf->SetMargins(PDF_MARGIN_LEFT, 20, PDF_MARGIN_RIGHT);
+    $pdf->SetMargins(PDF_MARGIN_LEFT, (FORM_HEADER_LOGO != '' ? 35 : 20), PDF_MARGIN_RIGHT);
     $pdf->SetAutoPageBreak(TRUE, 25);
     $pdf->AddPage();
     $pdf->SetFont('helvetica', '', 9);
@@ -181,8 +208,13 @@ if(isset($_POST['export_pdf'])) {
 
 }
 $equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-if (empty($equipment_category)) {
-	$equipment_category = 'Equipment';
+$equipment_categories = array_filter(explode(',', $equipment_category));
+if(empty($equipment_categories) || count($equipment_categories) > 1) {
+    $equipment_category = 'Equipment';
+}
+$equip_cat_query = '';
+if(count($equipment_categories) > 0) {
+    $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
 }
 $start_date = date('Y-m-d', strtotime('last Sunday', strtotime(date('Y-m-d'))));
 $end_date = date('Y-m-d', strtotime('next Saturday', strtotime(date('Y-m-d'))));
@@ -239,76 +271,81 @@ function filterStaff() {
 	$('[name="staffid[]"]').trigger('change.select2');
 }
 </script>
-<h3>Export Time Table</h3>
 
-<div class="block-group" style="height: calc(100% - 8em); overflow-y: auto;">
-	<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Region:</label>
-			<div class="col-sm-8">
-				<select name="region" class="chosen-select-deselect">
-					<option></option>
-					<?php $region_list = $contact_regions;
-					foreach($region_list as $region) {
-						echo '<option value="'.$region.'">'.$region.'</option>';
-					} ?>
-				</select>
+<div class="container">
+    <div class="row">
+	    <h3 class="inline">Export Time Table</h3>
+	    <div class="pull-right gap-top"><a href=""><img src="../img/icons/cancel.png" alt="Close" title="Close" class="inline-img" /></a></div>
+	    <div class="clearfix"></div>
+	    <hr />
+		<form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Region:</label>
+				<div class="col-sm-8">
+					<select name="region" class="chosen-select-deselect">
+						<option></option>
+						<?php $region_list = $contact_regions;
+						foreach($region_list as $region) {
+							echo '<option value="'.$region.'">'.$region.'</option>';
+						} ?>
+					</select>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Export By:</label>
-			<div class="col-sm-8">
-				<label class="form-checkbox"><input type="radio" name="export_by" value="" checked> <?= $equipment_category ?></label>
-				<label class="form-checkbox"><input type="radio" name="export_by" value="Staff"> Staff</label>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Export By:</label>
+				<div class="col-sm-8">
+					<label class="form-checkbox"><input type="radio" name="export_by" value="" checked> <?= $equipment_category ?></label>
+					<label class="form-checkbox"><input type="radio" name="export_by" value="Staff"> Staff</label>
+				</div>
 			</div>
-		</div>
-		<div class="form-group equip_div">
-			<label class="col-sm-4 control-label"><?= $equipment_category ?>:</label>
-			<div class="col-sm-8">
-				<select name="equipmentid[]" multiple class="chosen-select-deselect">
-					<option value="ALL">Select All</option>
-					<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
-					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".($equipment_category == 'Equipment' ? '' : " AND `category`='".$equipment_category."'")." $allowed_equipment_query $customer_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
-					foreach($equip_list as $equipment) {
-						echo '<option value="'.$equipment['equipmentid'].'" data-region="'.$equipment['region'].'">'.$equipment['label'].'</option>';
-					} ?>
-				</select>
+			<div class="form-group equip_div">
+				<label class="col-sm-4 control-label"><?= $equipment_category ?>:</label>
+				<div class="col-sm-8">
+					<select name="equipmentid[]" multiple class="chosen-select-deselect">
+						<option value="ALL">Select All</option>
+						<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
+						$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".$equip_cat_query." $allowed_equipment_query $customer_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
+						foreach($equip_list as $equipment) {
+							echo '<option value="'.$equipment['equipmentid'].'" data-region="'.$equipment['region'].'">'.$equipment['label'].'</option>';
+						} ?>
+					</select>
+				</div>
 			</div>
-		</div>
-		<div class="form-group staff_div" style="display: none;">
-			<label class="col-sm-4 control-label">Staff:</label>
-			<div class="col-sm-8">
-				<select name="staffid[]" multiple class="chosen-select-deselect">
-					<option value="ALL">Select All</option>
-					<?php $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
-					$contact_category = !empty($get_field_config) ? explode(',', $get_field_config['contact_category']) : '';
-					$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `region` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query.$allowed_roles_query));
-					foreach($staff_list as $staff) {
-						echo '<option value="'.$staff['contactid'].'" data-region="'.$staff['region'].'">'.$staff['full_name'].'</option>';
-					} ?>
-				</select>
+			<div class="form-group staff_div" style="display: none;">
+				<label class="col-sm-4 control-label">Staff:</label>
+				<div class="col-sm-8">
+					<select name="staffid[]" multiple class="chosen-select-deselect">
+						<option value="ALL">Select All</option>
+						<?php $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
+						$contact_category = !empty($get_field_config) ? explode(',', $get_field_config['contact_category']) : '';
+						$staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `region` FROM `contacts` WHERE `category` IN (".("'".implode("','",$contact_category)."'").") AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query.$allowed_roles_query));
+						foreach($staff_list as $staff) {
+							echo '<option value="'.$staff['contactid'].'" data-region="'.$staff['region'].'">'.$staff['full_name'].'</option>';
+						} ?>
+					</select>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Date:</label>
-			<div class="col-sm-8">
-				<div class="pull-left"><input type="text" name="start_date" class="form-control datepicker" value="<?= $start_date ?>"></div>
-				<div class="pull-left pad-left pad-right"> - </div>
-				<div class="pull-left"><input type="text" name="end_date" class="form-control datepicker" value="<?= $end_date ?>"></div>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">Date:</label>
+				<div class="col-sm-8">
+					<div class="pull-left"><input type="text" name="start_date" class="form-control datepicker" value="<?= $start_date ?>"></div>
+					<div class="pull-left pad-left pad-right"> - </div>
+					<div class="pull-left"><input type="text" name="end_date" class="form-control datepicker" value="<?= $end_date ?>"></div>
+				</div>
 			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">PDF Options:</label>
-			<div class="col-sm-8">
-				<label class="form-checkbox">
-					<input type="checkbox" name="group_by_class" value="1"> Group By Classification</label>
-				</label>
+			<div class="form-group">
+				<label class="col-sm-4 control-label">PDF Options:</label>
+				<div class="col-sm-8">
+					<label class="form-checkbox">
+						<input type="checkbox" name="group_by_class" value="1"> Group By Classification</label>
+					</label>
+				</div>
 			</div>
-		</div>
 
-	    <div class="pull-right" style="padding-top: 1em;">
-	    	<button type="submit" name="export_pdf" value="Submit" class="btn brand-btn">Submit</button>
-	        <a href="?" class="btn brand-btn mobile-anchor">Cancel</a>
-	    </div>
-	</form>
+		    <div class="pull-right" style="padding-top: 1em;">
+		        <a href="?" class="btn brand-btn mobile-anchor">Cancel</a>
+		    	<button type="submit" name="export_pdf" value="Submit" class="btn brand-btn">Submit</button>
+		    </div>
+		</form>
+	</div>
 </div>

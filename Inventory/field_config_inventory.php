@@ -314,7 +314,7 @@ $(document).ready(function() {
             </div>
         </div>
 		<div class="form-group">
-            <label for="fax_number"	class="col-sm-4	control-label"><span class="popover-examples list-inline"><a class="" style="margin:7px 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Instead of tabs, have a drop down menu that will sort your inventory by their respective categories."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Or Use a Drop Down Menu:</label>
+            <label for="fax_number"	class="col-sm-4	control-label"><span class="popover-examples list-inline"><a class="" style="margin:7px 5px 0 0;" data-toggle="tooltip" data-placement="top" title="Instead of tabs, have a drop down menu that will sort your inventory by their respective tabs."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Or Use a Drop Down Menu:</label>
             <div class="col-sm-8">
 			<?php
 			$checked = '';
@@ -454,8 +454,8 @@ $(document).ready(function() {
                         <input type="checkbox" <?php if (strpos($inventory_config, ','."Name".',') !== false) { echo " checked"; } ?> value="Name" name="inventory[]">&nbsp;&nbsp;Name&nbsp;&nbsp;&nbsp;
                         <input type="checkbox" <?php if (strpos($inventory_config, ','."Product Name".',') !== false) { echo " checked"; } ?> value="Product Name" name="inventory[]">&nbsp;&nbsp;Product Name&nbsp;&nbsp;&nbsp;
                         <input type="checkbox" <?php if (strpos($inventory_config, ','."Brand".',') !== false) { echo " checked"; } ?> value="Brand" name="inventory[]">&nbsp;&nbsp;Brand&nbsp;&nbsp;&nbsp;
-                        <input type="checkbox" <?php if (strpos($inventory_config, ','."Category".',') !== false) { echo " checked"; } ?> value="Category" name="inventory[]">&nbsp;&nbsp;Category&nbsp;&nbsp;&nbsp;
-                        <input type="checkbox" <?php if (strpos($inventory_config, ','."Subcategory".',') !== false) { echo " checked"; } ?> value="Subcategory" name="inventory[]">&nbsp;&nbsp;Subcategory&nbsp;&nbsp;&nbsp;
+                        <input type="checkbox" <?php if (strpos($inventory_config, ','."Category".',') !== false) { echo " checked"; } ?> value="Category" name="inventory[]">&nbsp;&nbsp;Tab&nbsp;&nbsp;&nbsp;
+                        <input type="checkbox" <?php if (strpos($inventory_config, ','."Subcategory".',') !== false) { echo " checked"; } ?> value="Subcategory" name="inventory[]">&nbsp;&nbsp;Subtab&nbsp;&nbsp;&nbsp;
                         <input type="checkbox" <?php if (strpos($inventory_config, ','."Type".',') !== false) { echo " checked"; } ?> value="Type" name="inventory[]">&nbsp;&nbsp;Type&nbsp;&nbsp;&nbsp;
                         <input type="checkbox" <?php if (strpos($inventory_config, ','."Color".',') !== false) { echo " checked"; } ?> value="Color" name="inventory[]">&nbsp;&nbsp;Color&nbsp;&nbsp;&nbsp;
                         <input type="checkbox" <?php if (strpos($inventory_config, ','."Description".',') !== false) { echo " checked"; } ?> value="Description" name="inventory[]">&nbsp;&nbsp;Description&nbsp;&nbsp;&nbsp;
@@ -1141,8 +1141,8 @@ $(document).ready(function() {
                     <div class="panel-body">
 
                         <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Description".',') !== false) { echo " checked"; } ?> value="Description" name="inventory_dashboard[]">&nbsp;&nbsp;Description
-                        <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Category".',') !== false) { echo " checked"; } ?> value="Category" name="inventory_dashboard[]">&nbsp;&nbsp;Category
-                        <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Subcategory".',') !== false) { echo " checked"; } ?> value="Subcategory" name="inventory_dashboard[]">&nbsp;&nbsp;Subcategory
+                        <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Category".',') !== false) { echo " checked"; } ?> value="Category" name="inventory_dashboard[]">&nbsp;&nbsp;Tab
+                        <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Subcategory".',') !== false) { echo " checked"; } ?> value="Subcategory" name="inventory_dashboard[]">&nbsp;&nbsp;Subtab
                         <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Name".',') !== false) { echo " checked"; } ?> value="Name" name="inventory_dashboard[]">&nbsp;&nbsp;Name
                         <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Product Name".',') !== false) { echo " checked"; } ?> value="Product Name" name="inventory_dashboard[]">&nbsp;&nbsp;Product Name
                         <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Type".',') !== false) { echo " checked"; } ?> value="Type" name="inventory_dashboard[]">&nbsp;&nbsp;Type

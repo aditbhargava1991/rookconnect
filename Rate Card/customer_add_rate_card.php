@@ -231,6 +231,19 @@ if (isset($_POST['submit'])) {
         $history = "Rate card entry is been updated with Rate Card Name - $rate_card_name. <br />";
 				add_update_history($dbc, 'ratecard_history', $history, '', $before_change);
     }
+    
+    foreach($_POST['comp_item'] as $i => $comp_item) {
+        $comp_item = filter_var($comp_item,FILTER_SANITIZE_STRING);
+        $comp_rate = filter_var($_POST['comp_percent'][$i],FILTER_SANITIZE_STRING);
+        $comp_fee = filter_var($_POST['comp_fee'][$i],FILTER_SANITIZE_STRING);
+        $comp_id = filter_var($_POST['comp_id'][$i],FILTER_SANITIZE_STRING);
+        $deleted = filter_var($_POST['comp_deleted'][$i],FILTER_SANITIZE_STRING);
+        if($comp_id > 0) {
+            $dbc->query("UPDATE `rate_compensation` SET `rate_card`='$ratecardid', `item_type`='$comp_item', `comp_percent`='$comp_rate', `comp_fee`='$comp_fee', `deleted`='$deleted' WHERE `id`='$comp_id'");
+        } else if(!empty($comp_item) && !empty($comp_rate)) {
+            $dbc->query("INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, comp_fee`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$comp_fee', '$deleted')");
+        }
+    }
 
     echo '<script type="text/javascript"> window.location.replace("?card=customer&type=customer&category='.config_safe_str(get_contact($dbc, $clientid, 'category')).'"); </script>';
 }
@@ -432,7 +445,7 @@ function deleteRatecard(sel, hide, blank) {
                         <div class="form-group clearfix completion_date">
                             <label for="first_name" class="col-sm-4 control-label text-right">Alert Staff:</label>
                             <div class="col-sm-8">
-                                <select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect"><option></option>
+                                <select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect">
                                     <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
                                     foreach($staff_list as $staffid) {
                                         echo '<option value="'.$staffid.'" '.(strpos(','.$alert_staff.',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';
@@ -826,7 +839,24 @@ function deleteRatecard(sel, hide, blank) {
         </div>
         <?php */} ?>
 
+        <?php if (strpos($value_config, ','."Compensation".',') !== FALSE) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_comp" >Compensation<span class="glyphicon glyphicon-plus"></span></a>
+                    </h4>
+                </div>
+
+                <div id="collapse_comp" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <?php include ('add_rate_card_comp.php'); ?>
+                    </div>
+                </div>
+            </div>
+        <?php } ?>
+
     </div>
+
 
     <div class="form-group">
         <div class="col-sm-12">

@@ -25,7 +25,6 @@ if (isset($_POST['submit'])) {
 	        		<label class="col-sm-4 control-label">Exclude Hidden Contacts for Security Levels:</label>
 	        		<div class="col-sm-8">
 	        			<select name="match_exclude_security[]" multiple class="chosen-select-deselect form-control">
-	        				<option></option>
 	        				<?php $on_security = get_security_levels($dbc);
 	        				$match_exclude_security = explode('#*#',get_config($dbc, 'match_exclude_security'));
 	        				foreach($on_security as $security_name => $value) {

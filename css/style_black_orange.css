@@ -5132,7 +5132,17 @@ display: table-cell;
 /* New Layout */
 .tile-content h1, .tile-content h2 { color:#333; }
 li.select2-selection__choice { color:#333; }
-.block-label, .block-item, .main-screen-white, .info-block-header, .dashboard-container, .summary-block { border-color:#dc6214 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li {
+    border-color:#dc6214 !important;
+    }
 .info-block-header { background-color:#e6e6e6 !important; }
 .blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#dc6214 !important; }
 .tile-sidebar ul li.active a { color:#fff !important; }

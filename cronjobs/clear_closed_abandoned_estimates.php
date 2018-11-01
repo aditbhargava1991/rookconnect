@@ -1,4 +1,4 @@
-<?php
+<?php $guest_access = true;
 /* Auto archive Closed and Abandoned Estimates */
 error_reporting(0);
 include(substr(dirname(__FILE__), 0, -8).'database_connection.php');

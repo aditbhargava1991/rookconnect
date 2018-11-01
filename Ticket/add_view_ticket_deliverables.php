@@ -11,20 +11,50 @@
 				<div class="form-group clearfix">
 					<label for="site_name" class="col-sm-4 control-label text-right">Status:</label>
 					<div class="col-sm-4">
+                        <?php $invoice_status = '';
+                        if(get_config($dbc, 'ticket_invoice_status') > 0 && $ticketid > 0) {
+                            $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'");
+                            if($invoice->num_rows > 0) {
+                                $invoice = $invoice->fetch_assoc();
+                                switch($invoice['status']) {
+                                    case 'Completed':
+                                        $invoice_status = 'Paid';
+                                        break;
+                                    case 'Void':
+                                        $invoice_status = 'Voided';
+                                        break;
+                                    case 'Saved':
+                                        $invoice_status = 'Unbilled';
+                                        break;
+                                    case 'Posted':
+                                    default:
+                                        $invoice_status = 'Accounts Receivable';
+                                        break;
+                                }
+                            }
+                        }
+                        if(!empty($invoice_status)) {
+                            echo 'Invoice Status: '.$invoice_status.'<br />';
+                        } ?>
 
 						<select data-placeholder="Select a Status..." name="status" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" id="status" class="chosen-select-deselect form-control input-sm">
 						  <option value=""></option>
 						  <?php
 							$tabs = get_config($dbc, 'ticket_status');
 							$each_tab = explode(',', $tabs);
+                            $status_list = [];
 							foreach ($each_tab as $cat_tab) {
-								if ($status == $cat_tab) {
-									$selected = 'selected="selected"';
-								} else {
-									$selected = '';
-								}
-								echo "<option ".$selected." value='". $cat_tab."'>".$cat_tab.'</option>';
-							}
+                                if(check_subtab_persmission($dbc, 'ticket', ROLE, 'ticket_status'.config_safe_str($cat_tab))) {
+                                    $status_list[] = $cat_tab;
+                                }
+                            }
+                            if(!in_array($status, $status_list) && $status != '') { ?>
+                                <option selected value="<?= $status ?>"><?= $status ?></option>
+                            <?php } else {
+                                foreach($status_list as $status_option) { ?>
+                                    <option <?= $status_option == $status ? 'selected' : '' ?> value="<?= $status_option ?>"><?= $status_option ?></option>
+                                <?php }
+                            }
 						  ?>
 						</select>
 					</div>
@@ -63,8 +93,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" data-history-label="Staff" onclick="startTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" data-history-label="Staff" onclick="deletestartTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>
@@ -78,7 +108,7 @@
 					$sender = get_contact($dbc, $_SESSION['contactid'], 'email_address');
 						$subject = 'FFM - '.TICKET_NOUN.' assigned to you for Doing';
 						$body = 'A ticket has been assigned to you.<br/><br/>
-                            <b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' :  #[TICKETID]</a></b><br/><br/>
+                            <b><a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' :  #[TICKETID]</a></b><br/><br/>
 							Business : [CLIENT]<br>
                             Project : [PROJECT]<br>
 							'.TICKET_NOUN.' Heading : [HEADING]<br><br>
@@ -123,7 +153,7 @@
 								<textarea name="ticket_comment_email_body" class="form-control email_body"><?php echo $body; ?></textarea>
 							</div>
 						</div>
-						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="to_do_date" onclick="send_email(this); return false;">Send Email</button>
+						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="to_do_date" data-history-label="Send Assigned User Email" onclick="send_email(this); return false;">Send Email</button>
 					</div>
 					<div class="clearfix"></div>
 				</div>
@@ -159,7 +189,7 @@
 						<label class="form-checkbox"><input type="checkbox" name="recur_days" value="sunday">Sunday</label>
 					</div>
 				</div>
-				<button class="btn brand-btn pull-right" onclick="apply_repeat(); return false;">Create Recurrence</button>
+				<button class="btn brand-btn pull-right" data-history-label="Create Recurrence" onclick="apply_repeat(); return false;">Create Recurrence</button>
 				<script>
 				apply_repeat = function() {
 					if(ticketid > 0 && $('[name=recurrence]').val() > 0) {
@@ -225,8 +255,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" onclick="internalTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" onclick="deleteinternalTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" data-history-label="Internal QA Staff" onclick="internalTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" data-history-label="Internal QA Staff" onclick="deleteinternalTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>
@@ -242,7 +272,7 @@
 						Client: [CLIENT]<br>
 						'.TICKET_NOUN.' Heading: [HEADING]<br>
 						Status: [STATUS]<br>
-						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
+						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
 						<img src="'.WEBSITE_URL.'/img/ffm-signature.png" width="154" height="77" border="0" alt="">';
 					?>
 					<script>
@@ -279,7 +309,7 @@
 								<textarea name="ticket_comment_email_body" class="form-control email_body"><?php echo $body; ?></textarea>
 							</div>
 						</div>
-						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="internal_qa_date" onclick="send_email(this); return false;">Send Email</button>
+						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="internal_qa_date" data-history-label="Send Internal QA User Email" onclick="send_email(this); return false;">Send Email</button>
 					</div>
 					<div class="clearfix"></div>
 				</div>
@@ -309,8 +339,8 @@
 									</div>
 
 									<div class="col-sm-2">
-										<img class="inline-img pull-right" onclick="customerTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
-										<img class="inline-img pull-right" onclick="deletecustomerTicketStaff(this);" src="../img/remove.png">
+										<img class="inline-img pull-right" data-history-label="Customer QA Staff" onclick="customerTicketStaff(this);" src="../img/icons/ROOK-add-icon.png">
+										<img class="inline-img pull-right" data-history-label="Customer QA Staff" onclick="deletecustomerTicketStaff(this);" src="../img/remove.png">
 									</div>
 								</div>
 							<?php } ?>
@@ -325,7 +355,7 @@
 						Client: [CLIENT]<br>
 						'.TICKET_NOUN.' Heading: [HEADING]<br>
 						Status: [STATUS]<br>
-						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
+						<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br/><br/><br/>
 						<img src="'.WEBSITE_URL.'/img/ffm-signature.png" width="154" height="77" border="0" alt="">';
 					?>
 					<script>
@@ -362,7 +392,7 @@
 								<textarea name="ticket_comment_email_body" class="form-control email_body"><?php echo $body; ?></textarea>
 							</div>
 						</div>
-						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="deliverable_date" onclick="send_email(this); return false;">Send Email</button>
+						<button class="btn brand-btn pull-right" data-table="tickets" data-id-field="ticketid" data-id="<?= $ticketid ?>" data-field="deliverable_date" data-history-label="Send Customer QA User Email" onclick="send_email(this); return false;">Send Email</button>
 					</div>
 					<div class="clearfix"></div>
 				</div>

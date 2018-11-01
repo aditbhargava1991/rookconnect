@@ -24,7 +24,8 @@ if (isset($_POST['submit'])) {
     $manualtypeid = $_POST['manualtypeid'];
 
     $email_to = explode(',', str_replace(' ', '', $_POST['email_to']));
-    $to_email = array_filter(array_merge( (array)$email_to,(array)$_POST['email_staff']));
+    $cc_email_to = explode(',', str_replace(' ', '', $_POST['cc_email_to']));
+    $to_email = array_filter(array_merge((array)$email_to,(array)$_POST['email_staff']));
 	$email_from = $_POST['email_from'];
 	$email_name = $_POST['email_name'];
 
@@ -34,9 +35,10 @@ if (isset($_POST['submit'])) {
     $bcc = get_config($dbc, 'wt_bcc_email');
 
 	$failed = [];
-    foreach ($to_email as $key => $address) {
+
+    if($_POST['email_to'] != '' || $_POST['cc_email_to'] != '' || $_POST['email_staff'] != '') {
 		try {
-			send_email([$email_from => $email_name], $address, '', $bcc, $email_subject, $email_body, $attachment);
+			send_email([$email_from => $email_name], $to_email, $cc_email_to, $bcc, $email_subject, $email_body, $attachment);
 		} catch (Exception $e) {
 			$failed[] = $address;
 		}
@@ -105,6 +107,13 @@ $(document).ready(function() {
     <label for="company_name" class="col-sm-4 control-label">Email To:<br><em>(separate multiple emails using a comma and no spaces)</em></label>
     <div class="col-sm-8">
         <input name="email_to" type="text" value="<?php echo get_email($dbc, $_GET['cid']);?>" class="form-control">
+    </div>
+    </div>
+
+    <div class="form-group">
+    <label for="company_name" class="col-sm-4 control-label">CC Email To:<br><em>(separate multiple emails using a comma and no spaces)</em></label>
+    <div class="col-sm-8">
+        <input name="cc_email_to" type="text" value="<?php echo get_email($dbc, $_GET['ccid']);?>" class="form-control">
     </div>
     </div>
 

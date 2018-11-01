@@ -247,6 +247,9 @@ $(document).ready(function(){
                     </tr>
                     <tr>
                         <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Deliverable".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Deliverable" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Deliverable
+                        </td>
+                        <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Time".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Time" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Time Tracking
                         </td>
                         <td>
@@ -265,7 +268,6 @@ $(document).ready(function(){
             <label class="col-sm-4">Limit Staff Categories:</label>
             <div class="col-sm-8">
                 <select name="limit_staff_cat[]" multiple class="chosen-select-deselect form-control">
-                    <option></option>
                     <?php $sales_limit_staff_cat = ','.get_config($dbc, 'sales_limit_staff_cat').',';
                     $get_config_values = array_filter(explode(',',str_replace(',,',',',str_replace('Staff','',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT categories FROM field_config_contacts WHERE tab='Staff' AND `categories` IS NOT NULL"))['categories']))));
                     foreach($get_config_values as $category) { ?>

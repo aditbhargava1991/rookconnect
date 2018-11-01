@@ -189,6 +189,7 @@ function loadPanel() {
 	<ul>
 		<a href="?settings=dashboard"><li class="<?= empty($_GET['settings']) || $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard &amp; Tabs</li></a>
 		<a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Staff Fields</li></a>
+		<a href="?settings=mandatory_fields"><li class="<?= $_GET['settings'] == 'mandatory_fields' ? 'active blue' : '' ?>">Staff Mandatory Fields</li></a>
 		<a href="?settings=profile"><li class="<?= $_GET['settings'] == 'profile' ? 'active blue' : '' ?>">Profile Access</li></a>
 		<a href="?settings=positions"><li class="<?= $_GET['settings'] == 'positions' ? 'active blue' : '' ?>">Positions</li></a>
 		<!-- <a href="?settings=reminders"><li class="<?= $_GET['settings'] == 'reminders' ? 'active blue' : '' ?>">Reminders</li></a> -->
@@ -209,6 +210,10 @@ function loadPanel() {
 		case 'fields':
 			$body_title = 'Staff Fields';
 			$include_file = 'field_config_fields.php';
+			break;
+		case 'mandatory_fields':
+			$body_title = 'Staff Mandatory Fields';
+			$include_file = 'field_config_mandatory_fields.php';
 			break;
 		case 'profile':
 			$body_title = 'Profile Access';

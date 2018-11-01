@@ -6,7 +6,7 @@ if($staff > 0) {
 	}
 	foreach ($all_contacts as $staff) {
 		if(!$midnight_end) {
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($time - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($time - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$hour' WHERE `staff`='$staff'AND `type_of_time` != 'day_tracking' AND `timer_start` > 0");
+			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($time - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($time - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$time_minimum'), `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `end_time`='$hour', `end_time_from` = 'End Day Tile' WHERE `staff`='$staff'AND `type_of_time` != 'day_tracking' AND `timer_start` > 0");
 
 			//Check Out of Tickets/Work Orders
 			$all_attached = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Staff_Tasks' AND `item_id` = '".$staff."' AND `arrived` = 1 AND `completed` = 0 AND `deleted` = 0");
@@ -34,14 +34,14 @@ if($staff > 0) {
 			$hours = ($total['hours'] + $total_tracked['hours']) * 1;
 			$minimum = ($time_minimum > $hours ? $time_minimum - $hours : 0);
 			$seconds = ($time > $total['timer'] + ($hours * 3600) ? $time +($hours * 3600) : $total['timer']);
-			mysqli_query($dbc, "UPDATE `time_cards` SET `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$hour', `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$comment') $highlight_query WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff' $id_query");
+			mysqli_query($dbc, "UPDATE `time_cards` SET `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$hour', `end_time_from` = 'End Day Tile', `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$comment') $highlight_query WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff' $id_query");
 		} else if($tracking_id['id'] > 0) {
 			$total = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(`total_hrs`) hours, MIN(`timer_start`) timer FROM `time_cards` WHERE CONCAT(`date`,' ',`start_time`) > '$timer_start' AND `staff`='$staff' AND `type_of_time` != 'day_tracking' $midnight_query"));
 			$seconds = $time - ($total['hours'] * 3600);
 			$hours = $total['hours'] * 1;
 			$minimum = ($time_minimum > $hours ? $time_minimum - $hours : 0);
 			// $seconds = ($time > $total['timer'] + ($hours * 3600) ? $time +($hours * 3600) : $total['timer']);
-			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$minimum'), `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$hour', `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$comment') $highlight_query WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff' $id_query");
+			mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs`=GREATEST(IF('$time_interval' > 0,CEILING(((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600) / '$time_interval') * '$time_interval',((($seconds - `timer_start`) + IFNULL(NULLIF(`timer_tracked`,'0'),IFNULL(`total_hrs`,0))) / 3600)),'$minimum'), `timer_tracked` = (($time - `timer_start`) + IFNULL(`timer_tracked`,0)) / 3600, `timer_start`=0, `type_of_time`=IF(`day_tracking_type` IS NULL OR `day_tracking_type` = '', 'Regular Hrs.', `day_tracking_type`), `end_time`='$hour', `end_time_from` = 'End Day Tile', `comment_box`=CONCAT(IFNULL(CONCAT(`comment_box`,'&lt;br /&gt;'),''),'$comment') $highlight_query WHERE `timer_start` > 0 AND `type_of_time`='day_tracking' AND `staff`='$staff' $id_query");
 		}
 	}
 

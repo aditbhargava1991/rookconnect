@@ -21,13 +21,13 @@ if($doc_type == 'project') {
 		echo '<h4>'.PROJECT_NOUN.' Documents</h4>';
 		echo "<table class='table table-bordered'>
 		<tr class='hidden-xs hidden-sm'>
-		<th>Type</th>
+		<th>Tab</th>
 		<th>Document</th>
 		<th>Added By</th>
 		</tr>";
 		while($doc = $doc_list->fetch_assoc()) {
 			echo '<tr>
-				<td data-title="Type">'.$doc['category'].'</td>
+				<td data-title="Tab">'.$doc['category'].'</td>
 				<td data-title="Document"><a href="'.$doc['link'].'">'.$doc['label'].'</a></td>
 				<td data-title="Added By">'.get_contact($dbc,$doc['created_by']).'</td>
 			</tr>';
@@ -64,7 +64,7 @@ if($doc_type == 'project') {
 	if($ticketid > 0 && $num_rows > 0) {
 		echo "<table class='table table-bordered'>
 		<tr class='hidden-xs hidden-sm'>
-		<th>Type</th>
+		<th>Tab</th>
 		<th>Document/Link</th>
 		<th>Date</th>
 		<th>Added By</th>
@@ -73,7 +73,7 @@ if($doc_type == 'project') {
 		while($row = mysqli_fetch_array($result)) {
 			echo '<tr>';
 			$by = $row['created_by'];
-			echo '<td data-title="Type"><select name="type" data-table="ticket_document" data-id="'.$row['ticketdocid'].'" data-id-field="ticketdocid" class="chosen-select">';
+			echo '<td data-title="Tab"><select name="type" data-table="ticket_document" data-id="'.$row['ticketdocid'].'" data-id-field="ticketdocid" class="chosen-select">';
 			echo '<option '.($row['type'] == 'Support' ? 'selected' : '').' value="Support">Support</option><option '.($row['type'] == 'Review' ? 'selected' : '').' value="Review">Review</option></td>';
 			if($row['document'] != '') {
 				echo '<td data-title="Document"><a href="download/'.$row['document'].'" target="_blank">'.($row['label'] == '' ? $row['document'] : $row['label']).'</a>';

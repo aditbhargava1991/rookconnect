@@ -63,6 +63,10 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+        $before_change = '';
+        $history = "Safety attendance entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
         $query_update_employee = "UPDATE `safety_equipment_inspection_checklist` SET `contactid` = '$contactid', `make` = '$make', `vehicle_type` = '$vehicle_type', `serial_number` = '$serial_number', `model` = '$model', `kilometers` = '$kilometers', `fields` = '$fields', `fields_value` = '$fields_value' WHERE fieldlevelriskid='$fieldlevelriskid'";

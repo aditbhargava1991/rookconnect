@@ -429,10 +429,10 @@ $flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
                     </div>
 
                     <div class="form-group">
-                        <label for="fax_number"	class="col-sm-4	control-label"><?= TICKET_TILE ?> Types separated by a comma:</label>
+                        <label for="fax_number"	class="col-sm-4	control-label"><?= TICKET_TILE ?> Tabs separated by a comma:</label>
                         <div class="col-sm-8">
 							<input name="ticket_tabs" type="text" value="<?php echo get_config($dbc, 'ticket_tabs'); ?>" class="form-control"/>
-							<label><input name="ticket_type_tiles" type="checkbox" value="SHOW" <?= (get_config($dbc, 'ticket_type_tiles') == 'SHOW' ? 'checked' : '') ?>> Include <?= TICKET_TILE ?> Types on Menus</label>
+							<label><input name="ticket_type_tiles" type="checkbox" value="SHOW" <?= (get_config($dbc, 'ticket_type_tiles') == 'SHOW' ? 'checked' : '') ?>> Include <?= TICKET_TILE ?> Tabs on Menus</label>
                         </div>
                     </div>
 

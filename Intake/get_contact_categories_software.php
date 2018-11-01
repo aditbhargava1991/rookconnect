@@ -68,7 +68,8 @@ if(isset($_POST['complete_form'])) {
 		if($salesid == 'NEW_SALES') {
 			$primary_staff = filter_var($_POST['sales_primary_staff'],FILTER_SANITIZE_STRING);
 			$share_lead = filter_var(implode(',', $_POST['sales_share_lead']),FILTER_SANITIZE_STRING);
-			mysqli_query($dbc, "INSERT INTO `sales` (`primary_staff`, `share_lead`, `created_date`,`lead_created_by`) VALUES ('$primary_staff', '$share_lead', '".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."')");
+			$status = !empty(get_config($dbc, 'lead_status_default')) ? get_config($dbc, 'lead_status_default') : (!empty(array_filter(explode(',',get_config($dbc, 'sales_lead_status')))[0]) ? array_filter(explode(',',get_config($dbc, 'sales_lead_status')))[0] : 'Pending');
+			mysqli_query($dbc, "INSERT INTO `sales` (`primary_staff`, `share_lead`, `created_date`,`lead_created_by`, `status`) VALUES ('$primary_staff', '$share_lead', '".date('Y-m-d')."','".get_contact($dbc, $_SESSION['contactid'])."', '$status')");
 			$salesid = mysqli_insert_id($dbc);
 		}
 		mysqli_query($dbc, "UPDATE `intake` SET `salesid` = '$salesid', `assigned_date` = '$assigned_date' WHERE `intakeid` = '$intakeid'");
@@ -320,12 +321,24 @@ if(isset($_POST['complete_form'])) {
                 $cat_text = 'Please select a Contact category:';
                 echo '<p class="gap-left">'. $cat_text .'</p>';
 
-				$all_tiles['contacts'] = array_unique(array_filter(explode(',', get_config($dbc, 'contacts_tabs'))));
-				$all_tiles['contactsrolodex'] = array_unique(array_filter(explode(',', get_config($dbc, 'contactsrolodex_tabs'))));
-				$all_tiles['contacts3'] = array_unique(array_filter(explode(',', get_config($dbc, 'contacts3_tabs'))));
-				$all_tiles['clientinfo'] = array_unique(array_filter(explode(',', get_config($dbc, 'clientinfo_tabs'))));
-				$all_tiles['members'] = array_unique(array_filter(explode(',', get_config($dbc, 'members_tabs'))));
-				$all_tiles['vendors'] = array_unique(array_filter(explode(',', get_config($dbc, 'vendors_tabs'))));
+                if(tile_enabled($dbc, 'contacts') || tile_enabled($dbc, 'contacts_inbox')) {
+					$all_tiles['contacts'] = array_unique(array_filter(explode(',', get_config($dbc, 'contacts_tabs'))));
+                }
+                if(tile_enabled($dbc, 'contacts_rolodex')) {
+					$all_tiles['contactsrolodex'] = array_unique(array_filter(explode(',', get_config($dbc, 'contactsrolodex_tabs'))));
+                }
+                if(tile_enabled($dbc, 'contacts3')) {
+					$all_tiles['contacts3'] = array_unique(array_filter(explode(',', get_config($dbc, 'contacts3_tabs'))));
+				}
+                if(tile_enabled($dbc, 'client_info')) {
+					$all_tiles['clientinfo'] = array_unique(array_filter(explode(',', get_config($dbc, 'clientinfo_tabs'))));
+				}
+                if(tile_enabled($dbc, 'members')) {
+					$all_tiles['members'] = array_unique(array_filter(explode(',', get_config($dbc, 'members_tabs'))));
+				}
+                if(tile_enabled($dbc, 'vendors')) {
+					$all_tiles['vendors'] = array_unique(array_filter(explode(',', get_config($dbc, 'vendors_tabs'))));
+				}
 				?>
 
 				<div class="gap-left">
@@ -345,8 +358,8 @@ if(isset($_POST['complete_form'])) {
 					<?php /* Select the Contact */
 					if ( $action == 'assign' || $action == 'project' || $action == 'sales' || $action == 'ticket' ) { ?>
 						<br /><br />
-						<p>Select the <?= $contact_type; ?> you want this Intake Form Submission to assign to:</p>
-						<select name="contact_list" id="contact_list" data-placeholder="Select a <?= $contact_type; ?>" width="380" class="chosen-select-deselect form-control">
+						<p>Select the Contact you want this Intake Form Submission to assign to:</p>
+						<select name="contact_list" id="contact_list" data-placeholder="Select a Contact" width="380" class="chosen-select-deselect form-control">
 						</select>
 						<br /><br />
 						<p><label class="form-checkbox" style="max-width: none;"><input type="checkbox" name="contact_update_info" value="1"> Update Contact Information With Form Details</label></p><?php
@@ -483,7 +496,6 @@ if(isset($_POST['complete_form'])) {
 					<div class="gap-left new_sales" style="display:none;">
 						<p>Share Lead:</p>
 						<select name="sales_share_lead[]" multiple="" data-placeholder="Select a Staff" class="chosen-select-deselect form-control">
-							<option></option>
 							<?php foreach($staff_list as $staff) {
 								echo '<option value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
 							} ?>

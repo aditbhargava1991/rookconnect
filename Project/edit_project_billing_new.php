@@ -32,7 +32,7 @@ if($security['edit'] > 0) {
 		$headings['scope'] = 'Scope';
 	}
 	$headings['checklists'] = 'Checklists';
-	$headings['tasklist'] = 'Tasks';
+	$headings['tasklist'] = TASK_TILE;
 	$headings['tickets'] = TICKET_TILE;
 	$headings['workorders'] = 'Work Orders';
 	$headings['staff_task'] = 'Staff Tasks';

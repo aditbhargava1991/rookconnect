@@ -187,6 +187,12 @@ checkAuthorised('sales_order');
 ?>
 
 <div id="sales_order_div" class="container">
+    <div class="iframe_overlay" style="display:none;">
+        <div class="iframe">
+            <div class="iframe_loading">Loading...</div>
+            <iframe src=""></iframe>
+        </div>
+    </div>
     <div class="row">
 		<div class="main-screen"><?php
             include('tile_header.php'); ?>

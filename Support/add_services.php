@@ -1,4 +1,4 @@
-<?php include('../include.php');
+<?php include('config.php');
 error_reporting(0);
 if(!empty($_POST['submit'])) {
 	$type = $_POST['type'];

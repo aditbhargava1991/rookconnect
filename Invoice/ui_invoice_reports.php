@@ -5,7 +5,8 @@ Client Listing
 include ('../include.php');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
-if(FOLDER_NAME == 'posadvanced') {
+if(!empty($folder)) {
+} else if(FOLDER_NAME == 'posadvanced') {
     checkAuthorised('posadvanced');
 } else {
     checkAuthorised('check_out');
@@ -70,111 +71,110 @@ function waiting_on_collection(sel) {
 		}
 	});
 }
+function view_ui_report()
+{
+    $('.view_ui_report').toggleClass('hidden');
+}
 </script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
+
+<?php
 $payer_config = explode(',',get_config($dbc, 'invoice_payer_contact'));
 define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0]); ?>
 
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <h2>U<?= substr(PAYER_LABEL,0,1) ?> Invoice Report</h2>
-        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
-            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
-        } ?>
-        
-		<?php include('tile_tabs.php'); ?>
-        
-        <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-
-            <div class="notice double-gap-bottom popover-examples">
-            <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-            <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            U<?= substr(PAYER_LABEL,0,1) ?> Reports are grouped receivables (this tab displays the groups and their total amounts). </div>
-            <div class="clearfix"></div>
-            </div>
-
-            <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
-            <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
-
-            <?php
-            if(!empty($_GET['p1'])) {
-                $insurer = $_GET['p3'];
-                $invoice_no = $_GET['p5'];
-                $ui_no = $_GET['p6'];
-                $ui_total = $_GET['p7'];
-            }
-            if (isset($_POST['search_email_submit'])) {
-                $insurer = $_POST['insurer'];
-                $invoice_no = $_POST['invoice_no'];
-                $ui_no = $_POST['ui_no'];
-                $ui_total = $_POST['ui_total'];
-            }
-            if (isset($_POST['search_email_all'])) {
-                $insurer = '';
-                $invoice_no = '';
-                $ui_no = '';
-                $ui_total = '';
-            }
-            ?>
-            <br /><br />
-
-            <div class="form-group">
-                <label for="site_name" class="col-sm-2 control-label">
-					<span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search for invoice(s) by <?= PAYER_LABEL ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-					<?= PAYER_LABEL ?>:
-				</label>
-                <div class="col-sm-8" style="width:auto">
-                    <select data-placeholder="Choose a <?= PAYER_LABEL ?>..." name="insurer" class="chosen-select-deselect form-control" width="380">
-                        <option value="">Display All</option>
-						<?php
-							$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN ('".implode("','",$payer_config)."') AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
-							foreach($query as $id) {
-								$selected = '';
-								$selected = $id == $insurer ? 'selected = "selected"' : '';
-								echo "<option " . $selected . "value='". $id."'>".get_contact($dbc, $id,'name').'</option>';
-							}
-						?>
-                    </select>
-                </div>
-
-                <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by invoice # directly. You must enter a complete value."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                Invoice #:
-                <input name="invoice_no" type="text" class="form-control1" value="<?php echo $invoice_no; ?>">
-
-                <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by the generated U<?= substr(PAYER_LABEL,0,1) ?> #."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                U<?= substr(PAYER_LABEL,0,1) ?> #:
-                <input name="ui_no" type="text" class="form-control1" value="<?php echo $ui_no; ?>">
-
-                <span class="popover-examples list-inline" style="margin:0 5px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Search by the total value of the generated U<?= substr(PAYER_LABEL,0,1) ?>."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                U<?= substr(PAYER_LABEL,0,1) ?> Total $:
-                <input name="ui_total" type="text" class="form-control1" value="<?php echo $ui_total; ?>">
-			<br><br>
-			<div style="text-align:center">
-				<button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
-				<span class="popover-examples list-inline" style="margin:0 0 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Select this to remove all of the search filters you've applied. It will revert back to today's invoices."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-				<button type="submit" name="search_email_all" value="Search" class="btn brand-btn mobile-block">Display All</button>
-			</div>
-            <br>
-
-            <input type="hidden" name="insurerpdf" value="<?php echo $insurer; ?>">
-            <input type="hidden" name="invoice_nopdf" value="<?php echo $invoice_no; ?>">
-            <input type="hidden" name="ui_nopdf" value="<?php echo $ui_no; ?>">
-            <input type="hidden" name="ui_totalpdf" value="<?php echo $ui_total; ?>">
-
-            <!-- <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button> -->
-            <br><br>
-
-            <?php
-                echo report_receivables($dbc, '', '', '', $insurer, $invoice_no, $ui_no, $ui_total);
-            ?>
-			</div>
-
-        </form>
-    </div>
+<div class="standard-body-title hide-titles-mob">
+    <h3 class="pull-left">U<?= substr(PAYER_LABEL,0,1) ?> Invoice Report</h3>
+    <div class="pull-right"><img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide U<?= substr(PAYER_LABEL,0,1) ?> Invoice Report" onclick="view_ui_report()"></div>
+    <div class="clearfix"></div>
 </div>
-<?php include ('../footer.php'); ?>
+
+<div class="standard-body-content padded-desktop">
+    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+
+        <div class="notice double-gap-bottom popover-examples  view_ui_report hidden">
+        <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+        <div class="col-sm-11"><span class="notice-name">NOTE:</span>
+        U<?= substr(PAYER_LABEL,0,1) ?> Reports are grouped receivables (this tab displays the groups and their total amounts). </div>
+        <div class="clearfix"></div>
+        </div>
+
+        <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
+        <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
+
+        <?php
+        if(!empty($_GET['p1'])) {
+            $insurer = $_GET['p3'];
+            $invoice_no = $_GET['p5'];
+            $ui_no = $_GET['p6'];
+            $ui_total = $_GET['p7'];
+        }
+        if (isset($_POST['search_email_submit'])) {
+            $insurer = $_POST['insurer'];
+            $invoice_no = $_POST['invoice_no'];
+            $ui_no = $_POST['ui_no'];
+            $ui_total = $_POST['ui_total'];
+        }
+        if (isset($_POST['search_email_all'])) {
+            $insurer = '';
+            $invoice_no = '';
+            $ui_no = '';
+            $ui_total = '';
+        }
+        ?>
+        <br /><br />
+
+        <div class="form-group  view_ui_report hidden">
+            <div class="col-xs-12">
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label"><?= PAYER_LABEL ?>:</label></div>
+                    <div class="col-sm-8">
+                        <select data-placeholder="Choose a <?= PAYER_LABEL ?>..." name="insurer" class="chosen-select-deselect form-control" width="380">
+                            <option value="">Display All</option>
+                            <?php
+                                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN ('".implode("','",$payer_config)."') AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
+                                foreach($query as $id) {
+                                    $selected = '';
+                                    $selected = $id == $insurer ? 'selected = "selected"' : '';
+                                    echo "<option " . $selected . "value='". $id."'>".get_contact($dbc, $id,'name').'</option>';
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label">Invoice #:</label></div>
+                    <div class="col-sm-8"><input name="invoice_no" type="text" class="form-control1 form-control" value="<?php echo $invoice_no; ?>" /></div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label">U<?= substr(PAYER_LABEL,0,1) ?> #:</label></div>
+                    <div class="col-sm-8"><input name="ui_no" type="text" class="form-control1 form-control" value="<?php echo $ui_no; ?>" /></div>
+                </div>
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label">U<?= substr(PAYER_LABEL,0,1) ?> Total $:</label></div>
+                    <div class="col-sm-8"><input name="ui_total" type="text" class="form-control1 form-control" value="<?php echo $ui_total; ?>" /></div>
+                </div>
+            </div>
+            <div class="col-xs-12 text-right offset-top-5 gap-right">
+                <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+                <button type="submit" name="search_email_all" value="Search" class="btn brand-btn mobile-block">Display All</button>
+            </div>
+        </div>
+
+        <input type="hidden" name="insurerpdf" value="<?php echo $insurer; ?>">
+        <input type="hidden" name="invoice_nopdf" value="<?php echo $invoice_no; ?>">
+        <input type="hidden" name="ui_nopdf" value="<?php echo $ui_no; ?>">
+        <input type="hidden" name="ui_totalpdf" value="<?php echo $ui_total; ?>">
+
+        <!-- <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button> -->
+
+        <?php
+            echo report_receivables($dbc, '', '', '', $insurer, $invoice_no, $ui_no, $ui_total);
+        ?>
+        </div>
+
+    </form>
+</div>
 
 <?php
 function report_receivables($dbc, $table_style, $table_row_style, $grand_total_style, $insurer, $invoice_no, $ui_no, $ui_total) {

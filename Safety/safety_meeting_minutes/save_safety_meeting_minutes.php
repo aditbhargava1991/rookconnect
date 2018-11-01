@@ -43,6 +43,10 @@
         $result_insert_site	= mysqli_query($dbc, $query_insert_site);
         $fieldlevelriskid = mysqli_insert_id($dbc);
 
+        $before_change = '';
+        $history = "Safety meeting minutes entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
         $attendance_staff_each = $_POST['attendance_staff'];
         for($i = 0; $i < count($_POST['attendance_staff']); $i++) {
             $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`) VALUES ('$safetyid', '$fieldlevelriskid', '$attendance_staff_each[$i]')";
@@ -76,6 +80,10 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+        $before_change = '';
+        $history = "Safety attendance entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
         $query_update_employee = "UPDATE `safety_safety_meeting_minutes` SET `contactid` = '$contactid', `absent` = '$absent', `follow_up_action` = '$follow_up_action', `corrective_actions` = '$corrective_actions', `vehicle_logs` = '$vehicle_logs', `vehicle_update` = '$vehicle_update', `training` = '$training', `driving` = '$driving', `safety_concerns` = '$safety_concerns', `fields` = '$fields', `desc` = '$desc', `desc1` = '$desc1', `desc2` = '$desc2', `desc3` = '$desc3', `discussion_items` = '$discussion_items', `all_task` = CONCAT(all_task,'$all_task') WHERE fieldlevelriskid='$fieldlevelriskid'";
@@ -102,6 +110,10 @@
                 }
             }
         }
+
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE	fieldlevelriskid='$fieldlevelriskid' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {

@@ -9,26 +9,23 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 		$tile = $tile_name[0];
 		$sub_tile = config_safe_str($tile_name[1]);
 	}
-	if((tile_visible($dbc, $tile) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket_group' && $sub_tile != '' && tile_visible($dbc, 'ticket_tile_'.$sub_tile, ROLE, 'ticket'))) {
+	if(((tile_visible($dbc, $tile) || (is_array($tile_name) && tile_visible($dbc, $tile.'_'.$sub_tile, ROLE, $tile))) && ($sub_tile == '' || ($tile != 'project' && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)))) || ($tile == 'project' && $sub_tile != '' && tile_visible($dbc, 'project_type_'.$sub_tile, ROLE, 'project') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket' && $sub_tile != '' && tile_visible($dbc, 'ticket_type_'.$sub_tile, ROLE, 'ticket') && check_subtab_persmission($dbc, $tile, ROLE, $sub_tile)) || ($tile == 'ticket_group' && $sub_tile != '' && tile_visible($dbc, 'ticket_tile_'.$sub_tile, ROLE, 'ticket'))) {
 		switch($tile) {
+			case 'start_day_button': return ['link'=>'Timesheet/start_day.php','name'=>START_DAY]; break;
 			case 'admin_settings': return ['link'=>'admin_software_config.php','name'=>'Admin Settings']; break;
 			case 'software_config': return ['link'=>'Settings/settings.php','name'=>'Settings']; break;
 			case 'security': return ['link'=>"Security/security.php",'name'=>'Security']; break;
 			case 'contacts': return ['link'=>"Contacts/contacts.php?filter=Top",'name'=>'Contacts (Tabbed View)']; break;
-			case 'contacts_inbox': return ['link'=>"Contacts/contacts_inbox.php",'name'=>CONTACTS_TILE]; break;
-			case 'contacts3': return ['link'=>"Contacts3/contacts_inbox.php",'name'=>'Contacts']; break;
-			case 'client_info': return ['link'=>"ClientInfo/contacts_inbox.php",'name'=>'Client Information']; break;
-			case 'contacts_rolodex': return ['link'=>"ContactsRolodex/contacts_inbox.php",'name'=>'Contacts Rolodex']; break;
+			case 'contacts_inbox': return ['link'=>"Contacts/contacts_inbox.php?list=summary&status=summary",'name'=>CONTACTS_TILE]; break;
+			case 'contacts3': return ['link'=>"Contacts3/contacts_inbox.php?list=summary&status=summary",'name'=>'Contacts']; break;
+			case 'client_info': return ['link'=>"ClientInfo/contacts_inbox.php?list=summary&status=summary",'name'=>'Client Information']; break;
+			case 'contacts_rolodex': return ['link'=>"ContactsRolodex/contacts_inbox.php?list=summary&status=summary",'name'=>'Contacts Rolodex']; break;
 			case 'staff': return ['link'=>"Staff/staff.php",'name'=>'Staff']; break;
 			case 'orientation': return ['link'=>"Orientation/orientation.php",'name'=>'Orientation']; break;
-			case 'documents': return ['link'=>"Document/documents.php",'name'=>'Documents']; break;
 			case 'infogathering': return ['link'=>"Information Gathering/infogathering.php",'name'=>'Information Gathering']; break;
 			case 'agenda_meeting': return ['link'=>"Agenda Meetings/agenda.php",'name'=>'Agendas & Meetings']; break;
 			case 'sales': return ['link'=>"Sales/index.php",'name'=>SALES_TILE]; break;
 			case 'certificate': return ['link'=>"Certificate/index.php",'name'=>'Certificates']; break;
-			case 'marketing_material': return ['link'=>"Marketing Material/marketing_material.php",'name'=>'Marketing Material']; break;
-			case 'internal_documents': return ['link'=>"Internal Documents/internal_documents.php",'name'=>'Internal Documents']; break;
-			case 'client_documents': return ['link'=>"Client Documents/client_documents.php",'name'=>'Client Documents']; break;
 			case 'contracts': return ['link'=>"Contract/index.php",'name'=>'Contracts']; break;
 			case 'driving_log': return ['link'=>"Driving Log/driving_log_tiles.php",'name'=>'Driving Log']; break;
 			case 'package': return ['link'=>"Package/package.php",'name'=>'Packages']; break;
@@ -45,40 +42,6 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'custom': return ['link'=>"Custom/custom.php",'name'=>'Custom']; break;
 			case 'intake': return ['link'=>"Intake/intake.php",'name'=>'Intake Forms']; break;
 			//case 'pos': return ['link'=>"Point of Sale/add_point_of_sell.php",'name'=>'Point of Sale<br /><small>Basic</small>']; break;
-            case 'pos':
-                $pos_layout	= get_config($dbc, 'pos_layout');
-                $pos_url = ['sell'=>'add_point_of_sell.php','sell_touch'=>'pos_touch.php','invoices'=>'point_of_sell.php','returns'=>'returns.php','accounts_receivables'=>'unpaid_invoice.php','voided_invoices'=>'voided.php','gift_cards'=>'giftcards.php'];
-                if ($is_mobile) {
-                    $mobile_landing_subtab_config = get_config($dbc, 'pos_mobile_landing_subtab');
-                    if ( !empty($mobile_landing_subtab_config) ) {
-                        foreach ($pos_url as $key=>$value) {
-                            if ($key==$mobile_landing_subtab_config) {
-                                $pos_url = $value;
-                            }
-                        }
-                    } else {
-                        $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                    }
-                } else {
-                    $desktop_landing_subtab_config = get_config($dbc, 'pos_desktop_landing_subtab');
-                    if ( !empty($desktop_landing_subtab_config) ) {
-                        foreach ($pos_url as $key=>$value) {
-                            if ($key==$desktop_landing_subtab_config) {
-                                $pos_url = $value;
-                            }
-                        }
-                    } else {
-                        $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                    }
-                }
-                /*
-                if ( check_subtab_persmission($dbc, 'pos', ROLE, 'sell') === true ) {
-                    $pos_layout	= get_config($dbc, 'pos_layout');
-                    $pos_url = ( $pos_layout=='touch' ) ? 'pos_touch.php' : 'add_point_of_sell.php';
-                } */
-
-                return ['link'=>'Point of Sale/'.$pos_url,'name'=>'Point of Sale<br /><small>Basic</small>'];
-                break;
 			case 'posadvanced': return ['link'=>"POSAdvanced/invoice_main.php",'name'=>POS_ADVANCE_TILE]; break;
 			case 'invoicing': return ['link'=>"Invoicing/add_point_of_sell.php",'name'=>'Invoicing']; break;
 			case 'service_queue': return ['link'=>"Service Queue/service_queue.php",'name'=>'Service Queue']; break;
@@ -113,17 +76,17 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'gao': return ['link'=>"Gao/gao.php",'name'=>'Goals & Objectives']; break;
 
 			case 'checklist':
-            $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE (`assign_staff` LIKE '%,{$_SESSION['contactid']},%' OR `assign_staff`=',ALL,') AND `deleted`=0 AND checklist_tile=1"));
+            /* $get_checklist = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(checklistid) AS checklistid FROM checklist WHERE (`assign_staff` LIKE '%,{$_SESSION['contactid']},%' OR `assign_staff`=',ALL,') AND `deleted`=0 AND checklist_tile=1"));
             if($get_checklist['checklistid'] > 0) {
                $checklist_url = 'checklist_tile.php';
             } else {
                $checklist_url = 'checklist.php';
-            }
-
+            } */
+            $checklist_url = 'checklist.php';
             return ['link'=>'Checklist/'.$checklist_url,'name'=>'Checklist']; break;
 
-			case 'tasks': return ['link'=>"Tasks/index.php?category=All&tab=Summary",'name'=>'Tasks']; break;
-			case 'tasks_updated': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>'Tasks (Updated)']; break;
+			case 'tasks': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>TASK_TILE]; break;
+			//case 'tasks_updated': return ['link'=>"Tasks_Updated/index.php?category=All&tab=Summary",'name'=>'Tasks (Updated)']; break;
 			case 'scrum': return ['link'=>"Scrum/scrum.php?category=All",'name'=>'Scrum']; break;
 			case 'communication': return ['link'=>"Communication/tasks.php?category=All",'name'=>'Communication Tasks']; break;
 			case 'communication_schedule': return ['link'=>"Communication Schedule/communication.php",'name'=>'Communication']; break;
@@ -135,10 +98,10 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'payroll': return ['link'=>"Payroll/payroll.php",'name'=>'Payroll']; break;
 			case 'purchase_order': return ['link'=>"Purchase Order/index.php",'name'=>get_tile_title_po($dbc).'']; break;
 			case 'sales_order': return ['link'=>"Sales Order/index.php",'name'=>SALES_ORDER_TILE]; break;
-			case 'newsboard': return ['link'=>"News Board/newsboard.php",'name'=>'News Board']; break;
+			case 'newsboard': return ['link'=>"News Board/index.php",'name'=>'News Board']; break;
 			case 'calendar_rook': return ['link'=>"Calendar/calendars.php",'name'=>'Calendar']; break;
 			case 'field_job': return ['link'=>"Field Jobs/field_sites.php",'name'=>'Field Jobs']; break;
-			case 'expense': return ['link'=>"Expense/expenses.php",'name'=>'Expenses']; break;
+			case 'expense': return ['link'=>"Expense/expenses.php?filter_id=all",'name'=>'Expenses']; break;
 			case 'payables': return ['link'=>"Payables/payables.php",'name'=>"Payables"]; break;
 			case 'billing': return ['link'=>"Project Billing/project_billing.php",'name'=>"Project Billing & Invoices"]; break;
 			case 'report':
@@ -306,14 +269,14 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 			case 'archiveddata': return ['link'=>"Archived/archived_data.php",'name'=>'Archived Data']; break;
 			case 'ffmsupport': return ['link'=>"Support/support.php",'name'=>'FFM Support']; break;
 			case 'customer_support': return ['link'=>"Support/customer_support.php",'name'=>'Customer Support']; break;
+			case 'demo': return ['link'=>"Demo/index.php",'name'=>'Demo']; break;
     		case 'interactive_calendar': return ['link'=>"Interactive Calendar/interactive_calendar.php",'name'=>'Interactive Calendar']; break;
     		case 'properties': return ['link'=>"Properties/properties.php",'name'=>'Properties']; break;
     		case 'training_quiz': return ['link'=>"TrainingQuizzes/orientation_training.php",'name'=>'Training & Quizzes']; break;
     		case 'preformance_review': return ['link'=>"HR/index.php?performance_review=list",'name'=>'Performance Reviews']; break;
 			case 'client_projects': return ['link'=>"Client Projects/project.php",'name'=>'Client Projects']; break;
-			case 'staff_documents': return ['link'=>"Staff Documents/staff_documents.php",'name'=>'Staff Documents']; break;
 			case 'safety_manual': return ['link'=>"Manuals/safety_manual.php",'name'=>'Safety Manual']; break;
-			case 'members': return ['link'=>"Members/contacts_inbox.php", 'name'=>'Members']; break;
+			case 'members': return ['link'=>"Members/contacts_inbox.php?list=summary&status=summary", 'name'=>'Members']; break;
 			case 'form_builder': return ['link'=>"Form Builder/formbuilder.php", 'name'=>'Form Builder']; break;
 			case 'hr':
 				if(!is_array($tile_name)) {
@@ -382,10 +345,11 @@ function tile_data($dbc, $tile_name, $is_mobile = FALSE) {
 				} break;
             case 'website': return ['link'=>"Website/website.php",'name'=>'Website']; break;
             case 'non_verbal_communication': return ['link'=>"Non Verbal Communication/index.php",'name'=>'Emoji Comm']; break;
-            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php",'name'=>VENDOR_TILE]; break;
+            case 'vendors': return ['link'=>"Vendors/contacts_inbox.php?list=summary&status=summary",'name'=>VENDOR_TILE]; break;
 			case 'quote': return ['link'=>"Quote/quotes.php",'name'=>'Quotes']; break;
 			case 'cost_estimate': return ['link'=>"Cost Estimate/estimate.php",'name'=>'Cost Estimates']; break;
 			case 'optimize': return ['link'=>"Optimize/index.php",'name'=>'Trip Optimizer']; break;
+			case 'dispatch': return ['link'=>"Dispatch/index.php",'name'=>'Dispatch']; break;
 		}
 	}
 	return ['link'=>false,'name'=>false];

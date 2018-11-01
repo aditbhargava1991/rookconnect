@@ -1,5 +1,5 @@
 <?php
-/* 
+/*
  * Software Guide
  * This is what the software users will refer when they want to see how a Tile or Sub Tab works
  */
@@ -22,9 +22,9 @@ include ('../database_connection_htg.php');
                 var sidebar_height = $('.tile-sidebar').outerHeight(true);
             }
         }).resize();
-        
+
         $('.panel-heading.mobile_load').click(loadPanel);
-        
+
         $('.search-text').keypress(function(e) {
             if (e.which==13) {
                 var search = this.value;
@@ -32,12 +32,12 @@ include ('../database_connection_htg.php');
             }
         });
     });
-    
+
     function loadPanel() {
         var panel = $(this).closest('.panel').find('.panel-body');
         var guide = panel.data('guide');
         panel.html('');
-        
+
         $.ajax({
             url: 'guide_ajax_all.php?fill=load_panel&guide='+guide,
             method: 'GET',
@@ -64,7 +64,7 @@ include ('../database_connection_htg.php');
 	</div>
 	<div class="row">
 		<div class="main-screen">
-            
+
             <!-- Tile Header -->
             <div class="tile-header standard-header">
                 <div class="row">
@@ -168,19 +168,20 @@ include ('../database_connection_htg.php');
                             echo 'Nothing found for ' . $search_term;
                         }
                         echo '</div>';
-                    
+
                     } else {
                         $guideid = preg_replace('/[^0-9]/', '', $_GET['guide']);
                         if ( !empty($guideid) ) {
-                            $guide = mysqli_query($dbc_htg, "SELECT `tile`, `subtab`, `description` FROM `how_to_guide` WHERE `guideid`='$guideid' AND `deleted`=0");
+                            $guide = mysqli_query($dbc_htg, "SELECT `tile`, `subtab`, `description`, `image_full_path` FROM `how_to_guide` WHERE `guideid`='$guideid' AND `deleted`=0");
                             if ( $guide->num_rows > 0 ) {
                                 while ( $row=mysqli_fetch_assoc($guide) ) {
                                     echo '<div class="standard-body-title">';
                                     echo '<h3>'. $row['tile'] . ': '. $row['subtab'] .'</h3>';
                                     echo '</div>';
-        
+
                                     echo '<div class="standard-body-content" style="padding: 1em;">';
                                         echo html_entity_decode($row['description']);
+                                        echo "<img src='".$row['image_full_path']."' width='100%' title='Software Guide Image'>";
                                     echo '</div>';
                                 }
                             }
@@ -190,13 +191,13 @@ include ('../database_connection_htg.php');
                                     echo '<div style="padding:1em;">'. html_entity_decode($row['additional_guide']) .'</div>';
                                 }
                             }
-                            
+
                             if ( $guide->num_rows == 0 && $local_guide->num_rows == 0 ) {
                                 echo '<div class="standard-body-content" style="padding: 1em;">';
                                     echo '<h4>Requested software guide is not available at this time. Please check back later for updates.</h4>';
                                 echo '</div>';
                             }
-                        
+
                         } else {
                             $index_tiles = mysqli_query($dbc_htg, "SELECT `tile` FROM `how_to_guide` GROUP BY `tile` ORDER BY `tile`");
                             echo '<div class="standard-body-title">';
@@ -225,7 +226,7 @@ include ('../database_connection_htg.php');
                     }?>
                 </div>
             </div><!-- .has-main-screen -->
-            
+
 		</div><!-- .main-screen -->
 	</div><!-- .row -->
 </div><!-- .container -->

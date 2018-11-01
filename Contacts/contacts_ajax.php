@@ -4,12 +4,24 @@ error_reporting(0);
 checkAuthorised();
 ob_clean();
 
+if($_GET['action'] == 'setting_quick_icon') {
+    $tab_list = $_GET['tab_list'];
+	set_config($dbc, 'contact_quick_action_icons', filter_var($tab_list,FILTER_SANITIZE_STRING));
+}
+
 if($_GET['action'] == 'contact_fields') {
 	$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
 	$fields = filter_var($_POST['field_list'],FILTER_SANITIZE_STRING);
 	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `field_config_contacts` (`tab`,`tile_name`,`subtab`) SELECT '$category', '$tile', '**no_subtab**' FROM (SELECT COUNT(*) rows FROM `field_config_contacts` WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab`='**no_subtab**' AND `subtab` != 'additions') num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `field_config_contacts` SET `contacts`='$fields' WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab` = '**no_subtab**' AND `subtab` != 'additions'");
+}
+else if($_GET['action'] == 'contact_mandatory_fields') {
+	$category = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
+	$fields = filter_var($_POST['field_list'],FILTER_SANITIZE_STRING);
+	$tile = filter_var($_POST['tile'],FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `field_config_contacts` (`tab`,`tile_name`,`subtab`,`mandatory`) SELECT '$category', '$tile', '**no_subtab**',1 FROM (SELECT COUNT(*) rows FROM `field_config_contacts` WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab`='**no_subtab**' AND `subtab` != 'additions' AND `mandatory` = 1) num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_config_contacts` SET `contacts`='$fields' WHERE `tab`='$category' AND `tile_name`='$tile' AND `subtab` = '**no_subtab**' AND `subtab` != 'additions' AND `mandatory` = 1");
 }
 else if($_GET['action'] == 'contacts_dashboards') {
 	$tab_dashboard = filter_var($_POST['category'],FILTER_SANITIZE_STRING);
@@ -1070,6 +1082,10 @@ if($_GET['action'] == 'update_url_send_email') {
 	}
 
 	echo (empty($error) ? 'Successfully sent.' : $error);
+}
+
+if($_GET['action'] == 'get_contact_name') {
+	echo $contact_name = array_shift(sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` = '".$_GET['contactid']."'")))['full_name'];
 }
 
 function copy_data($dbc, $contactid, $other_contactid) {

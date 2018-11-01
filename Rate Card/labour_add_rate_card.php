@@ -23,7 +23,7 @@ if (isset($_POST['submit'])) {
 		$sql = "UPDATE `company_rate_card` SET `rate_card_name`='$rate_card',`description`=$category,`start_date`='$start_date',`end_date`='$end_date',`cost`='$cost',`cust_price`='$unit_price',`uom`='$uom',`daily`='$daily',`hourly`='$hourly',`history`=IFNULL(CONCAT(`history`,'<br />\n','$history'),'$history'),`alert_date`='$alert_date',`alert_staff`='$alert_staff' WHERE `rate_id`='$id'";
 	}
 	$result = mysqli_query($dbc, $sql);
-	
+
 	$result = mysqli_query($dbc, $sql);
 	echo '<script type="text/javascript"> window.location.replace("?card=labour&type=labour"); </script>';
 } ?>
@@ -192,7 +192,7 @@ function calculatePrices(input) {
 		<div class='col-sm-8'><input class='form-control datepicker' type='text' name='alert_date' value='<?php echo $ratecard['alert_date']; ?>'></div></div>
 		<div class='form-group clearfix completion_date'><label class='col-sm-4 control-label text-right'>Alert Staff</label>
 		<div class='col-sm-8'>
-			<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect"><option></option>
+			<select name="alert_staff[]" multiple data-placeholder="Select Staff..." class="form-control chosen-select-deselect">
 				<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"),MYSQLI_ASSOC));
 				foreach($staff_list as $staffid) {
 					echo '<option value="'.$staffid.'" '.(strpos(','.$ratecard['alert_staff'].',',','.$staffid.',') !== FALSE ? 'selected' : '').'>'.get_contact($dbc, $staffid).'</option>';

@@ -5,7 +5,8 @@ Client Listing
 include ('../include.php');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
-if(FOLDER_NAME == 'posadvanced') {
+if(!empty($folder)) {
+} else if(FOLDER_NAME == 'posadvanced') {
     checkAuthorised('posadvanced');
 } else {
     checkAuthorised('check_out');
@@ -72,137 +73,142 @@ function waiting_on_collection(sel) {
 		}
 	});
 }
+function view_third_party_ar()
+{
+    $('.view_third_party_ar').toggleClass('hidden');
+}
 </script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
+
+<?php
 $payer_config = explode(',',get_config($dbc, 'invoice_payer_contact'));
 define('PAYER_LABEL', count($payer_config) > 1 ? 'Third Party' : $payer_config[0]); ?>
 
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <h2><?= PAYER_LABEL ?> Accounts Receivable</h2>
-		
-        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
-            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
-        } ?>
-		<?php include('tile_tabs.php'); ?>
-        
-        <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+<div class="standard-body-title hide-titles-mob">
+    <h3 class="pull-left"><?= PAYER_LABEL ?> Accounts Receivable</h3>
+    <div class="pull-right">
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Business Accounts Receivable" onclick="view_third_party_ar()"> </div>
+    <div class="clearfix"></div>
+</div>
 
-            <div class="notice double-gap-bottom popover-examples">
-            <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-            <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            Displays <?= PAYER_LABEL ?> specific receivables within the selected dates.</div>
-            <div class="clearfix"></div>
-            </div>
+<div class="standard-body-content padded-desktop ">
+    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal view_third_party_ar hidden" role="form">
 
-            <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
-            <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
+        <div class="notice double-gap-bottom popover-examples">
+        <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+        <div class="col-sm-11"><span class="notice-name">NOTE:</span>
+        Displays <?= PAYER_LABEL ?> specific receivables within the selected dates.</div>
+        <div class="clearfix"></div>
+        </div>
 
-            <?php
-            if(!empty($_GET['p1'])) {
-                $starttime = $_GET['p1'];
-                $endtime = $_GET['p2'];
-                $insurer = $_GET['p3'];
-                $invoice_no = $_GET['p5'];
-                $ui_no = $_GET['p6'];
-            }
-            if (isset($_POST['search_email_submit'])) {
-                $starttime = $_POST['starttime'];
-                $endtime = $_POST['endtime'];
-                $insurer = $_POST['insurer'];
-                $invoice_no = $_POST['invoice_no'];
-                $ui_no = $_POST['ui_no'];
-            }
-            if (isset($_POST['search_email_all'])) {
-                $starttime = date('Y-m-d');
-                $endtime = date('Y-m-d');
-                $insurer = '';
-                $invoice_no = '';
-                $ui_no = '';
-            }
-            if($starttime == 0000-00-00) {
-                $starttime = date('Y-m-d');
-            }
+        <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
+        <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
 
-            if($endtime == 0000-00-00) {
-                $endtime = date('Y-m-d');
-            }
+        <?php
+        if(!empty($_GET['p1'])) {
+            $starttime = $_GET['p1'];
+            $endtime = $_GET['p2'];
+            $insurer = $_GET['p3'];
+            $invoice_no = $_GET['p5'];
+            $ui_no = $_GET['p6'];
+        }
+        if (isset($_POST['search_email_submit'])) {
+            $starttime = $_POST['starttime'];
+            $endtime = $_POST['endtime'];
+            $insurer = $_POST['insurer'];
+            $invoice_no = $_POST['invoice_no'];
+            $ui_no = $_POST['ui_no'];
+        }
+        if (isset($_POST['search_email_all'])) {
+            $starttime = date('Y-m-d');
+            $endtime = date('Y-m-d');
+            $insurer = '';
+            $invoice_no = '';
+            $ui_no = '';
+        }
+        if($starttime == 0000-00-00) {
+            $starttime = date('Y-m-d');
+        }
 
-            if(!empty($_GET['from'])) {
-                $starttime = $_GET['from'];
-                $endtime = $_GET['until'];
-                $insurer = $_GET['insurerid'];
-            }
-            ?>
-            <br />
+        if($endtime == 0000-00-00) {
+            $endtime = date('Y-m-d');
+        }
 
-			<div class="form-group">
+        if(!empty($_GET['from'])) {
+            $starttime = $_GET['from'];
+            $endtime = $_GET['until'];
+            $insurer = $_GET['insurerid'];
+        }
+        ?>
+        <br />
 
-                <label for="site_name" class="col-sm-1 control-label"><?= PAYER_LABEL ?>:</label>
-                <div class="col-sm-8" style="width:auto">
-                <select data-placeholder="Choose <?= PAYER_LABEL ?>..." name="insurer" class="chosen-select-deselect form-control" width="380">
-                    <option value="">Display All</option>
-					<?php
-						$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN ('".implode("','",$payer_config)."') AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
-						foreach($query as $id) {
-							$selected = '';
-							$selected = $id == $insurer ? 'selected = "selected"' : '';
-							echo "<option " . $selected . "value='". $id."'>".get_contact($dbc, $id,'name').'</option>';
-						}
-					?>
-                </select>
+        <div class="form-group double-gap-bottom">
+            <div class="col-xs-12">
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label"><?= PAYER_LABEL ?>:</label></div>
+                    <div class="col-sm-8">
+                        <select data-placeholder="Choose <?= PAYER_LABEL ?>..." name="insurer" class="chosen-select-deselect form-control" width="380">
+                            <option value="">Display All</option>
+                            <?php
+                                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN ('".implode("','",$payer_config)."') AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
+                                foreach($query as $id) {
+                                    $selected = '';
+                                    $selected = $id == $insurer ? 'selected = "selected"' : '';
+                                    echo "<option " . $selected . "value='". $id."'>".get_contact($dbc, $id,'name').'</option>';
+                                }
+                            ?>
+                        </select>
+                    </div>
                 </div>
-
-                <span class="popover-examples list-inline" ><a data-toggle="tooltip" data-placement="top" title="Here is where you select the date range of the invoice. The date range must be large enough so that the invoice will populate."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                From:
-                <input name="starttime" type="text" class="datepicker" value="<?php echo $starttime; ?>">
-
-                Until:
-                <input name="endtime" type="text" class="datepicker" value="<?php echo $endtime; ?>">
-
-                <span class="popover-examples list-inline" ><a data-toggle="tooltip" data-placement="top" title="Search by invoice # directly. You must enter a complete value."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                Invoice #:
-                <input name="invoice_no" type="text" class="form-control1" value="<?php echo $invoice_no; ?>">
-
-                <span class="popover-examples list-inline" ><a data-toggle="tooltip" data-placement="top" title="Search by the generated UI #."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                UI #:
-                <input name="ui_no" type="text" class="form-control1" value="<?php echo $ui_no; ?>">
-
-            <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
-			<span class="popover-examples list-inline" style="margin:0 0 0 10px;"><a data-toggle="tooltip" data-placement="top" title="Select this to remove all of the search filters you've applied. It will revert back to today's invoices."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-            <button type="submit" name="search_email_all" value="Search" class="btn brand-btn mobile-block">Display Default</button>
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label">Invoice #:</label></div>
+                    <div class="col-sm-8"><input name="invoice_no" type="text" class="form-control1 form-control" value="<?php echo $invoice_no; ?>" /></div>
+                </div>
             </div>
+            <div class="col-xs-12">
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label">From:</label></div>
+                    <div class="col-sm-8"><input name="starttime" type="text" class="datepicker form-control" value="<?php echo $starttime; ?>" /></div>
+                </div>
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label">To:</label></div>
+                    <div class="col-sm-8"><input name="endtime" type="text" class="datepicker form-control" value="<?php echo $endtime; ?>" /></div>
+                </div>
+            </div>
+            <div class="col-xs-12">
+                <div class="col-sm-6 col-xs-12">
+                    <div class="col-sm-4"><label class="control-label">UI #:</label></div>
+                    <div class="col-sm-8"><input name="ui_no" type="text" class="form-control1 form-control" value="<?php echo $ui_no; ?>" /></div>
+                </div>
+                <div class="clearfix"></div>
+            </div>
+            <div class="col-xs-12 text-right">
+                <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+                <button type="submit" name="search_email_all" value="Search" class="btn brand-btn mobile-block">Display Default</button>
+            </div>
+            <div class="clearfix"></div>
+        </div>
 
-            <br>
+        <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
+        <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
+        <input type="hidden" name="insurerpdf" value="<?php echo $insurer; ?>">
+        <input type="hidden" name="invoice_nopdf" value="<?php echo $invoice_no; ?>">
+        <input type="hidden" name="ui_nopdf" value="<?php echo $ui_no; ?>">
 
-            <input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
-            <input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
-            <input type="hidden" name="insurerpdf" value="<?php echo $insurer; ?>">
-            <input type="hidden" name="invoice_nopdf" value="<?php echo $invoice_no; ?>">
-            <input type="hidden" name="ui_nopdf" value="<?php echo $ui_no; ?>">
-
-            <!-- <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button> -->
-
-            </form>
-            <form id="form2" name="form2" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-
-            <?php
-                echo report_receivables($dbc, $starttime, $endtime, '', '', '', $insurer, $invoice_no, $ui_no);
-            ?>
+        <!-- <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button> -->
 
         </form>
+        <form id="form2" name="form2" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 
-        </div>
-    </div>
+        <?php
+            echo report_receivables($dbc, $starttime, $endtime, '', '', '', $insurer, $invoice_no, $ui_no);
+        ?>
+
+    </form>
 </div>
-<?php include ('../footer.php'); ?>
 
 <?php
 function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row_style, $grand_total_style, $insurer, $invoice_no, $ui_no) {
-    $report_data .= '<span class="pull-right">
+    $report_data .= '<span>
     Payment Type &nbsp;<select name="paid_type" required class="form-control1" width="380">
         <option value="">Please Select</option>
         <option value="Transfer">Transfer</option>
@@ -212,8 +218,9 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
     Number &nbsp;<input type="text" class="" required name="deposit_number">&nbsp;&nbsp;';
     $report_data .= '&nbsp;Date Deposited&nbsp;<input type="text" required class="datepicker" name="date_deposit">&nbsp;Paid Date&nbsp;<input type="text" required class="datepicker" name="paid_date"></span>';
 
-    $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
-    $report_data .= '<tr style="'.$table_row_style.'">
+    $report_data .= '<div id="no-more-tables">';
+    $report_data .= '<br /><br /><table border="1px" class="table table-bordered" style="'.$table_style.'">';
+    $report_data .= '<tr class="hidden-xs hidden-sm" style="'.$table_row_style.'">
     <th>Invoice#</th>
     <th>U'.substr(PAYER_LABEL,0,1).'#</th>
     <th>Service Date</th>
@@ -261,33 +268,34 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
 
         $each_insurance_payment = explode('#*#', $insurance_payment);
         $report_data .= '<tr nobr="true">';
-        $report_data .= '<td>#'.$invoiceid.' : '.get_contact($dbc, $patientid).($row_report['invoiceid_src'] > 0 ? ' ('.$row_report['invoice_type'].' for #'.$row_report['invoiceid_src'].')' : '').'</td>';
+        $report_data .= '<td data-title="Invoice#">#'.$invoiceid.' : '.get_contact($dbc, $patientid).($row_report['invoiceid_src'] > 0 ? ' ('.$row_report['invoice_type'].' for #'.$row_report['invoiceid_src'].')' : '').'</td>';
 
         $a = new \DateTime($row_report['invoice_date']);
         $b = new \DateTime;
         $total_days = $a->diff($b)->days;
 
-        $report_data .= '<td>#'.$row_report['ui_invoiceid'].'</td>';
-        $report_data .= '<td>'.$row_report['service_date'].'</td>';
-        $report_data .= '<td>'.$row_report['invoice_date'].'</td>';
-        $report_data .= '<td>'.get_all_form_contact($dbc, $insurerid, 'name').'</td>';
-        $report_data .= '<td>'.$insurer_price.'</td>';
+        $report_data .= '<td data-title="U'.substr(PAYER_LABEL,0,1).'#">'.$row_report['ui_invoiceid'].'</td>';
+        $report_data .= '<td data-title="Service Date">'.$row_report['service_date'].'</td>';
+        $report_data .= '<td data-title="Invoice Date">'.$row_report['invoice_date'].'</td>';
+        $report_data .= '<td data-title="'.PAYER_LABEL.'">'.get_all_form_contact($dbc, $insurerid, 'name').'</td>';
+        $report_data .= '<td data-title="Amount Receivable">'.$insurer_price.'</td>';
 
         $coll_checked = '';
         if($row_report['collection'] == 1) {
             $coll_checked = ' checked disabled';
         }
-        $report_data .=  '<td><input type="checkbox" '. $coll_checked.' onchange="waiting_on_collection(this)" value="'.$row_report['invoiceinsurerid'].'"></td>';
+        $report_data .=  '<td data-title="Collection"><input type="checkbox" '. $coll_checked.' onchange="waiting_on_collection(this)" value="'.$row_report['invoiceinsurerid'].'"></td>';
 
-        $report_data .= '<td><input type="checkbox" class="invoice" name="invoiceinsurerid[]" value="'.$row_report['invoiceinsurerid'].'" ></td>';
+        $report_data .= '<td data-title=""><input type="checkbox" class="invoice" name="invoiceinsurerid[]" value="'.$row_report['invoiceinsurerid'].'" ></td>';
 
         $report_data .= '</tr>';
         $amt_to_bill += $insurer_price;
     }
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td>Total</td><td></td><td></td><td></td><td></td><td>'.number_format($amt_to_bill, 2).'</td><td></td><td></td>';
+    $report_data .= '<td data-title="Total">Total</td><td></td><td></td><td></td><td></td><td>'.number_format($amt_to_bill, 2).'</td><td></td><td></td>';
     $report_data .= "</tr>";
     $report_data .= '</table><br>';
+    $report_data .= '</div>';
 
     if(!empty($_GET['from'])) {
         if($_GET['report'] == 'ar_aging') {

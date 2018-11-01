@@ -104,7 +104,7 @@ $month = date("n", strtotime($calendar_date));
 $year = date("Y", strtotime($calendar_date));
 $month_string = date("F", strtotime($calendar_date));
 $days_in_month = date('t',mktime(0,0,0,$month,1,$year));
-$lock_date = get_config($dbc, 'staff_schedule_lock_date');
+$lock_date = get_staff_schedule_lock_date($dbc);
 $from_url = 'staff.php?tab=active';
 if (!empty($_GET['from'])) {
 	$from_url = $_GET['from'];
@@ -224,7 +224,10 @@ if(empty(trim($value_config,','))) {
 													$total_booked_time = 0;
 													foreach($shifts as $shift) {
 														echo '<li>';
-														echo ($shift['startdate'] < $lock_date ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
+														echo ($shift['startdate'] < $lock_date && !empty($lock_date) ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
+											            if(!empty($shift['heading'])) {
+											                echo $shift['heading'].'<br>';
+											            }
 														if(!empty($shift['dayoff_type'])) {
 															echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
 															echo 'Day Off Type: '.$shift['dayoff_type'];
@@ -241,7 +244,11 @@ if(empty(trim($value_config,','))) {
 																echo get_contact($dbc, $shift['clientid']);
 															}
 														}
-														echo ($shift['startdate'] < $lock_date ? '' : '</a>');
+							                            if(!empty($shift['notes'])) {
+							                                echo '<br>';
+							                                echo 'Notes: '.html_entity_decode($shift['notes']);
+							                            }
+														echo ($shift['startdate'] < $lock_date && !empty($lock_date) ? '' : '</a>');
 														echo '</li>';
 													}
 													echo '<br>Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'';
@@ -289,7 +296,10 @@ if(empty(trim($value_config,','))) {
 												$total_booked_time = 0;
 												foreach($shifts as $shift) {
 													echo '<li>';
-													echo ($shift['startdate'] < $lock_date ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
+													echo ($shift['startdate'] < $lock_date && !empty($lock_date) ? '' : '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Calendar/shifts.php?shiftid='.$shift['shiftid'].'&hideaddbutton=true\'); return false;" >');
+										            if(!empty($shift['heading'])) {
+										                echo $shift['heading'].'<br>';
+										            }
 													if(!empty($shift['dayoff_type'])) {
 														echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
 														echo 'Day Off Type: '.$shift['dayoff_type'];
@@ -306,7 +316,11 @@ if(empty(trim($value_config,','))) {
 															echo get_contact($dbc, $shift['clientid']);
 														}
 													}
-													echo ($shift['startdate'] < $lock_date ? '' : '</a>');
+						                            if(!empty($shift['notes'])) {
+						                                echo '<br>';
+						                                echo 'Notes: '.html_entity_decode($shift['notes']);
+						                            }
+													echo ($shift['startdate'] < $lock_date && !empty($lock_date) ? '' : '</a>');
 													echo '</li>';
 												}
 												echo '<br>Total Booked Time: '.(sprintf('%02d', floor($total_booked_time / 3600)).':'.sprintf('%02d', floor($total_booked_time % 3600 / 60))).'';

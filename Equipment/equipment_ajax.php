@@ -319,6 +319,38 @@ else if($_GET['fill'] == 'archive_equipment_assignment') {
 	}
 }
 else if($_GET['fill'] == 'quick_action_settings') {
-	set_config($dbc, 'quick_action_icons', filter_var($_POST['quick_action_icons'],FILTER_SANITIZE_STRING));
+	set_config($dbc, 'equipment_quick_action_icons', filter_var($_POST['quick_action_icons'],FILTER_SANITIZE_STRING));
+	$colours = $_POST['flag_colours'];
+	$flag_names = $_POST['flag_name'];
+	$get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configinvid) AS configid FROM field_config_equipment"));
+	if($get_field_config['configid'] > 0) {
+	    $query_update_employee = "UPDATE `field_config_equipment` SET `flag_colours` = '$colours', `flag_names` = '$flag_names' WHERE `configinvid` = '1'";
+	    $result_update_employee = mysqli_query($dbc, $query_update_employee);
+	} else {
+	    $query_insert_config = "INSERT INTO `field_config_equipment` (`flag_colours`, `flag_names`) VALUES ('$colours', '$flag_names')";
+	    $result_insert_config = mysqli_query($dbc, $query_insert_config);
+	}
+
+}
+if($_GET['fill'] == 'equipmentflag') {
+    $item_id = $_POST['id'];
+    $type = $_POST['type'];
+    $colour = mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colour` FROM equipment WHERE equipmentid = '$item_id'"))['flag_colour'];
+    $colour_list = explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT `flag_colours` FROM `field_config_equipment`"))['flag_colours']);
+    $colour_key = array_search($colour, $colour_list);
+    $new_colour = ($colour_key === FALSE ? $colour_list[0] : ($colour_key + 1 < count($colour_list) ? $colour_list[$colour_key + 1] : ''));
+    $result = mysqli_query($dbc, "UPDATE `equipment` SET `flag_colour`='$new_colour' WHERE `equipmentid` = '$item_id'");
+    echo $new_colour;
+}
+if($_GET['fill'] == 'equipmentfavorite') {
+    $item_id = $_POST['id'];
+    $type = $_POST['type'];
+    $favorite = mysqli_fetch_array(mysqli_query($dbc, "SELECT `favorite` FROM equipment WHERE equipmentid = '$item_id'"))['favorite'];
+    if($favorite == 1) {
+        $set_favorite = 0;
+    } else {
+        $set_favorite = 1;
+    }
+    $result = mysqli_query($dbc, "UPDATE `equipment` SET `favorite`='$set_favorite' WHERE `equipmentid` = '$item_id'");
 }
 ?>

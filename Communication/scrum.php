@@ -22,7 +22,7 @@ checkAuthorised('communication');
 <div class="container">
 	<div class="row hide_on_iframe">
 
-    <h1 class="single-pad-bottom">Tasks
+    <h1 class="single-pad-bottom"><?= TASK_TILE ?>
     <?php
     if(config_visible_function($dbc, 'communication') == 1) {
         echo '<a href="field_config_tasks.php?type=tab" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
@@ -30,9 +30,9 @@ checkAuthorised('communication');
 
     $task_tab = explode(",",get_config($dbc, 'task_tab'));
 
-    echo "<a href='tasks.php?category=".$task_tab[0]."'><button type='button' class='btn brand-btn mobile-block' >Tasks</button></a>&nbsp;&nbsp;";
+    echo "<a href='tasks.php?category=".$task_tab[0]."'><button type='button' class='btn brand-btn mobile-block' >".TASK_TILE."</button></a>&nbsp;&nbsp;";
     echo "<a href='tickets.php'><button type='button' class='btn brand-btn mobile-block' >".TICKET_TILE."</button></a>&nbsp;&nbsp;";
-    echo "<a href='scrum_tasks.php?category=".$task_tab[0]."'><button type='button' class='btn brand-btn mobile-block active_tab' >Scrum Tasks</button></a>&nbsp;&nbsp;";
+    echo "<a href='scrum_tasks.php?category=".$task_tab[0]."'><button type='button' class='btn brand-btn mobile-block active_tab' >Scrum ".TASK_TILE."</button></a>&nbsp;&nbsp;";
     echo "<a href='scrum_tickets.php'><button type='button' class='btn brand-btn mobile-block' >Scrum ".TICKET_TILE."</button></a>&nbsp;&nbsp;";
 
     ?>

@@ -23,6 +23,9 @@ if (isset($_POST['submit'])) {
 		$site_name = $_POST['new_site_location'];
 		$result = mysqli_query($dbc, "INSERT INTO `field_sites` (`site_name`, `clientid`) VALUES ('$site_name', '$clientid')");
 		$siteid = mysqli_insert_id($dbc);
+		$before_change = '';
+    $history = "field_sites entry has been added. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 	}
 	$job_date= $_POST['job_date'];
     $same_address = $_POST['same_address'];
@@ -32,11 +35,17 @@ if (isset($_POST['submit'])) {
 		$query_insert_site = "INSERT INTO `field_jobs` (`job_number`, `clientid`, `contactid`, `ratecardid`, `foremanid`, `afe_number`, `additional_info`, `siteid`, `description`, `job_date`) VALUES	('$job_number', '$clientid', '$contactid', '$ratecardid', '$foremanid', '$afe_number', '$additional_info', '$siteid', '$description', '$job_date')";
 		$result_insert_site	= mysqli_query($dbc, $query_insert_site);
         $url = 'Added';
+		$before_change = '';
+    $history = "field_jobs entry has been added. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 	} else {
 		$jobid = $_POST['jobid'];
 		$query_update_site = "UPDATE `field_jobs` SET `job_date` = '$job_date', `job_number` = '$job_number', `clientid` = '$clientid', `contactid` = '$contactid', `ratecardid`	= '$ratecardid', `foremanid` = '$foremanid', `afe_number` = '$afe_number', `additional_info` = '$additional_info', `siteid` = '$siteid', `description` =	'$description' WHERE	`jobid` = '$jobid'";
 		$result_update_site	= mysqli_query($dbc, $query_update_site);
         $url = 'Updated';
+		$before_change = '';
+    $history = "field_jobs entry has been updated for fsid -> $fsid. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 	}
     echo '<script type="text/javascript"> window.location.replace("field_jobs.php"); </script>';
 
@@ -279,7 +288,6 @@ function selectContact(sel) {
 			  <label for="site_name" class="col-sm-4 control-label">Foreman<span class="text-red">*</span>:</label>
 			  <div class="col-sm-8">
 				<select data-placeholder="Choose a Foreman..." name="foremanid[]" multiple class="chosen-select-deselect form-control" width="380">
-				  <option value=""></option>
 				    <?php
 						$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 						foreach($query as $id) {

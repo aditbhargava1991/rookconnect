@@ -189,6 +189,8 @@ $client_height = '';
 $client_weight = '';
 $client_sin = '';
 $client_client_id = '';
+$days_per_week = '';
+$hours_per_week = '';
 
 $client_address = '';
 $client_zip_code = '';
@@ -419,7 +421,7 @@ else {
 
 	$contactid = $_GET['contactid'];
 	$get_contact =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM	contacts WHERE	contactid='$contactid'"));
-    
+
 	$agent_id = $get_contact['agent_id'];
     $siteclientid = $get_contact['siteclientid'];
 	$site_name = $get_contact['site_name'];
@@ -454,7 +456,10 @@ else {
     $school = $get_contact['school'];
     $hear_about = $get_contact['hear_about'];
     $nick_name = $get_contact['nick_name'];
-    
+
+    $days_per_week = $get_contact['days_per_week'];
+    $hours_per_week = $get_contact['hours_per_week'];
+
 	$bank_name = $get_contact['bank_name'];
 	$bank_transit = $get_contact['bank_transit'];
 	$bank_institution_number = $get_contact['bank_institution_number'];
@@ -889,7 +894,7 @@ else {
 	$funding_fscd_file_id = $get_contact_medical['funding_fscd_file_id'];
 	$funding_fscd_renewal_date = $get_contact_medical['funding_fscd_renewal_date'];
 	$funding_pdd = $get_contact_medical['funding_pdd'];
-    
+
     $day_program_name = $get_contact_medical['day_program_name'];
     $day_program_address = $get_contact_medical['day_program_address'];
     $day_program_phone = $get_contact_medical['day_program_phone'];

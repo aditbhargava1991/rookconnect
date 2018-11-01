@@ -431,7 +431,7 @@ $(document).ready(function() {
 		} else if($(this).hasClass("check_out")) {
 			var id = $(this).attr('id');
 			var arr = id.split('_');
-		    $('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Invoice/add_invoice.php?invoiceid='+arr[0]+'&from=calendar');
+		    $('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Invoice/create_invoice.php?invoiceid='+arr[0]+'&from=calendar');
 		    $('.iframe_title').text('');
 		}
 			$('.hide_on_iframe').hide(1000);
@@ -459,7 +459,7 @@ $(document).ready(function() {
         $rows2 = sql_row_keyed($sname2, 0);
         $invoiceid = $rows2['invoiceid'];
 		//echo '<a style="font-weight:bold;" class="iframe_open check_out" id="'.$bookingid.'"><h3>Check Out</h3></a>';
-        echo '<a href="#"  onclick=" window.open(\'' . WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$invoiceid.'&contactid='.$patientid.'&from=calendar\', \'newwindow\', \'width=1500, height=1500\'); return false;"><h3>Check Out</h3></a>';
+        echo '<a href="#"  onclick=" window.open(\'' . WEBSITE_URL.'/Invoice/create_invoice.php?invoiceid='.$invoiceid.'&contactid='.$patientid.'&from=calendar\', \'newwindow\', \'width=1500, height=1500\'); return false;"><h3>Check Out</h3></a>';
     }
 ?>
 <div id="view_entry_nav">

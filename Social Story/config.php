@@ -289,6 +289,7 @@ $config['settings']['Choose Fields for Key Methodologies']['data'] = array(
 		),
 	'Toileting' => array(
 			array('Do you require extra support going to the bathroom?', 'yes_default_no', 'toileting'),
+			array('Washroom Support Information', 'textarea_hidden', 'toileting_info', 'toileting', 'Yes')
 		),
 	'Status' => array(
 			array('Status', 'dropdown', 'status')
@@ -388,7 +389,7 @@ function get_tabs_social($tab = '')
         } else {
             $html .= "<button type='button' class='btn brand-btn mobile-block disabled-btn'>".$title."</button></a>";
         }
-		
+
 	}
 	return $html;
 }
@@ -423,7 +424,7 @@ function get_post_inputs_social($data) {
 			} elseif($field[1] == 'widget') {
 				$fields[$field[2]] = serialize($_POST[$field[2]]);
 			} else {
-				$fields[$field[2]] = filter_var(htmlentities($_POST[$field[2]], FILTER_SANITIZE_STRING));
+				$fields[$field[2]] = filter_var(htmlentities($_POST[$field[2]]), FILTER_SANITIZE_STRING);
 			}
 		}
 	}
@@ -451,10 +452,9 @@ function move_files_social($files) {
 }
 
 function prepare_insert_social($ins_data = array(), $table = '') {
-	$columns = implode(", ",array_keys($ins_data));
-	$escaped_values = array_map('mysql_real_escape_string', array_values($ins_data));
+	$columns = "`".implode("`, `",array_keys($ins_data))."`";
 	$values = '';
-	foreach($escaped_values as $tmp) {
+	foreach($ins_data as $tmp) {
 		$values .= "'".$tmp."', ";
 	}
 	$values = trim($values,', ');
@@ -552,6 +552,24 @@ function get_field_social($field, $value, $dbc = '', $contact = 0, $other = '')
                       <textarea name="'.$field[2].'" rows="5" cols="50" class="form-control">'.$value.'</textarea>
                     </div>
                   </div>';
+   	} else if($field[1] == 'textarea_hidden') {
+   		$html .= '<script type="text/javascript">
+   					$(document).ready(function() {
+   						$(\'[name="'.$field[3].'"]\').change(function() {
+   							if($(\'[name="'.$field[3].'"]:checked\').val() == \''.$field[4].'\') {
+   								$(\'.ss_'.$field[2].'\').show();
+   							} else {
+   								$(\'.ss_'.$field[2].'\').hide();
+   							}
+						}).change();
+   					});
+   				</script>';
+		$html .= '<div class="form-group ss_'.$field[2].'" style="display:none;">
+                    <label for="'.$field[2].'" class="col-sm-4 control-label">'.$field[0].': </label>
+                    <div class="col-sm-8">
+                      <textarea name="'.$field[2].'" rows="5" cols="50" class="form-control">'.$value.'</textarea>
+                    </div>
+                  </div>';
    	} else if($field[1] == 'yes_default_no') {
 		$html .= '<div class="form-group">
                     <label for="'.$field[2].'" class="col-sm-4 control-label">'.$field[0].': </label>
@@ -612,7 +630,6 @@ function contact_call_social($dbc, $select_id, $select_name, $contact_value,$mul
         <label for="fax_number"	class="col-sm-4	control-label">Contact:</label>
         <div class="col-sm-8">
             <select <?php echo $multiple; ?> data-placeholder="Choose a Contact..." name="<?php echo $select_name; ?>" id="<?php echo $select_id; ?>" class="chosen-select-deselect form-control" width="380">
-              <option value=""></option>
               <?php if($contact_value != '') {
 
                 $query = mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE category = '$from_contact' order by name");

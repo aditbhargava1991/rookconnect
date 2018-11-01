@@ -1,5 +1,13 @@
 <?php //Calendar Helper Functions
 function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $query_type, $clientid, $limits = '', $check_conflicts = '') {
+	$day_start = get_config($dbc, 'shift_day_start');
+	$day_end = get_config($dbc, 'shift_day_end');
+	if(empty($day_start)) {
+		$day_start = '12:00 am';
+	}
+	if(empty($day_end)) {
+		$day_end = '11:59 pm';
+	}
 	$contact_query = '';
 	$role_query = '';
 	if (!empty($contact_id)) {
@@ -42,8 +50,14 @@ function checkShiftIntervals($dbc, $contact_id, $day_of_week, $calendar_date, $q
 
 	foreach($shifts_arr as $key => $shift) {
 		if($shift['availability'] == 'Available Anytime') {
-			$shift['starttime'] = '12:00 AM';
-			$shift['endtime'] = '11:59 PM';
+			$shift['starttime'] = $day_start;
+			$shift['endtime'] = $day_end;
+		}
+		if(empty($shift['starttime'])) {
+			$shift['starttime'] = $day_start;
+		}
+		if(empty($shift['endtime'])) {
+			$shift['endtime'] = $day_end;
 		}
 		$repeat_type = $shift['repeat_type'];
 		switch($repeat_type) {
@@ -177,11 +191,12 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
         }
     }
 	$equip_display_classification = get_config($dbc, 'scheduling_equip_classification');
+	$equip_display_classification_ticket = get_config($dbc, 'scheduling_equip_classification_ticket');
 	$active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
 	if($reset_active == 1) {
 		$active_equipment = [];
 	}
-	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
+	$equipment = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"));
 	switch($view) {
 		case 'weekly':
 			$calendar_start = $date;
@@ -247,7 +262,12 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			$clientids = implode(',',$clientids);
 
 			$classification_label = '';
-			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+			if($equip_display_classification_ticket == 1) {
+				$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $week_start_date_check, $week_end_date_check);
+				if(!empty($equip_classifications)) {
+					$classification_label = ' - '.implode(', ', $equip_classifications);
+				}
+			} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 
@@ -281,7 +301,12 @@ function getEquipmentAssignmentBlock($dbc, $equipmentid, $view, $date) {
 			}
 
 			$classification_label = '';
-			if($equip_display_classification == 1 && !empty($equip_classifications)) {
+			if($equip_display_classification_ticket == 1) {
+				$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $calendar_start, $calendar_start);
+				if(!empty($equip_classifications)) {
+					$classification_label = ' - '.implode(', ', $equip_classifications);
+				}
+			} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
 				$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
 			}
 			
@@ -323,7 +348,7 @@ function getTeamTickets($dbc, $date, $teamid) {
 	}
 	return $tickets_list;
 }
-function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
+function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time, $ticket_fields = '') {
 	if(is_array($max_time) || empty($max_time)) {
 		$max_time = $ticket['max_time'];
 	}
@@ -333,6 +358,9 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
 	    $calendar_ticket_label = get_config($dbc, 'calendar_ticket_label');
 	}
 	$calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields'));
+	if(!empty($ticket_fields)) {
+		$calendar_ticket_card_fields = explode(',',$ticket_fields);
+	}
 
 	$clients = [];
 	foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
@@ -352,29 +380,37 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
 	if($ticket['service_templateid'] > 0) {
 		$service_template = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `name` FROM `services_service_templates` WHERE `templateid` = '".$ticket['service_templateid']."'"))['name'];
 	}
+	$assigned_staff = [];
+	foreach(array_unique(array_filter(explode(',',$ticket['contactid']))) as $contactid) {
+		$assigned_staff[] = get_contact($dbc, $contactid);
+	}
+	$assigned_staff = implode(', ',$assigned_staff);
+	$tickettype = '';
+	foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+        $ticket_type_value = config_safe_str($ticket_type);
+        if($ticket_type_value == $ticket['ticket_type']) {
+        	$tickettype = $ticket_type;
+        }
+    }
 	
 	$row_html = '<b>'.get_ticket_label($dbc, $ticket, null, null, $calendar_ticket_label).(empty($calendar_ticket_label) ? $ticket['location_description'] : '').($ticket['sub_label'] != '' ? '-'.$ticket['sub_label'] : '').'</b>'.
 	(in_array('project',$calendar_ticket_card_fields) ? '<br />'.PROJECT_NOUN.' #'.$ticket['projectid'].' '.$ticket['project_name'].'<br />' : '').
+	(in_array('ticket_type',$calendar_ticket_card_fields) ? '<br />'.TICKET_NOUN.' Type: '.$tickettype : '').
 	(in_array('customer',$calendar_ticket_card_fields) ? '<br />'.'Customer: '.get_contact($dbc, $ticket['businessid'], 'name') : '').
 	(in_array('client',$calendar_ticket_card_fields) ? '<br />'.'Client: '.$clients : '').
+	(in_array('assigned',$calendar_ticket_card_fields) ? '<br />'.'Staff: '.$assigned_staff : '').
 	(in_array('site_address',$calendar_ticket_card_fields) ? '<br />'.'Site Address: '.$site_address : '').
 	(in_array('service_template',$calendar_ticket_card_fields) ? '<br />'.'Service Template: '.$service_template : '').
 	(in_array('start_date',$calendar_ticket_card_fields) ? '<br />'.'Date: '.$ticket['to_do_date'] : '').
-	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
+	(in_array('time',$calendar_ticket_card_fields) ? '<br />'.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '').
+	(in_array('eta',$calendar_ticket_card_fields) ? '<br />ETA: '.(!empty($max_time) && $max_time != '00:00:00' ? "(".$max_time.") " : '').$start_time." - ".$end_time : '');
 	if(in_array('available',$calendar_ticket_card_fields)) {
-		if($ticket['pickup_start_available'].$ticket['pickup_end_available'] != '') {
-			$row_html .= '<br />'."Available ";
-			if($ticket['pickup_end_available'] == '') {
-				$row_html .= "After ".$ticket['pickup_start_available'];
-			} else if($ticket['pickup_start_available'] == '') {
-				$row_html .= "Before ".$ticket['pickup_end_available'];
-			} else {
-				$row_html .= "Between ".$ticket['pickup_start_available']." and ".$ticket['pickup_end_available'];
-			}
-		}
+		$row_html .= '<br />Time Frame: '.$ticket['availability'];
 	}
-	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['client_name'].($ticket['client_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
-	$row_html .= '<br />'."Status: ".$ticket['status'];
+	$row_html .= (in_array('address',$calendar_ticket_card_fields) ? '<br />'.$ticket['pickup_name'].($ticket['pickup_name'] != '' ? '<br />' : ' ').$ticket['pickup_address'].($ticket['pickup_address'] != '' ? '<br />' : ' ').$ticket['pickup_city'] : '');
+	if(in_array('status',$calendar_ticket_card_fields)) {
+		$row_html .= '<br />'."Status: ".$ticket['status'];
+	}
 	if(in_array('ticket_notes',$calendar_ticket_card_fields)) {
 		$ticket_notes = mysqli_query($dbc, "SELECT * FROM `ticket_comment` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0");
 		if(mysqli_num_rows($ticket_notes) > 0) {
@@ -388,6 +424,15 @@ function calendarTicketLabel($dbc, $ticket, $max_time, $start_time, $end_time) {
 	if(in_array('delivery_notes',$calendar_ticket_card_fields) && !empty($ticket['delivery_notes'])) {
 		$row_html .= '<br />Delivery Notes: '.html_entity_decode($ticket['delivery_notes']);
 	}
+	if(in_array('delivery_sign_off',$calendar_ticket_card_fields) && !empty($ticket['stop_id'])) {
+        $dispatch_tile_ticket_card_fields = get_config($dbc, 'dispatch_tile_ticket_card_fields');
+        if(empty($dispatch_tile_ticket_card_fields)) {
+            $dispatch_tile_ticket_card_fields = 'camera,signature,star_rating,customer_notes_hover';
+        }
+        $dispatch_tile_ticket_card_fields = explode(',', $dispatch_tile_ticket_card_fields);
+        include_once('../Dispatch/dashboard_functions.php');
+		$row_html .= '<br />'.dispatch_delivery_hover_icons($dbc, $ticket, $ticket['stop_id'], (vuaed_visible_function($dbc, 'ticket') > 0 ? 'onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/edit_ticket_tab.php?tab=ticket_customer_notes&ticketid='.$ticket['ticketid'].'&stop='.$ticket['stop_id'].'\', \'auto\', true, true, \'auto\', false, \'true\'); return false;"' : ''), $dispatch_tile_ticket_card_fields);
+	}
 
 	return $row_html;
 }
@@ -397,4 +442,79 @@ function getCustomerEquipment($dbc, $start_date, $end_date) {
 		$equipmentids = array_merge($equipmentids, array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT IFNULL(`ticket_schedule`.`equipmentid`, `tickets`.`equipmentid`) `equipmentid` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` WHERE `tickets`.`deleted` = 0 AND `ticket_schedule`.`deleted` = 0 AND '".$calendar_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '".$calendar_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`) AND (`tickets`.`businessid` = '".$_SESSION['contactid']."' OR CONCAT(',',`tickets`.`clientid`,',') LIKE '%,".$_SESSION['contactid'].",%')"),MYSQLI_ASSOC),'equipmentid'));
 	}
 	return $equipmentids;
+}
+function getEquipmentTicketClassification($dbc, $equipmentid, $start_date, $end_date) {
+	$classifications = [];
+
+	$tickets = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT(`tickets`.`classification`) FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 WHERE (`tickets`.`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `tickets`.`to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR `ticket_schedule`.`to_do_date` BETWEEN '$start_date' AND '$end_date' OR `ticket_schedule`.`to_do_end_date` BETWEEN '$start_date' AND '$end_date' OR '$start_date' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR '$end_date' BETWEEN `ticket_schedule`.`to_do_date` AND `ticket_schedule`.`to_do_end_date`) AND IFNULL(IFNULL(`ticket_schedule`.`to_do_start_time`,`tickets`.`to_do_start_time`),'') != '' AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`)='".$equipmentid."') AND `tickets`.`deleted` = 0 AND `tickets`.`status` NOT IN ('Archive', 'Done')"),MYSQLI_ASSOC);
+	foreach($tickets as $ticket) {
+		$classifications[] = $ticket['classification'];
+	}
+
+	return array_filter(array_unique($classifications));
+}
+function checkTicketBookingConflicts($dbc, $contact_id, $startdate, $enddate, $repeat_type, $repeat_days, $interval, $hide_days) {
+	$ticket_conflicts = [];
+	$booking_conflicts = [];
+	$check_startdate = (empty($startdate) || strtotime(date('Y-m-d')) > strtotime($startdate)) ? date('Y-m-d') : $startdate;
+	$check_enddate =  empty($enddate) ? date(strtotime(date('Y-m-d').' + 1 month')) : $enddate;
+
+	for($current_date = $check_startdate; strtotime($current_date) <= strtotime($check_enddate); $current_date = date('Y-m-d', strtotime($current_date.' + 1 day'))) {
+		$is_shift = false;
+		if(!in_array($current_date, $hide_days)) {
+			switch($repeat_type) {
+				case 'weekly':
+					$repeat_type = 'W';
+					$start_date = date('Y-m-d', strtotime('next Sunday -1 week', strtotime($startdate)));
+					$start_date = new DateTime($start_date);
+					$start_date->modify($day_of_week);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 week')));
+					break;
+				case 'daily':
+					$repeat_type = 'D';
+					$start_date = date('Y-m-d', strtotime($startdate));
+					$start_date = new DateTime($start_date);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 day')));
+					break;
+				case 'monthly':
+					$repeat_type = 'M';
+					$start_date = date('Y-m-d', strtotime($startdate));
+					$start_date = new DateTime($start_date);
+					$end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 month')));
+					break;
+			}
+			if($interval > 1) {
+				$interval = new DateInterval("P{$interval}{$repeat_type}");
+				$period = new DatePeriod($start_date, $interval, $end_date);
+				foreach($period as $period_date) {
+					if (date('Y-m-d', strtotime($calendar_date)) == $period_date->format('Y-m-d')) {
+						$is_shift = true;
+					}
+				}
+			} else {
+				$is_shift = true;
+			}
+			if($is_shift) {
+				//Ticket Conflicts
+				$equipment = [];
+				$equipment_ids = $dbc->query("SELECT `equipmentid` FROM `equipment_assignment_staff` LEFT JOIN `equipment_assignment` ON `equipment_assignment_staff`.`equipment_assignmentid`=`equipment_assignment`.`equipment_assignmentid` WHERE `equipment_assignment_staff`.`deleted`=0 AND `equipment_assignment`.`deleted`=0 AND `equipment_assignment_staff`.`contactid`='".$contact_id."' AND DATE(`equipment_assignment`.`start_date`) <= '".$current_date."' AND DATE(`equipment_assignment`.`end_date`) >= '".$current_date."' AND CONCAT(',',`hide_staff`,',') NOT LIKE '%,".$contact_id.",%' AND CONCAT(',',`hide_days`,',') NOT LIKE '%,".$current_date.",%'");
+				while($equipment[] = $equipment_ids->fetch_assoc()['equipmentid']) { }
+				$equipment = implode(',',array_filter($equipment));
+				if($equipment == '') {
+					$equipment = 0;
+				}
+				$tickets = mysqli_query($dbc, "SELECT `tickets`.* FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid` = `ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted` = 0 WHERE ((internal_qa_date = '".$current_date."' AND CONCAT(',',IFNULL(`internal_qa_contactid`,''),',') LIKE '%,".$contact_id.",%') OR (`deliverable_date` = '".$current_date."' AND CONCAT(',',IFNULL(`deliverable_contactid`,''),',') LIKE '%,".$contact_id.",%') OR ((`tickets`.`to_do_date` = '".$current_date."' OR '".$current_date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$current_date."' OR '".$current_date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND ((CONCAT(',',IFNULL(IFNULL(`ticket_schedule`.`contactid`,`tickets`.`contactid`),''),',') LIKE '%,".$contact_id.",%') OR (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN (".$equipment.") AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0))))");
+				while($ticket = mysqli_fetch_assoc($tickets)) {
+					$ticket_conflicts[$ticket['ticketid']] = get_ticket_label($dbc, $ticket);
+				}
+
+				//Booking Conflicts
+				$bookings = mysqli_query($dbc, "SELECT * FROM `booking` WHERE ('".$contact_id."' IN (`therapistsid`,`patientid`) OR CONCAT('*#*',`therapistsid`,'*#*') LIKE '%*#*".$contact_id."*#*%') AND `follow_up_call_status` NOT LIKE '%cancel%' AND ((`appoint_date` LIKE '%".$current_date."%') OR '".date('Y-m-d H:i:s', strtotime($current_date.' 00:00:00'))."' BETWEEN `appoint_date` AND `end_appoint_date` OR '".date('Y-m-d H:i:s', strtotime($calendar_date.' 23:59:59'))."' BETWEEN `appoint_date` AND `end_appoint_date`) AND `deleted` = 0");
+				while($booking = mysqli_fetch_assoc($bookings)) {
+					$booking_conflicts[$booking['bookingid']] = 'Appointment #'.$booking['bookingid'].': '.get_contact($dbc, $booking['patientid']).' - '.($booking['serviceid'] > 0 ? get_services($dbc, $booking['serviceid'], "CONCAT(`category`,' ',`heading`)") : get_type_from_booking($dbc, $booking['type']));
+				}
+			}
+		}
+	}
+	return ['ticket' => $ticket_conflicts, 'booking' => $booking_conflicts];
 }

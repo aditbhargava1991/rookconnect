@@ -5878,7 +5878,18 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .calendar .calendar-screen {
   background-color: #ffb3b3;
 }
-.summary-block, .overview-block, .main-screen-white, .connectedSortable { border-color:#e83324 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable {
+    border-color:#e83324 !important;
+    }
 footer { color:#fff; }
 .theme-color-icon {
   filter: invert(24%) sepia(44%) saturate(3987%) hue-rotate(348deg) brightness(104%) contrast(93%) !important;

@@ -310,6 +310,13 @@ if($_GET['action'] == 'save_template_field') {
 			insert_day_overview($dbc, $_SESSION['contactid'], ESTIMATE_TILE, date('Y-m-d'), '', 'Added Estimate #'.$id, $id);
 		}
 	}
+    if($id > 0 && $table == 'estimate' && in_array($field, ['businessid','businessid','clientid','siteid','afe_number','heading'])) {
+        $ticket_field = $field;
+        if($ticket_field == 'estimate_name') {
+            $ticket_field = 'heading';
+        }
+        $dbc->query("UPDATE `tickets` SET `$ticket_field`='$value' WHERE `estimateid`='$id' AND `deleted`=0");
+    }
 	if($table == 'estimate_actions') {
 		if($field == 'completed') {
 			$value = htmlentities("Follow Up #$id Completed by ".get_contact($dbc, $_SESSION['contactid'])." on ".date('Y-m-d')."<br />".$value);
@@ -370,9 +377,7 @@ if($_GET['action'] == 'save_template_field') {
 	}
 
 } else if($_GET['action'] == 'setting_types') {
-	$project_tabs = filter_var(implode(',',$_POST['types']),FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'project_tabs' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='project_tabs') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$project_tabs' WHERE `name`='project_tabs'");
+	set_config($dbc, 'estimate_tabs', implode(',',$_POST['estimate_tabs']));
 } else if($_GET['action'] == 'settings_general') {
 	$name = filter_var($_POST['name'],FILTER_SANITIZE_STRING);
 	$value = filter_var(htmlentities($_POST['value']),FILTER_SANITIZE_STRING);
@@ -591,4 +596,10 @@ if($_GET['action'] == 'save_template_field') {
 		add_update_history($dbc, 'estimates_history', $history, '', $before_change);
 	}
 	echo $templateid;
+} else if($_GET['action'] == 'activate_ticket') {
+    $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
+    $type = filter_var($_GET['type'],FILTER_SANITIZE_STRING);
+    $status = get_config($dbc, 'ticket_default_status'.($type == '' ? '' : '_'.$type));
+    $status = empty($status) ? get_config($dbc, 'ticket_default_status') : $status;
+    set_field_value($status, 'status', 'tickets', 'ticketid', $ticketid);
 }

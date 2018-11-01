@@ -44,7 +44,7 @@ if(!empty($_GET['intakeformid'])) {
 $subject = $form_name;
 $body = 'The following form has been sent to you to fill out:<br><br>
 	Form: '.$form_name.'<br>
-	URL: <a href="'.WEBSITE_URL.'/Intake/add_form.php?formid='.$intakeformid.'&access_code='.$access_code.'">'.WEBSITE_URL.'/Intake/add_form.php?formid='.$intakeformid.'&access_code='.$access_code.'</a>';
+	URL: <a href="'.WEBSITE_URL.'/Intake/add_form.php?formid='.$intakeformid.'&access_code='.$access_code.'">'.WEBSITE_URL.'/Intake/add_form.php?formid='.$intakeformid.'&access_code='.$access_code.'</a> ';
 if(!empty($expiry_date)) {
 	$body .= '<br><br>You have until '.$expiry_date.' to fill this form out.';
 }

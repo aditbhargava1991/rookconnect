@@ -25,6 +25,9 @@ if (isset($_POST['add_tab'])) {
         $query_insert_config = "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('show_category_dropdown_equipment', '$value')";
         $result_insert_config = mysqli_query($dbc, $query_insert_config);
     }
+    
+    // Set the Overview Tab option
+	set_config($dbc, 'show_equipment_overview', $_POST['show_equipment_overview']);
 
 	// Set the Volume Unit field
 	set_config($dbc, 'volume_units', $_POST['volume_units']);
@@ -124,13 +127,13 @@ if (isset($_POST['add_tab'])) {
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="fax_number"	class="col-sm-4	control-label">Add Equipment Categories:<br /><em>Separate the categories by commas. These will display on the dashboard as tabs to separate the Categories of Equipment.</em></label>
+		<label for="fax_number"	class="col-sm-4	control-label">Add Equipment Tabs:<br /><em>Separate the tabs by commas. These will display on the dashboard as tabs to separate the Tabs of Equipment.</em></label>
 		<div class="col-sm-8">
 			<input name="equipment_tabs" type="text" value="<?php echo get_config($dbc, 'equipment_tabs'); ?>" class="form-control"/>
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="fax_number" class="col-sm-4 control-label">Use Category Drop Down Menu:</label>
+		<label for="fax_number" class="col-sm-4 control-label">Use Tab Drop Down Menu:</label>
 		<div class="col-sm-8">
 		<?php
 		$checked = '';
@@ -142,7 +145,13 @@ if (isset($_POST['add_tab'])) {
 			}
 		}
 		?>
-          <input type='checkbox' style='width:20px; height:20px;' <?php echo $checked; ?>  name='show_category_dropdown_equipment' class='show_category_dropdown_equipment' value='1'>
+          <label class="form-checkbox"><input type='checkbox' <?php echo $checked; ?>  name='show_category_dropdown_equipment' class='show_category_dropdown_equipment' value='1'>Enable</label>
+        </div>
+	</div>
+	<div class="form-group">
+		<label class="col-sm-4">Show Equipment Overview:</label>
+		<div class="col-sm-8">
+            <label class="form-checkbox"><input type='checkbox' <?= get_config($dbc,'show_equipment_overview') > 0 ? 'checked' : '' ?>  name='show_equipment_overview' value='1'>Enable</label>
         </div>
 	</div>
 	<div class="form-group">
@@ -165,7 +174,7 @@ if (isset($_POST['add_tab'])) {
 		<label for="equipment_remind_admin"	class="col-sm-4	control-label">Recipient Email Address(es):<br /><em>Reminder emails will also be sent to these user(s), if selected.</em></label>
 		<div class="col-sm-8">
 			<select name="equipment_remind_admin[]" data-placeholder="Select Staff" multiple class="chosen-select-deselect">
-                <option></option><?php
+                <?php
                 $recipient   = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `recipient` FROM `reminders` WHERE `reminder_type`='Equipment Registration' OR `reminder_type`='Equipment Insurance'" ) );
                 $staff      = explode ( '<br>', get_multiple_contact($dbc, $recipient['recipient']) );
                 $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address`!='' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
@@ -213,9 +222,9 @@ if (isset($_POST['add_tab'])) {
 
 	<h4>Mass Equipment Update</h4>
 	<div class="form-group">
-		<label for="mass_update_field" class="col-sm-4 control-label">Category to Update:</label>
+		<label for="mass_update_field" class="col-sm-4 control-label">Tab to Update:</label>
 		<div class="col-sm-8">
-			<select name="mass_update_category" class="chosen-select-deselect" data-placeholder="Select a Category"><option></option>
+			<select name="mass_update_category" class="chosen-select-deselect" data-placeholder="Select a Tab"><option></option>
 				<?php foreach(explode(',',get_config($dbc, 'equipment_tabs')) as $cat) { ?>
 					<option value="<?= $cat ?>"><?= $cat ?></option>
 				<?php } ?>

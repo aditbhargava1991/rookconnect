@@ -18,7 +18,6 @@
     <label for="first_name" class="col-sm-4 control-label text-right">Business Contact To Email:</label>
     <div class="col-sm-8">
         <select name="businesscontact_to_emailid[]" multiple id="estimateclientid" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
             $cat = '';
             $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE businessid='$businessid' ORDER BY category");
@@ -45,7 +44,6 @@
     <label for="first_name" class="col-sm-4 control-label text-right">Business Contact CC Email:</label>
     <div class="col-sm-8">
         <select name="businesscontact_cc_emailid[]" multiple id="estimateclientid" data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
             $cat = '';
             $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE businessid='$businessid' ORDER BY category");
@@ -72,7 +70,6 @@
     <label for="first_name" class="col-sm-4 control-label text-right">Company Contact To Email:</label>
     <div class="col-sm-8">
         <select name="companycontact_to_emailid[]" multiple <?php echo $disable_client; ?> data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
             $cat = '';
             $query1 = mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 ORDER BY category");
@@ -95,7 +92,6 @@
     <label for="first_name" class="col-sm-4 control-label text-right">Company Contact CC Email:</label>
     <div class="col-sm-8">
         <select name="companycontact_cc_emailid[]" multiple <?php echo $disable_client; ?> data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
             $cat = '';
             $query1 = mysqli_query($dbc,"SELECT contactid, first_name, last_name, category, email_address FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 ORDER BY category");

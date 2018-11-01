@@ -1,7 +1,7 @@
 <?php
 require_once('../phpsign/signature-to-image.php');
 $default_tab = !empty(get_config($dbc, 'timesheet_default_tab')) ? get_config($dbc, 'timesheet_default_tab') : 'Custom';
-$_GET['tab'] = !empty($_GET['tab']) ? $_GET['tab'] : $default_tab;
+$_GET['tab'] = !empty($_GET['tab']) && FOLDER_NAME != 'daysheet' ? $_GET['tab'] : $default_tab;
 switch($_GET['tab']) {
 	case 'Daily':
 		$pay_period_label = 'Day';
@@ -111,6 +111,8 @@ $config['pdf_options'] = [
 	'reg_hrs' => 'Regular Hours',
 	'payable_hrs' => 'Payable Hours',
 	'start_day_tile_separate' => $timesheet_start_tile,
+	'direct_hrs' => 'Direct Hours',
+	'indirect_hrs' => 'Indirect Hours',
 	'extra_hrs' => 'Extra Hours',
 	'relief_hrs' => 'Relief Hours',
 	'sleep_hrs' => 'Sleep Hours',
@@ -131,43 +133,28 @@ $config['pdf_options'] = [
 $config['settings']['Choose Fields for Time Sheets']['config_field'] = 'time_cards';
 $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 	'General' => array(
-			array(PROJECT_NOUN, 'dropdown', 'project'),
-			array('Business', 'dropdown', 'business'),
-			array('Customer', 'dropdown', 'customer'),
-			array(TICKET_NOUN, 'dropdown', 'ticketid'),
-			array('Search by Staff', 'dropdown', 'search_staff'),
-			array('Search by Client', 'dropdown', 'search_client'),
-			array('Show Hours', 'hidden', 'show_hours'),
-			array('Scheduled Hours', 'hidden', 'scheduled'),
+			array('Editable Dates', 'hidden', 'editable_dates'),
 			array('Schedule', 'hidden', 'schedule'),
-			array('Position Drop Down', 'hidden', 'position'),
-			array('Start Time', 'time', 'start_time'),
-			array('End Time', 'time', 'end_time'),
-			array('Start Time (Editable)', 'time', 'start_time_editable'),
-			array('End Time (Editable)', 'time', 'end_time_editable'),
-			array($timesheet_start_tile, 'time', 'start_day_tile'),
-			array($timesheet_start_tile.' - Separate Hours', 'time', 'start_day_tile_separate'),
-			array('Calculate Hours On Start/End Time Change', 'hidden', 'calculate_hours_start_end'),
-			array('Type of Time', 'dropdown', 'type_of_time'),
-			array('Address', 'text', 'address'),
-			array('Phone', 'text', 'phone'),
-			array('Email', 'text', 'email'),
-			array('Payment', 'text', 'payment'),
-			array('Confirmation', 'text', 'confirm'),
-			array('Frequency', 'text', 'frequency'),
-			array('Time Slot', 'text', 'time_slot'),
-			array('Staff', 'dropdown', 'staff'),
-			array('Cell Phone Carrier', 'dropdown', 'contact_staff'),
-			array('Timeframe', 'text', 'timeframe'),
-			array('Date', 'date', 'date'),
-			array('Total Hrs', 'hours', 'total_hrs'),
+			array('Scheduled Hours', 'hidden', 'scheduled'),
+			array(TICKET_NOUN, 'dropdown', 'ticketid'),
+			array('Show Hours', 'hidden', 'show_hours'),
 			array('Total Tracked Hrs', 'hidden', 'total_tracked_hrs'),
+			array('Start Time (Editable)', 'time', 'start_time_editable'),
+			array('Start Time', 'time', 'start_time'),
+			array('End Time (Editable)', 'time', 'end_time_editable'),
+			array('End Time', 'time', 'end_time'),
 			array('Planned Hours ('.TICKET_TILE.')', 'hidden', 'planned_hrs'),
 			array('Tracked Hours ('.TICKET_TILE.')', 'hidden', 'tracked_hrs'),
 			array('Total Tracked Time ('.TICKET_TILE.')', 'hidden', 'total_tracked_time'),
-			array('Payable Hours', 'hidden', 'payable_hrs'),
-			array('Payable Hours Updates '.TICKET_NOUN, 'hidden', 'update_ticket_payable'),
+			array($timesheet_start_tile, 'time', 'start_day_tile'),
+			array(TICKET_NOUN.' Dropdown', 'hidden', 'ticket_select'),
+			array('Task Dropdown', 'hidden', 'task_select'),
+			array('Position Drop Down', 'hidden', 'position_select'),
+			array('Task Tracked Hrs', 'hidden', 'total_tracked_hrs_task'),
+			array('Total Hours', 'hidden', 'total_hrs'),
 			array('Regular Hours', 'hidden', 'reg_hrs'),
+			array('Payable Hours', 'hidden', 'payable_hrs'),
+			array($timesheet_start_tile.' - Separate Hours', 'time', 'start_day_tile_separate'),
 			array('Direct Hours', 'hidden', 'direct_hrs'),
 			array('Indirect Hours', 'hidden', 'indirect_hrs'),
 			array('Extra Hours', 'hidden', 'extra_hrs'),
@@ -176,20 +163,42 @@ $config['settings']['Choose Fields for Time Sheets']['data'] = array(
 			array('Training Hours', 'hidden', 'training_hrs'),
 			array('Sick Time', 'hidden', 'sick_hrs'),
 			array('Sick Taken', 'hidden', 'sick_used'),
+			array('Sick Taken - Check Conflicts', 'hidden', 'sick_used_conflicts'),
 			array('Stat Hours', 'hidden', 'stat_hrs'),
 			array('Stat Taken', 'hidden', 'stat_used'),
-			array('Breaks', 'hidden', 'breaks'),
 			array('Vacation Hrs', 'hidden', 'vaca_hrs'),
 			array('Vacation Taken', 'hidden', 'vaca_used'),
+			array('Breaks', 'hidden', 'breaks'),
 			array('View '.TICKET_NOUN, 'hidden', 'view_ticket'),
+			array('Hourly Compensation', 'hidden', 'compensation'),
 			array('Comments', 'hidden', 'comment_box'),
 			array('Parent/Guardian Signature', 'signature', 'signature'),
-			array('Hide Signature on PDF', '', 'signature_pdf_hidden'),
-			array('Approve All Checkbox', 'hidden', 'approve_all'),
+
+			array('Day Totals', 'hidden', 'total_per_day'),
+			array('Calculate Hours On Start/End Time Change', 'hidden', 'calculate_hours_start_end'),
 			array('Show Time Overlaps', 'hidden', 'time_overlaps'),
-			array('Editable Dates', 'hidden', 'editable_dates'),
+			array('Approve All Checkbox', 'hidden', 'approve_all'),
+
+			array(PROJECT_NOUN, 'dropdown', 'project'),
+			array('Search by Client', 'dropdown', 'search_client'),
+
+			array('Business', 'dropdown', 'business'),
+			array('Staff', 'dropdown', 'staff'),
+
+			array('Customer', 'dropdown', 'customer'),
+			array('Search by Staff', 'dropdown', 'search_staff'),
+			array('Position Drop Down', 'hidden', 'position'),
+			array('Type of Time', 'dropdown', 'type_of_time'),
+			array('Payment', 'text', 'payment'),
+			array('Confirmation', 'text', 'confirm'),
+			array('Frequency', 'text', 'frequency'),
+			array('Time Slot', 'text', 'time_slot'),
+			array('Cell Phone Carrier', 'dropdown', 'contact_staff'),
+			array('Timeframe', 'text', 'timeframe'),
+			array('Date', 'date', 'date'),
+			array('Hide Signature on PDF', '', 'signature_pdf_hidden'),
 			array('Combine Staff on Report', 'tab', 'staff_combine'),
-			array('Day Totals', 'hidden', 'total_per_day')
+			array('Payable Hours Updates '.TICKET_NOUN, 'hidden', 'update_ticket_payable'),
 		)
 );
 
@@ -382,18 +391,19 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 				if($title == $tab) {
 					$active = 'active_tab';
 				}
+
 				if($title == 'Holidays') {
 					$url = $contents['Holidays'];
 				} else {
 					$url = !empty($contents[$default_tab]) ? $contents[$default_tab] : $contents['Custom'];
 				}
-				
+
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
                     $html .= "<a href='".$url."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button></a>";
                 } else {
                     $html .= "<button type='button' class='btn disabled-btn mobile-block'>".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button>&nbsp;";
                 }
-                
+
 				if($title == $tab) {
 					foreach($contents as $subtitle => $content) {
 						$subactive = '';
@@ -414,7 +424,7 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 				if($title == $tab) {
 					$active = 'active_tab';
 				}
-				
+
                 if ( check_subtab_persmission($dbc, 'timesheet', ROLE, $title_subtab) === true ) {
                     $html .= "<a href='".$contents."'><button type='button' class='btn brand-btn mobile-block ".$active."' >".($title == 'Manager Approvals' ? $timesheet_manager_approvals : ($title == 'Holidays' ? 'Stat Holidays' : $title))."</button></a>";
                 } else {
@@ -486,7 +496,7 @@ function move_files($files) {
 function prepare_insert($ins_data = array(), $table = '') {
 	$columns = $values = [];
 	foreach($_POST as $field => $value) {
-		if(in_array($field, ['time_cards_id','business','projectid','ticketid','agendameetingid','staff','contact_staff','date','start_time','end_time','type_of_time','timeframe','time_slot','frequency','confirm','payment','email','phone','address','timer_start','total_hrs','timer_tracked','highlight','manager_highlight','comment_box','manager_name','date_manager','manager_signature','coordinator_name','date_coordinator','coordinator_signature','approv','location','customer','day','shift_tracked','day_tracking_type','created_by','clientid','deleted','name','paid'])) {
+		if(in_array($field, ['time_cards_id','business','projectid','ticketid','agendameetingid','staff','contact_staff','date','start_time','end_time','type_of_time','timeframe','time_slot','frequency','confirm','payment','timer_start','total_hrs','timer_tracked','highlight','manager_highlight','comment_box','manager_name','date_manager','manager_signature','coordinator_name','date_coordinator','coordinator_signature','approv','location','customer','day','shift_tracked','day_tracking_type','created_by','clientid','deleted','name','paid'])) {
 			$columns[] = "`$field`";
 			$values[] = "'".filter_var($value,FILTER_SANITIZE_STRING)."'";
 		}
@@ -785,11 +795,11 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 	$start_date = filter_var($start_date,FILTER_SANITIZE_STRING) ?: date('Y-m-01');
 	$end_date = filter_var($end_date,FILTER_SANITIZE_STRING) ?: date('Y-m-t');
 	$limits = $limits ?: "AND `staff`='{$_SESSION['contactid']}' AND `approv`='N'";
-	
+
 	// Add Checklist Time and Email Time to Time Sheet
 	$_SERVER['DBC']->query("INSERT INTO `time_cards` (`checklistnameid`, `total_hrs`, `date`, `staff`, `type_of_time`, `comment_box`, `business`) SELECT `checklistnameid`, TIME_TO_SEC(`work_time`) / 3600, `timer_date`, `checklist_name_time`.`contactid`, 'Regular Hrs.', CONCAT('Checklist Item #',`checklistnameid`), `businessid` FROM `checklist_name_time` LEFT JOIN `checklist_name` ON `checklist_name_time`.`checklist_id`=`checklist_name`.`checklistnameid` LEFT JOIN `checklist` ON `checklist_name`.`checklistid`=`checklist`.`checklistid` WHERE `checklist_time_id` NOT IN (SELECT `checklist_time_id` FROM `checklist_name_time` LEFT JOIN `time_cards` ON `checklist_name_time`.`contactid`=`time_cards`.`staff` AND `checklist_name_time`.`checklist_id`=`time_cards`.`checklistnameid` AND `checklist_name_time`.`timer_date`=`time_cards`.`date` WHERE `time_cards`.`deleted`=0)");
 	$_SERVER['DBC']->query("INSERT INTO `time_cards` (`email_communicationid`, `total_hrs`, `date`, `staff`, `type_of_time`, `comment_box`, `business`) SELECT `communication_id`, TIME_TO_SEC(`timer`) / 3600, `email_communication_timer`.`created_date`, `email_communication_timer`.`created_by`, 'Regular Hrs.', CONCAT('Email Communication: ',`subject`), `businessid` FROM `email_communication_timer` LEFT JOIN `email_communication` ON `email_communication_timer`.`communication_id`=`email_communication`.`email_communicationid` WHERE `email_communicationid` NOT IN (SELECT `communication_id` FROM `email_communication_timer` LEFT JOIN `time_cards` ON `email_communication_timer`.`created_by`=`time_cards`.`staff` AND `email_communication_timer`.`communication_id`=`time_cards`.`email_communicationid` AND `email_communication_timer`.`created_date`=`time_cards`.`date` WHERE `time_cards`.`deleted`=0)");
-	
+
 	// Get a list of time that is not to be included
 	$timesheet_include_time = explode(',',get_config($_SERVER['DBC'], 'timesheet_include_time'));
 	if(!in_array('ticket',$timesheet_include_time)) {
@@ -810,7 +820,7 @@ function get_time_sheet($start_date = '', $end_date = '', $limits = '', $group =
 	if(!in_array('checklist',$timesheet_include_time)) {
 		$limits .= " AND IFNULL(`checklistnameid`,0)='0'";
 	}
-	
+
 	// Get the list of time to display
 	$timesheet_min_hours = get_config($_SERVER['DBC'], 'timesheet_min_hours');
 	$timesheet_rounding = get_config($_SERVER['DBC'], 'timesheet_rounding');
@@ -890,7 +900,14 @@ function get_ticket_tracked_hrs($dbc, $date, $staff, $layout = '', $time_cards_i
 	$sql .= " GROUP BY tc.`ticket_attached_id`";
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
-		$tracked_hrs[] = $row['checked_in'].' - '.$row['checked_out'];
+		$attached_checkins = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$row['id']."'"),MYSQLI_ASSOC);
+		if(!empty($attached_checkins)) {
+			foreach($attached_checkins as $attached_checkin) {
+				$tracked_hrs[] = $attached_checkin['checked_in'].' - '.$attached_checkin['checked_out'];
+			}
+		} else {
+			$tracked_hrs[] = $row['checked_in'].' - '.$row['checked_out'];
+		}
 	}
 	$tracked_hrs = implode('<br />', $tracked_hrs);
 	if(empty($tracked_hrs)) {
@@ -910,10 +927,16 @@ function get_ticket_total_tracked_time($dbc, $date, $staff, $layout = '', $time_
 	$query = mysqli_query($dbc, $sql);
 	while($row = mysqli_fetch_assoc($query)) {
 		$curr_tracked_time = 0;
-		if($row['hours_tracked'] > 0) {
-			$curr_tracked_time = number_format($row['hours_tracked'],2);
+
+		$attached_checkins = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$row['id']."'"),MYSQLI_ASSOC);
+		if(!empty($attached_checkins)) {
+			foreach($attached_checkins as $attached_checkin) {
+				$curr_tracked_time += number_format((strtotime(date('Y-m-d').' '.$attached_checkin['checked_out']) - strtotime(date('Y-m-d').' '.$attached_checkin['checked_in']))/3600,2);
+			}
 		} else if(!empty($row['checked_out']) && !empty($row['checked_in'])) {
-			$curr_tracked_time = number_format((strtotime(date('Y-m-d').' '.$row['checked_out']) - strtotime(date('Y-m-d').' '.$row['checked_in']))/3600,2);
+			$curr_tracked_time += number_format((strtotime(date('Y-m-d').' '.$row['checked_out']) - strtotime(date('Y-m-d').' '.$row['checked_in']))/3600,2);
+		} else if($row['hours_tracked'] > 0) {
+			$curr_tracked_time += number_format($row['hours_tracked'],2);
 		}
 		$tracked_time[] = ($timesheet_time_format == 'decimal' ? $curr_tracked_time : time_decimal2time($curr_tracked_time));
 	}
@@ -942,7 +965,6 @@ function is_training_hrs($dbc, $time_cards_id) {
 
 function get_pdf_options($dbc, $styling = '', $timesheet_tab = '') {
 	global $config;
-	$layout = get_config($dbc, 'timesheet_layout');
 	if($styling == 'EGS') {
 		$value_config = explode(',',get_field_config($dbc, 'time_cards_total_hrs_layout'));
 		if(empty(array_filter($value_config))) {
@@ -950,8 +972,8 @@ function get_pdf_options($dbc, $styling = '', $timesheet_tab = '') {
 		}
 	} else {
 		$value_config = explode(',',get_field_config($dbc, 'time_cards'));
-		if(!in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array($layout, ['ticket_task','position_dropdown'])) {
-		    $value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
+		if(!in_array('total_hrs',$value_config) && !in_array('reg_hrs',$value_config) && !in_array('direct_hrs',$value_config) && !in_array('payable_hrs',$value_config) && !in_array('total_hrs',$value_config)) {
+		    $value_config = array_merge($value_config,['total_hrs']);
 		}
 	}
 	$timesheet_payroll_fields = '';
@@ -996,20 +1018,13 @@ function set_stat_hours($dbc, $staffid, $start_date, $end_date) {
 	while($holiday = mysqli_fetch_assoc($holidays)) {
 		if($staffid > 0) {
 			switch($contact['stat_pay']) {
-				case 'Alberta Standard':
+				case 'Alberta Standard 4%':
+
 					$end_date = $holiday['date'];
 					$start_date = date('Y-m-d', strtotime($end_date.' - 28 days'));
 					$total_hrs = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS FROM `time_cards` WHERE `staff` = '$staffid' AND `date` BETWEEN '$start_date' AND '$end_date' AND `deleted` = 0 AND `approv` != 'N'"))['REG_HRS'];
 					if($total_hrs > 0) {
-						$vaca_hrs = $total_hrs * 0.014;
-						$stat_hrs = ($total_hrs + $vaca_hrs) * 0.05;
-
-						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Vac Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `deleted` = 0 AND `holidayid` ='".$holiday['holidays_id']."'"));
-						if(!empty($time_card)) {
-							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$vaca_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
-						} else {
-							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Vac Hrs.','$vaca_hrs','Vacation Hours added automatically based on calculation from ".$contact['stat_pay'].". Hours may change as previous hours get altered/approved.')");
-						}
+						$stat_hrs = ($total_hrs * 1.04) * 0.05;
 
 						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Stat Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `holidayid` ='".$holiday['holidays_id']."'"));
 						if(!empty($time_card)) {
@@ -1019,6 +1034,87 @@ function set_stat_hours($dbc, $staffid, $start_date, $end_date) {
 						}
 					}
 					break;
+				case 'Alberta Standard 6%':
+					$end_date = $holiday['date'];
+					$start_date = date('Y-m-d', strtotime($end_date.' - 28 days'));
+					$total_hrs = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS FROM `time_cards` WHERE `staff` = '$staffid' AND `date` BETWEEN '$start_date' AND '$end_date' AND `deleted` = 0 AND `approv` != 'N'"))['REG_HRS'];
+					if($total_hrs > 0) {
+
+						$stat_hrs = ($total_hrs * 1.06) * 0.05;
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Stat Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$stat_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Stat Hrs.','$stat_hrs','Stat Hours added automatically based on calculation from ".$contact['stat_pay'].". Hours may change as previous hours get altered/approved.')");
+						}
+					}
+					break;
+
+
+				case 'Alberta Standard Salary':
+					$end_date = $holiday['date'];
+
+					    $days_per_week = get_contact($dbc, $staffid, 'days_per_week');
+					    $hours_per_week = get_contact($dbc, $staffid, 'hours_per_week');
+						$stat_hrs = ($hours_per_week/$days_per_week);
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Stat Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$stat_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Stat Hrs.','$stat_hrs','Stat Hours added automatically based on calculation. Hours may change as previous hours get altered/approved.')");
+						}
+					break;
+
+			}
+			switch($contact['vaca_pay']) {
+				case 'Alberta Standard 4%':
+					$end_date = $holiday['date'];
+					$start_date = date('Y-m-d', strtotime($end_date.' - 28 days'));
+					$total_hrs = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS FROM `time_cards` WHERE `staff` = '$staffid' AND `date` BETWEEN '$start_date' AND '$end_date' AND `deleted` = 0 AND `approv` != 'N'"))['REG_HRS'];
+					if($total_hrs > 0) {
+						$vaca_hrs = $total_hrs * 0.04;
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Vac Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `deleted` = 0 AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$vaca_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Vac Hrs.','$vaca_hrs','Vacation Hours added automatically based on calculation from ".$contact['stat_pay'].". Hours may change as previous hours get altered/approved.')");
+						}
+					}
+					break;
+				case 'Alberta Standard 6%':
+					$end_date = $holiday['date'];
+					$start_date = date('Y-m-d', strtotime($end_date.' - 28 days'));
+					$total_hrs = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT SUM(IF(`type_of_time` NOT IN ('Extra Hrs.','Relief Hrs.','Sleep Hrs.','Sick Time Adj.','Sick Hrs.Taken','Stat Hrs.','Stat Hrs.Taken','Vac Hrs.','Vac Hrs.Taken','Break'),`total_hrs`,0)) REG_HRS FROM `time_cards` WHERE `staff` = '$staffid' AND `date` BETWEEN '$start_date' AND '$end_date' AND `deleted` = 0 AND `approv` != 'N'"))['REG_HRS'];
+					if($total_hrs > 0) {
+						$vaca_hrs = $total_hrs * 0.06;
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Vac Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `deleted` = 0 AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$vaca_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Vac Hrs.','$vaca_hrs','Vacation Hours added automatically based on calculation from ".$contact['stat_pay'].". Hours may change as previous hours get altered/approved.')");
+						}
+					}
+					break;
+
+				case 'Alberta Standard Salary':
+					$end_date = $holiday['date'];
+
+					    $days_per_week = get_contact($dbc, $staffid, 'days_per_week');
+					    $hours_per_week = get_contact($dbc, $staffid, 'hours_per_week');
+						$vaca_hrs = ($hours_per_week/$days_per_week);
+
+						$time_card = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `time_cards` WHERE `type_of_time` = 'Vac Hrs.' AND `staff` = '$staffid' AND `date` = '$end_date' AND `deleted` = 0 AND `holidayid` ='".$holiday['holidays_id']."'"));
+						if(!empty($time_card)) {
+							mysqli_query($dbc, "UPDATE `time_cards` SET `total_hrs` = '$vaca_hrs' WHERE `time_cards_id` = '".$time_card['time_cards_id']."'");
+						} else {
+							mysqli_query($dbc, "INSERT INTO `time_cards` (`holidayid`,`date`,`staff`,`type_of_time`,`total_hrs`,`comment_box`) VALUES ('".$holiday['holidays_id']."','$end_date','$staffid','Vac Hrs.','$vaca_hrs','Vacation Hours added automatically based on calculation. Hours may change as previous hours get altered/approved.')");
+						}
+					break;
+
 			}
 		}
 	}

@@ -124,10 +124,10 @@ checkAuthorised('inventory');
                         echo '<th>Product Code</th>';
                     }
                     if (strpos($value_config, ','."Product Type".',') !== FALSE) {
-                        echo '<th>Product Type</th>';
+                        echo '<th>Product Tab</th>';
                     }
                     if (strpos($value_config, ','."Category".',') !== FALSE) {
-                        echo '<th>Category</th>';
+                        echo '<th>Tab</th>';
                     }
                     if (strpos($value_config, ','."Heading".',') !== FALSE) {
                         echo '<th>Heading</th>';
@@ -225,10 +225,10 @@ checkAuthorised('inventory');
                     echo '<td data-title="Product Code">' . $row['product_code'] . '</td>';
                 }
                 if (strpos($value_config, ','."Product Type".',') !== FALSE) {
-       				echo '<td data-title="Product Type">' . $row['product_type'] . '</td>';
+       				echo '<td data-title="Product Tab">' . $row['product_type'] . '</td>';
                 }
                 if (strpos($value_config, ','."Category".',') !== FALSE) {
-                    echo '<td data-title="Category">' . $row['category'] . '</td>';
+                    echo '<td data-title="Tab">' . $row['category'] . '</td>';
                 }
                 if (strpos($value_config, ','."Heading".',') !== FALSE) {
                     echo '<td data-title="Heading">' . $row['heading'] . '</td>';

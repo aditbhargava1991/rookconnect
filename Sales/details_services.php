@@ -1,4 +1,4 @@
-<!-- Services -->
+<!-- Services --><?php include_once('../Sales/config.php'); ?>
 <script type="text/javascript">
 $(document).ready(function() {
     $('#deleteservices_0').hide();

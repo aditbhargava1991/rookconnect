@@ -57,7 +57,7 @@ if (isset($_POST['contactid'])) {
 
         $url = 'Updated';
     }
-	
+
 	// Update the contacts_security table
 	mysqli_query($dbc, "INSERT INTO `contacts_security` (`contactid`) SELECT '$contactid' FROM (SELECT COUNT(*) rows FROM `contacts_security` WHERE `contactid`='$contactid') num WHERE num.rows = 0");
 	mysqli_query($dbc, "UPDATE `contacts_security` SET `region_access`='$region_access' WHERE `contactid`='$contactid'");

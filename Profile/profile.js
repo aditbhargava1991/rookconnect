@@ -25,3 +25,14 @@ function googleMapsLink(span) {
     var url = JSON.parse($(span).data('href'));
     window.open(url, '_blank');
 }
+function untagMyself(a, id) {
+    if(id > 0 && confirm('Are you sure you want to untag yourself?')) {
+        $.ajax({
+            url: '../Profile/profile_ajax.php?action=contacts_untag'+'&id='+id,
+            method: 'GET',
+            success: function(response) {
+                $(a).closest('li,.block-group-daysheet').remove();
+            }
+        });
+    }
+}

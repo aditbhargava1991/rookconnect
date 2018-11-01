@@ -5,6 +5,7 @@ include 'config.php';
 $_GET['from_url'] = 'index.php'.(!empty($_GET['from_url']) ? '?url='.$_GET['from_url'] : '');
 
 if (isset($_POST['submit']) && $_POST['submit'] == 'reporting') {
+    set_config($dbc, 'timesheet_report_options', implode(',',$_POST['timesheet_report_options']));
     $timesheet_reporting_styling = filter_var($_POST['timesheet_reporting_styling'],FILTER_SANITIZE_STRING);
     $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(configid) AS configid FROM general_configuration WHERE `name` = 'timesheet_reporting_styling'"));
 
@@ -63,6 +64,14 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 
 	$timesheet_security_roles = implode(',', $_POST['timesheet_security_roles']);
 	set_config($dbc, 'timesheet_security_roles', $timesheet_security_roles);
+
+	foreach($_POST['dayoff_hours_type'] as $i => $dayoff_hours_type) {
+		$dayoff_enabled = $_POST['dayoff_enabled'][$i];
+		$dayoff_dayoff_type = $_POST['dayoff_dayoff_type'][$i];
+
+		mysqli_query($dbc, "INSERT INTO `field_config_time_cards_dayoff` (`hours_type`) SELECT '$dayoff_hours_type' FROM (SELECT COUNT(*) rows FROM `field_config_time_cards_dayoff` WHERE `hours_type` = '$dayoff_hours_type') num WHERE num.rows=0");
+		mysqli_query($dbc, "UPDATE `field_config_time_cards_dayoff` SET `enabled` = '$dayoff_enabled', `dayoff_type` = '$dayoff_dayoff_type' WHERE `hours_type` = '$dayoff_hours_type'");
+	}
 } else if(isset($_POST['submit']) && $_POST['submit'] == 'approvals') {
 	$config_ids = implode(',',array_filter($_POST['configid']));
 	$deleted_sql = "DELETE FROM `field_config_supervisor` WHERE `fieldconfigid` NOT IN ($config_ids)";
@@ -106,6 +115,8 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$highlight_manager' WHERE `name`='timesheet_manager'");
 	$timesheet_approval_initials = filter_var($_POST['timesheet_approval_initials'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'timesheet_approval_initials', $timesheet_approval_initials);
+	$timesheet_approval_date = filter_var($_POST['timesheet_approval_date'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'timesheet_approval_date', $timesheet_approval_date);
 	$timesheet_approval_status_comments = filter_var($_POST['timesheet_approval_status_comments'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'timesheet_approval_status_comments', $timesheet_approval_status_comments);
 	$timesheet_approval_import_export = filter_var($_POST['timesheet_approval_import_export'],FILTER_SANITIZE_STRING);
@@ -124,46 +135,6 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	set_config($dbc, 'timesheet_time_format', $_POST['timesheet_time_format']);
 	set_config($dbc, 'timesheet_record_history', $_POST['timesheet_record_history']);
 	set_config($dbc, 'timesheet_default_tab', $_POST['timesheet_default_tab']);
-} else if(isset($_POST['submit']) && $_POST['submit'] == 'day_tracking') {
-	$timesheet_start_tile = filter_var($_POST['timesheet_start_tile'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_start_tile' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_start_tile') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_start_tile' WHERE `name`='timesheet_start_tile'");
-	$timesheet_running_button = filter_var($_POST['timesheet_running_button'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_running_button' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_running_button') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_running_button' WHERE `name`='timesheet_running_button'");
-	$timesheet_track_shifts = filter_var($_POST['timesheet_track_shifts'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_track_shifts' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_track_shifts') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_track_shifts' WHERE `name`='timesheet_track_shifts'");
-	$timesheet_hide_others = filter_var($_POST['timesheet_hide_others'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_hide_others' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_hide_others') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_hide_others' WHERE `name`='timesheet_hide_others'");
-	$timesheet_end_tile = filter_var($_POST['timesheet_end_tile'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_end_tile' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_end_tile') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_end_tile' WHERE `name`='timesheet_end_tile'");
-	$timesheet_always_show = filter_var($_POST['timesheet_always_show'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_always_show' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_always_show') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_always_show' WHERE `name`='timesheet_always_show'");
-	$timesheet_add_day_comment = filter_var($_POST['timesheet_add_day_comment'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_add_day_comment' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_add_day_comment') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_add_day_comment' WHERE `name`='timesheet_add_day_comment'");
-	$timesheet_direct_indirect = filter_var($_POST['timesheet_direct_indirect'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_direct_indirect' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_direct_indirect') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_direct_indirect' WHERE `name`='timesheet_direct_indirect'");
-	$timesheet_hide_groups = filter_var($_POST['timesheet_hide_groups'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_hide_groups' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_hide_groups') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_hide_groups' WHERE `name`='timesheet_hide_groups'");
-	$timesheet_track_clients = filter_var($_POST['timesheet_track_clients'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_track_clients' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_track_clients') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_track_clients' WHERE `name`='timesheet_track_clients'");
-	$timesheet_client_category = filter_var($_POST['timesheet_client_category'],FILTER_SANITIZE_STRING);
-	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT 'timesheet_client_category' FROM (SELECT COUNT(*) `rows` FROM general_configuration WHERE `name`='timesheet_client_category') CONFIG WHERE `rows`=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$timesheet_client_category' WHERE `name`='timesheet_client_category'");
-	set_config($dbc, 'day_tracking_preset_note', $_POST['day_tracking_preset_note']);
-	set_config($dbc, 'timesheet_hide_past_days', $_POST['timesheet_hide_past_days']);
-	set_config($dbc, 'timesheet_break_option', $_POST['timesheet_break_option']);
-	set_config($dbc, 'ticket_force_starts_day', $_POST['ticket_force_starts_day']);
-	set_config($dbc, 'active_ticket_button', $_POST['active_ticket_button']);
-	set_config($dbc, 'timesheet_force_end_midnight', $_POST['timesheet_force_end_midnight']);
 } else if(isset($_POST['submit']) && $_POST['submit'] == 'holiday') {
 	set_config($dbc, 'holiday_update_noti', filter_var($_POST['holiday_update_noti']));
 	set_config($dbc, 'holiday_update_staff', filter_var($_POST['holiday_update_staff']));
@@ -183,8 +154,6 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 <?php include ('../navigation.php');
 if($_GET['tab'] == 'approvals') {
 	$_GET['tab'] = 'approvals';
-} else if($_GET['tab'] == 'day_tracking') {
-	$_GET['tab'] = 'day_tracking';
 } else if($_GET['tab'] == 'tabs') {
 	$_GET['tab'] = 'tabs';
 } else if($_GET['tab'] == 'reporting') {
@@ -206,7 +175,6 @@ if($_GET['tab'] == 'approvals') {
 	<a href="?tab=tabs&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'tabs' ? 'active_tab' : ''); ?>">Time Sheet Tabs</a>
 	<a href="?tab=fields&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'fields' ? 'active_tab' : ''); ?>">Time Sheet Fields</a>
 	<a href="?tab=approvals&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'approvals' ? 'active_tab' : ''); ?>">Approvals</a>
-	<a href="?tab=day_tracking&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'day_tracking' ? 'active_tab' : ''); ?>"><?= get_config($dbc, 'timesheet_start_tile') ?: 'Start Day' ?></a>
 	<a href="?tab=reporting&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'reporting' ? 'active_tab' : ''); ?>">Reporting</a>
 	<a href="?tab=payroll&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'payroll' ? 'active_tab' : ''); ?>">Payroll</a>
 	<a href="?tab=holiday&from_url=<?= $_GET['from_url'] ?>" class="btn brand-btn <?php echo ($_GET['tab'] == 'holiday' ? 'active_tab' : ''); ?>">Holidays</a>
@@ -229,7 +197,7 @@ if($_GET['tab'] == 'approvals') {
 			} else {
 				$get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
 				$value_config = ','.$get_field_config[$value['config_field']].',';
-				if(strpos($value_config,',reg_hrs,') === FALSE && strpos($value_config,',direct_hrs,') === FALSE && strpos($value_config,',payable_hrs,') === FALSE && !in_array($layout, ['ticket_task','position_dropdown'])) {
+				if(strpos($value_config,',total_hrs,') === FALSE && strpos($value_config,',reg_hrs,') === FALSE && strpos($value_config,',direct_hrs,') === FALSE && strpos($value_config,',payable_hrs,') === FALSE && !in_array($layout, ['ticket_task','position_dropdown'])) {
 					$value_config .= 'reg_hrs,extra_hrs,relief_hrs,sleep_hrs,sick_hrs,sick_used,stat_hrs,stat_used,vaca_hrs,vaca_used,';
 				}
 			}
@@ -318,12 +286,59 @@ if($_GET['tab'] == 'approvals') {
 					<div class="form-group">
 						<label for="additional_note" class="col-sm-4 control-label">Limit Security Levels:</label>
 						<div class="col-sm-8">
-							<select name="timesheet_security_roles[]" multiple class="chosen-select-deselect form-control"><option></option>
+							<select name="timesheet_security_roles[]" multiple class="chosen-select-deselect form-control">
 								<?php $timesheet_security_roles = array_filter(explode(',',get_config($dbc, 'timesheet_security_roles')));
 								foreach(get_security_levels($dbc) as $security_name => $security_level) {
 									echo '<option value="'.$security_level.'" '.(in_array($security_level, $timesheet_security_roles) ? 'selected' : '').'>'.$security_name.'</option>';
 								} ?>
 							</select>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_field_dayoff" >
+						Day Off Shift Settings<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+			<div id="collapse_field_dayoff" class="panel-collapse collapse">
+				<div class="panel-body">
+					<div class="form-group">
+						<label for="additional_note" class="col-sm-4 control-label"><span class='popover-examples list-inline'><a data-toggle='tooltip' data-placement='top' title='If hours are configured here, it will automatically add a Day Off Shift to the Staff for the Day Off Type selected.'><img src='<?= WEBSITE_URL ?>/img/info.png' width='20'></a></span> Day Off Shift Settings:</label>
+						<div class="col-sm-8">
+							<?php $dayoff_types = array_filter(explode(',',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"))['dayoff_types'])); ?>
+							<div id="no-more-tables">
+								<table class="table table-bordered">
+									<tr class="hidden-xs">
+										<th>Hours Type</th>
+										<th>Enabled</th>
+										<th>Day Off Type</th>
+									</tr>
+									<?php $dayoff_hours = ["Sick Hrs.Taken"];
+									foreach($dayoff_hours as $dayoff_hour) {
+										$dayoff_setting = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_time_cards_dayoff` WHERE `hours_type` = '".$dayoff_hour."'")); ?>
+										<tr>
+											<input type="hidden" name="dayoff_hours_type[]" value="Sick Hrs.Taken">
+											<td data-title="Hours Type">Sick Hours Taken</td>
+											<td data-title="Enabled">
+												<label class="form-checkbox"><input type="checkbox" name="dayoff_enabled[]" value="1" <?= $dayoff_setting['enabled'] == 1 ? 'checked' : '' ?>> Enable</label>
+											</td>
+											<td data-title="Day Off Type">
+												<select name="dayoff_dayoff_type[]" class="chosen-select-deselect">
+													<option></option>
+													<?php foreach($dayoff_types as $dayoff_type) {
+														echo '<option value="'.$dayoff_type.'" '.($dayoff_type == $dayoff_setting['dayoff_type'] ? 'selected' : '').'>'.$dayoff_type.'</option>';
+													} ?>
+												</select>
+											</td>
+										</tr>
+									<?php } ?>
+								</table>
+							</div>
 						</div>
 					</div>
 				</div>
@@ -375,6 +390,14 @@ if($_GET['tab'] == 'approvals') {
 							<input type="color" value="<?= $highlight_manager ?>" name="highlight_manager" class="form-control">
 						</div>
 					</div>
+
+					<div class="form-group">
+						<label class="col-sm-4 control-label">Show Approval Status:</label>
+						<div class="col-sm-8">
+							<?php $timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments'); ?>
+							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_status_comments" <?= $timesheet_approval_status_comments == 1 ? 'checked' : '' ?>> Enable</label>
+						</div>
+					</div>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Show Approval Initials:</label>
 						<div class="col-sm-8">
@@ -383,10 +406,10 @@ if($_GET['tab'] == 'approvals') {
 						</div>
 					</div>
 					<div class="form-group">
-						<label class="col-sm-4 control-label">Show Approval Status In Comments:</label>
+						<label class="col-sm-4 control-label">Show Approval Date:</label>
 						<div class="col-sm-8">
-							<?php $timesheet_approval_status_comments = get_config($dbc, 'timesheet_approval_status_comments'); ?>
-							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_status_comments" <?= $timesheet_approval_status_comments == 1 ? 'checked' : '' ?>> Enable</label>
+							<?php $timesheet_approval_date = get_config($dbc, 'timesheet_approval_date'); ?>
+							<label class="form-checkbox"><input type="checkbox" value="1" name="timesheet_approval_date" <?= $timesheet_approval_date == 1 ? 'checked' : '' ?>> Enable</label>
 						</div>
 					</div>
 					<div class="form-group">
@@ -591,8 +614,8 @@ if($_GET['tab'] == 'approvals') {
 					echo "<label><input ".($layout == ''?'checked':'')." type='radio' name='timesheet_layout' value=''>&nbsp;&nbsp;Default Layout</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'multi_line'?'checked':'')." type='radio' name='timesheet_layout' value='multi_line'>&nbsp;&nbsp;Show Multiple Lines</label>&nbsp;&nbsp;";
 					// echo "<label><input ".($layout == 'position_columns'?'checked':'')." type='radio' name='timesheet_layout' value='position_columns'>&nbsp;&nbsp;Time Sheet with Position Columns</label>&nbsp;&nbsp;";
-					echo "<label><input ".($layout == 'position_dropdown'?'checked':'')." type='radio' name='timesheet_layout' value='position_dropdown'>&nbsp;&nbsp;Time Sheet with Position Drop Down</label>&nbsp;&nbsp;";
-					echo "<label><input ".($layout == 'ticket_task'?'checked':'')." type='radio' name='timesheet_layout' value='ticket_task'>&nbsp;&nbsp;Time Sheet with ".TICKET_NOUN." Tasks</label>&nbsp;&nbsp;";
+					//echo "<label><input ".($layout == 'position_dropdown'?'checked':'')." type='radio' name='timesheet_layout' value='position_dropdown'>&nbsp;&nbsp;Time Sheet with Position Drop Down</label>&nbsp;&nbsp;";
+					//echo "<label><input ".($layout == 'ticket_task'?'checked':'')." type='radio' name='timesheet_layout' value='ticket_task'>&nbsp;&nbsp;Time Sheet with ".TICKET_NOUN." Tasks</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'rate_card'?'checked':'')." type='radio' name='timesheet_layout' value='rate_card'>&nbsp;&nbsp;Rate Card Category Layout</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'rate_card_tickets'?'checked':'')." type='radio' name='timesheet_layout' value='rate_card_tickets'>&nbsp;&nbsp;Rate Card Category Per ".TICKET_NOUN."</label>&nbsp;&nbsp;";
 					echo "<label><input ".($layout == 'table_add_button'?'checked':'')." type='radio' name='timesheet_layout' value='table_add_button'>&nbsp;&nbsp;Table Layout with Add Button</label>&nbsp;&nbsp;"; ?>
@@ -676,112 +699,10 @@ if($_GET['tab'] == 'approvals') {
 		</div>
 		<div class="clearfix"></div>
 	</div>
-<?php elseif($_GET['tab'] == 'day_tracking'): ?>
-	<div class="panel-group" id="accordion2">
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_time_tile" >
-						Day Tracking<span class="glyphicon glyphicon-plus"></span>
-					</a>
-				</h4>
-			</div>
-			<div id="collapse_time_tile" class="panel-collapse collapse in">
-				<div class="panel-body">
-					<script>
-					function disableTimeTracking(value) {
-						if(value != '') {
-							$('[type=checkbox][name=timesheet_start_tile]').removeAttr('checked');
-						} else {
-							$('[type=checkbox][name=timesheet_start_tile]').prop('checked',true);
-						}
-					}
-					function displayClientCategory() {
-						if($('[name="timesheet_track_clients"]').is(':checked')) {
-							$('.timesheet_track_clients').show();
-						} else {
-							$('.timesheet_track_clients').hide();
-						}
-					}
-					</script>
-					<?php $timesheet_start_tile = get_config($dbc, 'timesheet_start_tile');
-					echo "<label class='col-sm-4 control-label'>Start Time Tracking Tile:</label><div class='col-sm-8'><input type='text' name='timesheet_start_tile' value='$timesheet_start_tile' class='form-control' onchange='disableTimeTracking(this.value);'></div>";
-					echo "<label class='col-sm-4'></label><label class='form-checkbox'><input ".($timesheet_start_tile == ''?'checked':'')." type='checkbox' name='timesheet_start_tile' value=''> Disable Start Time Tracking Tile</label><br>";
-					$ticket_force_starts_day = get_config($dbc, 'ticket_force_starts_day');
-					echo "<label class='col-sm-4'></label><label class='form-checkbox any-width'><input ".($ticket_force_starts_day > 0 ? 'checked' : '')." type='checkbox' name='ticket_force_starts_day' value='1'> Force Day Start when Checked In on ".TICKET_NOUN."</label><br>";
-					$timesheet_break_option = get_config($dbc, 'timesheet_break_option');
-					echo "<label class='col-sm-4'></label><label class='form-checkbox'><input ".($timesheet_break_option > 0 ? 'checked' : '')." type='checkbox' name='timesheet_break_option' value='1'> Enable Break Button</label><br>";
-					$timesheet_track_shifts = get_config($dbc, 'timesheet_track_shifts');
-					echo "<label class='col-sm-4'></label><label class='form-checkbox any-width'><input ".($timesheet_track_shifts == '1'?'checked':'')." type='checkbox' name='timesheet_track_shifts' value='1'> Track Time Based On Shifts (If Shift Exists)</label><br>";
-					$timesheet_hide_others = get_config($dbc, 'timesheet_hide_others');
-					echo "<label class='col-sm-4'></label><div class='col-sm-8'><label class='form-checkbox any-width'><input ".($timesheet_hide_others == '0'?'checked':'')." type='radio' name='timesheet_hide_others' value='0'> Allow Starting/Ending All User's Days</label>
-						<label class='form-checkbox any-width'><input ".($timesheet_hide_others == '2'?'checked':'')." type='radio' name='timesheet_hide_others' value='2'> Allow Starting/Ending Other User's Days Within a Group</label>
-						<label class='form-checkbox any-width'><input ".($timesheet_hide_others == '1'?'checked':'')." type='radio' name='timesheet_hide_others' value='1'> Don't Allow Starting/Ending Other User's Days</label></div><br>";
-					$timesheet_always_show = get_config($dbc, 'timesheet_always_show');
-					echo "<label class='col-sm-4'></label><label class='form-checkbox any-width'><input ".($timesheet_always_show == '1'?'checked':'')." type='checkbox' name='timesheet_always_show' value='1'> Show button on every page</label><br>";
-					$timesheet_add_day_comment = get_config($dbc, 'timesheet_add_day_comment');
-					echo "<label class='col-sm-4'></label><label class='form-checkbox any-width'><input ".($timesheet_add_day_comment == '0'?'checked':'')." type='radio' name='timesheet_add_day_comment' value='0'> No Day Tracking Comments</label>";
-					echo "<label class='form-checkbox any-width'><input ".($timesheet_add_day_comment == '1'?'checked':'')." type='radio' name='timesheet_add_day_comment' value='1'> Add Comment About Day Ttracking</label>";
-					echo "<label class='form-checkbox any-width'><input ".($timesheet_add_day_comment == '3'?'checked':'')." type='radio' name='timesheet_add_day_comment' value='3'> Use Task Types for Day Tracking</label>";
-					echo "<label class='form-checkbox any-width'><input ".($timesheet_add_day_comment == '2'?'checked':'')." type='radio' name='timesheet_add_day_comment' value='2'> Preset Day Tracking Comment:</label>";
-					echo "<div class='col-sm-8 pull-right'><input type='text' name='day_tracking_preset_note' value='".get_config($dbc, 'day_tracking_preset_note')."' class='form-control' placeholder='Preset Day Tracking Comment...'></div><div class='clearfix'></div>";
-					$timesheet_direct_indirect = get_config($dbc, 'timesheet_direct_indirect');
-					echo "<label class='col-sm-4'></label><div class='col-sm-8'><label class='form-checkbox any-width'><input ".(!($timesheet_direct_indirect > 0)?'checked':'')." type='radio' name='timesheet_direct_indirect' value='0'> Simple Time Tracking</label>
-						<label class='form-checkbox any-width'><input ".($timesheet_direct_indirect == '1'?'checked':'')." type='radio' name='timesheet_direct_indirect' value='1'> Use Direct/Indirect Hours</label>
-						<label class='form-checkbox any-width'><input ".($timesheet_direct_indirect == '2'?'checked':'')." type='radio' name='timesheet_direct_indirect' value='2'> Use Position by Day</label></div><br>";
-					$timesheet_hide_groups = get_config($dbc, 'timesheet_hide_groups');
-					echo "<label class='col-sm-4'></label><label class='form-checkbox any-width'><input ".($timesheet_hide_groups == '1'?'checked':'')." type='checkbox' name='timesheet_hide_groups' value='1' onchange='displayClientCategory();'> Hide Staff Groups</label><br>";
-					$timesheet_hide_past_days = get_config($dbc, 'timesheet_hide_past_days');
-					echo "<label class='col-sm-4'></label><label class='form-checkbox any-width'><input ".($timesheet_hide_past_days == '1'?'checked':'')." type='checkbox' name='timesheet_hide_past_days' value='1'> Hide ".TICKET_TILE." After Sign Out</label><br>";
-					$timesheet_track_clients = get_config($dbc, 'timesheet_track_clients');
-					echo "<label class='col-sm-4'></label><label class='form-checkbox any-width'><input ".($timesheet_track_clients == '1'?'checked':'')." type='checkbox' name='timesheet_track_clients' value='1' onchange='displayClientCategory();'> Track Clients</label><br>";
-					$timesheet_client_category = get_config($dbc,'timesheet_client_category');
-					echo "<div class='form-group timesheet_track_clients' ".($timesheet_track_clients != 1 ? 'style="display:none;"' : '').">";
-					echo "<label class='col-sm-4 control-label'>Client Category:</label>";
-					echo "<div class='col-sm-8'>";
-					echo "<select data-placeholder='Select a Client Category...' name='timesheet_client_category' class='chosen-select-deselect form-control'>";
-					echo "<option></option>";
-					$category_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`"),MYSQLI_ASSOC);
-                    foreach($category_list as $category) {
-                    	echo "<option value='".$category['category']."' ".($timesheet_client_category == $category['category'] ? 'selected' : '').">".$category['category']."</option>";
-                    }
-					echo "</select>";
-					echo "</div>";
-					echo "</div>";
-					$timesheet_running_button = get_config($dbc, 'timesheet_running_button');
-					echo "<div class='clearfix'></div><label class='col-sm-4 control-label'>Active Time Tracking Button:<br /><em>Button in the top of the screen that notifies the user that they are tracking time. Leaving this blank will disable the button.</em></label>";
-					echo "<div class='col-sm-8'><input type='text' name='timesheet_running_button' value='$timesheet_running_button' class='form-control'></div>";
-					$active_ticket_button = get_config($dbc, 'active_ticket_button');
-					echo "<div class='clearfix'></div><label class='col-sm-4 control-label'>Active ".TICKET_NOUN." Button:<br /><em>Button in the top of the screen that notifies the user that they are working on a ".TICKET_NOUN.".</em></label>";
-					echo "<div class='col-sm-8'>
-						<label class='form-checkbox'><input type='radio' name='active_ticket_button' ".($active_ticket_button == '' ? 'checked' : '')." value='' class='form-control'>Default: Running ".TICKET_NOUN." #</label>
-						<label class='form-checkbox'><input type='radio' name='active_ticket_button' ".($active_ticket_button == 'ticket_label' ? 'checked' : '')." value='ticket_label' class='form-control'>".TICKET_NOUN." Label</label>
-						<label class='form-checkbox'><input type='radio' name='active_ticket_button' ".($active_ticket_button == 'disable_active_ticket' ? 'checked' : '')." value='disable_active_ticket' class='form-control'>Disable ".TICKET_NOUN." Tracking Button</label>
-					</div>";
-					$timesheet_end_tile = get_config($dbc, 'timesheet_end_tile');
-					echo "<div class='clearfix'></div><label class='col-sm-4 control-label'>End Time Tracking Tile:<br /><em>Only appears after Start Time Tracking Tile has started the time tracking.</em></label>";
-					echo "<div class='col-sm-8'><input type='text' name='timesheet_end_tile' value='$timesheet_end_tile' class='form-control'></div>";
-					$timesheet_force_end_midnight = get_config($dbc, 'timesheet_force_end_midnight');
-					echo "<div class='clearfix'></div><label class='col-sm-4 control-label'>Force End Day at Midnight:</label>";
-					echo "<div class='col-sm-8'><label class='form-checkbox'><input ".($timesheet_force_end_midnight > 0 ? 'checked' : '')." type='checkbox' name='timesheet_force_end_midnight' value='1'> Enable</label></div>";
-					?>
-				</div>
-			</div>
-		</div>
-	</div>
-
-	<div class="form-group">
-		<div class="col-sm-6">
-			<a href="<?= $_GET['from_url'] ?>" class="btn config-btn btn-lg">Back</a>
-		</div>
-		<div class="col-sm-6">
-			<button type="submit" name="submit" value="day_tracking" class="btn config-btn btn-lg pull-right">Submit</button>
-		</div>
-		<div class="clearfix"></div>
-	</div>
 
 <?php elseif($_GET['tab'] == 'reporting'):
 	$timesheet_reporting_styling = get_config($dbc,'timesheet_reporting_styling');
+	$timesheet_report_options = explode(',',get_config($dbc,'timesheet_report_options'));
     ?>
 	<div class="panel-group" id="accordion2">
 		<div class="panel panel-default">
@@ -800,6 +721,13 @@ if($_GET['tab'] == 'approvals') {
                       <div class="col-sm-8">
                         <label class="form-checkbox"><input type="radio" name="timesheet_reporting_styling" <?= $timesheet_reporting_styling == 'Default' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_reporting_styling ?>" data-id-field="timesheet_reporting_styling" class="form-control" value="Default"> Default</label>
                         <label class="form-checkbox"><input type="radio" name="timesheet_reporting_styling" <?= $timesheet_reporting_styling == 'EGS' ? 'checked' : '' ?> data-table="tickets" data-id="<?= $timesheet_reporting_styling ?>" data-id-field="timesheet_reporting_styling" class="form-control" value="EGS"> Total Time Tracked</label>
+                      </div>
+                    </div>
+
+                    <div class="form-group">
+                      <label for="site_name" class="col-sm-4 control-label">Options:</label>
+                      <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="timesheet_report_options[]" <?= in_array('summary',$timesheet_report_options) ? 'checked' : '' ?> class="form-control" value="summary"> Display Summary</label>
                       </div>
                     </div>
 

@@ -36,7 +36,10 @@ checkAuthorised('phone_communication');
     }
     if($_GET['type'] == 'External') {
         $external_active_tab = 'active_tab';
-    } ?>
+    }
+	$fax_db = ','.get_config($dbc,'fax_communication_db').',';
+	$fax_fields = ','.get_config($dbc,'fax_communication').',';
+	?>
 	
 	<div class="tab-container mobile-100-container">
 		<?php if ( check_subtab_persmission($dbc, 'phone_communication', ROLE, 'internal') === TRUE ) { ?>
@@ -49,6 +52,10 @@ checkAuthorised('phone_communication');
 			<a href="phone_communication.php?type=External"><button type="button" class="mobile-100 btn brand-btn mobile-block <?php echo $external_active_tab; ?>">External</button></a>&nbsp;&nbsp;
 		<?php } else { ?>
 			<button type="button" class="btn disabled-btn mobile-block mobile-100">External</button>&nbsp;&nbsp;
+		<?php } ?>
+		
+		<?php if ( check_subtab_persmission($dbc, 'phone_communication', ROLE, 'fax') === TRUE && str_replace(',','',$fax_db) != '' || str_replace(',','',$fax_db) != '') { ?>
+			<a href="phone_communication.php?type=Fax"><button type="button" class="mobile-100 btn brand-btn mobile-block <?= $_GET['type'] == 'Fax' ? 'active_tab' : '' ?>">Fax</button></a>&nbsp;&nbsp;
 		<?php } ?>
 		
 		<?php if ( check_subtab_persmission($dbc, 'phone_communication', ROLE, 'log') === TRUE ) { ?>

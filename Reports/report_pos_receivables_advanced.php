@@ -97,7 +97,7 @@ if (isset($_POST['printpdf'])) {
             $this->writeHTMLCell(0, 0, 0 , 5, $footer_text, 0, 0, false, "R", true);
 
             $this->SetFont('helvetica', '', 13);
-            $footer_text = 'POS Receivables (Advanced) From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
+            $footer_text = 'POS Receivables From <b>'.START_DATE.'</b> To <b>'.END_DATE.'</b>';
             $this->writeHTMLCell(0, 0, 0 , 35, $footer_text, 0, 0, false, "R", true);
 		}
 
@@ -134,7 +134,7 @@ if (isset($_POST['printpdf'])) {
     $today_date = date('Y-m-d');
 	$pdf->writeHTML($html, true, false, true, false, '');
 	$pdf->Output('Download/receivables_'.$today_date.'.pdf', 'F');
-    track_download($dbc, 'report_pos_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'POS Receivables (Advanced) Report');
+    track_download($dbc, 'report_pos_receivables', 0, WEBSITE_URL.'/Reports/Download/receivables_'.$today_date.'.pdf', 'POS Receivables Report');
     ?>
 
 	<script type="text/javascript" language="Javascript">
@@ -145,6 +145,7 @@ if (isset($_POST['printpdf'])) {
     $endtime = $endtimepdf;
 } ?>
 
+<div id="invoice_div">
 <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal triple-gap-top" role="form">
     <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
     <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
@@ -204,7 +205,7 @@ if (isset($_POST['printpdf'])) {
     <?php echo report_receivables($dbc, $starttime, $endtime, $contactid, '', '', ''); ?>
 
 </form>
-
+</div>
 <?php
 function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style, $table_row_style, $grand_total_style) {
 
@@ -236,20 +237,20 @@ function report_receivables($dbc, $starttime, $endtime, $contactid, $table_style
         </tr>';
 
         $odd_even = 0;
-        
+
         while($invoice = mysqli_fetch_array($report_validation)) {
             $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
 
             $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
                 $report_data .= '<td data-title="Invoice #">' .($invoice['invoice_type'] == 'New' ? '#' : $invoice['invoice_type'].' #'). $invoice['invoiceid'] . ' <a href="../POSAdvanced/download/invoice_'.$invoice['invoiceid'].'.pdf" target="_blank"><img src="../img/pdf.png" alt="Invoice PDF" /></a></td>';
                 $report_data .= '<td data-title="Invoice Date" style="white-space: nowrap; ">'.$invoice['invoice_date'].'</td>';
-                $report_data .= '<td data-title="Customer">' . get_contact($dbc, $invoice['patientid']) . '</td>';
+                $report_data .= '<td data-title="Customer"><a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/'.CONTACTS_TILE.'/contacts_inbox.php?edit='.$invoice['patientid'].'\', \'auto\', false, true, $(\'#invoice_div\').outerHeight()+20); return false;">' . get_contact($dbc, $invoice['patientid']) . '</a></td>';
                 $report_data .= '<td data-title="Total Price" align="right">$' . number_format($invoice['final_price'],2) . '</td>';
                 $report_data .= '<td data-title="Payment Type">' . explode('#*#',$invoice['payment_type'])[0] . '</td>';
                 $report_data .= '<td data-title="Delivery">' . $invoice['delivery_type'] . '</td>';
                 $report_data .= '<td data-title="Comment">' .  $invoice['status'] . '</td>';
             $report_data .= "</tr>";
-            
+
             $odd_even++;
         }
 

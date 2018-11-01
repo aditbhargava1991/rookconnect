@@ -12,7 +12,7 @@ if (isset($_POST['loginformsubmitted'])) {
     $msg     = '';
     $user_name  = filter_var($_POST['user_name'],FILTER_SANITIZE_STRING);
     $password   = encryptIt($_POST['password']);
-    $result_check_credentials = mysqli_query($dbc, "SELECT contactid, first_name, last_name, category, software_tile_menu_choice, toggle_tile_menu, password_update, role, user_name, email_address, office_email FROM contacts WHERE BINARY user_name='$user_name' AND BINARY password='$password' AND status > 0");
+    $result_check_credentials = mysqli_query($dbc, "SELECT contactid, first_name, last_name, category, software_tile_menu_choice, toggle_tile_menu, newsboard_menu_choice, password_update, role, user_name, email_address, office_email FROM contacts WHERE BINARY user_name='$user_name' AND BINARY password='$password' AND status > 0");
 
     if (@mysqli_num_rows($result_check_credentials) > 0)//if Query is successfull
     { // A match was made.
@@ -29,14 +29,14 @@ if (isset($_POST['loginformsubmitted'])) {
 
         if($_POST['location'] != '') {
             $redirect = $_POST['location'];
-            header("Location:".WEBSITE_URL.$redirect);
+            header("Location:".WEBSITE_URL.str_replace(WEBSITE_URL,'',$redirect));
         } else {
 			$get_config_size = get_user_settings();
 			$newsb_red = $_SESSION['newsboard_menu_choice'] != NULL ? $get_config_size['newsboard_redirect'] : '';
 			$calendar_red = $get_config_size['calendar_redirect'];
 			$daysheet_red = $get_config_size['daysheet_redirect'];
 			if($newsb_red == '1') {
-				header('Location: '.WEBSITE_URL.'/newsboard.php');
+				header('Location: '.WEBSITE_URL.'/News Board/index.php');
 			} else if($calendar_red == '1') {
 				header('Location: '.WEBSITE_URL.'/Calendar/calendars.php');
 			} else if($daysheet_red == '1') {
@@ -44,7 +44,7 @@ if (isset($_POST['loginformsubmitted'])) {
 			} else {
 				$default_login = get_config($dbc, 'default_login');
 				if($default_login == 'News Board') {
-					header('Location: '.WEBSITE_URL.'/newsboard.php');
+					header('Location: '.WEBSITE_URL.'/News Board/index.php');
 				} else if($default_login == 'Calendar') {
 					header('Location: '.WEBSITE_URL.'/Calendar/calendars.php');
 				} else if($default_login == 'Day Sheet') {

@@ -152,7 +152,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     </tr>';
     while($row5 = mysqli_fetch_array($result5)) {
         $report_data .= '<tr nobr="true">';
-        $report_data .= '<td><a href=\'../Invoice/add_invoice.php?invoiceid='.$row5['invoiceid'].'&patientid='.$row5['patientid'].'&from=report&report_from='.$starttime.'&report_to='.$endtime.'\' >'.$row5['invoiceid'].'</a></td>';
+        $report_data .= '<td><a href=\'../Invoice/create_invoice.php?invoiceid='.$row5['invoiceid'].'&patientid='.$row5['patientid'].'&from=report&report_from='.$starttime.'&report_to='.$endtime.'\' >'.$row5['invoiceid'].'</a></td>';
 
         $report_data .= '<td>'.$row5['invoice_date'].'</td>';
         $report_data .= '<td><a href="../Contacts/add_contacts.php?category=Patient&contactid='.$row5['patientid'].'&from_url='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">'.get_contact($dbc, $row5['patientid']). '</a></td>';
@@ -168,3 +168,17 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 }
 
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

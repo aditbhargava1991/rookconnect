@@ -199,7 +199,6 @@ checkAuthorised('client_projects');
 		</label>
         <div class="col-sm-8">
             <select name="assign_staff[]" multiple data-placeholder="Choose an Option..." class="chosen-select-deselect form-control" width="380">
-                <option value=''></option>
                 <?php
 					$cat = '';
 					$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category='Staff' AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));

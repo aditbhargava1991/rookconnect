@@ -1,6 +1,6 @@
 <div class="col-md-12">
     <div class="form-group">
-        <label for="site_name" class="col-sm-4 control-label">Service Type:</label>
+        <label for="site_name" class="col-sm-4 control-label">Service Tab:</label>
         <div class="col-sm-8">
             <?php echo $service_type; ?>
         </div>
@@ -16,7 +16,7 @@
     -->
 
     <div class="form-group">
-        <label for="first_name" class="col-sm-4 control-label">Service Category:</label>
+        <label for="first_name" class="col-sm-4 control-label">Service Tab:</label>
         <div class="col-sm-8">
             <?php echo $service; ?>
         </div>

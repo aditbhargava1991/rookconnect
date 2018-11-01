@@ -50,7 +50,7 @@ if(!empty($_POST['search_to'])) {
 	<div class="col-lg-4 col-md-3 col-sm-8 col-xs-8">
 		<input type="text" name="search_to" class="form-control datepicker" value="<?php echo $search_to; ?>">
 	</div>
-	<div class="col-sm-4 col-xs-12 col-lg-3 pad-top pull-xs-right">
+	<div class="col-sm-8 col-xs-12 col-lg-6 pad-top pull-xs-right">
 		<span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click here after you have entered From - To Dates."><img src="../img/info.png" width="20"></a></span>
 		<button type="submit" name="search_contacts_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
 		<span class="popover-examples list-inline"><a style="margin:5px 0 0 15px;" data-toggle="tooltip" data-placement="top" title="Refreshes the page to display all Project Reminders."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>

@@ -71,7 +71,13 @@ for($i=0; $i<count($_POST['inventoryid']); $i++) {
     //    $result_insert_invoice_report = mysqli_query($dbc, $query_insert_invoice_report);
     //}
 
-    $result_update_inven = mysqli_query($dbc, "UPDATE `inventory` SET current_stock = current_stock - $quantity WHERE `inventoryid` = '$inventoryid'");
+    $query_inv = "UPDATE `inventory` SET current_stock = current_stock - $quantity WHERE `inventoryid` = '$inventoryid'";
+    $result_update_inven = mysqli_query($dbc, $query_inv);
+    
+    //Connection set on database_connection.php Check Admin Settings > Sync Inventory for details.
+    if ( $dbc_inventory ) {
+        mysqli_query($dbc_inventory, $query_inv);
+    }
 
     $stock = get_all_from_inventory($dbc, $inventoryid, 'current_stock');
     $min_bin = get_all_from_inventory($dbc, $inventoryid, 'min_bin');

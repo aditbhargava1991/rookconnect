@@ -33,7 +33,7 @@ function saveFields() {
 <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
     <div class="gap-top">
 
-        <h4>Pipeline &amp; Schedule Accordions</h4>
+        <!--<h4>Pipeline &amp; Schedule Accordions</h4>-->
         <div class="form-group">
             <input type="checkbox" id="selectall"/> Select All
     		<div id='no-more-tables'>
@@ -92,6 +92,9 @@ function saveFields() {
                     </tr>
                     <tr>
                         <td>
+                            <input type="checkbox" <?php if (strpos($value_config, ','."Deliverable".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Deliverable" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Deliverable
+                        </td>
+                        <td>
                             <input type="checkbox" <?php if (strpos($value_config, ','."Time".',') !== FALSE) { echo " checked"; } ?> class="all_check" value="Time" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Time Tracking
                         </td>
                         <td>
@@ -105,7 +108,7 @@ function saveFields() {
 
         <hr>
 
-        <h4><?= SALES_TILE ?> Path Accordion</h4>
+        <!--<h4><?= SALES_TILE ?> Path Accordion</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Sales Lead Path Intake".',') !== FALSE) { echo " checked"; } ?> value="Sales Lead Path Intake" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Intake Forms&nbsp;&nbsp;
             <input type="checkbox" <?php if (strpos($value_config, ','."Sales Lead Path Checklists".',') !== FALSE) { echo " checked"; } ?> value="Sales Lead Path Checklists" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Checklists&nbsp;&nbsp;
@@ -118,9 +121,9 @@ function saveFields() {
             <input type="checkbox" <?php if (strpos($value_config, ','."Lead Information Lead Value".',') !== FALSE) { echo " checked"; } ?> value="Lead Information Lead Value" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Lead Value&nbsp;&nbsp;
         </div>
 
-        <hr>
+        <hr>-->
 
-        <h4>Services Accordion</h4>
+        <h4>Services Fields</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Services Service Type".',') !== FALSE) { echo " checked"; } ?> value="Services Service Type" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Service Type&nbsp;&nbsp;
             <input type="checkbox" <?php if (strpos($value_config, ','."Services Category".',') !== FALSE) { echo " checked"; } ?> value="Services Category" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Category&nbsp;&nbsp;
@@ -129,7 +132,7 @@ function saveFields() {
 
         <hr>
 
-        <h4>Products Accordion</h4>
+        <h4>Products Fields</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Products Product Type".',') !== FALSE) { echo " checked"; } ?> value="Products Product Type" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Product Type&nbsp;&nbsp;
             <input type="checkbox" <?php if (strpos($value_config, ','."Products Category".',') !== FALSE) { echo " checked"; } ?> value="Products Category" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Category&nbsp;&nbsp;
@@ -138,7 +141,7 @@ function saveFields() {
 
         <hr>
 
-        <h4>Marketing Material Accordion</h4>
+        <h4>Marketing Material Fields</h4>
         <div class="form-group">
             <input type="checkbox" <?php if (strpos($value_config, ','."Marketing Material Material Type".',') !== FALSE) { echo " checked"; } ?> value="Marketing Material Material Type" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Material Type&nbsp;&nbsp;
             <input type="checkbox" <?php if (strpos($value_config, ','."Marketing Material Category".',') !== FALSE) { echo " checked"; } ?> value="Marketing Material Category" style="height: 20px; width: 20px;" name="sales[]">&nbsp;&nbsp;Category&nbsp;&nbsp;

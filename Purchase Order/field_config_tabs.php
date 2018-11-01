@@ -8,7 +8,7 @@ $po_tabs = explode(',',get_config($dbc,'po_tabs')); ?>
 		<div class="col-sm-8">
 			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('project',$po_tabs) ? 'checked' : '' ?> value="project"> <?= PROJECT_NOUN ?></label>
 			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('business',$po_tabs) ? 'checked' : '' ?> value="business"> <?= BUSINESS_CAT ?></label>
-			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('ticket',$po_tabs) ? 'checked' : '' ?> value="ticket"> <?= TICKET_NOUN ?></label>
+			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('ticket',$po_tabs) ? 'checked' : '' ?> value="ticket"> <?= TICKET_TILE ?> by Tab</label>
 			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('site',$po_tabs) ? 'checked' : '' ?> value="site"> <?= SITES_CAT ?></label>
 			<label class="form-checkbox"><input type="checkbox" name="po_tabs[]" <?= in_array('vendor',$po_tabs) ? 'checked' : '' ?> value="vendor"> Vendor</label>
 		</div>

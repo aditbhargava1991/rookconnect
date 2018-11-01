@@ -2,7 +2,7 @@
 <div class="form-group clearfix completion_date">
     <label for="first_name" class="col-sm-4 control-label text-right">Date of Meeting:</label>
     <div class="col-sm-8">
-        <input name="date_of_meeting" value="<?php echo $date_of_meeting; ?>" type="text" class="datepicker">
+        <input name="date_of_meeting" value="<?php echo $date_of_meeting; ?>" type="text" class="datepicker form-control">
     </div>
 </div>
 <?php } ?>
@@ -11,7 +11,7 @@
 <div class="form-group clearfix completion_date">
     <label for="first_name" class="col-sm-4 control-label text-right">Start Time of Meeting:</label>
     <div class="col-sm-8">
-        <input type="text" name="time_of_meeting" value="<?php echo $time_of_meeting; ?>"  class="datetimepicker">
+        <input type="text" name="time_of_meeting" value="<?php echo $time_of_meeting; ?>"  class="datetimepicker form-control">
     </div>
 </div>
 <?php } ?>
@@ -20,7 +20,7 @@
 <div class="form-group clearfix completion_date">
     <label for="first_name" class="col-sm-4 control-label text-right">End Time of Meeting:</label>
     <div class="col-sm-8">
-        <input type="text" name="end_time_of_meeting" value="<?php echo $end_time_of_meeting; ?>"  class="datetimepicker">
+        <input type="text" name="end_time_of_meeting" value="<?php echo $end_time_of_meeting; ?>"  class="datetimepicker form-control">
     </div>
 </div>
 <?php } ?>

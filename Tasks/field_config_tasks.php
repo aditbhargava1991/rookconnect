@@ -144,7 +144,6 @@ $task_tab_back = explode(",",get_config($dbc, 'task_tab'));
                         <label for="fax_number"	class="col-sm-4	control-label"><?php echo $cat_tab_cat; ?>:</label>
                         <div class="col-sm-8">
                             <select multiple name="board_assign_<?php echo $i; ?>[]" data-placeholder="Choose a User..." class="chosen-select-deselect form-control" width="380">
-                              <option value=""></option>
 							  <?php
 								$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`>0"),MYSQLI_ASSOC));
 								foreach($query as $id) {
@@ -194,7 +193,6 @@ $task_tab_back = explode(",",get_config($dbc, 'task_tab'));
                         <label for="fax_number"	class="col-sm-4	control-label"><?php echo $cat_tab_cat; ?>:</label>
                         <div class="col-sm-8">
                             <select multiple name="community_board_assign_<?php echo $i; ?>[]" data-placeholder="Choose a Software to Share..." class="chosen-select-deselect form-control" width="380">
-                              <option value=""></option>
                               <?php if (strpos(WEBSITE_URL, 'zenearthcorp.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenearthenergysolutions.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'greenlifecan.rookconnect.com') !== FALSE || strpos(WEBSITE_URL, 'localhost') !== FALSE || strpos(WEBSITE_URL, 'demo.rookconnect.com') !== FALSE) { ?>
                               <option <?php if (strpos($community_board_assign, ',zenearthcorp.rookconnect.com,') !== FALSE) { echo  'selected="selected"'; } ?> value='zenearthcorp.rookconnect.com' >zenearthcorp.rookconnect.com</option>
                               <option <?php if (strpos($community_board_assign, ',greenearthenergysolutions.rookconnect.com,') !== FALSE) { echo  'selected="selected"'; } ?> value='greenearthenergysolutions.rookconnect.com' >greenearthenergysolutions.rookconnect.com</option>

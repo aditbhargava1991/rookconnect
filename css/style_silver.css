@@ -286,8 +286,7 @@ a {
   color: rgb(108,186,149);
   text-decoration: none; }
   a:hover, a:focus {
-    color: rgb(108,186,149);
-    text-decoration: underline; }
+    color: #6cba95 !important; }
   a:focus {
     outline: thin dotted;
     outline: 5px auto -webkit-focus-ring-color;
@@ -5200,6 +5199,19 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4e504e', end
 .calendar .calendar-screen {
   background-color: #cbe7da;
 }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border { border-color:#6cba95 !important; }
+.info-block-header { background-color:#dcfced !important; }
+.dashboard-item label, .main-item label, .text-blue, .default-color { color:#6cba95 !important; }
 .theme-color-icon {
   filter: invert(63%) sepia(38%) saturate(341%) hue-rotate(99deg) brightness(96%) contrast(99%) !important;
 }
@@ -5208,6 +5220,7 @@ filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4e504e', end
 }
 .sidebar-higher-level a.cursor-hand.active {
   background-color: #6cba95 !important;
+  color:#fff !important;
 }
 .sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
   color:#6cba95 !important;
@@ -5221,7 +5234,7 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .block-panels .panel-heading.active {
   background-color: #6cba95 !important;
 }
-.block-panels .panel-heading.active a {
+.block-panels .panel-heading.active a, ul#dashboard_sidebar li.active a:hover, .sidebar-higher-level.active a:hover {
   color: #fff !important;
 }
 .blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#6cba95 !important; }

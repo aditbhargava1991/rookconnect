@@ -7,8 +7,10 @@ $(document).ready(function() {
         $('#add_here_new_doc').append(clone);
         return false;
     });
-
 });
+function removeDoc(button) {
+    $(button).closest('.form-group').remove();
+}
 </script>
 <div class="col-md-12">
 
@@ -67,25 +69,20 @@ $(document).ready(function() {
                 </span>
         </label>
         <div class="col-sm-8">
-
             <div class="enter_cost additional_doc clearfix">
                 <div class="clearfix"></div>
-
                 <div class="form-group clearfix">
-                    <div class="col-sm-5">
+                    <div class="col-xs-10">
                         <input name="upload_document[]" multiple type="file" data-filename-placement="inside" class="form-control" />
                     </div>
+                    <div class="col-xs-2">
+                        <a id="add_row_doc" class="cursor-hand inline-img pull-left"><img src="../img/icons/ROOK-add-icon.png" /></a>
+                        <a class="cursor-hand inline-img pull-left" onclick="removeDoc(this);"><img src="../img/remove.png" /></a>
+                    </div>
                 </div>
-
             </div>
 
             <div id="add_here_new_doc"></div>
-
-            <div class="form-group triple-gapped clearfix">
-                <div class="col-sm-offset-4 col-sm-8">
-                    <button id="add_row_doc" class="btn brand-btn pull-left">Add Another Document</button>
-                </div>
-            </div>
         </div>
     </div>
 

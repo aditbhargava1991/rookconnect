@@ -20,7 +20,6 @@ $(document).ready(function() {
     <label for="first_name" class="col-sm-4 control-label text-right">Staff<span class="brand-color">*</span>:</label>
     <div class="col-sm-8">
         <select multiple name="assign_staffid[]" id="assign_staffid" data-placeholder="Select Staff" class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
 			$groups = mysqli_fetch_array(mysqli_query($dbc,"SELECT `estimate_groups` FROM `field_config_cost_estimate`"));
 			$groups = explode('#*#',$groups['estimate_groups']);

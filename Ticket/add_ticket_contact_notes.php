@@ -32,7 +32,7 @@
 		<?php $pdf_contents[] = [BUSINESS_CAT.' Notes', $comments]; ?>
 	<?php } ?>
 	<?php if ( strpos($value_config, ',Attached Contact Notes Add Note,') !== FALSE && $field_sort_field == 'Attached Contact Notes Add Note' && ($access_all > 0 || strpos($value_config, ',Attached Contact Notes Anyone Can Add,') !== FALSE) && !($strict_view > 0)) { ?>
-		<a class="no-toggle" href="" title="Add a Note" onclick="addContactNote(this, '<?= $get_ticket['clientid'] ?>', <?= strpos($value_config, ',Attached Contact Notes Anyone Can Add,') !== FALSE ? 1 : 0 ?>); return false;"><img class="inline-img" src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" /></a>
+		<a class="no-toggle" href="" title="Add a Note" onclick="addContactNote(this, '<?= $get_ticket['clientid'] ?>', <?= strpos($value_config, ',Attached Contact Notes Anyone Can Add,') !== FALSE ? 1 : 0 ?>); return false;"><img class="inline-img" data-history-label="<?= CONTACTS_NOUN ?> Note" src="<?= WEBSITE_URL ?>/img/icons/ROOK-add-icon.png" /></a>
 		<div class="clearfix"></div>
 	<?php } ?>
 <?php } ?>

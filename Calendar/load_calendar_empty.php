@@ -38,6 +38,7 @@ if(!empty($use_shifts)) {
 	$calendar_table[0][0]['shifts'] = "Shifts";
 }
 if(get_config($dbc, $config_type.'_calendar_notes') == '1') { $calendar_table[0][0]['notes'] = "Notes"; }
+if(get_config($dbc, $config_type.'_reminders') == '1') { $calendar_table[0][0]['reminders'] = "Reminders"; }
 $calendar_table[0][0]['warnings'] = "Warnings";
 $appointment_calendar = 'weekly';
 while($current_row <= strtotime($day_end)) {

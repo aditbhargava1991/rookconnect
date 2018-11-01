@@ -169,7 +169,7 @@ for($list_day; $list_day <= $days_in_month + $days_added; $list_day++):
 
     if(in_array($day_of_week, $monthly_days)) {
     	$all_calendar_dates[] = $new_today_date;
-	    echo '<td style="width:'.$column_width.'; min-width: 10em; border-left: 1px solid rgb(221, 221, 221); position: relative; padding-bottom: 2em;" class="calendar-day '.($_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' ? 'calendarSortable' : '').' '.$new_today_date.'" data-itemtype="shift" data-date="'.$new_today_date.'">';
+	    echo '<td style="width:'.$column_width.'; min-width: 10em; border-left: 1px solid rgb(221, 221, 221); position: relative; padding-bottom: 2em;" class="calendar-day '.($_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'day_summary' ? 'calendarSortable' : '').' '.$new_today_date.'" data-itemtype="shift" data-date="'.$new_today_date.'">';
 	    /* add in the day number */
 	    $class = '';
 	    if($new_today_date == date('Y-m-d')) {
@@ -189,6 +189,14 @@ for($list_day; $list_day <= $days_in_month + $days_added; $list_day++):
 	    	} else if($_GET['type'] == 'ticket' && $_GET['mode'] == 'ticket_summary') {
 	    		$column = '<br><br>';
 	    		include('monthly_display_tickets_ticket_summary.php');
+	    		echo $column;
+	    	} else if($_GET['type'] == 'uni' && $_GET['mode'] == 'staff_summary') {
+	    		$column = '<br><br>';
+	    		include('monthly_display_uni_staff_summary.php');
+	    		echo $column;
+	    	} else if($_GET['type'] == 'uni' && $_GET['mode'] == 'day_summary') {
+	    		$column = '<br><br>';
+	    		include('monthly_display_uni_day_summary.php');
 	    		echo $column;
 	    	}
 	    }

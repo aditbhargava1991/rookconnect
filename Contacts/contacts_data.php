@@ -78,9 +78,6 @@ echo '<td data-title="Nick Name">' .$row['nick_name'] . '</td>';
 if (strpos($value_config, ','."Assigned Staff".',') !== FALSE) {
 echo '<td data-title="Assigned Staff">' .get_contact($dbc,$row['assign_staff']) . '</td>';
 }
-
-
-
 if (strpos($value_config, ','."Gender".',') !== FALSE) {
 echo '<td data-title="gender">' . $row['gender'] . '</td>';
 }

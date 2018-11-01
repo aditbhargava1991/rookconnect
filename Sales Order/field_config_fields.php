@@ -53,7 +53,8 @@ $product_types = [
 	'Inventory',
 	'Vendor',
 	'Services',
-    'Labour'
+    'Labour',
+    'Equipment'
 ];
 ?>
 

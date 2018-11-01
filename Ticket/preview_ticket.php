@@ -8,7 +8,7 @@ error_reporting(0);
 <script type="text/javascript">
 function editTicket() {
 	var ticketid = $('#ticketid').val();
-	parent.window.location.href = '<?= WEBSITE_URL ?>/Ticket/index.php?action=view&edit='+ticketid;
+	parent.window.location.href = '<?= WEBSITE_URL ?>/Ticket/index.php?action=view&edit='+ticketid+(tile_group == '' ? '' : '&tile_group='+tile_group)+(tile_name == '' ? '' : '&tile_name='+tile_name);
 }
 function bookTicket() {
 	var ticketid = $('#ticketid').val();

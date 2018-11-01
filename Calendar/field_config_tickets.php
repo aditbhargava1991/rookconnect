@@ -8,6 +8,14 @@ if (isset($_POST['add_tickets'])) {
 
     $calendar_ticket_label = filter_var($_POST['calendar_ticket_label'], FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_label', $calendar_ticket_label);
+
+    $calendar_ticket_check_shifts = filter_var($_POST['calendar_ticket_check_shifts'], FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_check_shifts', $calendar_ticket_check_shifts);
+
+    $calendar_ticket_check_days_off = filter_var($_POST['calendar_ticket_check_days_off'], FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_check_days_off', $calendar_ticket_check_days_off);
+    $calendar_ticket_color_code_tabs = filter_var($_POST['calendar_ticket_color_code_tabs'],FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_color_code_tabs', $calendar_ticket_color_code_tabs);
     
     $calendar_ticket_slider = filter_var($_POST['calendar_ticket_slider'], FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_slider', $calendar_ticket_slider);
@@ -27,6 +35,12 @@ if (isset($_POST['add_tickets'])) {
     set_config($dbc, 'ticket_status_color_code_legend', $ticket_status_color_code_legend);
     $calendar_ticket_card_fields = filter_var(implode(',',$_POST['calendar_ticket_card_fields']), FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_card_fields', $calendar_ticket_card_fields);
+    $calendar_ticket_card_fields_summary = filter_var(implode(',',$_POST['calendar_ticket_card_fields_summary']), FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_card_fields_summary', $calendar_ticket_card_fields_summary);
+    $calendar_ticket_card_fields_summary_deleted = filter_var(implode(',',$_POST['calendar_ticket_card_fields_summary_deleted']), FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_card_fields_summary_deleted', $calendar_ticket_card_fields_summary_deleted);
+    $calendar_ticket_staff_summary_fields = filter_var(implode(',',$_POST['calendar_ticket_staff_summary_fields']), FILTER_SANITIZE_STRING);
+    set_config($dbc, 'calendar_ticket_staff_summary_fields', $calendar_ticket_staff_summary_fields);
     $calendar_ticket_status_icon = filter_var($_POST['calendar_ticket_status_icon'],FILTER_SANITIZE_STRING);
     set_config($dbc, 'calendar_ticket_status_icon', $calendar_ticket_status_icon);
 
@@ -146,9 +160,49 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
                         <input type="text" name="calendar_ticket_label" value="<?= $calendar_ticket_label ?>" class="form-control">
                     </div>
                 </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Check Staff Shift When Booking:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_check_shifts = get_config($dbc, 'calendar_ticket_check_shifts'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_check_shifts" value="1" <?= $calendar_ticket_check_shifts == 1 ? 'checked' : '' ?>> Enable</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Check Staff Days Off When Booking:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_check_days_off = get_config($dbc, 'calendar_ticket_check_days_off'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_check_days_off" value="1" <?= $calendar_ticket_check_days_off == 1 ? 'checked' : '' ?>> Enable</label>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Color Code By <?= TICKET_NOUN ?> Type:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_color_code_tabs = get_config($dbc, 'calendar_ticket_color_code_tabs'); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_color_code_tabs" value="1" <?= $calendar_ticket_color_code_tabs == 1 ? 'checked' : '' ?>> Enable</label>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
+    <?php $ticket_label_fields = [
+        'project'=>PROJECT_NOUN,
+        'ticket_type'=>TICKET_NOUN.' Type',
+        'customer'=>'Customer',
+        'client'=>'Client',
+        'site_address'=>'Site Address',
+        'service_template'=>'Service Template',
+        'assigned'=>'Assigned Staff',
+        'preferred'=>'Preferred Staff',
+        'time'=>'Time',
+        'eta'=>'ETA',
+        'available'=>'Time Frame',
+        'address'=>'Address',
+        'start_date'=>'Date',
+        'ticket_notes'=>TICKET_NOUN.' Notes',
+        'delivery_notes'=>'Delivery Notes',
+        'delivery_sign_off'=>'Delivery Sign Off',
+        'status'=>'Status'
+    ]; ?>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">
@@ -160,26 +214,54 @@ $ticket_status_color_code_legend = get_config($dbc, 'ticket_status_color_code_le
                 <div class="form-group">
                     <label for="checkmark_tickets" class="col-sm-4 control-label">Information to display on <?= TICKET_NOUN ?> Cards:</label>
                     <div class="col-sm-8">
-						<?php $calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields')); ?>
+                        <?php $calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields')); ?>
                         <label class="form-checkbox"><input type="checkbox" checked disabled> <?= TICKET_NOUN ?> Label</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="project" <?= in_array('project', $calendar_ticket_card_fields) ? 'checked' : '' ?>> <?= PROJECT_NOUN ?></label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="customer" <?= in_array('customer', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Customer</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="client" <?= in_array('client', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Client</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="site_address" <?= in_array('site_address', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Site Address</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="service_template" <?= in_array('service_template', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Service Template</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="assigned" <?= in_array('assigned', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Assigned Staff</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="preferred" <?= in_array('preferred', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Preferred Staff</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="time" <?= in_array('time', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Time</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="available" <?= in_array('available', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Availability</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="address" <?= in_array('address', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Address</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="start_date" <?= in_array('start_date', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Date</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="ticket_notes" <?= in_array('ticket_notes', $calendar_ticket_card_fields) ? 'checked' : '' ?>> <?= TICKET_NOUN ?> Notes</label>
-                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="delivery_notes" <?= in_array('delivery_notes', $calendar_ticket_card_fields) ? 'checked' : '' ?>> Delivery Notes</label>
+                        <?php foreach($ticket_label_fields as $label_key => $label_field) { ?>
+                            <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields[]" value="<?= $label_key ?>" <?= in_array($label_key, $calendar_ticket_card_fields) ? 'checked' : '' ?>> <?= $label_field ?></label>
+                        <?php } ?>
                     </div>
                 </div>
-			</div>
-		</div>
-	</div>
+            </div>
+        </div>
+    </div>
+    <div class="panel panel-default">
+        <div class="panel-heading">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_summary_label"><?= TICKET_NOUN ?> Summary - <?= TICKET_NOUN ?> Labels</a>
+            </h4>
+        </div>
+        <div id="collapse_summary_label" class="panel-collapse collapse">
+            <div class="panel-body">
+                <div class="form-group">
+                    <label for="checkmark_tickets" class="col-sm-4 control-label">Information to display on <?= TICKET_NOUN ?> Cards:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields_summary')); ?>
+                        <label class="form-checkbox"><input type="checkbox" checked disabled> <?= TICKET_NOUN ?> Label</label>
+                        <?php foreach($ticket_label_fields as $label_key => $label_field) { ?>
+                            <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields_summary[]" value="<?= $label_key ?>" <?= in_array($label_key, $calendar_ticket_card_fields) ? 'checked' : '' ?>> <?= $label_field ?></label>
+                        <?php } ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="checkmark_tickets" class="col-sm-4 control-label">Information to display on deleted <?= TICKET_NOUN ?> Cards:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_card_fields = explode(',',get_config($dbc, 'calendar_ticket_card_fields_summary_deleted')); ?>
+                        <label class="form-checkbox"><input type="checkbox" checked disabled> <?= TICKET_NOUN ?> Label</label>
+                        <?php foreach($ticket_label_fields as $label_key => $label_field) { ?>
+                            <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_card_fields_summary_deleted[]" value="<?= $label_key ?>" <?= in_array($label_key, $calendar_ticket_card_fields) ? 'checked' : '' ?>> <?= $label_field ?></label>
+                        <?php } ?>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="checkmark_tickets" class="col-sm-4 control-label">Information to display on Staff Summary tabs:</label>
+                    <div class="col-sm-8">
+                        <?php $calendar_ticket_staff_summary_fields = explode(',',get_config($dbc, 'calendar_ticket_staff_summary_fields')); ?>
+                        <label class="form-checkbox"><input type="checkbox" name="calendar_ticket_staff_summary_fields[]" value="client" <?= in_array('client', $calendar_ticket_staff_summary_field) ? 'checked' : '' ?>> Client</label>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="panel panel-default">
         <div class="panel-heading">
             <h4 class="panel-title">

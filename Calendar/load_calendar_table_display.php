@@ -93,7 +93,7 @@ function resizeBlocks() {
 					}
 					echo ($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$hide_time."padding:0;'><div class='resizer' style='min-width:100%; max-width:100%; padding:0.5em;'>";
 					echo ($current_day == 0 ? $calendar_col['title'] : ($_GET['view'] == 'daily' ? $calendar_col[$calendar_row] : date('l, F d', strtotime($current_day)).'<br>'.$calendar_col[$calendar_row]))."</div></th>";
-				} else if ($contact_id > 0 && ($calendar_row == 'shifts' || $calendar_row === 'warnings' || $calendar_row === 'reminders' || $calendar_row === 'notes')) {
+				} else if ($contact_id > 0 && ($calendar_row === 'shifts' || $calendar_row === 'warnings' || $calendar_row === 'reminders' || $calendar_row === 'notes' || $calendar_row === 'ticket_summary' || $calendar_row === 'title')) {
 					echo "<td data-rowtype='".$calendar_row."' data-date='".$current_day."' $equipassignid_data data-calendartype='".$_GET['type']."' data-calendarmode='".$_GET['mode']."' data-contact='$contact_id' style='position:relative; ".($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$hide_time."'><div class='calendar_notes' style='overflow-y: hidden;'>".$calendar_col[$calendar_row].'</div>';
 					if($calendar_row == 'notes' && $contact_id != 0) {
 						echo '<div class="calendar_notes_btn" style="text-align: right; position: relative;">'.($edit_access == 1 ? '<a class="edit_calendar_notes" href=""><sub>EDIT</sub></a>' : '').'</div>';

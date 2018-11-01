@@ -1,6 +1,6 @@
 <?php $pr_fields = ','.get_config($dbc, 'performance_review_fields').',';
 $pr_positions = ','.get_config($dbc, 'performance_review_positions').',';
-// $pr_forms = ','.get_config($dbc, 'performance_review_forms').','; 
+// $pr_forms = ','.get_config($dbc, 'performance_review_forms').',';
 $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1"));
 ?>
 <script>
@@ -46,8 +46,10 @@ function saveFields() {
 	});
 }
 </script>
-<div class="block-group">
-	<h1>Performance Reviews</h1>
+<div class="standard-body-title">
+    <h1>Performance Reviews</h1>
+</div>
+<div class="standard-body-content">
 	<div class="form-group">
 		<label class="control-label col-sm-4">Enable Performance Reviews:</label>
 		<div class="col-sm-8">
@@ -75,7 +77,7 @@ function saveFields() {
 
 	<h1>Forms</h1>
 	<?php $user_forms = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `user_forms` WHERE CONCAT(',',`assigned_tile`,',') LIKE '%,performance_review,%' AND `deleted` = 0 AND `is_template` = 0"),MYSQLI_ASSOC);
-		if(!empty($user_forms)) { 
+		if(!empty($user_forms)) {
 			foreach ($user_forms as $user_form) {
 				$pr_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_performance_reviews` WHERE `user_form_id` = '".$user_form['form_id']."'")); ?>
 				<div class="form-group pr_div">
@@ -88,7 +90,6 @@ function saveFields() {
 								<label class="col-sm-4 control-label">Limit Staff View:</label>
 								<div class="col-sm-8">
 									<select name="limit_staff" multiple class="chosen-select-deselect">
-										<option></option>
 										<?php foreach($staff_list as $staff) {
 											echo '<option value="'.$staff['contactid'].'" '.(strpos(','.$pr_config['limit_staff'].',', ','.$staff['contactid'].',') !== FALSE ? 'selected' : '').'>'.$staff['full_name'].'</option>';
 										} ?>

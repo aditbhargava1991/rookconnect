@@ -271,3 +271,17 @@ function AddPlayTime($times) {
     return sprintf('%02d H %02d M', $hours, $minutes);
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

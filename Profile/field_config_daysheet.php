@@ -30,10 +30,15 @@ $(document).ready(function() {
 				daysheet_rightside_views += this.value + ',';
 			});
             var daysheet_ticket_default_mode = $('[name="daysheet_ticket_default_mode"]:checked').val();
+            var quick_action_icons = [];
+            $('[name="quick_action_icons[]"]:checked').each(function() {
+                quick_action_icons.push(this.value);
+            })
+            quick_action_icons = quick_action_icons.join(',');
 			$.ajax({
 				url: '../Profile/profile_ajax.php?fill=daysheet_config',
 				method: 'POST',
-				data: { field_name: field_name, daysheet_styling: daysheet_styling, ticket_slider: ticket_slider, field_list: field_list, daysheet_ticket_fields: daysheet_ticket_fields, day_list: day_list, button_list: button_list, daysheet_rightside_views: daysheet_rightside_views, daysheet_ticket_default_mode: daysheet_ticket_default_mode, settings_contactid: settings_contactid },
+				data: { field_name: field_name, daysheet_styling: daysheet_styling, ticket_slider: ticket_slider, field_list: field_list, daysheet_ticket_fields: daysheet_ticket_fields, day_list: day_list, button_list: button_list, daysheet_rightside_views: daysheet_rightside_views, daysheet_ticket_default_mode: daysheet_ticket_default_mode, quick_action_icons: quick_action_icons, settings_contactid: settings_contactid },
 				response: 'html',
 				success: function(response) {
 					// console.log(response);
@@ -110,10 +115,20 @@ $(document).ready(function() {
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Communication', $daysheet_fields_config) ? 'checked' : '' ?> name="daysheet_fields_config[]" value="Communication">Communications</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Support', $daysheet_fields_config) ? 'checked' : '' ?> name="daysheet_fields_config[]" value="Support">Support Requests</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Shifts', $daysheet_fields_config) ? 'checked' : '' ?> name="daysheet_fields_config[]" value="Shifts">Shifts</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('Tags', $daysheet_fields_config) ? 'checked' : '' ?> name="daysheet_fields_config[]" value="Tags">Tags</label>
         </div>
         <div class="clearfix"></div>
         <?php if($settings_type == 'software') { ?>
             <h4>Choose <?= TICKET_NOUN ?> Slider View Layout</h4>
+            <label class="col-sm-4 control-label">Quick Action Icons:</label>
+            <div class="col-sm-8 block-group">
+                <?php $quick_action_icons = explode(',',get_config($dbc, 'daysheet_quick_action_icons')); ?>
+                <label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('reply',$quick_action_icons) ? 'checked' : '' ?> value="reply"> <img class="inline-img" src="../img/icons/ROOK-reply-icon.png"> Notes</label>
+                <label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('email',$quick_action_icons) ? 'checked' : '' ?> value="email"> <img class="inline-img" src="../img/icons/ROOK-email-icon.png"> Email</label>
+                <label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('reminder',$quick_action_icons) ? 'checked' : '' ?> value="reminder"> <img class="inline-img" src="../img/icons/ROOK-reminder-icon.png"> Reminders</label>
+                <label class="form-checkbox"><input type="checkbox" name="quick_action_icons[]" <?= in_array('hide_all',$quick_action_icons) ? 'checked' : '' ?> value="hide_all" onclick="$('[name^=quick_action_icons]').not('[value=hide_all]').removeAttr('checked');"> Disable All</label>
+            </div>
+            <div class="clearfix"></div>
             <label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Default Slider Window View:</label>
             <div class="col-sm-8 block-group">
                 <label class="form-checkbox"><input type="radio" name="daysheet_ticket_slider" value="full" <?= $daysheet_ticket_slider != 'accordion' ? 'checked="checked"' : '' ?>> Full View</label>
@@ -173,6 +188,8 @@ $(document).ready(function() {
         <h4>Choose Buttons to Display</h4>
         <label class="col-sm-4 control-label">Buttons:</label>
         <div class="col-sm-8 block-group">
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('My Notes', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Notes">My Notes</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('Scrum Notes', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="Scrum Notes">Scrum Notes</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Projects', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Projects">My Projects</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Tickets', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Tickets">My <?= TICKET_TILE ?></label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Checklists', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Checklists">My Checklists</label>
@@ -181,7 +198,8 @@ $(document).ready(function() {
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Communications', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Communications">My Communications</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Sales', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Sales">My <?= SALES_TILE ?></label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('My Shifts', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Shifts">My Shifts</label>
-            <label class="form-checkbox"><input type="checkbox" <?= in_array('My Time Sheets', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Time Sheets">My Time Sheets</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('My Time Sheets', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Time Sheets">My Time Sheet</label>
+            <label class="form-checkbox"><input type="checkbox" <?= in_array('My Tags', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="My Tags">My Tags</label>
             <label class="form-checkbox"><input type="checkbox" <?= in_array('Attached Contact Forms', $daysheet_button_config) ? 'checked' : '' ?> name="daysheet_button_config[]" value="Attached Contact Forms">Attached Contact Forms (based on Match)</label>
 			<?php if($settings_type == 'software') { ?>
 				<label class="form-checkbox"><input type="checkbox" <?= in_array('My Notifications', $daysheet_button_config) ? 'checked' : '' ?> data-off="hide" name="daysheet_button_config[]" value="My Notifications">My Notifications</label>

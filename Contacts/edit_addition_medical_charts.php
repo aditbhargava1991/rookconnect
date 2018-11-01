@@ -27,6 +27,7 @@
 	?>
 
 	<input type="hidden" id="client" name="client" value="<?php echo $client; ?>" />
+	<input type="hidden" id="edit" name="edit" value="<?php echo $client; ?>" />
 	<input type="hidden" id="submit_type" name="submit_type" value="medical_charts" />
 
 	<center>

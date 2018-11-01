@@ -31,7 +31,6 @@
                     <label for="site_name" class="col-sm-4 control-label">Staff:</label>
                     <div class="col-sm-8">
                         <select data-placeholder="Select a Staff Member..." multiple name="attendance_staff[]" class="chosen-select-deselect form-control" width="380">
-                            <option value=""></option>
                             <?php $sorted_staff = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`>0"),MYSQLI_ASSOC));
                             foreach($sorted_staff as $row) {
 								$row_staff = get_contact($dbc, $row); ?>

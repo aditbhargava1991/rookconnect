@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+include_once('../Sales/config.php');
 if(empty($salesid)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 } ?>
@@ -17,19 +18,19 @@ var reload_notes = function() {
     <div class="accordion-block-details-heading"><h4>Lead Notes</h4></div>
     
     <div class="row">
-        <div class="col-xs-12 col-sm-11 gap-md-left-15"><?php
+        <div class="col-xs-12"><?php
             $result = mysqli_query($dbc, "SELECT * FROM `sales_notes` WHERE `salesid`='{$salesid}' AND `salesid` > 0 AND `deleted`=0 ORDER BY `salesnoteid` DESC");
             if($result->num_rows > 0) {
                 $odd_even = 0;
                 echo '
                     <br />
-                    <table class="table">
+                    <table class="table table-bordered">
                         <tr class="hidden-xs hidden-sm">
                             <th>Note</th>
                             <th>Date</th>
                             <th>Assign To</th>
                             <th>Added By</th>
-                            <th></th>
+                            <th style="width: 6em;"></th>
                         </tr>';
                 
                 while($row = mysqli_fetch_array($result)) {

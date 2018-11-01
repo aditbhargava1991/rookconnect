@@ -17,7 +17,7 @@ function driving_logs($dbc) {
     $report_data = '';
 
     $sql = "SELECT * FROM `site_work_driving_log`";
-	$result = mysqli_query($dbc, $sql.' ORDER BY `drive_date`, `drive_time` DESC');
+	$result = mysqli_query($dbc, $sql.' ORDER BY `drive_date` DESC, `drive_time` DESC');
 	
 	if(mysqli_num_rows($result) == 0) {
 		return "<h3>No Driving Logs Found</h3>";
@@ -28,7 +28,8 @@ function driving_logs($dbc) {
     $report_data .= '<th>Staff Name</th>
 			<th>Equipment Category</th>
 			<th>Equipment</th>
-			<th>Start Driving Time</th>
+			<th>Log Date</th>
+			<th>Driving Time</th>
 			<th>PDF Driving Safety Checklist</th>
 			<th>Repair Requested</th>
 			<th>End Driving Time</th>';
@@ -47,7 +48,8 @@ function driving_logs($dbc) {
         $report_data .= '<tr nobr="true">
 			<td data-title="Staff Name:">'.get_contact($dbc, $log['staff']).'</td>
 			<td data-title="Equipment Category:">'.$equipment['category'].'</td>
-			<td data-title="Equipment:">'.$equipment['unit_no'].'</td>
+			<td data-title="Equipment:">'.$equipment['unit_number'].(empty($equipment['model']) ? '' : ': '.$equipment['model']).(empty($equipment['label']) ? '' : ': '.$equipment['label']).'</td>
+			<td data-title="Log Date:">'.$log['drive_date'].'</td>
 			<td data-title="Start Driving Time:">'.$log['drive_time'].'</td>
 			<td data-title="PDF Driving Safety Checklist:"><a href="../Site Work Orders/download/driving_log_'.$log['log_id'].'.pdf">View</a></td>
 			<td data-title="Repair Requested:">'.$repair.'</td>
@@ -59,3 +61,17 @@ function driving_logs($dbc) {
     return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

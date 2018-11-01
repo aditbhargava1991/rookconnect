@@ -23,12 +23,15 @@ $(document).ready(function() {
 	<?php } ?>
 	$('.block-button.legend-block').on('mouseover', function() { toggleTicketLegend('show') });
 	$('.block-button.legend-block').on('mouseout', function() { toggleTicketLegend('hide') });
-	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary') { ?>
+	<?php if($_GET['view'] != 'monthly' && $_GET['mode'] != 'staff_summary' && $_GET['mode'] != 'ticket_summary' && $_GET['mode'] != 'day_summary' && $_GET['mode'] != 'summary') { ?>
 		calendarScrollLoad();
 	<?php } ?>
 
 	setAutoRefresh();
 	setUrlWithCurrentDate();
+	setLastActive();
+	getLastActive();
+	initLastActive();
 });
 $(document).on('click','#calendar_div a',function() { loadUrlWithCurrentDate(this); });
 $(document).on("overlayIFrameSliderLoad", function(e) {
@@ -61,6 +64,12 @@ $(document).on("overlayIFrameSliderLoad", function(e) {
 		}
 	});
 });
+$(document).on('click', '.active_blocks .block-item.active', function() {
+	var parent = $(this).closest('.active_blocks');
+	var accordion = $(parent).data('accordion');
+	var activevalue = $(this).data('activevalue');
+	$('#'+accordion).find('.block-item.active[data-activevalue="'+activevalue+'"]').closest('a').click();
+});
 var auto_refresh_calendar = '';
 function setAutoRefresh() {
 	clearTimeout(auto_refresh_calendar);
@@ -74,6 +83,56 @@ function setAutoRefresh() {
 		}
 	}
 }
+function setLastActive() {
+	var calendar_type = $('#calendar_type').val();
+	$.ajax({
+		url: '../Calendar/calendar_ajax_all.php?fill=set_last_active',
+		method: 'POST',
+		data: { type: calendar_type, contactid: '<?= $_SESSION['contactid'] ?>' },
+		success: function(response) {
+			autoSetLastActive();
+		}
+	});
+}
+var auto_set_last_active = '';
+function autoSetLastActive() {
+	clearTimeout(auto_set_last_active);
+	auto_set_last_active = setTimeout(function() {
+		setLastActive();
+	}, 60000);
+}
+function getLastActive() {
+	var calendar_type = $('#calendar_type').val();
+	$.ajax({
+		url: '../Calendar/calendar_ajax_all.php?fill=get_last_active',
+		method: 'POST',
+		data: { type: calendar_type },
+		success: function(response) {
+			var response = response.split('*#*');
+			var active_count = response[0];
+			var active_html = response[1];
+			$('.online-users-count').text(active_count);
+			$('.online-users-block').html(active_html);
+			autoGetLastActive();
+		}
+	});
+}
+var auto_get_last_active = '';
+function autoGetLastActive() {
+	clearTimeout(auto_get_last_active);
+	auto_get_last_active = setTimeout(function() {
+		getLastActive();
+	}, 60000);
+}
+function initLastActive() {
+	$('.online-users').off('mouseover').on('mouseover', function(e) {
+		getLastActive();
+		$('.online-users-block').show();
+	});
+	$('.online-users').off('mouseout').on('mouseout', function() {
+		$('.online-users-block').hide();
+	});
+}
 function loadUrlWithCurrentDate(a) {
 	var href = $(a).attr('href');
 	if(href != undefined && href != '' && href != '?' && $(a).data('toggle') != 'collapse') {
@@ -86,7 +145,7 @@ function loadUrlWithCurrentDate(a) {
 		if(href.indexOf('?') != -1) {
 			href = href.split('?')[0];
 		}
-		var newUrl = href+"?"+$.param(params);
+		var newUrl = decodeURIComponent(href+"?"+$.param(params));
 
 		$(a).prop('href', newUrl);
 	}
@@ -106,7 +165,8 @@ function setUrlWithCurrentDate() {
 		}
 	});
 	query_string_arr["date"] = $('#calendar_start').val();
-	var new_url = "?"+$.param(query_string_arr);
+	query_string_arr["view"] = $('#calendar_view').val();
+	var new_url = decodeURIComponent("?"+$.param(query_string_arr));
 	window.history.replaceState(null, '', new_url);
 }
 <?php $calendar_ticket_hover_staff = get_config($dbc, 'calendar_ticket_hover_staff'); ?>
@@ -229,7 +289,7 @@ function dispatchNewWorkOrder(data) {
 	var classification = $('#collapse_classifications .block-item.active').first().data('classification');
 	var equipmentid = $(data).data('equipmentid');
 	if(equipmentid == '' || equipmentid == undefined) {
-		equipmentid = $('#collapse_equipment .block-item.active').first().data('equipment');
+		equipmentid = $('[id^=collapse_equipment] .block-item.active').first().data('equipment');
 	}
 	var equipment_assignmentid = $(data).data('equipment_assignmentid');
 	var current_time = $(data).data('currenttime') != undefined ? $(data).data('currenttime') : '';
@@ -309,7 +369,7 @@ function changeDate(date, type = '') {
 					clear_all_data_month();
 					var reload_calendar = reload_calendar_month(response_arr[0]);
 					reload_calendar.success(function() {
-						if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+						if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams').length > 0) {
 							reload_teams();
 						}
 						reload_all_data_month();
@@ -323,7 +383,7 @@ function changeDate(date, type = '') {
 					if(typeof teamsDraggable == 'function') {
 						teamsDraggable();
 					}
-					if(calendar_type == 'ticket' && $('#collapse_teams').length > 0) {
+					if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams').length > 0) {
 						reload_teams();
 					}
 					reload_all_data();
@@ -558,6 +618,10 @@ function toggleMobileView(cell = '') {
 			$('#calendar-view-list tr[data-date="'+active_date+'"]').show();
 			$('#calendar-month-block').show();
 		}
+		$('#calendar_dates').val('["'+active_date+'"]');
+		if(reloadDragResize != undefined) {
+			reloadDragResize();
+		}
 	}
 }
 
@@ -581,26 +645,31 @@ function loadShiftView() {
 	var calendar_type = $('#calendar_type').val();
 	var calendar_view = $('#calendar_view').val();
 	var calendar_mode = $('#calendar_mode').val();
+	var calendar_start = $('#calendar_start').val();
 	<?php if($_GET['view'] == 'monthly') { ?>
 		$.ajax({
-			url: '../Calendar/monthly_display.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
+			url: '../Calendar/monthly_display.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode+'&date='+calendar_start,
 			method: 'GET',
 			success: function(response) {
 				$('.calendar_view').html(response);
 				reload_resize_all_month();
 				clear_all_data_month();
 				reload_all_data_month();
+				setLastActive();
+				getLastActive();
 			}
 		});
 	<?php } else { ?>
 		$.ajax({
-			url: '../Calendar/load_calendar_empty.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode,
+			url: '../Calendar/load_calendar_empty.php?type='+calendar_type+'&view='+calendar_view+'&mode='+calendar_mode+'&date='+calendar_start,
 			method: 'GET',
 			success: function(response) {
 				$('.calendar_view').html(response);
 				reload_resize_all();
 				clear_all_data();
 				reload_all_data();
+				setLastActive();
+				getLastActive();
 			}
 		});
 	<?php } ?>
@@ -620,12 +689,12 @@ function reload_equipment_assignment(equipmentid = '') {
 				reset_active.resolve();
 			}
 		});
-	<?php } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' && $_GET['view'] != 'monthly') { ?>
+	<?php } else if($_GET['type'] == 'schedule' && $_GET['mode'] != 'staff' && $_GET['mode'] != 'contractors' && $_GET['view'] != 'monthly' && $_GET['mode'] != 'summary') { ?>
 		var equipmentids = [];
 		if(equipmentid != '') {
 			equipmentids.push(equipmentid);
 		} else {
-			$('#collapse_equipment .block-item').each(function() {
+			$('[id^=collapse_equipment] .block-item').each(function() {
 				if($(this).data('equipment') != undefined && $(this).data('equipment') > 0) {
 					equipmentids.push($(this).data('equipment'));
 				}
@@ -641,7 +710,7 @@ function reload_equipment_assignment(equipmentid = '') {
 				data: { equipmentid: equipmentid, date: date, view: view },
 				dataType: 'html',
 				success: function(response) {
-					$('#collapse_equipment .block-item[data-equipment='+equipmentid+']').closest('a').replaceWith(response);
+					$('[id^=collapse_equipment] .block-item[data-equipment='+equipmentid+']').closest('a').replaceWith(response);
 				}
 			}));
 		});
@@ -726,14 +795,23 @@ function calendarScrollLoad() {
 	});
 }
 function reload_all_data() {
+	var retrieve_collapse2_filter = '';
 	var retrieve_collapse = $('#retrieve_collapse').val();
+	var retrieve_collapse2 = $('#retrieve_collapse2').val();
+	if(retrieve_collapse2 != undefined && retrieve_collapse2 != '') {
+		retrieve_collapse2_filter = ',[id^='+retrieve_collapse2+']';
+	}
 	var calendar_type = $('#calendar_type').val();
-	if(calendar_type == 'ticket' && $('#collapse_teams .block-item.active').length > 0) {
-		reload_teams();
+	if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+		retrieve_items($('#mobile_active_contact').closest('a'), '', true);
 	} else {
-		$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
-			retrieve_items($(this).closest('a'));
-		});
+		if((calendar_type == 'ticket' || calendar_type == 'uni') && $('#collapse_teams .block-item.active').length > 0) {
+			reload_teams();
+		} else {
+			$('[id^='+retrieve_collapse+']'+retrieve_collapse2_filter).find('.block-item.active').each(function() {
+				retrieve_items($(this).closest('a'));
+			});
+		}
 	}
 }
 function clear_excess_data(remove_type) {
@@ -782,7 +860,13 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 		var type = $('#calendar_type').val();
 		var config_type = $('#calendar_config_type').val();
 		var block_type = $('#retrieve_block_type').val();
+		if($(block).data('blocktype') != undefined && $(anchor).data('blocktype') != '') {
+			block_type = $(block).data('blocktype');
+		}
 		var contact = $(block).data($('#retrieve_contact').val());
+		if($(block).data('retrieve-contact') != undefined && $(block).data('retrieve-contact') != '') {
+			contact = $(block).data($(block).data('retrieve-contact'));
+		}
 		var region = $(block).data('region-group');
 		if(teamid != '' && teamid > 0) {
 			contact = teamid;
@@ -850,6 +934,9 @@ function retrieve_items(anchor, calendar_date = '', force_show = false, retrieve
 							item_list[calendar_date].splice((splice_index+1),0,item_data);
 						} else {
 							item_list[calendar_date].push(item_data);
+						}
+						if(window.location.pathname == '/Calendar/calendars_mobile.php') {
+							load_items(item_data, calendar_date, contact);
 						}
 					}
 				});
@@ -1048,6 +1135,8 @@ function load_items(item_row, date, contact, insert_type = 'next', block_type = 
 			});
 		}
 	}
+    initTooltips();
+    resize_rows();
 	return deferred.promise();
 }
 function destroy_items(contact, block_type) {
@@ -1159,12 +1248,17 @@ function scrollToToday() {
 
 //RETRIEVE DATA AND LOAD ITEMS MONTH VIEW
 function reload_all_data_month() {
+	var retrieve_collapse2_filter = '';
 	var retrieve_collapse = $('#retrieve_collapse').val();
+	var retrieve_collapse2 = $('#retrieve_collapse2').val();
+	if(retrieve_collapse2 != undefined && retrieve_collapse2 != '') {
+		retrieve_collapse2_filter = ',[id^='+retrieve_collapse2+']';
+	}
 	var retrieve_summary = $('#retrieve_summary').val();
 	if(retrieve_summary == 1) {
 		retrieve_whole_month();
 	} else {
-		$('[id^='+retrieve_collapse+']').find('.block-item.active').each(function() {
+		$('[id^='+retrieve_collapse+']'+retrieve_collapse2_filter).find('.block-item.active').each(function() {
 			retrieve_items_month($(this).closest('a'));
 		});
 	}
@@ -1206,9 +1300,18 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false, te
 		var type = $('#calendar_type').val();
 		var config_type = $('#calendar_config_type').val();
 		var block_type = $('#retrieve_block_type').val();
+		if($(block).data('blocktype') != undefined && $(anchor).data('blocktype') != '') {
+			block_type = $(block).data('blocktype');
+		}
 		var contact = $(block).data($('#retrieve_contact').val());
+		if($(block).data('retrieve-contact') != undefined && $(block).data('retrieve-contact') != '') {
+			contact = $(block).data($(block).data('retrieve-contact'));
+		}
 		var calendar_view = $('#calendar_view').val();
 		var calendar_mode = $('#calendar_mode').val();
+		if($(block).data('retrieve-mode') != undefined && $(block).data('retrieve-mode') != '') {
+			calendar_mode = $(block).data('retrieve-mode');
+		}
 		if(teamid != '' && teamid > 0) {
 			block_type = 'team';
 			contact = teamid;
@@ -1240,6 +1343,7 @@ function retrieve_items_month(anchor, calendar_date = '', force_show = false, te
 						config_type: config_type
 					},
 					success: function(response) {
+						console.log(response);
 						loadingOverlayShow('.calendar_view');
 						item_list[block_type][contact][calendar_date] = response;
 					}
@@ -1323,16 +1427,18 @@ function changeScheduledTime(btn) {
 		data: { ticket_table: ticket_table, ticketid: ticketid, ticket_scheduleid: ticket_scheduleid },
 		success:function(response) {
 			if(response != '') {
+                destroyInputs();
 				var arr = response.split('#*#');
 				$('[name="change_to_do_date"]').val(arr[0]);
 				$('[name="change_to_do_start_time"]').val(arr[1]);
-				$('[name="change_to_do_end_time"]').val(arr[2]);
+				// $('[name="change_to_do_end_time"]').val(arr[2]);
 				$('[name="change_ticket_table"]').val(ticket_table);
 				if(ticket_table == 'ticket_schedule') {
 					$('[name="change_ticket_id"]').val(ticket_scheduleid);
 				} else {
 					$('[name="change_ticket_id"]').val(ticketid);
 				}
+                initInputs();
 				dialogScheduledTime();
 			}
 		}
@@ -1350,11 +1456,11 @@ function dialogScheduledTime() {
 				var id = $('[name="change_ticket_id"]').val();
 				var to_do_date = $('[name="change_to_do_date"]').val();
 				var to_do_start_time = $('[name="change_to_do_start_time"]').val();
-				var to_do_end_time = $('[name="change_to_do_end_time"]').val();
+				// var to_do_end_time = $('[name="change_to_do_end_time"]').val();
 				$.ajax({
 					url: '../Calendar/calendar_ajax_all.php?fill=update_ticket_scheduled_time',
 					method: 'POST',
-					data: { ticket_table: ticket_table, id: id, to_do_date: to_do_date, to_do_start_time: to_do_start_time, to_do_end_time: to_do_end_time },
+					data: { ticket_table: ticket_table, id: id, to_do_date: to_do_date, to_do_start_time: to_do_start_time}, //, to_do_end_time: to_do_end_time },
 					success:function(response) {
 						reload_all_data();
 					}

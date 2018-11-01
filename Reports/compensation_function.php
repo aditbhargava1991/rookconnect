@@ -21,15 +21,15 @@ function report_compensation($dbc, $starttime, $endtime, $table_style, $table_ro
 		$schedule = $row['schedule_days'];
         $base_pay = explode('*#*',$row['base_pay']);
 
-        include_once ('report_compensation_services.php');
-
-        //include_once ('report_compensation_metrix.php');
-        include_once ('report_compensation_preformance_logic.php');
-        //include_once ('report_compensation_metrix2.php');
-
-        //$report_fee = $total_base_fee;
-
-        include_once ('report_compensation_inventory.php');
+        $comp_entered = false;
+        $invoice_summary_total = [];
+        include_once('report_compensation_invoice.php');
+        
+        if(!$comp_entered) {
+            include_once ('report_compensation_services.php');
+            include_once ('report_compensation_preformance_logic.php');
+            include_once ('report_compensation_inventory.php');
+        }
 
 		foreach(explode(',',$stat_holidays) as $stat_day) {
 			if($stat_day >= $starttime && $stat_day <= $endtime) {
@@ -76,15 +76,15 @@ function report_appt_compensation($dbc, $starttime, $endtime, $table_style, $tab
 		$schedule = $row['schedule_days'];
         $base_pay = explode('*#*',$row['base_pay']);
 
-        include_once ('report_compensation_services_appt.php');
-
-        //include_once ('report_compensation_metrix.php');
-        include_once ('report_compensation_preformance_logic.php');
-        //include_once ('report_compensation_metrix2.php');
-
-        //$report_fee = $total_base_fee;
-
-        include_once ('report_compensation_inventory.php');
+        $comp_entered = false;
+        $invoice_summary_total = [];
+        include_once('report_compensation_invoice.php');
+        
+        if(!$comp_entered) {
+            include_once ('report_compensation_services.php');
+            include_once ('report_compensation_preformance_logic.php');
+            include_once ('report_compensation_inventory.php');
+        }
 
 		foreach(explode(',',$stat_holidays) as $stat_day) {$report_data .= "Stat Dates: $stat_day";
 			if($stat_day >= $starttime && $stat_day <= $endtime) {

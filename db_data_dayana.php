@@ -256,5 +256,75 @@ mysqli_query($dbc, "ALTER TABLE `checklist` ADD `checklist_tile` INT(1) NOT NULL
 
 mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('contacts_summary', 'Per Category,Per Business')");
 
+mysqli_query($dbc, "ALTER TABLE `admin_tile_config` ADD `tasks_updated` VARCHAR(500) NULL AFTER `client_documentation_history`, ADD `tasks_updated_history` TEXT NULL AFTER `tasks_updated`");
+
+//mysqli_query($dbc, "ALTER TABLE `tile_config` ADD `tasks_updated` VARCHAR(500) NULL AFTER `client_documentation_history`, ADD `tasks_updated_history` TEXT NULL AFTER `tasks_updated`");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `flag_label` VARCHAR(200) NOT NULL AFTER `flag_colour`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
+
+mysqli_query($dbc, "ALTER TABLE `task_dashboard` ADD `task_fields` TEXT NULL AFTER `task_dashboard_tile`");
+
+mysqli_query($dbc, "UPDATE task_dashboard SET task_fields='Board Type,Board Name,Status,Task Name,To Do Date,Assign Staff,Flag This,Send Alert,Send Email,Schedule Reminder,Attach File,Comments,Add Time,Track Time' WHERE task_id=1");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `flag_label` `flag_label` VARCHAR(200) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+
+mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days` INT(10) NOT NULL DEFAULT '0' AFTER `classification`");
+
+mysqli_query($dbc, "ALTER TABLE `sales` ADD `number_of_days_start_date` DATE NULL AFTER `number_of_days`");
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `serviceid` INT(10) NULL AFTER `vaca_pay`");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist_time` ADD `start_time` VARCHAR(50) NULL AFTER `tasklistid`, ADD
+`end_time` VARCHAR(50) NULL AFTER `start_time`");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist` CHANGE `status` `status` VARCHAR(100) CHARACTER SET latin1 COLLATE latin1_swedish_ci NULL DEFAULT NULL");
+
+mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `estimated_time` TIME NOT NULL DEFAULT '00:00:00' AFTER `date_of_archival`");
+
+mysqli_query($dbc, "UPDATE field_config
+SET tickets = REPLACE(tickets, ',Timer,', ',Timer,Time Tracking Block,Day Tracking Block,')
+WHERE tickets LIKE '%,Timer,%'");
+
+mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `approve_by` INT(10) NULL AFTER `approv`");
+
+mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `approve_date` DATE NULL AFTER `approve_by`");
+
+mysqli_query($dbc, "ALTER TABLE `time_cards` ADD `end_time_from` VARCHAR(1000) NULL AFTER `end_time`");
+
+mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('task_default_status', 'Doing Today')");
+
+$layout = get_config($dbc, 'timesheet_layout');
+
+if($layout == 'position_dropdown' || $layout == 'ticket_task') {
+	set_config($dbc, 'timesheet_layout', 'multi_line');
+}
+
+mysqli_query($dbc, "ALTER TABLE `client_documents_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `custom_documents_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `internal_documents_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `staff_documents_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `marketing_material_uploads` ADD `document_link_name` VARCHAR(500) NULL AFTER `document_link`");
+
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `days_per_week` INT(10) NULL AFTER `hours_of_operation`, ADD `hours_per_week` INT(10) NULL AFTER `days_per_week`");
+
+mysqli_query($dbc, "ALTER TABLE `invoice` ADD `customer_billing_status` VARCHAR(200) NULL DEFAULT 'Pending' AFTER `patient_payment_receipt`");
+
+
+mysqli_query($dbc, "ALTER TABLE `task_board` ADD `flag_label` VARCHAR(200) NULL AFTER `date_of_archival`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
+
+mysqli_query($dbc, "ALTER TABLE `project` ADD `classification1` VARCHAR(500) NULL AFTER `flag_label`");
+
+
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `flag_colour` VARCHAR(20) NULL AFTER `update_url_expiry`");
+
+mysqli_query($dbc, "ALTER TABLE `contacts` ADD `flag_label` VARCHAR(500) NULL AFTER `flag_colour`, ADD `flag_start` DATE NULL AFTER `flag_label`, ADD `flag_end` DATE NULL AFTER `flag_start`");
+
+mysqli_query($dbc, "ALTER TABLE `equipment` ADD `favorite` INT(1) NOT NULL DEFAULT '0' AFTER `equipment_image`");
+
+
     echo "Dayana's DB Changes Done<br />\n";
+
 ?>

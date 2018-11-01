@@ -17,9 +17,10 @@ function saveFields() {
 				id: $(this).find('[name=name]').data('id'),
 				name: $(this).find('[name=name]').val(),
 				contactid: $(this).find('[name=contactid]').map(function() { return this.value; }).get().join(','),
-				signature: $(this).find('[name=signature]:checked').val(),
-				precedence: $(this).find('[name=precedence]:checked').val(),
+				signature: $(this).find('[name^=signature]:checked').val(),
+				precedence: $(this).find('[name^=precedence]:checked').val(),
 				status: $(this).find('[name=status]').val(),
+				options: $(this).find('[name=options]:checked').map(function() { return this.value; }).get().join(','),
 				action_items: $(this).find('[name=action_items]').map(function() { return this.value; }).get().join(','),
 				region: $(this).find('[name=region]').val(),
 				location: $(this).find('[name=location]').val(),
@@ -70,6 +71,11 @@ function saveFields() {
 		}
 	});
 }
+function resetFields(id) {
+    $.post('../Project/projects_ajax.php?action=project_fields', {
+        id: id, id_field: 'id', table: 'field_config_project_admin', field: 'unlocked_fields', value: ''
+    });
+}
 function addRow(img) {
 	var block = $(img).closest('.form-group');
 	destroyInputs();
@@ -88,15 +94,21 @@ function remRow(img) {
 	block.remove();
 	saveFields();
 }
+var new_group = 100000000;
 function addGroup(img) {
 	var block = $(img).closest('.multi_block');
 	destroyInputs();
 	var clone = block.clone();
 	clone.find('input,select').val('');
 	clone.find('[data-id]').data('id','');
+    clone.find('a[href^=#collapse_field_group]').prop('href','#collapse_field_group_'+new_group);
+    clone.find('.panel-collapse[id^=collapse_field_group]').prop('id','collapse_field_group_'+new_group);
+    clone.find('[name^=signature]').prop('name','signature_'+new_group);
+    clone.find('[name^=precedence]').prop('name','precedence_'+new_group);
 	$('.multi_block').last().after(clone).after('<hr>');
 	initInputs();
 	$('[data-id]').off('change',saveFields).change(saveFields);
+    new_group++;
 }
 function remGroup(img) {
 	var block = $(img).closest('.multi_block');
@@ -124,13 +136,22 @@ function remGroup(img) {
 			$project_admin_fields = ',Services,Sub Totals per Service,';
 		}
 		$project_admin_fields = ','.$project_admin_fields.','; ?>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Approve All" <?= strpos($project_admin_fields,',Approve All,') !== FALSE ? 'checked' : '' ?>> Allow Approve All</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Delivery Rows" <?= strpos($project_admin_fields,',Delivery Rows,') !== FALSE ? 'checked' : '' ?>> Subdivide by Scheduled Stops</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Customer" <?= strpos($project_admin_fields,',Customer,') !== FALSE ? 'checked' : '' ?>> Customer</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Schedule" <?= strpos($project_admin_fields,',Schedule,') !== FALSE ? 'checked' : '' ?>> Scheduled Date and Time</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Summary" <?= strpos($project_admin_fields,',Status Summary,') !== FALSE ? 'checked' : '' ?>> Display Status</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Status Edit" <?= strpos($project_admin_fields,',Status Edit,') !== FALSE ? 'checked' : '' ?>> Editable Status</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Services" <?= strpos($project_admin_fields,',Services,') !== FALSE ? 'checked' : '' ?>> Services</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Additional KM Charge" <?= strpos($project_admin_fields,',Additional KM Charge,') !== FALSE ? 'checked' : '' ?>> Additional KM Charge - Based on Services & Staff Time Travel</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Sub Totals per Service" <?= strpos($project_admin_fields,',Sub Totals per Service,') !== FALSE ? 'checked' : '' ?>> Sub Totals per Service</label>
-		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Staff Tasks" <?= strpos($project_admin_fields,',Staff Tasks,') !== FALSE ? 'checked' : '' ?>> Staff Tasks</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Staff Tasks" <?= strpos($project_admin_fields,',Staff Tasks,') !== FALSE ? 'checked' : '' ?>> Staff <?= TASK_TILE ?></label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Inventory" <?= strpos($project_admin_fields,',Inventory,') !== FALSE ? 'checked' : '' ?>> Inventory</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Materials" <?= strpos($project_admin_fields,',Materials,') !== FALSE ? 'checked' : '' ?>> Materials</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Misc Item" <?= strpos($project_admin_fields,',Misc Item,') !== FALSE ? 'checked' : '' ?>> Miscellaneous</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Non-Billable" <?= strpos($project_admin_fields,',Non-Billable,') !== FALSE ? 'checked' : '' ?>> Mark Services Non-Billable</label>
 		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Extra Billing" <?= strpos($project_admin_fields,',Extra Billing,') !== FALSE ? 'checked' : '' ?>> Extra Billing</label>
+		<label class="form-checkbox"><input type="checkbox" name="project_admin_fields" value="Notes" <?= strpos($project_admin_fields,',Notes,') !== FALSE ? 'checked' : '' ?>> Notes</label>
 	</div>
 </div>
 <div class="form-group">
@@ -152,11 +173,15 @@ $status_list = explode(',',get_config($dbc,'ticket_status'));
 $admin_groups = $dbc->query("SELECT * FROM `field_config_project_admin` WHERE `deleted`=0 ORDER BY `name`");
 $group = $admin_groups->fetch_assoc();
 do { ?>
-	<div class="multi_block form-horizontal">
+	<div class="multi_block form-horizontal block-panels panel-group">
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Administration Group Name:</label>
-			<div class="col-sm-8">
+			<div class="col-sm-7">
 				<input type="text" name="name" data-id="<?= $group['id'] ?>" value="<?= $group['name'] ?>" class="form-control">
+			</div>
+			<div class="col-sm-1">
+                <img class="inline-img cursor-hand pull-right" src="../img/remove.png" onclick="remGroup(this);">
+                <img class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addGroup(this);">
 			</div>
 		</div>
 		<?php foreach(explode(',',$group['contactid']) as $i => $manager) { ?>
@@ -170,24 +195,24 @@ do { ?>
 					</select>
 				</div>
 				<div class="col-sm-1">
-					<img class="inline-img cursor-hand" src="../img/remove.png" onclick="remRow(this);">
-					<img class="inline-img cursor-hand" src="../img/icons/ROOK-add-icon.png" onclick="addRow(this);">
+					<img class="inline-img cursor-hand pull-right" src="../img/remove.png" onclick="remRow(this);">
+					<img class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addRow(this);">
 				</div>
 			</div>
 		<?php } ?>
 		<div class="form-group">
 			<label class="col-sm-4 control-label"><span class="popover-examples"><a style="margin:5px 5px 0 0;" data-toggle="tooltip" data-placement="top" title="" data-original-title="If a signature is required, then a signature box will pop up when the Manager approves the Action Item."><img src="../img/info.png" width="20"></a></span>Signature Required:</label>
 			<div class="col-sm-8">
-				<label class="form-checkbox"><input type="radio" name="signature" data-id="<?= $group['id'] ?>" value="0" <?= $group['signature'] ? '' : 'checked' ?> class="form-control">No</label>
-				<label class="form-checkbox"><input type="radio" name="signature" data-id="<?= $group['id'] ?>" value="1" <?= $group['signature'] ? 'checked' : '' ?> class="form-control">Yes</label>
+				<label class="form-checkbox"><input type="radio" name="signature_<?= $group['id'] ?>" data-id="<?= $group['id'] ?>" value="0" <?= $group['signature'] ? '' : 'checked' ?> class="form-control">No</label>
+				<label class="form-checkbox"><input type="radio" name="signature_<?= $group['id'] ?>" data-id="<?= $group['id'] ?>" value="1" <?= $group['signature'] ? 'checked' : '' ?> class="form-control">Yes</label>
 			</div>
 		</div>
 		<div class="form-group">
 			<label class="col-sm-4 control-label"><span class="popover-examples"><a style="margin:5px 5px 0 0;" data-toggle="tooltip" data-placement="top" title="" data-original-title="Any means that if any of the selected Managers approve the item, it will be considered approved. All means that every manager selected must approve the Item. Precedential means that the first manager will take precedence over subsequent managers, and once the top manager has signed, other manager's signatures will not be required."><img src="../img/info.png" width="20"></a></span>Manager Approvals:</label>
 			<div class="col-sm-8">
-				<label class="form-checkbox"><input type="radio" name="precedence" data-id="<?= $group['id'] ?>" value="0" <?= $group['precedence'] == 0 ? 'checked' : '' ?> class="form-control">Any</label>
-				<label class="form-checkbox"><input type="radio" name="precedence" data-id="<?= $group['id'] ?>" value="1" <?= $group['precedence'] == 1 ? 'checked' : '' ?> class="form-control">Precedential</label>
-				<label class="form-checkbox"><input type="radio" name="precedence" data-id="<?= $group['id'] ?>" value="2" <?= $group['precedence'] == 2 ? 'checked' : '' ?> class="form-control">All</label>
+				<label class="form-checkbox"><input type="radio" name="precedence_<?= $group['id'] ?>" data-id="<?= $group['id'] ?>" value="0" <?= $group['precedence'] == 0 ? 'checked' : '' ?> class="form-control">Any</label>
+				<label class="form-checkbox"><input type="radio" name="precedence_<?= $group['id'] ?>" data-id="<?= $group['id'] ?>" value="1" <?= $group['precedence'] == 1 ? 'checked' : '' ?> class="form-control">Precedential</label>
+				<label class="form-checkbox"><input type="radio" name="precedence_<?= $group['id'] ?>" data-id="<?= $group['id'] ?>" value="2" <?= $group['precedence'] == 2 ? 'checked' : '' ?> class="form-control">All</label>
 			</div>
 		</div>
 		<div class="form-group">
@@ -215,8 +240,8 @@ do { ?>
 					</select>
 				</div>
 				<div class="col-sm-1">
-					<img class="inline-img cursor-hand" src="../img/remove.png" onclick="remRow(this);">
-					<img class="inline-img cursor-hand" src="../img/icons/ROOK-add-icon.png" onclick="addRow(this);">
+					<img class="inline-img cursor-hand pull-right" src="../img/remove.png" onclick="remRow(this);">
+					<img class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addRow(this);">
 				</div>
 			</div>
 			<?php } ?>
@@ -288,25 +313,37 @@ do { ?>
 				$value_config = array_merge($value_config,explode(',',get_config($dbc, 'ticket_fields_'.$ticket_tab)));
 			}
 		}
-		$value_config_fields = $sort_order = array_unique($value_config);
+		$all_config_fields = $value_config_fields = $sort_order = array_unique($value_config);
 		$value_config = empty($group['unlocked_fields']) ? $value_config_fields : explode(',',$group['unlocked_fields']);
 
 		//Reset merged_config_fields
-		$merged_config_fields = array_merge($all_config_fields,$value_config_fields); ?>
-		<div class="notice double-gap-bottom popover-examples">
-			<div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
-			<div class="col-sm-11">
-				<span class="notice-name">NOTE:</span>
-				Configure what Fields can be seen when the <? TICKET_NOUN ?> has not been approved. Only Fields that are turned on will be displayed here.
-			</div>
-			<div class="clearfix"></div>
-		</div>
-		<?php $unlock_mode = true;
-		include('field_config_field_list.php'); ?>
-		<input type="hidden" name="deleted" value="0">
-		<img class="inline-img cursor-hand pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addGroup(this);">
-		<img class="inline-img cursor-hand pull-right" src="../img/remove.png" onclick="remGroup(this);">
+		$merged_config_fields = $value_config_fields; ?>
+        <div class="panel panel-default">
+            <div class="panel-heading no_load">
+                <h4 class="no-margin">
+                    <span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Click here to configure what Fields can be seen when the <?= TICKET_NOUN ?> has not been approved. Only Fields that are turned on will be displayed here."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                    <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_field_group_<?= $group['id'] ?>">Initial Fields<span class="glyphicon glyphicon-plus"></span></a>
+                </h4>
+            </div>
+
+            <div id="collapse_field_group_<?= $group['id'] ?>" class="panel-collapse collapse">
+                <div class="panel-body">
+                    <div class="notice double-gap-bottom popover-examples">
+                        <div class="col-sm-1 notice-icon"><img src="../img/info.png" class="wiggle-me" width="25"></div>
+                        <div class="col-sm-11">
+                            <span class="notice-name">NOTE:</span>
+                            Configure what Fields can be seen when the <?= TICKET_NOUN ?> has not been approved. Only Fields that are turned on will be displayed here.
+                        </div>
+                        <div class="clearfix"></div>
+                    </div>
+                    <button class="btn brand-btn pull-right" onclick="resetFields(<?= $group['id'] ?>); $(this).text('All Fields Unlocked!'); $(this).closest('.panel-body').find('.form-group,.accordions_sortable,h4').hide(); return false;">Unlock All Fields</button>
+                    <?php $unlock_mode = true;
+                    include('../Ticket/field_config_field_list.php'); ?>
+                </div>
+            </div>
+        </div>
 		<div class="clearfix"></div>
+        <input type="hidden" name="deleted" value="0">
 	</div>
 	<hr>
 <?php } while($group = $admin_groups->fetch_assoc()); ?>

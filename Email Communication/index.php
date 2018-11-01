@@ -56,10 +56,10 @@ error_reporting(0);
 			<div class="tile-header standard-header">
                 <div class="pull-right settings-block"><?php
 	                if(config_visible_function($dbc, 'email_communication') == 1) {
-	                    echo '<div class="pull-right gap-left"><a href="field_config.php?type=tab"><img src="'.WEBSITE_URL.'/img/icons/settings-4.png" class="settings-classic wiggle-me" width="30" /></a></div>';
+	                    echo '<div class="pull-right gap-left"><a href="field_config.php?settings=fields"><img src="'.WEBSITE_URL.'/img/icons/settings-4.png" class="settings-classic wiggle-me" width="30" /></a></div>';
 	                } ?>
                     <div class="pull-right">
-                        <button class="btn brand-btn hide-titles-mob" onclick="overlayIFrameSlider('add_email.php?type=<?= $type ?>', 'auto', false, true);">New Email</button>
+                        <button class="btn brand-btn hide-titles-mob" onclick="overlayIFrameSlider('add_email.php?type=<?= $type ?>', 'auto', false, true, 'auto', true);">New Email</button>
                         <a class="cursor-hand show-on-mob" onclick="overlayIFrameSlider('add_email.php?type=<?= $type ?>', 'auto', false, true);"><img src="../img/icons/ROOK-add-icon.png" style="height:2em;" /></a>
                     </div>
                 </div>

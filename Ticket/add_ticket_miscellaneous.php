@@ -47,8 +47,8 @@ do {
 					<?php } ?>
 					<div class="col-sm-1">
 						<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $misc_item['id'] ?>" data-id-field="id" data-type="misc_item" data-type-field="src_table" value="0">
-						<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-						<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+						<img class="inline-img pull-right" data-history-label="Miscellaneous" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+						<img class="inline-img pull-right" data-history-label="Miscellaneous" onclick="remMulti(this);" src="../img/remove.png">
 					</div>
 				<?php } ?>
 				<?php if(strpos($value_config,',Miscellaneous Inline,') === FALSE && strpos($value_config,',Miscellaneous Name,') !== FALSE && $field_sort_field == 'Miscellaneous Name') { ?>

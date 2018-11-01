@@ -83,7 +83,6 @@ function changeSOType(sel) {
             <label class="col-sm-4">Customer Category:</label>
             <div class="col-sm-8">
                 <select multiple name="customer_category[]" class="chosen-select-deselect form-control">
-                    <option></option>
                     <?php $all_cats = get_config($dbc, 'contacts_tabs').','.get_config($dbc, 'contactsrolodex_tabs').','.get_config($dbc, 'contacts3_tabs').','.get_config($dbc, 'clientinfo_tabs').','.get_config($dbc, 'members_tabs').','.get_config($dbc, 'vendors_tabs');
                     $all_cats = array_unique(array_filter(explode(',', $all_cats)));
                     asort($all_cats);

@@ -65,4 +65,51 @@ if($_GET['fill'] == 'resumetimer') {
         $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
     }
 }
+
+/* Save Settings */
+if($_GET['fill'] == 'save_settings_internal_fields') {
+    $internal_communication = filter_var(implode(',', $_GET['internal_communication']),FILTER_SANITIZE_STRING);
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`fieldconfigid`) AS `fieldconfigid` FROM `field_config`"));
+    if($get_field_config['fieldconfigid'] > 0) {
+        mysqli_query($dbc, "UPDATE `field_config` SET internal_communication = '$internal_communication' WHERE `fieldconfigid` = 1");
+    } else {
+        mysqli_query($dbc, "INSERT INTO `field_config` (`internal_communication`) VALUES ('$internal_communication')");
+    }
+}
+if($_GET['fill'] == 'save_settings_external_fields') {
+    $external_communication = filter_var(implode(',', $_GET['external_communication']),FILTER_SANITIZE_STRING);
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`fieldconfigid`) AS `fieldconfigid` FROM `field_config`"));
+    if($get_field_config['fieldconfigid'] > 0) {
+        mysqli_query($dbc, "UPDATE `field_config` SET external_communication = '$external_communication' WHERE `fieldconfigid` = 1");
+    } else {
+        mysqli_query($dbc, "INSERT INTO `field_config` (`external_communication`) VALUES ('$external_communication')");
+    }
+}
+if($_GET['fill'] == 'save_settings_internal_dashboard') {
+    $internal_communication_dashboard = filter_var(implode(',', $_GET['internal_communication_dashboard']),FILTER_SANITIZE_STRING);
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`fieldconfigid`) AS `fieldconfigid` FROM `field_config`"));
+    if($get_field_config['fieldconfigid'] > 0) {
+        mysqli_query($dbc, "UPDATE `field_config` SET internal_communication_dashboard = '$internal_communication_dashboard' WHERE `fieldconfigid` = 1");
+    } else {
+        mysqli_query($dbc, "INSERT INTO `field_config` (`internal_communication_dashboard`) VALUES ('$internal_communication_dashboard')");
+    }
+}
+if($_GET['fill'] == 'save_settings_external_dashboard') {
+    $external_communication_dashboard = filter_var(implode(',', $_GET['external_communication_dashboard']),FILTER_SANITIZE_STRING);
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`fieldconfigid`) AS `fieldconfigid` FROM `field_config`"));
+    if($get_field_config['fieldconfigid'] > 0) {
+        mysqli_query($dbc, "UPDATE `field_config` SET external_communication_dashboard = '$external_communication_dashboard' WHERE `fieldconfigid` = 1");
+    } else {
+        mysqli_query($dbc, "INSERT INTO `field_config` (`external_communication_dashboard`) VALUES ('$external_communication_dashboard')");
+    }
+}
+if($_GET['fill'] == 'save_settings_log_dashboard') {
+    $log_communication_dashboard = filter_var(implode(',', $_GET['log_communication_dashboard']),FILTER_SANITIZE_STRING);
+    $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`fieldconfigid`) AS `fieldconfigid` FROM `field_config`"));
+    if($get_field_config['fieldconfigid'] > 0) {
+        mysqli_query($dbc, "UPDATE `field_config` SET log_communication_dashboard = '$log_communication_dashboard' WHERE `fieldconfigid` = 1");
+    } else {
+        mysqli_query($dbc, "INSERT INTO `field_config` (`log_communication_dashboard`) VALUES ('$log_communication_dashboard')");
+    }
+}
 ?>

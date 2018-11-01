@@ -68,6 +68,8 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
     $equipment_followup_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $equipment_followup_reminders_query),MYSQLI_ASSOC);
     $equipment_service_reminders_query = "SELECT * FROM `equipment` WHERE `next_service_date` = '".$current_day."' AND CONCAT(',',`follow_up_staff`,',') LIKE '%,".$contactid.",%' AND `deleted` = 0";
     $equipment_service_reminders_result = mysqli_fetch_all(mysqli_query($dbc, $equipment_service_reminders_query),MYSQLI_ASSOC);
+    $inc_rep_flags_query = "SELECT * FROM `incident_report` WHERE IFNULL(`flag_colour`,'') != '' AND `flag_colour` != 'FFFFFF' AND '".$current_day."' BETWEEN `flag_start` AND `flag_end` AND CONCAT(',',`flag_user`,',') LIKE '%,".$contactid.",%' AND `deleted` = 0";
+    $inc_rep_flags_result = mysqli_fetch_all(mysqli_query($dbc, $inc_rep_flags_query),MYSQLI_ASSOC);
 
     //Tickets
 	if(strtotime($current_day.' 23:59:59') < time() && get_config($dbc, 'timesheet_hide_past_days') == '1' && $dbc->query("SELECT COUNT(*) `count` FROM `time_cards` WHERE `date`='$current_day' AND `staff`='{$_SESSION['contactid']}' AND `end_time` IS NULL AND `start_time` IS NOT NULL")->fetch_assoc()['count'] == 0) {
@@ -163,6 +165,10 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                         echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'Equipment/edit_equipment.php?edit='.$reminder['equipmentid'].'&iframe_slider=1\'); return false;" style="color: black;">Equipment Service Reminder ('.$reminder['category'].' #'.$reminder['unit_number'].'): Service Date scheduled for '.$reminder['next_service_date'].'</a>'.$row_close;
                         $no_records = false;
                     }
+                    foreach ($inc_rep_flags_result as $reminder) {
+                        echo $row_open.'<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Incident Report/add_incident_report.php?incidentreportid='.$reminder['incidentreportid'].'\'); return false;" style="color: black;">Flagged '.INC_REP_NOUN.': '.$reminder['type'].' #'.$reminder['incidentreportid'].(!empty($reminder['flag_label']) ? ' - '.$reminder['flag_label'] : '').'</a>'.$row_close;
+                        $no_records = false;
+                    }
                 }
                 if (in_array('Tickets', $daysheet_fields_config)) {
                     $row_open_ticket = $row_open;
@@ -205,6 +211,9 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                     if(!empty($shifts)) {
                         foreach ($shifts as $shift) {
                             echo $row_open_shifts;
+                            if(!empty($shift['heading'])) {
+                                echo $shift['heading'].'<br>';
+                            }
                             if(!empty($shift['dayoff_type'])) {
                                 echo 'Day Off: '.date('h:i a', strtotime($shift['starttime'])).' - '.date('h:i a', strtotime($shift['endtime'])).'<br>';
                                 echo 'Day Off Type: '.$shift['dayoff_type'];
@@ -220,6 +229,10 @@ for ($current_day = $period_start; $current_day <= $period_end; $current_day = d
                                     echo get_contact($dbc, $shift['clientid'], 'category').': ';
                                     echo '<a href="'.WEBSITE_URL.'/'.ucfirst(get_contact($dbc, $shift['clientid'], 'tile_name')).'/contacts_inbox.php?edit='.$shift['clientid'].'" style="padding: 0; display: inline;">'.get_contact($dbc, $shift['clientid']).'</a>';
                                 }
+                            }
+                            if(!empty($shift['notes'])) {
+                                echo '<br>';
+                                echo 'Notes: '.html_entity_decode($shift['notes']);
                             }
                             echo $row_close;
                             $no_records = false;

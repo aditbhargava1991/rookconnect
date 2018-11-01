@@ -23,7 +23,7 @@ if($_GET['view'] == 'blank') {
 			$text = str_replace('[['.$field.']]', '<input type="text" name="field_'.$field.'" value="" size="20">', $text);
 		}
 	}
-	
+
 	// Fall through to generate the PDF
 }
 
@@ -38,7 +38,7 @@ if (isset($_POST['fill_contract'])) {
 	$values = $_POST['values'];
 	$staffid = $_SESSION['contactid'];
 	$assignid = $_GET['assignid'];
-	
+
 	// Mark completed in contracts_staff and save contract in contract_completed
 	if(empty($assignid)) {
 		$sql_staff = "INSERT INTO `contracts_staff` (`contractid`, `recipient`, `contactid`, `businessid`, `done`, `due_date`) VALUES ('$contractid', '".get_email($dbc, $staffid)."', '$contactid', '$businessid', '1', '".date('Y-m-d')."')";
@@ -51,7 +51,7 @@ if (isset($_POST['fill_contract'])) {
 	$sql_contract = "INSERT INTO `contracts_completed` (`contractstaffid`, `contractid`, `contactid`, `businessid`, `staffid`, `contract_fields`, `contract_values`, `contract_file`)
 		VALUES ('$assignid', '$contractid', '$contactid', '$businessid', '$staffid', '".implode('#*#',$fields)."', '".implode('#*#',$values)."', '$pdf_name')";
 	$result = mysqli_query($dbc, $sql_contract);
-	
+
 	// Generate PDF with Logo, Header, Footer, Contents
 	if(!file_exists('download')) {
 		mkdir('download', 0777, true);
@@ -65,7 +65,7 @@ if (isset($_POST['fill_contract'])) {
 		}
 		$text = str_replace('[['.$field.']]', $values[$key], $text);
 	}
-	
+
 	// Fall through to generate the PDF
 }
 
@@ -124,12 +124,12 @@ if($text != '') {
 	$pdf->SetFont('helvetica', '', 8);
 	$pdf->setCellHeightRatio(1);
 	$pdf->writeHTML($text, true, false, true, false, '');
-	
+
 	if(!file_exists('download')) {
 		mkdir('download', 0777, true);
 	}
 	$pdf->Output('download/'.$pdf_name, 'F');
-	
+
 	echo "<script> window.location.replace('download/$pdf_name'); </script>";
 } ?>
 <script type="text/javascript">
@@ -162,12 +162,12 @@ checkAuthorised('contracts'); ?>
 		<?php $contractid = $_GET['contractid'];
 		$contractstaffid = $_GET['assignid'];
 		$completedid = $_GET['completedcontractid'];
-		
+
 		$contactid = '';
 		$staffid = '';
 		$contract_fields = [];
 		$contract_values = [];
-		
+
 		if(!empty($contractstaffid)) {
 			$assigned = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contracts_staff` WHERE `contractstaffid`='$contractstaffid'"));
 			$staffid = $assigned['staffid'];
@@ -200,12 +200,12 @@ checkAuthorised('contracts'); ?>
         <h1><?= $contract['contract_name'] ?></h1>
 
 		<div class="gap-top triple-gap-bottom"><a href="contracts.php?tab=<?= $contract['category'] ?>" class="btn config-btn">Back to Dashboard</a></div>
-		
+
 		<div style='background-color: rgba(200,200,200,.9); padding:10px; color:black; width:100%; margin:auto; border:5px outset grey; border-radius:15px;'>
 			<?php echo html_entity_decode($contract['contract_text']); ?>
 		</div>
 		<br />
-		
+
         <div class="panel-group" id="accordion2">
             <div class="panel panel-default">
                 <div class="panel-heading">
@@ -233,7 +233,6 @@ checkAuthorised('contracts'); ?>
 								<label class="col-sm-4 control-label">Contact Name:</label>
 								<div class="col-sm-8">
 									<select data-placeholder="Select Contact(s)" name="contactid[]" multiple class="chosen-select-deselect form-control" width="380">
-									  <option value=""></option>
 									  <?php
 										$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT DISTINCT `contactid`, `name`, `first_name`, `last_name`, `category` FROM `contacts` WHERE `deleted`=0 AND `businessid`='$businessid'"),MYSQLI_ASSOC));
 										$category = '';
@@ -259,7 +258,6 @@ checkAuthorised('contracts'); ?>
 								<label class="col-sm-4 control-label">Assign to <?= ($cat_count > 0 ? $contract['category'] : 'Contact') ?>:</label>
 								<div class="col-sm-8">
 									<select data-placeholder="Select <?= ($cat_count > 0 ? $contract['category'] : 'Contact(s)') ?>" name="contactid[]" multiple class="chosen-select-deselect form-control" width="380">
-									  <option value=""></option>
 									  <?php
 										$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT DISTINCT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0".($cat_count > 0 ? " AND `category`='".$contract['category']."'" : "")),MYSQLI_ASSOC));
 										foreach($query as $id) {
@@ -326,7 +324,7 @@ checkAuthorised('contracts'); ?>
 
 			</div>
 
-        
+
 
     </form>
 

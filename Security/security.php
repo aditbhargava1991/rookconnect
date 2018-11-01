@@ -20,7 +20,8 @@ checkAuthorised('security');
 					case 'tiles': echo 'Software Functionality'; break;
 					case 'levels': echo 'Security Levels & Groups'; break;
 					case 'privileges': echo 'Set Security Privileges'; break;
-					case 'assign': echo 'Assign Privileges'; break;
+					case 'privileges_by_staf': echo 'Set Security Privileges'; break;
+					case 'assign': echo 'User Privileges'; break;
 					case 'contact_cat': echo 'Contact Category Default Levels'; break;
 					case 'reporting': echo 'Reporting'; break;
 				} ?> Dashboard</h1>
@@ -33,55 +34,62 @@ checkAuthorised('security');
 			</div>-->
 			<div class="clearfix double-gap-bottom"></div>
 		</div>
-		
+
 		<div class="tab-container mobile-100-container">
 			<?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'tiles') === TRUE ) { ?>
                 <a href="security.php?tab=tiles"><button type="button" class="btn brand-btn mobile-block mobile-100<?php echo ($tab == 'tiles' ? ' active_tab' : ''); ?>">Software Functionality</button></a>
             <?php } else { ?>
                 <button type="button" class="btn disabled-btn mobile-block mobile-100">Software Functionality</button>
             <?php } ?>
-			
+
             <?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'levels') === TRUE ) { ?>
                 <a href='security.php?tab=levels'><button type='button' class='btn brand-btn mobile-block mobile-100<?php echo ($tab == 'levels' ? ' active_tab' : ''); ?>' >Security Levels &amp; Groups</button></a>
             <?php } else { ?>
                 <button type="button" class="btn disabled-btn mobile-block mobile-100">Security Levels &amp; Groups</button>
             <?php } ?>
-			
+
             <?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'privileges') === TRUE ) { ?>
                 <a href='security.php?tab=privileges'><button type='button' class='btn brand-btn mobile-block mobile-100<?php echo ($tab == 'privileges' ? ' active_tab' : ''); ?>' >Set Security Privileges</button></a>
             <?php } else { ?>
                 <button type="button" class="btn disabled-btn mobile-block mobile-100">Set Security Privileges</button>
             <?php } ?>
-			
-            <?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'assign') === TRUE ) { ?>
-                <a href='security.php?tab=assign&status=active'><button type='button' class='btn brand-btn mobile-block mobile-100<?php echo ($tab == 'assign' ? ' active_tab' : ''); ?>' >Assign Privileges</button></a>
+
+						<?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'privileges') === TRUE ) { ?>
+                <a href='security.php?tab=privileges_by_staff'><button type='button' class='btn brand-btn mobile-block mobile-100<?php echo ($tab == 'privileges_by_staff' ? ' active_tab' : ''); ?>' >Set Security Privileges by Staff</button></a>
             <?php } else { ?>
-                <button type="button" class="btn disabled-btn mobile-block mobile-100">Assign Privileges</button>
+                <button type="button" class="btn disabled-btn mobile-block mobile-100">Set Security Privileges By Staff</button>
             <?php } ?>
-			
+
+            <?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'assign') === TRUE ) { ?>
+                <a href='security.php?tab=assign&status=active'><button type='button' class='btn brand-btn mobile-block mobile-100<?php echo ($tab == 'assign' ? ' active_tab' : ''); ?>' >User Privileges</button></a>
+            <?php } else { ?>
+                <button type="button" class="btn disabled-btn mobile-block mobile-100">User Privileges</button>
+            <?php } ?>
+
             <?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'contact_cat') === TRUE ) { ?>
                 <a href='security.php?tab=contact_cat'><button type='button' class='btn brand-btn mobile-block mobile-100<?php echo ($tab == 'contact_cat' ? ' active_tab' : ''); ?>' >Contact Category Default Levels</button></a>
             <?php } else { ?>
                 <button type="button" class="btn disabled-btn mobile-block mobile-100">Contact Category Default Levels</button>
             <?php } ?>
-			
+
             <?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'password') === TRUE ) { ?>
                 <a href='security.php?tab=password&status=active'><button type='button' class='btn brand-btn mobile-block mobile-100<?php echo ($tab == 'password' ? ' active_tab' : ''); ?>' >Password Reset</button></a>
             <?php } else { ?>
                 <button type="button" class="btn disabled-btn mobile-block mobile-100">Password Reset</button>
             <?php } ?>
-			
+
             <?php if ( check_subtab_persmission($dbc, 'security', ROLE, 'reporting') === TRUE ) { ?>
                 <a href='security.php?tab=reporting'><button type='button' class='btn brand-btn mobile-block mobile-100<?php echo ($tab == 'reporting' ? ' active_tab' : ''); ?>' >Reporting</button></a>
             <?php } else { ?>
                 <button type="button" class="btn disabled-btn mobile-block mobile-100">Reporting</button>
             <?php } ?>
 		</div>
-		
+
 		<?php switch($tab) {
 			case 'tiles': include('tile_enable.php'); break;
 			case 'levels': include('security_levels.php'); break;
 			case 'privileges': include('security_privileges.php'); break;
+			case 'privileges_by_staff': include('security_privileges_by_staff.php'); break;
 			case 'assign': include('assign_privileges.php'); break;
 			case 'contact_cat': include('contact_category_levels.php'); break;
 			case 'password': include('password_reset.php'); break;

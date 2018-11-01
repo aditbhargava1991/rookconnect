@@ -4,7 +4,6 @@ This Meeting will be emailed to the selected contacts when you Save or Approve t
     <label for="first_name" class="col-sm-4 control-label text-right"><?php echo (strpos($value_config, ','."Business".',') === FALSE ? 'Contacts' : BUSINESS_CAT.' Contacts'); ?>:</label>
     <div class="col-sm-8">
         <select name="businesscontactemailid[]" multiple <?php echo $disable_client; ?> id="estimateclientid" data-placeholder="Select Contacts..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php
             $cat = '';
 			$cat_list = [];
@@ -39,7 +38,6 @@ This Meeting will be emailed to the selected contacts when you Save or Approve t
     <label for="first_name" class="col-sm-4 control-label text-right">Company Contact:</label>
     <div class="col-sm-8">
         <select name="companycontactemailid[]" multiple <?php echo $disable_client; ?> data-placeholder="Select Staff..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
             <?php $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 			foreach($query1 as $id) {
 				$email = get_email($dbc, $id);

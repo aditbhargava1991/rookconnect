@@ -126,7 +126,6 @@ if(isset($_POST['printpdf'])) {
 					<label class="col-sm-4">Staff:</label>
 					<div class="col-sm-8">
                       <select multiple data-placeholder="Select Staff Members" name="search_staff[]" class="chosen-select-deselect form-control">
-                        <option></option>
                                   <!-- <option <?= 'ALL' == $search_staff ? 'selected' : '' ?> value="ALL">All Staff</option> -->
                         <?php
                           $query = mysqli_query($dbc,"SELECT distinct(staff) FROM time_cards where staff > 0 order by staff");
@@ -157,7 +156,7 @@ if(isset($_POST['printpdf'])) {
             <?php echo report_statutory_breakdown($dbc, $search_staff, '', '', '', $starttime, $endtime); ?>
 
         </form>
-        
+
 <?php function report_statutory_breakdown($dbc, $staff, $table_style, $table_row_style, $grand_total_style, $search_start_date, $search_end_date) {
 
     if($staff == '') {

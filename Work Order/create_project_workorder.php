@@ -147,7 +147,6 @@ if (isset($_POST['submit'])) {
                           <label for="site_name" class="col-sm-4 control-label">Assign To:</label>
                           <div class="col-sm-8">
                             <select data-placeholder="Select a Staff Member..." multiple name="contactid_<?php echo $row['tempworkorderid']; ?>[]" class="chosen-select-deselect form-control" width="380">
-                              <option value=""></option>
 							  <?php
 								$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category='Staff' AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 								foreach($query as $id) {
@@ -213,7 +212,7 @@ if (isset($_POST['submit'])) {
             </div>
         </div>
 
-        
+
 
         </form>
         </div>

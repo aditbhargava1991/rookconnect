@@ -5296,6 +5296,17 @@ ul.sidebar .active,
 .theme-color-icon {
   filter: invert(47%) sepia(95%) saturate(1602%) hue-rotate(308deg) brightness(95%) contrast(84%) !important;
 }
-.overview-block, .dashboard-container, .block-item, .connectedSortable, .summary-block, .main-screen-white { border-color:#ce6286 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.block-button,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border { border-color:#ce6286 !important; }
 .calendar .main-screen .panel .panel-title > a:hover { color:#ce6286 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #ce6286 !important; }

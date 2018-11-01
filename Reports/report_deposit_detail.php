@@ -201,14 +201,16 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
 
     $amt_to_bill = 0;
     $total = 0;
+    $odd_even=0;
     while($row_report = mysqli_fetch_array($report_service)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $insurer_price = $row_report['insurer_price'];
         $invoiceid = $row_report['invoiceid'];
         $patientid = get_all_from_invoice($dbc, $invoiceid, 'patientid');
         $insurerid = rtrim($row_report['insurerid'],',');
 
         $each_insurance_payment = explode('#*#', $insurance_payment);
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         //$report_data .= '<td>#'.$invoiceid.' : '.get_contact($dbc, $patientid).'</td>';
         //$report_data .= '<td>#'.$row_report['ui_invoiceid'].'</td>';
         //$report_data .= '<td>'.$row_report['service_date'].'</td>';
@@ -222,6 +224,7 @@ function report_receivables($dbc, $starttime, $endtime, $table_style, $table_row
         $report_data .= '<td>'.$row_report['paid_date'].'</td>';
         $report_data .= '</tr>';
         $total += $insurer_price;
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true"><td><b>Total</b></td><td><b>$'.$total.'</b></td><td></td><td></td><td></td><td></td></tr>';

@@ -315,12 +315,6 @@ function go_to_dashboard(target) {
 			//	}
 			//}
 			?>
-			<?php if(START_DAY != '') { ?>
-			<tr data-dashboard='<?= (in_array('start_day_button', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment"><?= START_DAY ?></td>
-				<?php echo security_tile_config_function('start_day_button', get_privileges($dbc, 'start_day_button',$level), 0, $level_url); ?>
-			</tr>
-			<?php } ?>
 			<?php if(strpos($on_security, ',archiveddata,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('archiveddata', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Archived Data</td>
@@ -622,6 +616,12 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('punch_card', get_privileges($dbc, 'punch_card',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
+			<?php if(strpos($on_security, ',start_day_button,') !== FALSE) { ?>
+			<tr data-dashboard='<?= (in_array('start_day_button', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Comment"><?= START_DAY ?></td>
+				<?php echo security_tile_config_function('start_day_button', get_privileges($dbc, 'start_day_button',$level), 0, $level_url); ?>
+			</tr>
+			<?php } ?>
 			<?php if(strpos($on_security, ',timesheet,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('timesheet', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Time Sheets</td>
@@ -721,17 +721,19 @@ function go_to_dashboard(target) {
 			<?php } ?>
 			<?php if(strpos($on_security, ',tasks,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('tasks', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Tasks</td>
+				<td data-title="Comment"><?= TASK_TILE ?></td>
 				<?php echo security_tile_config_function('tasks', get_privileges($dbc, 'tasks',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
 
+            <!--
 			<?php if(strpos($on_security, ',tasks_updated,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('tasks_updated', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Tasks (Updated)</td>
 				<?php echo security_tile_config_function('tasks_updated', get_privileges($dbc, 'tasks_updated',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
+            -->
 
 			<?php if(strpos($on_security, ',optimize,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('optimize', $dashboard_list) ? 'current' : '') ?>'>
@@ -746,12 +748,6 @@ function go_to_dashboard(target) {
 			<tr data-dashboard='<?= (in_array('client_documentation', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Client Documentation</td>
 				<?php echo security_tile_config_function('client_documentation', get_privileges($dbc, 'client_documentation',$level), 1, $level_url); ?>
-			</tr>
-			<?php } ?>
-			<?php if (strpos($on_security, ',client_documents,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('client_documents', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Client Documents</td>
-				<?php echo security_tile_config_function('client_documents', get_privileges($dbc, 'client_documents',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if (strpos($on_security, ',contracts,') !== FALSE) { ?>
@@ -772,15 +768,9 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('day_program', get_privileges($dbc, 'day_program',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
-			<?php if(strpos($on_security, ',documents,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('documents', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Documents</td>
-				<?php echo security_tile_config_function('documents', get_privileges($dbc, 'documents',$level), 0, $level_url); ?>
-			</tr>
-			<?php } ?>
 			<?php if(strpos($on_security, ',documents_all,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('documents_all', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Documents (Updated)</td>
+				<td data-title="Comment">Documents</td>
 				<?php echo security_tile_config_function('documents_all', get_privileges($dbc, 'documents_all',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
@@ -811,12 +801,6 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('individual_support_plan', get_privileges($dbc, 'individual_support_plan',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
-			<?php if (strpos($on_security, ',internal_documents,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('internal_documents', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Internal Documents</td>
-				<?php echo security_tile_config_function('internal_documents', get_privileges($dbc, 'internal_documents',$level), 0, $level_url); ?>
-			</tr>
-			<?php } ?>
 			<?php if(strpos($on_security, ',charts,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('charts', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Charts</td>
@@ -839,12 +823,6 @@ function go_to_dashboard(target) {
 			<tr data-dashboard='<?= (in_array('social_story', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Social Story</td>
 				<?php echo security_tile_config_function('social_story', get_privileges($dbc, 'social_story',$level), 1, $level_url); ?>
-			</tr>
-			<?php } ?>
-			<?php if(strpos($on_security, ',staff_documents,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('staff_documents', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Staff Documents</td>
-				<?php echo security_tile_config_function('staff_documents', get_privileges($dbc, 'staff_documents',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if(strpos($on_security, ',treatment_charts,') !== FALSE) { ?>
@@ -909,12 +887,6 @@ function go_to_dashboard(target) {
 				<?php echo security_tile_config_function('intake', get_privileges($dbc, 'intake',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
-			<?php if (strpos($on_security, ',marketing_material,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('marketing_material', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Marketing Material</td>
-				<?php echo security_tile_config_function('marketing_material', get_privileges($dbc, 'marketing_material',$level), 0, $level_url); ?>
-			</tr>
-			<?php } ?>
 			<?php if (strpos($on_security, ',sales,') !== FALSE) { ?>
 			<tr data-dashboard='<?= (in_array('sales', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Sales</td>
@@ -972,6 +944,12 @@ function go_to_dashboard(target) {
 			<tr data-dashboard='<?= (in_array('communication', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Communication Tasks</td>
 				<?php echo security_tile_config_function('communication', get_privileges($dbc, 'communication',$level), 0, $level_url); ?>
+			</tr>
+			<?php } ?>
+			<?php if (strpos($on_security, ',dispatch,') !== FALSE) { ?>
+			<tr data-dashboard='<?= (in_array('dispatch', $dashboard_list) ? 'current' : '') ?>'>
+				<td data-title="Dispatch">Dispatch</td>
+				<?php echo security_tile_config_function('dispatch', get_privileges($dbc, 'dispatch',$level), 0, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if (strpos($on_security, ',email_communication,') !== FALSE) { ?>
@@ -1205,12 +1183,6 @@ function go_to_dashboard(target) {
 			<tr data-dashboard='<?= (in_array('package', $dashboard_list) ? 'current' : '') ?>'>
 				<td data-title="Comment">Packages</td>
 				<?php echo security_tile_config_function('package', get_privileges($dbc, 'package',$level), 0, $level_url); ?>
-			</tr>
-			<?php } ?>
-			<?php if(strpos($on_security, ',pos,') !== FALSE) { ?>
-			<tr data-dashboard='<?= (in_array('pos', $dashboard_list) ? 'current' : '') ?>'>
-				<td data-title="Comment">Point of Sale (Basic)</td>
-				<?php echo security_tile_config_function('pos', get_privileges($dbc, 'pos',$level), 1, $level_url); ?>
 			</tr>
 			<?php } ?>
 			<?php if(strpos($on_security, ',posadvanced,') !== FALSE) { ?>

@@ -1,8 +1,44 @@
 <?php include_once ('../include.php');
+include_once('config.php');
 if(!$no_ob_clean) {
 	ob_clean();
 } ?>
-<script>initInputs();</script>
+<style>
+#ui-datepicker-div{
+    top: 280px !import;
+    right:150px !important;
+}
+</style>
+<script>initInputs();
+function quick_add_time(ticket_id) {
+	//ticket_id = $(ticket).parents('span').data('task');
+	$('[name=task_time_'+ticket_id+']').timepicker('option', 'onClose', function(time) {
+		var time = $(this).val();
+		$(this).val('00:00');
+		if(time != '' && time != '00:00') {
+			$.ajax({
+				method: 'POST',
+				url: 'ticket_ajax_all.php?fill=ticket_quick_time',
+				data: { id: ticket_id, time: time+':00' },
+				complete: function(result) { console.log(result.responseText); window.location.reload();
+                    $.ajax({
+                        method: 'POST',
+                        url: 'ticket_ajax_all.php?fill=ticketreply',
+                        data: { taskid: ticket_id, reply: 'Time added '+time+':00' },
+                        complete: function(result) { console.log(result.responseText); window.location.reload();
+                        }
+                    });
+                }
+			});
+		}
+	});
+	$('[name=task_time_'+ticket_id+']').timepicker('show');
+}
+function track_time(ticket) {
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=ticket&id='+ticket, 'auto', false, false);
+}
+
+</script>
 <?php
 $strict_view = strictview_visible_function($dbc, 'ticket');
 $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
@@ -15,25 +51,25 @@ if($db_config == '') {
 	$db_config = 'Business,Contact,Heading,Services,Status,Deliverable Date';
 }
 $db_config = explode(',',$db_config);
-$flag_label = '';
+$flag_comment = '';
+if(time() < strtotime(str_replace('0000-00-00',date('Y-m-d'),$ticket['flag_start'])) || time() > strtotime(str_replace('9999',date('Y'),$ticket['flag_end']).' + 1 day')) {
+	$ticket['flag_colour'] = '';
+}
 if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
-	if(in_array('flag_manual',$quick_actions)) {
-		if(time() < strtotime($ticket['flag_start']) || time() > strtotime($ticket['flag_end'].' + 1 day')) {
-			$ticket['flag_colour'] = '';
-		} else {
-			$flag_label = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
-		}
+	$quick_action_icons = explode(',',get_config($dbc, 'quick_action_icons'));
+	if(in_array('flag_manual',$quick_action_icons)) {
+		$flag_comment = html_entity_decode($dbc->query("SELECT `comment` FROM `ticket_comment` WHERE `deleted`=0 AND `ticketid`='$ticketid' AND `type`='flag_comment' ORDER BY `ticketcommid` DESC")->fetch_assoc()['comment']);
 	} else {
 		$ticket_flag_names = [''=>''];
 		$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
 		foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
 			$ticket_flag_names[$colour] = $flag_names[$i];
 		}
-		$flag_label = $ticket_flag_names[$ticket['flag_colour']];
+		$flag_comment = $ticket_flag_names[$ticket['flag_colour']];
 	}
 } ?>
-<div class="dashboard-item" data-id="<?= $ticketid ?>" data-colour="<?= $ticket['flag_colour'] ?>" data-table="tickets" data-id-field="ticketid" style="<?= $ticket['flag_colour'] != '' ? 'background-color: #'.$ticket['flag_colour'].';' : '' ?>">
-	<span class="flag-label"><?= $flag_label ?></span>
+<div class="dashboard-item" data-id="<?= $ticketid ?>" data-colour="<?= $ticket['flag_colour'] ?>" data-table="tickets" data-id-field="ticketid">
+	<span class="block-label flag-label-block" style="font-weight: bold; <?= $ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></span>
 	<?php if(in_array('Extra Billing',$db_config)) {
 		$extra_billing = $dbc->query("SELECT COUNT(*) `num` FROM `ticket_comment` WHERE `ticketid` = '$ticketid' AND '$ticketid' > 0 AND `type` = 'service_extra_billing' AND `deleted` = 0 ORDER BY `ticketcommid` DESC")->fetch_assoc();
 	} else {
@@ -55,7 +91,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		$total_budget_time_exceeded = 0;
 	}
 	?>
-	<h3 <?= $extra_billing['num'] > 0 ? 'style="color:red;"' : '' ?>><?= $tile_security['edit'] > 0 || in_array('Hide Slider',$db_config) ? '<a href=\'../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&from='.urlencode($_GET['from']).'\' '.($extra_billing['num'] > 0 ? 'style="color:red;"' : '').'>' : '' ?>
+	<h3 <?= $extra_billing['num'] > 0 ? 'style="color:red;"' : '' ?>><?= $tile_security['edit'] > 0 || in_array('Hide Slider',$db_config) ? '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.urlencode($_GET['from']).'\' '.($extra_billing['num'] > 0 ? 'style="color:red;"' : '').'>' : '' ?>
 		<?= !in_array('Label',$db_config) ? TICKET_NOUN.' #'.($ticket['main_ticketid'] > 0 ? $ticket['main_ticketid'].' '.$ticket['sub_ticket'] : $ticket['ticketid']) : get_ticket_label($dbc, $ticket) ?>
         <?php
 				foreach(array_filter(explode(',',$ticket['clientid'])) as $clientid) {
@@ -68,9 +104,14 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 
 		<?= $extra_billing['num'] > 0 ? '<img class="inline-img small no-toggle" title="Extra Billing" src="../img/icons/ROOK-status-paid.png">' : '' ?>
 		<img class="inline-img small no-toggle total_budget_time_icon" title="Total Budget Time exceeded by <?= $total_budget_time_exceeded ?> hours." src="../img/icons/ROOK-status-paid.png" style="filter: invert(30%) sepia(94%) saturate(50000%) hue-rotate(356deg) brightness(103%) contrast(117%); <?= $total_budget_time_exceeded > 0 ? '' : 'display:none;' ?>">
-		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= !in_array('Hide Slider',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&action_mode=1&from='.urlencode($_GET['from']).'" '.(!in_array('Action Mode Button Eyeball',$db_config) ? 'class="btn brand-btn"' : '').' onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;">'.(in_array('Action Mode Button Eyeball',$db_config) ? '<img src="../img/icons/eyeball.png" class="inline-img">' : (!empty(get_config($dbc, 'ticket_slider_button')) ? get_config($dbc, 'ticket_slider_button') : 'Sign In')).'</a>' : '' ?>
-		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= in_array('Overview Icon',$db_config) ? '<a href="../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&overview_mode=1&from='.urlencode($_GET['from']).'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img no-toggle" title="'.TICKET_NOUN.' Overview"></a>' : '' ?></h3>
+		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= !in_array('Hide Slider',$db_config) ? '<a href="../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&action_mode=1&from='.urlencode($_GET['from']).'" '.(!in_array('Action Mode Button Eyeball',$db_config) ? 'class="btn brand-btn"' : '').' onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;">'.(in_array('Action Mode Button Eyeball',$db_config) ? '<img src="../img/icons/eyeball.png" class="inline-img">' : (!empty(get_config($dbc, 'ticket_slider_button')) ? get_config($dbc, 'ticket_slider_button') : 'Sign In')).'</a>' : '' ?>
+		<?= $tile_security['edit'] > 0 ? '</a>' : '' ?><?= in_array('Overview Icon',$db_config) ? '<a href="../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&overview_mode=1&from='.urlencode($_GET['from']).'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',false,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img no-toggle" title="'.TICKET_NOUN.' Overview"></a>' : '' ?></h3>
 	<!-- Quick Action inputs -->
+	
+	<?php 
+	   echo '<input type="text" name="reply_'.$ticket['ticketid'].'" style="display:none;" class="form-control" />';
+	   echo '<input type="text" name="task_time_'.$ticket['ticketid'].'" style="display:none; float:right; width:200px" class="form-control timepicker" />';
+	?>
 
 	<?php if($tile_security['edit'] > 0) { ?>
 		<div class="action-icons">
@@ -81,6 +122,9 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			echo (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '');
 			echo (in_array('attach',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">' : '');
 			echo (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
+			echo (in_array('history',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/eyeball.png" class="inline-img history-icon no-toggle" title="History">' : '');
+			echo (in_array('time', $quick_actions) ? '<span title="Add Time" onclick=quick_add_time("'.$ticket['ticketid'].'"); return false;><img src="../img/icons/ROOK-timer-icon.png" title="Add Time" class="inline-img" onclick="return false;"></span>' : '');
+			echo (in_array('timer', $quick_actions) ? '<span title="Track Time" onclick=track_time("'.$ticket['ticketid'].'"); return false;><img src="../img/icons/ROOK-timer2-icon.png" title="Track Time" class="inline-img" onclick="return false;"></span>' : '');
 			echo (in_array('archive',$quick_actions) && $tile_security['edit'] > 0 ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-trash-icon.png" class="inline-img archive-icon no-toggle" title="Archive">' : '');
 
 			//echo (in_array('reply',$quick_actions) ? '<a href="../Ticket/ticket_pdf.php?action=notopen&ticketid='.$ticket['ticketid'].'"><img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img emailpdf-icon" title="Add Note"></a>' : '');
@@ -101,7 +145,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 	<?php if(in_array('flag_manual',$quick_actions)) {
 		$colours = explode(',', get_config($dbc, "ticket_colour_flags")); ?>
 		<span class="col-sm-3 text-center flag_field_labels" style="display:none;">Label</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Colour</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">Start Date</span><span class="col-sm-3 text-center flag_field_labels" style="display:none;">End Date</span>
-		<div class="col-sm-3"><input type='text' name='label' value='<?= $flag_label ?>' class="form-control" style="display:none;"></div>
+		<div class="col-sm-3"><input type='text' name='label' value='<?= $flag_comment ?>' class="form-control" style="display:none;"></div>
 		<div class="col-sm-3"><select name='colour' class="form-control" style="display:none;background-color:#<?= $ticket['flag_colour'] ?>;font-weight:bold;" onchange="$(this).css('background-color','#'+$(this).find('option:selected').val());">
 				<option value="FFFFFF" style="background-color:#FFFFFF;">No Flag</option>
 				<?php foreach($colours as $flag_colour) { ?>
@@ -118,7 +162,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 	<input type='text' name='emailpdf' value='' class="form-control" style="display:none;">
 	<input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">
 	<div class="select_users" style="display:none;">
-		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+		<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 		<?php foreach($staff_list as $staff) { ?>
 			<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 		<?php } ?>
@@ -336,7 +380,26 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 		echo '<div class="col-sm-6">
 			<label class="col-sm-4">Status:</label>
 			<div class="col-sm-8">';
-			if($tile_security['edit'] > 0) {
+            $invoice_status = '';
+            if(get_config($dbc, 'ticket_invoice_status') > 0) {
+                $invoice = $dbc->query("SELECT * FROM `invoice` WHERE `deleted`=0 AND CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%'")->fetch_assoc();
+                switch($invoice['status']) {
+                    case 'Completed':
+                        $invoice_status = 'Paid';
+                        break;
+                    case 'Void':
+                        $invoice_status = 'Voided';
+                        break;
+                    case 'Saved':
+                        $invoice_status = 'Unbilled';
+                        break;
+                    case 'Posted':
+                    default:
+                        $invoice_status = 'Accounts Receivable';
+                        break;
+                }
+            }
+			if($tile_security['edit'] > 0 && empty($invoice_status)) {
 				echo '<select name="status[]" data-id="'.$ticket['ticketid'].'" onchange="setStatus(this);" class="chosen-select-deselect1 form-control">
 						<option value=""></option>';
 						foreach ($ticket_status_list as $cat_tab) {
@@ -344,7 +407,7 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 						}
 				echo '</select>';
 			} else {
-				echo $ticket['status'];
+				echo !empty($invoice_status) ? $invoice_status : $ticket['status'];
 			}
 			echo '</div>
 		</div>';
@@ -488,6 +551,20 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 			</div>
 		</div>';
 	}
+	if(in_array('Delivery Status',$db_config)) {
+		$ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid` = '".$ticket['ticketid']."' AND `deleted` = 0 AND `type` != 'origin' AND `type` != 'destination'");
+		$stop_count = 0;
+		$delivery_stops = [];
+		while($stop = mysqli_fetch_assoc($ticket_stops)) {
+			$stop_count++;
+            $delivery_stops[] = 'Stop #'.$stop_count.' '.(empty($stop['client_name']) ? $stop['location_name'] : $stop['client_name']).': '.$stop['status'];
+		}
+		echo '<div class="col-sm-6">
+			<label class="col-sm-4">Delivery Status Summary:</label>
+			<div class="col-sm-8">'.implode('<br>',$delivery_stops).'
+			</div>
+		</div>';
+	}
 	if(in_array('Edit Archive',$db_config) || (in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0)) { ?>
 		<div class="col-sm-6">
 			<?php $functions = [];
@@ -500,17 +577,17 @@ if($ticket['flag_colour'] != '' && $ticket['flag_colour'] != 'FFFFFF') {
 					$functions[] = '<a href="../Ticket/ticket_pdf.php?ticketid='.$ticket['ticketid'].'">View PDF <img src="../img/pdf.png" class="inline-img small"></a>';
 				}
 				if($tile_security['edit'] == 1) {
-					$functions[] = '<a href=\'../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>Edit</a>';
+					$functions[] = '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>Edit</a>';
 					$functions[] = '<a href=\''.WEBSITE_URL.'/delete_restore.php?action=delete&ticketid='.$ticket['ticketid'].'\' onclick="return confirm(\'Are you sure?\')">Archive</a>';
 				} else {
-					$functions[] = '<a href=\'../Ticket/index.php?tile_name='.$_GET['tile'].'&edit='.$ticket['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>View</a>';
+					$functions[] = '<a href=\'../Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&from='.WEBSITE_URL.$_SERVER['REQUEST_URI'].'\'>View</a>';
 				}
 				if(check_subtab_persmission($dbc, 'ticket', ROLE, 'view_history') && !($strict_view > 0)) {
-					$functions[] = '<span onclick="overlayIFrameDiv(\'ticket_history.php?ticketid='.$ticket['ticketid'].'\', true);" style="cursor:pointer">View History</span>';
+					$functions[] = '<span onclick="overlayIFrameDiv(\'ticket_history.php?ticketid='.$ticket['ticketid'].(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'\', true);" style="cursor:pointer">View History</span>';
 				}
 			}
 			if(in_array('Edit Staff',$db_config) && $tile_security['edit'] > 0) {
-				$functions[] = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?edit='.$ticket['ticketid'].'&calendar_view=true&edit_staff_dashboard=1\',\'auto\',false,true); return false;">Edit Staff</a>';
+				$functions[] = '<a href="" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/Ticket/index.php?'.$current_tile.'edit='.$ticket['ticketid'].'&calendar_view=true&edit_staff_dashboard=1\',\'auto\',false,true); return false;">Edit Staff</a>';
 			}
 			echo implode(' | ',$functions); ?>
 		</div>

@@ -25,7 +25,7 @@ if(!empty($_GET['sotid'])) {
     </div>
 
     <div class="standard-body-content"><?php
-        
+
         if ( $order->num_rows > 0 ) {
             while ( $row=mysqli_fetch_assoc($order) ) {
                 $row['contactid'] = !empty($row['customerid']) ? $row['customerid'] : $row['contactid'];
@@ -66,7 +66,7 @@ if(!empty($_GET['sotid'])) {
                             <div class="col-xs-8 col-sm-9"><?= (file_get_contents(WEBSITE_URL.'/Sales Order/download/'.$pdf_file) && !empty($pdf_file) ? '<a href="'.WEBSITE_URL.'/Sales Order/download/'.$pdf_file.'" target="_blank">View PDF</a>' : '-') ?></div>
                         </div>
                     </div>
-                    
+
                     <div class="col-xs-12 col-sm-6">
                         <div class="row">
                             <div class="col-xs-4 default-color">Order Value($):</div>
@@ -89,14 +89,14 @@ if(!empty($_GET['sotid'])) {
                             <div class="col-xs-8"><?= html_entity_decode($row['comment']); ?></div>
                         </div>
                     </div>
-                    
+
                     <div class="clearfix"></div>
                 </div><!-- .preview-block-details --><?php
             } ?>
-                    
+
             <div class="preview-block-details padded">
                 <div class="col-xs-12"><?php
-                    
+
                     //Inventory & Misc Products
                     if(!empty($_GET['sotid'])) {
                         $result   = mysqli_query($dbc, "SELECT `sopt`.*, `sopd`.`quantity` FROM `sales_order_product_temp` `sopt` LEFT JOIN `sales_order_product_details_temp` `sopd` ON `sopt`.`sotid` = `sopd`.`parentsotid` WHERE `sopt`.`parentsotid`='$soid' AND `sopt`.`item_type`='inventory' AND `sopt`.`item_type_id` IS NOT NULL AND `sopd`.`quantity` > 0");
@@ -104,11 +104,11 @@ if(!empty($_GET['sotid'])) {
                         $result   = mysqli_query($dbc, "SELECT * FROM `sales_order_product` WHERE `posid`='$soid' AND `type_category`='inventory' AND `inventoryid` IS NOT NULL");
                     }
                     $num_rows = mysqli_num_rows($result);
-                    
+
                     if ($num_rows > 0) {
                         $titler = 'Inventory';
                     }
-                    
+
                     if($num_rows > 0) {
                         $html .= '
                             <h5>'. $titler .'</h5>
@@ -120,7 +120,7 @@ if(!empty($_GET['sotid'])) {
                                     <th>Price</th>
                                     <th>Total</th>
                                 </tr>';
-                                
+
                                 while ( $row=mysqli_fetch_assoc($result) ) {
                                     $inventoryid = !empty($row['item_type_id']) ? $row['item_type_id'] : $row['inventoryid'];
 
@@ -149,10 +149,10 @@ if(!empty($_GET['sotid'])) {
                         $result    = mysqli_query($dbc, "SELECT * FROM `sales_order_product` WHERE `posid`='$soid' AND `type_category`='product' AND `inventoryid` IS NOT NULL");
                     }
                     $num_rows3 = mysqli_num_rows($result);
-                    
+
                     if($num_rows3 > 0) {
                         if($num_rows > 0 || $num_rows2 > 0) { $html .= '<br>'; }
-                        
+
                         $html .= '
                             <h5>Products</h5>
                             <table border="1px" style="padding:3px; border:1px solid black;">
@@ -163,7 +163,7 @@ if(!empty($_GET['sotid'])) {
                                     <th>Price</th>
                                     <th>Total</th>
                                 </tr>';
-                            
+
                             while ( $row=mysqli_fetch_array($result) ) {
                                 $inventoryid = !empty($row['item_type_id']) ? $row['item_type_id'] : $row['inventoryid'];
 
@@ -191,10 +191,10 @@ if(!empty($_GET['sotid'])) {
                         $result    = mysqli_query($dbc, "SELECT * FROM `sales_order_product` WHERE `posid`='$soid' AND `type_category`='services' AND `inventoryid` IS NOT NULL");
                     }
                     $num_rows4 = mysqli_num_rows($result);
-                    
+
                     if($num_rows4 > 0) {
                         if($num_rows > 0 || $num_rows2 > 0 || $num_rows3 > 0) { $html .= '<br>'; }
-                        
+
                         $html .= '
                             <h5>Services</h5>
                             <table border="1px" style="padding:3px; border:1px solid black;">
@@ -205,7 +205,7 @@ if(!empty($_GET['sotid'])) {
                                     <th>Price</th>
                                     <th>Total</th>
                                 </tr>';
-                            
+
                             while($row = mysqli_fetch_array( $result )) {
                                 $inventoryid = !empty($row['item_type_id']) ? $row['item_type_id'] : $row['inventoryid'];
 
@@ -214,7 +214,7 @@ if(!empty($_GET['sotid'])) {
                                     $price = $row['price'];
                                     $quantity = $row['quantity'];
                                     $amount = $price*$quantity;
-                                    
+
                                     $html .= '<tr>';
                                         $html .= '<td>'.get_services($dbc, $inventoryid, 'category').'</td>';
                                         $html .= '<td>'.get_services($dbc, $inventoryid, 'heading').'</td>';
@@ -224,7 +224,7 @@ if(!empty($_GET['sotid'])) {
                                     $html .= '</tr>';
                                 }
                             }
-                        
+
                         $html .= '</table>';
                     }
 
@@ -235,7 +235,7 @@ if(!empty($_GET['sotid'])) {
                         $result    = mysqli_query($dbc, "SELECT * FROM `sales_order_product` WHERE `posid`='$soid' AND `type_category`='vendor' AND `inventoryid` IS NOT NULL");
                     }
                     $num_rows5 = mysqli_num_rows($result);
-                    
+
                     if($num_rows5 > 0) {
                         if($num_rows > 0 || $num_rows2 > 0 || $num_rows3 > 0 || $num_rows4 > 0) { $html .= '<br>'; }
 
@@ -249,7 +249,7 @@ if(!empty($_GET['sotid'])) {
                                     <th>Price</th>
                                     <th>Total</th>
                                 </tr>';
-                        
+
                             while($row = mysqli_fetch_array( $result )) {
                                 $inventoryid = !empty($row['item_type_id']) ? $row['item_type_id'] : $row['inventoryid'];
 
@@ -268,7 +268,7 @@ if(!empty($_GET['sotid'])) {
                                     $html .= '</tr>';
                                 }
                             }
-                            
+
                         $html .= '</table>';
                     }
 
@@ -279,7 +279,7 @@ if(!empty($_GET['sotid'])) {
                         $result    = mysqli_query($dbc, "SELECT * FROM `sales_order_product` WHERE `posid`='$soid' AND `type_category`='labour' AND `inventoryid` IS NOT NULL");
                     }
                     $num_rows6 = mysqli_num_rows($result);
-                    
+
                     if($num_rows6 > 0) {
                         if($num_rows > 0 || $num_rows2 > 0 || $num_rows3 > 0 || $num_rows4 > 0 || $num_rows5 > 0) { $html .= '<br>'; }
 
@@ -292,7 +292,7 @@ if(!empty($_GET['sotid'])) {
                                     <th>Price</th>
                                     <th>Total</th>
                                 </tr>';
-                        
+
                             while($row = mysqli_fetch_array( $result )) {
                                 $inventoryid = !empty($row['item_type_id']) ? $row['item_type_id'] : $row['inventoryid'];
 
@@ -310,14 +310,56 @@ if(!empty($_GET['sotid'])) {
                                     $html .= '</tr>';
                                 }
                             }
-                            
+
                         $html .= '</table>';
                     }
-                    
+
+                    //Equipment
+                    if(!empty($_GET['sotid'])) {
+                        $result   = mysqli_query($dbc, "SELECT `sopt`.*, `sopd`.`quantity` FROM `sales_order_product_temp` `sopt` LEFT JOIN `sales_order_product_details_temp` `sopd` ON `sopt`.`sotid` = `sopd`.`parentsotid` WHERE `sopt`.`parentsotid`='$soid' AND `sopt`.`item_type`='equipment' AND `sopt`.`item_type_id` IS NOT NULL AND `sopd`.`quantity` > 0");
+                    } else {
+                        $result    = mysqli_query($dbc, "SELECT * FROM `sales_order_product` WHERE `posid`='$soid' AND `type_category`='equipment' AND `inventoryid` IS NOT NULL");
+                    }
+                    $num_rows6 = mysqli_num_rows($result);
+
+                    if($num_rows6 > 0) {
+                        if($num_rows > 0 || $num_rows2 > 0 || $num_rows3 > 0 || $num_rows4 > 0 || $num_rows5 > 0) { $html .= '<br>'; }
+
+                        $html .= '
+                            <h5>Equipment</h5>
+                            <table border="1px" style="padding:3px; border:1px solid black;">
+                                <tr>
+                                    <th>Equipment</th>
+                                    <th>Quantity</th>
+                                    <th>Price</th>
+                                    <th>Total</th>
+                                </tr>';
+
+                            while($row = mysqli_fetch_array( $result )) {
+                                $inventoryid = !empty($row['item_type_id']) ? $row['item_type_id'] : $row['inventoryid'];
+
+                                if($inventoryid != '') {
+                                    $row['price'] = !empty($row['item_price']) ? $row['item_price'] : $row['price'];
+                                    $price = $row['price'];
+                                    $quantity = $row['quantity'];
+                                    $amount = $price*$quantity;
+
+                                    $html .= '<tr>';
+                                        $html .= '<td>'. get_equipment_label($dbc, mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '".$row['inventoryid']."'"))) .'</td>';
+                                        $html .= '<td>'. $row['quantity'] .'</td>';
+                                        $html .= '<td>$'. $row['price'] .'</td>';
+                                        $html .= '<td style="text-align:right;">$'. number_format($amount,2) .'</td>';
+                                    $html .= '</tr>';
+                                }
+                            }
+
+                        $html .= '</table>';
+                    }
+
                     $html .= '<br>';
                     echo $html; ?>
                 </div>
-                            
+
                 <script>
                 function attach_to_project() {
                     var projectid = $('[name=attach_to_project]').val();

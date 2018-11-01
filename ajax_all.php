@@ -170,6 +170,38 @@ if($_GET['fill'] == 'subtab_config') {
     }
 }
 
+if($_GET['fill'] == 'subtab_staff_config') {
+    $tile           = $_GET[ 'tile' ];
+    $level          = $_GET[ 'level' ];
+    $subtab         = $_GET[ 'subtab' ];
+    $value          = $_GET[ 'value' ] . '*#*' . date('Y-m-d');
+    $turnOn         = $_GET[ 'turnOn' ];
+    $turnOff        = $_GET[ 'turnOff' ];
+    $turn_off_value = 'turn_off*#*' . date('Y-m-d');
+    $turn_on_value  = 'turn_on*#*'  . date('Y-m-d');
+
+    if ( !empty ( $turnOff ) ) {
+        $query = mysqli_query ( $dbc, "DELETE FROM subtab_staff_config WHERE subtab='$subtab'" );
+    }
+
+    $get_config = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `id`, COUNT(`id`) AS `total_ids` FROM `subtab_staff_config` WHERE `tile`='$tile' AND `security_level`='$level' AND `subtab`='$subtab'" ) );
+
+    if ( $get_config[ 'total_ids' ] == 0 ) {
+        //No entries found so we insert a record
+        $query      = "INSERT INTO `subtab_staff_config` (`tile`, `security_level`, `subtab`, `status`) VALUES ('$tile', '$level', '$subtab', '$value')";
+        $results    = mysqli_query ( $dbc, $query );
+
+    } else {
+        if ( !empty ( $turnOff ) ) {
+            $results = mysqli_query ( $dbc, "UPDATE `subtab_config` SET `status`='$turn_off_value'  WHERE `tile`='$tile' AND `security_level`='$level' AND `subtab`='$subtab'" );
+        } elseif ( !empty ( $turnOn ) ) {
+            $results = mysqli_query ( $dbc, "UPDATE `subtab_config` SET `status`='$turn_on_value'   WHERE `tile`='$tile' AND `security_level`='$level' AND `subtab`='$subtab'" );
+        } else {
+            $results = mysqli_query ( $dbc, "UPDATE `subtab_config` SET `status`='$value'           WHERE `tile`='$tile' AND `security_level`='$level' AND `subtab`='$subtab'" );
+        }
+    }
+}
+
 /*
  * Title:       Dashboard Permission Configuration
  * File:        software_config_dashboard.php
@@ -246,6 +278,28 @@ if($_GET['fill'] == 'security_level') {
         add_update_history($dbc, 'security_history', $history, '', $before_change);
     }
 }
+if($_GET['fill'] == 'security_level_order') {
+    $current = $_GET['current'];
+    $previous = $_GET['next'];
+    $next = $_GET['previous'];
+
+    if($current_order < $previous_order) {
+      for($i = $current_order+1; $i <= $previous_order; $i++) {
+        $custom_count = $i - 1;
+        mysqli_query($dbc, "update security_level_names set custom_order = $custom_count where custom_order = $i");
+      }
+
+      mysqli_query($dbc, "update security_level_names set custom_order = $previous_order where identifier = '$current'");
+    }
+    elseif($current_order > $previous_order) {
+      for($i = $next_order; $i <= $current_order; $i++) {
+        $custom_count = $i + 1;
+        mysqli_query($dbc, "update security_level_names set custom_order = $custom_count where custom_order = $i");
+      }
+
+      mysqli_query($dbc, "update security_level_names set custom_order = $next_order where identifier = '$current'");
+    }
+}
 if($_GET['fill'] == 'privileges_config') {
     $tile = $_GET['name'];
     $value = $_GET['value'];
@@ -282,6 +336,27 @@ if($_GET['fill'] == 'privileges_config') {
     */
 
 }
+if($_GET['fill'] == 'privileges_config_staff') {
+    $tile = $_GET['name'];
+    $value = $_GET['value'];
+    $staffid = $_GET['level'];
+
+    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(privilegesid) AS total_id FROM security_privileges_staff WHERE tile='$tile' AND staff='$staffid'"));
+
+    if($get_config['total_id'] == 0) {
+        $query_insert_customer = "INSERT INTO `security_privileges_staff` (`tile`, `staff`, `privileges`) VALUES ('$tile', '$staffid', '$value')";
+        $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Privileges have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
+    } else {
+        $before_change = capture_before_change($dbc, 'security_privileges_staff', 'privileges', 'tile', $tile, 'staff', $staffid);
+        $query_rate_card = "UPDATE `security_privileges_staff` SET `privileges` = '$value' WHERE tile='$tile' AND staff='$staffid'";
+        $result_rate_card	= mysqli_query($dbc, $query_rate_card);
+        $history = capture_after_change('privileges', $value);
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
+    }
+}
 if($_GET['fill'] == 'privileges_config_log') {
     $tile = $_GET['name'];
     $value = $_GET['value'];
@@ -294,6 +369,24 @@ if($_GET['fill'] == 'privileges_config_log') {
 	date_default_timezone_set('America/Denver');
 	$date = date('m/d/Y h:i:s a', time());
         $query_insert_customer = "INSERT INTO `security_privileges_log` (`tile`, `level`, `privileges`,`contact`, `date_time`) VALUES ('$tile', '$level', '$value','$name', '$date')";
+        $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
+        $before_change = '';
+        $history = "Security Privileges have been added. <br />";
+        add_update_history($dbc, 'security_history', $history, '', $before_change);
+}
+
+if($_GET['fill'] == 'privileges_config_staff_log') {
+    $tile = $_GET['name'];
+    $value = $_GET['value'];
+    $level = $_GET['level'];
+	$contactid = $_GET['contactid'];
+	$result = mysqli_query($dbc, "SELECT * FROM contacts WHERE contactid= '$contactid'");
+    while($row = mysqli_fetch_assoc($result)) {
+		$name = decryptIt($row['first_name']).' '.decryptIt($row['last_name']).' ('.$row['contactid'].')';
+    }
+	date_default_timezone_set('America/Denver');
+	$date = date('m/d/Y h:i:s a', time());
+        $query_insert_customer = "INSERT INTO `security_privileges_log` (`tile`, `level`, `privileges`,`contact`, `date_time`, `type`) VALUES ('$tile', '$level', '$value','$name', '$date', 'staff')";
         $result_insert_customer = mysqli_query($dbc, $query_insert_customer);
         $before_change = '';
         $history = "Security Privileges have been added. <br />";
@@ -1141,6 +1234,17 @@ else if($_GET['action'] == 'text_template_sort') {
 		mysqli_query($dbc, "UPDATE `text_templates` SET `sort`='$i' WHERE `id`='$id'");
 	}
 }
+else if($_GET['action'] == 'summary_block_sort') {
+    $id = $_POST['template_id'];
+    $id_val = implode('||*||',$id);
+
+    $columnExist = mysqli_query($dbc, "SELECT `name` from `general_configuration` WHERE `name` = 'summary_block_sort' ");
+    if($columnExist->num_rows>0){
+        mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='".$id_val."' WHERE `name`='summary_block_sort'");
+    }else{
+        $mm = mysqli_query($dbc, "INSERT INTO `general_configuration` (`configid`, `name`, `value`, `calllog_schedule_status`) VALUES (NULL, 'summary_block_sort', '$id_val', NULL)");
+    }
+}
 // Get  User's Profile Image
 else if($_GET['action'] == 'user_profile_id') {
 	$id = $_GET['user'];
@@ -1331,13 +1435,265 @@ else if($_GET['action'] == 'sync_data') {
 			$db_all->query("INSERT INTO `".DATABASE_NAME."`.`user_settings` SELECT * FROM `".DATABASE_NAME2."`.`user_settings` WHERE `category` = 'Staff'");
 			$tables = ['positions'];
 			break;
+		case 'admin_tile_config':
+		    $tables = ['admin_tile_config'];
+		    break;
+		case 'dashboard_permission_config':
+		    $tables = ['dashboard_permission_config'];
+		    break;
+		case 'exercise_config':
+		    $tables = ['exercise_config'];
+		    break;
+		case 'field_config':
+		    $tables = ['field_config'];
+		    break;
+		case 'field_config_agendas_meetings':
+		    $tables = ['field_config_agendas_meetings'];
+		    break;
+		case 'field_config_asset':
+		    $tables = ['field_config_asset'];
+		    break;
+		case 'field_config_bid':
+		    $tables = ['field_config_bid'];
+		    break;
+		case 'field_config_budget':
+		    $tables = ['field_config_budget'];
+		    break;
+		case 'field_config_calendar_booking':
+		    $tables = ['field_config_calendar_booking'];
+		    break;
+		case 'field_config_calendar_security':
+		    $tables = ['field_config_calendar_security'];
+		    break;
+		case 'field_config_calllog':
+		    $tables = ['field_config_calllog'];
+		    break;
+		case 'field_config_charts_pdf_times':
+		    $tables = ['field_config_charts_pdf_times'];
+		    break;
+		case 'field_config_checklist':
+		    $tables = ['field_config_checklist'];
+		    break;
+		case 'field_config_client_project':
+		    $tables = ['field_config_client_project'];
+		    break;
+		case 'field_config_communication':
+		    $tables = ['field_config_communication'];
+		    break;
+		case 'field_config_contact':
+		    $tables = ['field_config_contact'];
+		    break;
+		case 'field_config_contacts':
+		    $tables = ['field_config_contacts'];
+		    break;
+		case 'field_config_contacts__20170517_160755':
+		    $tables = ['field_config_contacts__20170517_160755'];
+		    break;
+		case 'field_config_contacts_security':
+		    $tables = ['field_config_contacts_security'];
+		    break;
+		case 'field_config_contacts_shifts':
+		    $tables = ['field_config_contacts_shifts'];
+		    break;
+		case 'field_config_contacts_shifts_pdf':
+		    $tables = ['field_config_contacts_shifts_pdf'];
+		    break;
+		case 'field_config_contracts':
+		    $tables = ['field_config_contracts'];
+		    break;
+		case 'field_config_cost_estimate':
+		    $tables = ['field_config_cost_estimate'];
+		    break;
+		case 'field_config_custom_charts':
+		    $tables = ['field_config_custom_charts'];
+		    break;
+		case 'field_config_custom_charts_lines':
+		    $tables = ['field_config_custom_charts_lines'];
+		    break;
+		case 'field_config_custom_charts_settings':
+		    $tables = ['field_config_custom_charts_settings'];
+		    break;
+		case 'field_config_custom_documents':
+		    $tables = ['field_config_custom_documents'];
+		    break;
+		case 'field_config_email_alerts':
+		    $tables = ['field_config_email_alerts'];
+		    break;
+		case 'field_config_equip_assign':
+		    $tables = ['field_config_equip_assign'];
+		    break;
+		case 'field_config_equipment':
+		    $tables = ['field_config_equipment'];
+		    break;
+		case 'field_config_equipment_inspection':
+		    $tables = ['field_config_equipment_inspection'];
+		    break;
+		case 'field_config_estimate':
+		    $tables = ['field_config_estimate'];
+		    break;
+		case 'field_config_expense':
+		    $tables = ['field_config_expense'];
+		    break;
+		case 'field_config_field_jobs':
+		    $tables = ['field_config_field_jobs'];
+		    break;
+		case 'field_config_holidays':
+		    $tables = ['field_config_holidays'];
+		    break;
+		case 'field_config_hr':
+		    $tables = ['field_config_hr'];
+		    break;
+		case 'field_config_hr_manuals':
+		    $tables = ['field_config_hr_manuals'];
+		    break;
+		case 'field_config_incident_report':
+		    $tables = ['field_config_incident_report'];
+		    break;
+		case 'field_config_infogathering':
+		    $tables = ['field_config_infogathering'];
+		    break;
+		case 'field_config_inventory':
+		    $tables = ['field_config_inventory'];
+		    break;
+		case 'field_config_jobs':
+		    $tables = ['field_config_jobs'];
+		    break;
+		case 'field_config_manuals':
+		    $tables = ['field_config_manuals'];
+		    break;
+		case 'field_config_password':
+		    $tables = ['field_config_password'];
+		    break;
+		case 'field_config_patientform':
+		    $tables = ['field_config_patientform'];
+		    break;
+		case 'field_config_performance_reviews':
+		    $tables = ['field_config_performance_reviews'];
+		    break;
+		case 'field_config_project':
+		    $tables = ['field_config_project'];
+		    break;
+		case 'field_config_project_admin':
+		    $tables = ['field_config_project_admin'];
+		    break;
+		case 'field_config_project_custom_details':
+		    $tables = ['field_config_project_custom_details'];
+		    break;
+		case 'field_config_project_form':
+		    $tables = ['field_config_project_form'];
+		    break;
+		case 'field_config_project_manage':
+		    $tables = ['field_config_project_manage'];
+		    break;
+		case 'field_config_ratecard':
+		    $tables = ['field_config_ratecard'];
+		    break;
+		case 'field_config_safety':
+		    $tables = ['field_config_safety'];
+		    break;
+		case 'field_config_security_contact_categories':
+		    $tables = ['field_config_security_contact_categories'];
+		    break;
+		case 'field_config_security_level_theme':
+		    $tables = ['field_config_security_level_theme'];
+		    break;
+		case 'field_config_services':
+		    $tables = ['field_config_services'];
+		    break;
+		case 'field_config_so':
+		    $tables = ['field_config_so'];
+		    break;
+		case 'field_config_so_contacts':
+		    $tables = ['field_config_so_contacts'];
+		    break;
+		case 'field_config_so_pdf':
+		    $tables = ['field_config_so_pdf'];
+		    break;
+		case 'field_config_so_security':
+		    $tables = ['field_config_so_security'];
+		    break;
+		case 'field_config_staff_security':
+		    $tables = ['field_config_staff_security'];
+		    break;
+		case 'field_config_supervisor':
+		    $tables = ['field_config_supervisor'];
+		    break;
+		case 'field_config_teams':
+		    $tables = ['field_config_teams'];
+		    break;
+		case 'field_config_ticket_accordion_names':
+		    $tables = ['field_config_ticket_accordion_names'];
+		    break;
+		case 'field_config_ticket_delivery_color':
+		    $tables = ['field_config_ticket_delivery_color'];
+		    break;
+		case 'field_config_ticket_fields':
+		    $tables = ['field_config_ticket_fields'];
+		    break;
+		case 'field_config_ticket_fields_action':
+		    $tables = ['field_config_ticket_fields_action'];
+		    break;
+		case 'field_config_ticket_headings':
+		    $tables = ['field_config_ticket_headings'];
+		    break;
+		case 'field_config_ticket_log':
+		    $tables = ['field_config_ticket_log'];
+		    break;
+		case 'field_config_ticket_security':
+		    $tables = ['field_config_ticket_security'];
+		    break;
+		case 'field_config_ticket_status_color':
+		    $tables = ['field_config_ticket_status_color'];
+		    break;
+		case 'field_config_treatment_presets':
+		    $tables = ['field_config_treatment_presets'];
+		    break;
+		case 'field_config_user_forms':
+		    $tables = ['field_config_user_forms'];
+		    break;
+		case 'field_config_vendors':
+		    $tables = ['field_config_vendors'];
+		    break;
+		case 'field_config_vpl':
+		    $tables = ['field_config_vpl'];
+		    break;
+		case 'general_configuration':
+		    $tables = ['general_configuration'];
+		    break;
+		case 'subtab_config':
+		    $tables = ['subtab_config'];
+		    break;
+		case 'tile_config':
+		    $tables = ['tile_config'];
+		    break;
 		default:
 			$tables = [filter_var($_GET['table'],FILTER_SANITIZE_STRING)];
 			break;
 	}
+  if (!file_exists('database_table_backup')) {
+    mkdir('database_table_backup', 0777, true);
+  }
+
+  $current_time = date("Y-m-d-H-i-s");
+  if (!file_exists('database_table_backup/'.$current_time)) {
+    mkdir('database_table_backup/'.$current_time, 0777, true);
+  }
+
 	foreach(array_filter($tables) as $table_name) {
+
+    // Backup code //
+    $backupFile = __DIR__.'/database_table_backup/'.$current_time.'/'.$table_name.'.sql';
+    $backup_query = "SELECT * INTO OUTFILE '$backupFile' FROM $table_name";
+    $backup_result = mysqli_query($dbc, $backup_query);
+    // Back up code end //
+
 		$db_all->query("TRUNCATE `".DATABASE_NAME."`.`$table_name`");
 		$db_all->query("INSERT INTO `".DATABASE_NAME."`.`$table_name` SELECT * FROM `".DATABASE_NAME2."`.`$table_name`");
 	}
+
+  $before_change = '';
+  $all_tables = implode(",", $tables);
+  $history = "Tables been transfered from Live to Demo -> $all_tables";
+  add_update_history($dbc, 'db_backup_history', $history, '', $before_change);
 	echo 'Sync Complete!';
 }

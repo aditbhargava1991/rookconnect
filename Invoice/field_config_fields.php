@@ -85,6 +85,8 @@ function saveOptions() {
 	<label class="form-checkbox"><input <?= (in_array('survey',$invoice_field_list) ? 'checked' : '') ?> type="checkbox" name="<?= $invoice_fields ?>[]" value="survey"> Send Survey</label>
 	<label class="form-checkbox"><input <?= (in_array('request_recommend',$invoice_field_list) ? 'checked' : '') ?> type="checkbox" name="<?= $invoice_fields ?>[]" value="request_recommend"> Request Recommendation Report</label>
 	<label class="form-checkbox"><input <?= (in_array('followup',$invoice_field_list) ? 'checked' : '') ?> type="checkbox" name="<?= $invoice_fields ?>[]" value="followup"> Send Follow Up Email</label>
+	<label class="form-checkbox"><input <?= (in_array('Customer Billing Status',$invoice_field_list) ? 'checked' : '') ?> type="checkbox" name="<?= $invoice_fields ?>[]" value="Customer Billing Status"> Customer Billing Status</label>
+
 </div>
 <?php if(basename($_SERVER['SCRIPT_FILENAME']) == 'field_config_fields.php') { ?>
 	<div style="display:none;"><?php include('../footer.php'); ?></div>

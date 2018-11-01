@@ -1,5 +1,5 @@
 <?php include_once('../include.php');
-checkAuthorised('calendar_rook');
+checkAuthorised();
 include_once('../Calendar/calendar_functions_inc.php');
 if (isset($_POST['submit'])) {
     $team_team_name = filter_var($_POST['team_name'],FILTER_SANITIZE_STRING);
@@ -11,7 +11,7 @@ if (isset($_POST['submit'])) {
     $notes = filter_var(htmlentities($_POST['team_notes']),FILTER_SANITIZE_STRING);
 
     if (empty($_POST['teamid']) || $_POST['teamid'] == 'NEW') {
-        $query = "INSERT INTO `teams` (`team_name`, `region`, `location`, `classification`, `start_date`, `end_date`, `notes`) VALUES ('$team_team_name', $region', '$location', '$classification', '$start_date', '$end_date', '$notes')";
+        $query = "INSERT INTO `teams` (`team_name`, `region`, `location`, `classification`, `start_date`, `end_date`, `notes`) VALUES ('$team_team_name', '$region', '$location', '$classification', '$start_date', '$end_date', '$notes')";
         $result = mysqli_query($dbc, $query);
         $teamid = mysqli_insert_id($dbc);
     } else {
@@ -32,7 +32,7 @@ if (isset($_POST['submit'])) {
     $query = $_GET;
     $query['subtab'] = 'team';
     unset ($query['teamid']);
-    echo '<script>window.location.replace("?'.http_build_query($query).'&teamid='.$teamid.'");</script>';
+    // echo '<script>window.location.replace("?'.http_build_query($query).'&teamid='.$teamid.'");</script>';
 }
 ?>
 <script type="text/javascript">
@@ -76,12 +76,14 @@ function loadTeam(teamid) {
 }
 </script>
 
-<a href="" onclick="loadTeam('NEW'); return false;" class="btn brand-btn pull-right">New Team</a>
-
-<h3 id="team_header"><?= $_GET['teamid'] > 0 ? 'Edit' : 'New' ?> Team</h3>
+<h3 class="gap-left gap-right">
+    <span id="team_header"><?= $_GET['teamid'] > 0 ? 'Edit' : 'New' ?> Team</span>
+    <a href="" onclick="loadTeam('NEW'); return false;" class="btn brand-btn pull-right">New Team</a>
+    <div class="clearfix"></div>
+</h3>
 <!-- <div align="right"><a href="#" class="block-label-sml<?= $active_schedule ?>">Schedule</a>
 <a href="#" class="block-label-sml<?= $active_team ?>">Team</a></div> -->
 
-<div class="block-group team_block" style="height: calc(100% - 8em); overflow-y: auto;">
+<div class="team_block" style="height: calc(100% - 8em); overflow-y: auto;">
     <?php include('../Calendar/teams_inc.php'); ?>
 </div>  

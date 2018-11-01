@@ -99,6 +99,39 @@ if(isset($_POST['export_contacts'])) {
 </head>
 <script type="text/javascript">
 $(document).ready(function() {
+	retrieveStaff();
+	if($('.active[data-category]').length > 0) {
+		loadStaff();
+	}
+
+	$('.search_list').keyup(function() {
+		if($('.page_title').text() != 'Staff Positions') {
+			if(current_staff_search_key != this.value.toLowerCase()) {
+				loadStaff();
+			}
+		}
+	});
+	$('.staff_form').submit(function(event) {
+		if($('.page_title').text() != 'Staff Positions') {
+			event.preventDefault();
+		}
+	});
+
+	$('.staff_anchor').off('click').click(function() {
+		current_staff_search_key = '';
+		$('.search_list').val('');
+		var parent = $(this).closest('.sidebar-higher-level.highest-level');
+		$('.sidebar-higher-level.highest-level').not(parent).find('.active').removeClass('active blue');
+		$(this).find('li').toggleClass('active blue');
+		$('.sidebar-higher-level').each(function() {
+			if($(this).find('.active').length > 0) {
+				$(this).find('a.cursor-hand').first().addClass('active');
+			}
+		});
+		loadStaff();
+		return false;
+	});
+
     $("#report").change(function(){
         url = $(location).attr('hostname');
         value = $(this).val();
@@ -116,6 +149,101 @@ $(document).ready(function() {
 		});
 	}
 });
+var ajax_loads = [];
+var staff_list = [];
+var result_list = [];
+var current_staff_search_key = '';
+function retrieveStaff() {
+	$.ajax({
+		url: '../Staff/staff_load_list.php',
+		success: function(response) {
+			staff_list = JSON.parse(response);
+		}
+	});
+}
+function loadStaff() {
+	$('.search_list').prop('placeholder', 'Search Staff');
+	$('.non_staff_tab').removeClass('active blue');
+	$('.standard-body').removeClass('standard-body').addClass('standard-dashboard-body');
+	$('.standard-body-title').removeClass('standard-body-title').addClass('standard-dashboard-body-title');
+	clearTimeout(continue_loading);
+	ajax_loads.forEach(function(call) { call.abort(); });
+	$('.standard-dashboard-body-content:visible').empty().html('<h4 class="col-sm-12">Enter a search term to display <?= $ticket_tile ?> here<h4>');
+	if(staff_list.length == 0 || staff_list == undefined) {
+		setTimeout(function() { loadStaff(); }, 500);
+	} else {
+		var target = $('.standard-dashboard-body-content:visible');
+
+		var category = [];
+		$('.active[data-category]').each(function() {
+			if($(this).data('category') != '' && $(this).data('category') != 'ALL') {
+				category.push($(this).data('category'));
+			}
+		});
+		var status = [];
+		$('.active[data-status]').each(function() {
+			if($(this).data('status') >= 0) {
+				status.push($(this).data('status'));
+			}
+		});
+		var match_contacts = [];
+		$('.active[data-match-contact]').each(function() {
+			if($(this).data('match-contact') != '') {
+				match_contacts.push($(this).data('match-contact'));
+			}
+		});
+
+		$('.page_title').text('Staff - '+$('.active[data-category]').first().text());
+
+		target.html('');
+
+		result_list = [];
+		var filter_list = [];
+		staff_list.forEach(function(staff) {
+			if((staff.staff_category.some(function(element) { return this.indexOf(element) >= 0; }, category) || category.length == 0) && (status.indexOf(parseInt(staff.status)) >= 0 || status.length == 0) && (staff.match_contacts.some(function(element) { return this.indexOf(parseInt(element)) >= 0; }, match_contacts) || match_contacts.length == 0)) {
+				filter_list.push(staff);
+			}
+		});
+		var key = $('.search_list:visible').val();
+		if(key != undefined) {
+			key = key.toLowerCase();
+		}
+		current_staff_search_key = key;
+		filter_list.forEach(function(staff) {
+			if(key == '' || key == undefined || staff.search_string.toLowerCase().search(key) >= 0) {
+				result_list.push(staff);
+			}
+		});
+		
+		if(result_list.length > 0) {
+			showStaff(result_list, target);
+		} else {
+			$('.standard-dashboard-body-content:visible').empty().html('<h4 class="col-sm-12">No Staff Found.<h4>');
+		}
+	}
+}
+var continue_loading = '';
+function showStaff(result_list, target) {
+	clearTimeout(continue_loading);
+	if($('.standard-dashboard-body-content:visible').text() != 'No Staff Found.') {
+		if($('.dashboard-item').length == 0 || $('.dashboard-item').last().offset().top - $(window).scrollTop() < $(window).innerHeight() + 500) {
+			var staff = result_list.shift();
+			if(staff != undefined && staff.id > 0) {
+				ajax_loads.push($.ajax({
+					url: 'staff_load.php?contactid='+staff.id,
+					success: function(response) {
+						target.append(response);
+						continue_loading = showStaff(result_list, target);
+						initTooltips();
+						initIconColors();
+					}
+				}));
+			}
+		} else if(result_list.length > 0) {
+			continue_loading = setTimeout(function() { showStaff(result_list, target) },1000);
+		}
+	}
+}
 function resizeScreen() {
 	var view_height = $(window).height() > 800 ? $(window).height() : 800;
 	$('#staff_div .scale-to-fill .main-screen,#staff_div .tile-sidebar,#staff_div .scale-to-fill.tile-content').height(view_height - $('#staff_div .scale-to-fill').offset().top - $('#footer').outerHeight());
@@ -124,14 +252,33 @@ function loadPanel() {
     $('#staff_accordions .panel-heading:not(.higher_level_heading)').closest('.panel').find('.panel-body').html('Loading...');
     if(!$(this).hasClass('higher_level_heading')) {
 		body = $(this).closest('.panel').find('.panel-body');
-		$.ajax({
-			url: $(body).data('file'),
-			response: 'html',
-			success: function(response) {
-				$(body).html(response);
-				$('.pagination_links a').click(pagination_load);
+		if($(body).hasClass('staff_mobile')) {
+			var category = $(body).data('category');
+			var status = $(body).data('status');
+			result_list = [];
+
+			staff_list.forEach(function(staff) {
+				if((staff.staff_category.some(function(element) { return this.indexOf(element) >= 0; }, category) || category == '') && (status == parseInt(staff.status) || status == '')) {
+					result_list.push(staff);
+				}
+			});
+
+			$(body).empty();
+			if(result_list.length > 0) {
+				showStaff(result_list, body);
+			} else {
+				$(body).html('<h4>No Staff Found.</h4>');
 			}
-		});
+		} else {
+			$.ajax({
+				url: $(body).data('file'),
+				response: 'html',
+				success: function(response) {
+					$(body).html(response);
+					$('.pagination_links a').click(pagination_load);
+				}
+			});	
+		}
 	}
 }
 function pagination_load() {
@@ -169,14 +316,14 @@ if(empty($staff_categories)) {
 }
 switch($tab) {
 	case 'suspended':
-		$body_title = 'Suspended Staff';
+		$body_title = 'Staff';
 		$search_action = 'suspended';
 		$tab_list['suspended'] = true;
 		$tab_note = "A listing of all suspended staff. Suspended staff can be edited, reactivated or archived from here.";
 		$staff_cat = $_GET['staff_cat'];
 		break;
 	case 'probation':
-		$body_title = 'Staff on Probation';
+		$body_title = 'Staff';
 		$search_action = 'probation';
 		$tab_list['probation'] = true;
 		$tab_note = "A listing of all staff on probation. Staff on probation can be edited, taken off probation, or archived from here.";
@@ -207,7 +354,7 @@ switch($tab) {
 		$tab_note = "This report provides a log of everything done and all time tracked per staff";
 		break;
 	default:
-		$body_title = 'Active Staff';
+		$body_title = 'Staff';
 		$search_action = 'active';
 		$_GET['tab'] = 'active';
 		$tab_list['active'] = true;
@@ -216,7 +363,7 @@ switch($tab) {
 		$staff_cat = $_GET['staff_cat'];
 		break;
 }
-if(empty($_GET['staff_cat'])) {
+if(empty($_GET['staff_cat']) && in_array($_GET['tab'], ['active','suspended','probation'])) {
 	$_GET['staff_cat'] = 'ALL';
 }
 $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
@@ -298,7 +445,7 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 												</div>
 
 												<div id="collapse_<?= $staff_tab ?>_<?= config_safe_str($staff_category) ?>" class="panel-collapse collapse">
-													<div class="panel-body" data-file="staff_list.php?tab=<?= $staff_tab ?>&staff_cat=<?= $staff_category ?>">
+													<div class="panel-body staff_mobile" data-category="<?= ($staff_category == 'ALL' ? '' : $staff_category) ?>" data-status="<?= ($staff_tab == 'active' ? '1' : ($staff_tab == 'probation' ? '2' : '0')) ?>">
 														Loading...
 													</div>
 												</div>
@@ -403,17 +550,17 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
                 $report = '&report='.$_GET['report'];
             }
             ?>
-				<form id="form1" name="form1" method="post"	action="staff.php?tab=<?= $search_action.$report ?>&filter=All&staff_cat=<?= $_GET['staff_cat'] ?>" enctype="multipart/form-data" class="form-horizontal" role="form">
+				<form id="form1" name="form1" method="post"	action="staff.php?tab=<?= $search_action.$report ?>&filter=All&staff_cat=<?= $_GET['staff_cat'] ?>" enctype="multipart/form-data" class="form-horizontal staff_form" role="form">
 					<!-- Sidebar -->
 					<div class="standard-collapsible tile-sidebar sidebar hide-titles-mob">
 						<ul>
-							<li class="standard-sidebar-searchbox"><input type="text" name="search_contacts" value="<?= $_POST['search_contacts'] ?>" class="form-control search_list" placeholder="Search <?= $_GET['tab'] == 'positions' ? 'Positions' : 'Staff' ?>"></li>
+							<li class="standard-sidebar-searchbox"><input type="text" name="search_contacts" value="" class="form-control search_list" placeholder="Search <?= $_GET['tab'] == 'positions' ? 'Positions' : 'Staff' ?>"></li>
 							<input type="hidden" name="search_contacts_submit" value="1">
 							<?php $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 							$db_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT contacts_dashboard FROM field_config_contacts WHERE `tab`='Staff' AND contacts_dashboard IS NOT NULL"));
 							$field_display = explode(",",$db_config['contacts_dashboard']);
 							foreach($staff_categories as $staff_category) {
-								echo '<li class="sidebar-higher-level"><a class="cursor-hand '.($_GET['staff_cat'] == $staff_category ? 'active' : 'collapsed').'" data-toggle="collapse" data-target="#staff_'.config_safe_str($staff_category).'">'.($staff_category == 'ALL' ? 'All Staff' : $staff_category).'<span class="arrow"></span></a>';
+								echo '<li class="sidebar-higher-level highest-level"><a data-category="'.$staff_category.'" class="cursor-hand '.($_GET['staff_cat'] == $staff_category ? 'active' : 'collapsed').'" data-toggle="collapse" data-target="#staff_'.config_safe_str($staff_category).'">'.($staff_category == 'ALL' ? 'All Staff' : $staff_category).'<span class="arrow"></span></a>';
 								echo '<ul id="staff_'.config_safe_str($staff_category).'" class="collapse '.($_GET['staff_cat'] == $staff_category ? 'in' : '').'">';
 								if(in_array("Sort Match Contacts", $field_display)) {
 									echo '<li class="sidebar-higher-level"><a class="cursor-hand '.($_GET['staff_cat'] == $staff_category && $_GET['match_contact'] > 0 ? 'active' : 'collapsed').'" data-toggle="collapse" data-target="#staff_'.config_safe_str($staff_category).'_match">Matched Contacts<span class="arrow"></span></a>';
@@ -438,9 +585,9 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 									}
 									$sorted_match_contacts = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid` IN (".implode(',', $sorted_match_contacts).")"));
 									foreach($sorted_match_contacts as $match_contact) {
-										echo '<a href="staff.php?staff_cat='.$staff_category.'&match_contact='.$match_contact['contactid'].'"><li class="'.($_GET['staff_cat'] == $staff_category && $_GET['match_contact'] == $match_contact['contactid'] ? 'active blue' : '').'">'.$match_contact['full_name'].'<span class="pull-right">'.count(array_filter($match_contacts[$support_contact])).'</span></li></a>';
+										echo '<a href="" class="staff_anchor"><li data-match-contact="'.$match_contact['contactid'].'" class="'.($_GET['staff_cat'] == $staff_category && $_GET['match_contact'] == $match_contact['contactid'] ? 'active blue' : '').'">'.$match_contact['full_name'].'<span class="pull-right">'.count(array_filter($match_contacts[$support_contact])).'</span></li></a>';
 									}
-									echo '</ul>';
+									echo '</ul></li>';
 								}
 								$staff_tabs = ['active','probation','suspended'];
 								foreach($staff_tabs as $staff_tab) {
@@ -450,7 +597,7 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 											$filter_query = " AND CONCAT(',',`staff_category`,',') LIKE '%,$staff_category,%'";
 										}
 										$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `category` = 'Staff' AND `deleted` = 0 AND `status` = '".($staff_tab == 'active' ? '1' : ($staff_tab == 'probation' ? '2' : '0'))."' AND IFNULL(`user_name`,'')!='FFMAdmin' AND `show_hide_user`='1'".$filter_query))['count'];
-										echo '<a href="staff.php?tab='.$staff_tab.'&staff_cat='.$staff_category.'"><li class="'.($_GET['tab'] == $staff_tab && $_GET['staff_cat'] == $staff_category && empty($_GET['match_contact']) ? 'active blue' : '').'">'.($staff_tab == 'active' ? 'Active Users' : ($staff_tab == 'probation' ? 'Users on Probation' : 'Suspended Users')).'<span class="pull-right">'.$count.'</span></li></a>';
+										echo '<a href="" class="staff_anchor"><li data-status="'.($staff_tab == 'active' ? '1' : ($staff_tab == 'probation' ? '2' : '0')).'" class="'.($_GET['tab'] == $staff_tab && $_GET['staff_cat'] == $staff_category && empty($_GET['match_contact']) ? 'active blue' : '').'">'.($staff_tab == 'active' ? 'Active Users' : ($staff_tab == 'probation' ? 'Users on Probation' : 'Suspended Users')).'<span class="pull-right">'.$count.'</span></li></a>';
 									}
 								}
 								echo '</ul></li>';
@@ -459,7 +606,7 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 
 							foreach ($tab_list as $staff_tab => $tab_status) {
 								if (in_array($staff_tab,$db_tabs) && check_subtab_persmission($dbc, 'staff', ROLE, $staff_tab) === TRUE && !in_array($staff_tab,['active','probation','suspended'])) {
-									echo '<a href="staff.php?tab='.$staff_tab.'"><li class="'.($tab_status && empty($_GET['staff_cat']) ? 'active blue' : '').'">'.$tab_name[$staff_tab].'</li></a>';
+									echo '<a href="staff.php?tab='.$staff_tab.'"><li class="non_staff_tab '.($tab_status && empty($_GET['staff_cat']) ? 'active blue' : '').'">'.$tab_name[$staff_tab].'</li></a>';
 								} else if(in_array($staff_tab,$db_tabs) && !in_array($staff_tab,['active','probation','suspended'])) {
 									echo '<li>'.$tab_name[$staff_tab].'</li>';
 								}
@@ -469,9 +616,9 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 
 	                <!-- Main Content -->
 	                <div class="scale-to-fill has-main-screen tile-content hide-titles-mob">
-	            		<div class="main-screen override-main-screen <?= !in_array($_GET['tab'], ['active','suspended','probation']) ? 'standard-body' : '' ?>" style="height: inherit;">
+	            		<div class="main-screen override-main-screen <?= !in_array($_GET['tab'], ['active','suspended','probation']) ? 'standard-body' : 'standard-dashboard-body' ?>" style="height: inherit;">
 							<div class='standard-body-title' style="<?= in_array($_GET['tab'], ['active','suspended','probation']) ? 'border-bottom: none;' : '' ?>">
-								<h3><?= $body_title ?><?= !empty($_GET['staff_cat']) ? ' - '.$_GET['staff_cat'] : '' ?></h3>
+								<h3 class="page_title"><?= $body_title ?><?= !empty($_GET['staff_cat']) ? ' - '.$_GET['staff_cat'] : '' ?></h3>
 							</div>
 							<div class='standard-dashboard-body-content pad-left pad-right'>
 				            	<!-- Notice -->
@@ -483,7 +630,8 @@ $db_tabs = explode(',','active,'.get_config($dbc, 'staff_tabs'));
 				                </div>
 								<?php // Active and Suspended tabs are just separated by the category
 								if($tab_list['active'] || $tab_list['probation'] || $tab_list['suspended']) :
-									include('staff_list.php');
+									echo 'Loading...';
+									// include('staff_list.php');
 								// Display the Security tab
 								elseif($tab_list['security']) :
 									include('staff_security.php');

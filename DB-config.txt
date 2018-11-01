@@ -1,0 +1,8 @@
+1. Make an exact copy of db
+
+2. add following in database_connection.php
+- DEFINE('DATABASE_NAME2', 'name_of_db_here');
+- $dbc2 = @mysqli_connect(DATABASE_HOST, DATABASE_USER, DATABASE_PASSWORD, DATABASE_NAME2);
+
+3. execute following page to add "deleted" and "date_of_archival" columns for required tables in both copies of db.
+db_data_invennico.php

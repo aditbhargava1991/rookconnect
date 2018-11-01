@@ -1,19 +1,36 @@
 <?php include_once('../include.php');
 include_once('../Ticket/field_list.php');
 include_once('../Ticket/config.php');
-if(!isset($ticketid)) {
+if(empty($ticketid) && !isset($value_config)) {
 	$access_view_project_info = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_info');
 	$access_view_project_details = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_project_details');
 	$access_view_staff = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_staff');
 	$access_view_summary = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_summary');
 	$access_view_complete = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_complete');
 	$access_view_notifications = check_subtab_persmission($dbc, 'ticket', ROLE, 'view_notifications');
+	if((isset($_GET['intake_key']) && !($ticketid > 0)) || $_GET['estimate_mode'] > 0) {
+		$access_project = true;
+		$access_staff = true;
+		$access_contacts = true;
+		$access_waitlist = true;
+		$access_staff_checkin = true;
+		$access_all_checkin = true;
+		$access_medication = true;
+		$access_complete = true;
+		$access_services = true;
+		$access_all = true;
+		$access_any = true;
+    }
 	$ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
-	$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
-	$value_config = get_field_config($dbc, 'tickets');
+	$value_config = ','.get_field_config($dbc, 'tickets').',';
 	$sort_order = explode(',',get_config($dbc, 'ticket_sortorder'));
-	if(!empty($get_ticket['type'])) {
-		$ticket_type = $get_ticket['type'];
+	if($ticketid > 0) {
+		$get_ticket = $dbc->query("SELECT * FROM `tickets` WHERE `ticketid`='$ticketid'")->fetch_assoc();
+		$ticket_type = empty($get_ticket['ticket_type']) ? $ticket_type : $get_ticket['ticket_type'];
+	} else if(!empty($_GET['type'])) {
+		$ticket_type = $_GET['type'];
+	}
+	if(!empty($ticket_type)) {
 		$value_config .= get_config($dbc, 'ticket_fields_'.$ticket_type).',';
 		$sort_order = explode(',',get_config($dbc, 'ticket_sortorder_'.$ticket_type));
 	}
@@ -34,6 +51,49 @@ if(!isset($ticketid)) {
 					$value_config .= ','.$action_mode_ignore_field;
 				}
 			}
+		}
+	}
+
+	//Estimate Mode Fields
+	if($_GET['estimate_mode'] == 1) {
+		$value_config_all = $value_config;
+		$value_config = ','.get_config($dbc, 'ticket_estimate_fields').',';
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_estimate_fields_'.$ticket_type).',';
+		}
+		if(empty(trim($value_config,','))) {
+			$value_config = $value_config_all;
+		} else {
+			foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+				if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+					$value_config .= ','.$action_mode_ignore_field;
+				}
+			}
+		}
+        foreach($estimate_mode_restrict as $remove_field) {
+            $value_config = str_replace($remove_field.',','',$value_config);
+        }
+	}
+
+	//Intake Fields
+	if(isset($_GET['intake_key'])) {
+		$value_config_all = $value_config;
+		$value_config = ','.get_config($dbc, 'ticket_intake_fields').',';
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_intake_fields_'.$ticket_type).',';
+		}
+		if(empty(trim($value_config,','))) {
+			$value_config = $value_config_all;
+		} else {
+			if(strpos($value_config, ','."Hide Trash Icon".',') !== FALSE) {
+				$hide_trash_icon = 1;
+			}
+			foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+				if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+					$value_config .= ','.$action_mode_ignore_field;
+				}
+			}
+			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
 
@@ -66,7 +126,7 @@ if($_GET['action_mode'] == 1) {
 }
 ?>
 <?php if(count($ticket_tabs) > 1 && !($_GET['action_mode'] > 0 || $_GET['overview_mode'] > 0) && $tile_security['edit'] > 0 && !($strict_view > 0)) { ?>
-	<a href="" data-tab-target="ticket_type"><li class="<?= $_GET['tab'] == 'ticket_type' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Type</li></a>
+	<a href="" data-tab-target="ticket_type"><li class="<?= $_GET['tab'] == 'ticket_type' ? 'active blue' : '' ?>"><?= TICKET_NOUN ?> Tab</li></a>
 <?php } ?>
 <?php $current_heading = '';
 $current_heading_closed = true;
@@ -278,8 +338,24 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="ticket_attach_purchase_orders"><li class="<?= $_GET['tab'] == 'ticket_attach_purchase_orders' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Purchase Orders' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') { ?>
-		<a href="" data-tab-target="ticket_delivery"><li class="<?= $_GET['tab'] == 'ticket_delivery' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details' ?></li></a>
+
+    <?php if (strpos($value_config, ','."Delivery".',') !== FALSE && strpos($value_config, ',Delivery Stops') === FALSE && $sort_field == 'Delivery') { ?>
+        <?php $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
+        $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')"); ?>
+        <li class="<?= $_GET['tab'] == 'ticket_delivery' ? 'active blue' : '' ?> sidebar_heading sidebar-higher-level"><a class="cursor-hand collapsed sidebar_heading_collapse" <?= $stop_list->num_rows > 0 ? 'data-toggle="collapse" data-target="#delivery_list"' : 'data-tab-target="ticket_delivery"' ?>><?= (!empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details') ?><?= $stop_list->num_rows > 0 ? '<span class="pull-right arrow"></span><span class="pull-right">'.$stop_list->num_rows.'</span>' : '' ?></a>
+        <ul id="delivery_list" class="collapse">
+        <?php while($ticket_stop = $stop_list->fetch_assoc()) { ?>
+            <a href="" data-tab-target="ticket_delivery_<?= $ticket_stop['id'] ?>"><li class="<?= $_GET['tab'] == 'ticket_delivery' ? 'active blue' : '' ?> sidebar-lower-level"><?= ($ticket_stop['id'] > 0 ? (empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '').'<br /><em>Status: '.$ticket_stop['status'].'</em>' ?></li></a>
+        <?php } ?>
+        </ul></li>
+
+    <?php } else if (strpos($value_config, ','."Delivery".',') !== FALSE && $sort_field == 'Delivery') { ?>
+        <a href="" data-tab-target="ticket_delivery"><li class="<?= $_GET['tab'] == 'ticket_delivery' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Delivery Details' ?></li></a>
+	<?php } ?>
+
+	<?php if (strpos($value_config, ',Delivery Summary,') !== FALSE && strpos($value_config, ',Delivery Summary') !== FALSE && $sort_field == 'Delivery Summary') { ?>
+		<?php $this_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = 'Delivery Summary'"))['accordion_name']; ?>
+		<a href="" data-tab-target="ticket_delivery_summary"><li class="<?= $_GET['tab'] == 'delivery_summary' ? 'active blue' : '' ?>"><?= !empty($this_accordion) ? $this_accordion : (!empty($renamed_accordion) ? $renamed_accordion : 'Delivery Summary') ?></li></a>
 	<?php } ?>
 
 	<?php if (strpos($value_config, ',Transport,') !== FALSE && strpos($value_config, ',Transport Origin') !== FALSE && $sort_field == 'Transport') { ?>
@@ -319,11 +395,11 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="view_ticket_deliverables"><li class="<?= $_GET['tab'] == 'view_ticket_deliverables' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Deliverables' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $sort_field == 'Timer') { ?>
+	<?php if (strpos($value_config, ','."Time Tracking Block".',') !== FALSE && $sort_field == 'Timer') { ?>
 		<a href="" data-tab-target="view_ticket_timer"><li class="<?= $_GET['tab'] == 'view_ticket_timer' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Time Tracking' ?></li></a>
 	<?php } ?>
 
-	<?php if (strpos($value_config, ','."Timer".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
+	<?php if (strpos($value_config, ','."Day Tracking Block".',') !== FALSE && $access_all > 0 && $sort_field == 'Timer') { ?>
 		<a href="" data-tab-target="view_day_tracking"><li class="<?= $_GET['tab'] == 'view_day_tracking' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Day Tracking' ?></li></a>
 	<?php } ?>
 
@@ -391,8 +467,17 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="ticket_billing"><li class="<?= $_GET['tab'] == 'ticket_billing' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Billing' ?></li></a>
 	<?php } ?>
 
+
 	<?php if (strpos($value_config, ','."Customer Notes".',') !== FALSE && $sort_field == 'Customer Notes') { ?>
-		<a href="" data-tab-target="ticket_customer_notes"><li class="<?= $_GET['tab'] == 'ticket_customer_notes' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes' ?></li></a>
+        <?php $stopid = filter_var($_GET['stop'],FILTER_SANITIZE_STRING);
+        $stop_list = $dbc->query("SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND '$stopid' IN (`id`,'')"); ?>
+        <li class="<?= $_GET['tab'] == 'ticket_customer_notes' ? 'active blue' : '' ?> sidebar_heading sidebar-higher-level"><a class="cursor-hand collapsed sidebar_heading_collapse" <?= $stop_list->num_rows > 0 ? 'data-toggle="collapse" data-target="#customer_notes"' : 'data-tab-target="ticket_customer_notes"' ?>><?= (!empty($renamed_accordion) ? $renamed_accordion : 'Customer Notes') ?><?= $stop_list->num_rows > 0 ? '<span class="pull-right arrow"></span><span class="pull-right">'.$stop_list->num_rows.'</span>' : '' ?></a>
+        <ul class="collapse" id="customer_notes">
+        <?php while($ticket_stop = $stop_list->fetch_assoc()) { ?>
+            <a href="" data-tab-target="ticket_customer_notes_<?= $ticket_stop['id'] ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'ticket_customer_notes' ? 'active blue' : '' ?>"><?= ($ticket_stop['id'] > 0 ? (empty($ticket_stop['client_name']) ? $ticket_stop['location_name'] : $ticket_stop['client_name']) : '').'<br /><em>Status: '.$ticket_stop['status'].'</em>' ?></li></a>
+        <?php } ?>
+        </ul></li>
+
 	<?php } ?>
 
 	<?php if (strpos($value_config, ','."Reading".',') !== FALSE && $sort_field == 'Reading') { ?>
@@ -427,6 +512,10 @@ foreach($sort_order as $sort_field) { ?>
 		<a href="" data-tab-target="ticket_chemicals"><li class="<?= $_GET['tab'] == 'ticket_chemicals' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Chemicals' ?></li></a>
 	<?php } ?>
 
+	<?php if (strpos($value_config, ','."Application Report".',') !== FALSE && $sort_field == 'Application Report') { ?>
+		<a href="" data-tab-target="ticket_apply_report"><li class="<?= $_GET['tab'] == 'ticket_apply_report' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Application Report' ?></li></a>
+	<?php } ?>
+
 	<?php if (strpos($value_config, ','."Intake".',') !== FALSE && $sort_field == 'Intake') { ?>
 		<a href="" data-tab-target="ticket_intake"><li class="<?= $_GET['tab'] == 'ticket_intake' ? 'active blue' : '' ?>"><?= !empty($renamed_accordion) ? $renamed_accordion : 'Intake' ?></li></a>
 	<?php } ?>
@@ -444,8 +533,8 @@ if(!$current_heading_closed) { ?>
 		</ul>
 	</li>
 <?php } ?>
-<li>Created<?= ($created_by > 0 ? ' by '.get_staff($dbc, $created_by).'<br />' : '').' on '.($created_date ?: date('Y-m-d')) ?></li>
-<?php if(time() < strtotime($get_ticket['flag_start']) || time() > strtotime($get_ticket['flag_end'].' + 1 day')) {
+<li>Created<?= ($created_by > 0 ? ' by '.get_staff($dbc, $created_by).'<br />' : '').' on '.(!empty($created_date) ? convert_timestamp_mysql($dbc, $created_date, true) : date('Y-m-d')) ?></li>
+<?php if(time() < strtotime(str_replace('0000-00-00',date('Y-m-d'),$get_ticket['flag_start'])) || time() > strtotime(str_replace('9999',date('Y'),$get_ticket['flag_end']).' + 1 day')) {
 	$get_ticket['flag_colour'] = '';
 }
 if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
@@ -461,5 +550,5 @@ if($get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF') {
 		}
 		$flag_comment = $ticket_flag_names[$get_ticket['flag_colour']];
 	} ?>
-	<li style="background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></li>
 <?php } ?>
+<li class="flag-label-block" style="<?= $get_ticket['flag_colour'] != '' && $get_ticket['flag_colour'] != 'FFFFFF' ? '' : 'display:none;' ?>background-color:#<?= $get_ticket['flag_colour'] ?>;">Flagged<?= empty($flag_comment) ? '' : ': '.$flag_comment ?></li>

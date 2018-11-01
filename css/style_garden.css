@@ -5215,7 +5215,17 @@ header { background:#fff url('../img/garden_theme/bg.jpg') no-repeat top right /
 table th a:hover { color:#fff; }
 
 /* New Layout */
-.block-label, .block-item, .main-screen-white, .info-block-header, .dashboard-container, .summary-block, .blue-border, .overview-block, .connectedSortable { border-color:#6f78ac !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
+.blue-border { border-color:#6f78ac !important; }
 .info-block-header { background-color:#cbcedf !important; }
 .blue, .blue span, .icon-pie-chart:hover { background-color:#6f78ac !important; }
 div.calendar-screen, .ui-state-disabled { background-color:#bad985 !important; }

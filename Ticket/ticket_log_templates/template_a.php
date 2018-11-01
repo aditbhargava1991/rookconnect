@@ -1,7 +1,7 @@
 <?php include('../Ticket/ticket_log_templates/template_a_fields.php'); ?>
 <script type="text/javascript">
 $(document).ready(function() {
-	$('#template_a_config').find('input,textarea').change(function() {
+	$('#template_a_config').find('input,select,textarea').change(function() {
 		saveTemplateFields();
 	});
 });
@@ -10,6 +10,7 @@ function saveTemplateFields() {
 	field_data.append('template', 'template_a');
 	field_data.append('header_logo', $('[name="header_logo"]')[0].files[0]);
 	field_data.append('header', $('[name="header"]').val());
+	field_data.append('header_logo_align', $('[name="header_logo_align"] option:selected').val());
 	field_data.append('footer', $('[name="footer"]').val());
 	var fields = [];
 	$('[name="log_fields[]"]').each(function() {
@@ -64,6 +65,17 @@ function deleteLogo(logo) {
 					<?php } ?>
 				</div>
 				<input type="file" name="header_logo" data-filename-placement="inside" class="form-control" />
+			</div>
+		</div>
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Header Logo Align:</label>
+			<div class="col-sm-8">
+                <select name="header_logo_align" class="chosen-select-deselect form-control">
+                    <option></option>
+                    <option <?= $header_logo_align == 'L' ? 'selected' : '' ?> value="L">Left</option>
+                    <option <?= $header_logo_align == 'C' ? 'selected' : '' ?> value="C">Center</option>
+                    <option <?= $header_logo_align == 'R' ? 'selected' : '' ?> value="R">Right</option>
+                </select>
 			</div>
 		</div>
 		<div class="form-group">

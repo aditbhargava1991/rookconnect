@@ -10,7 +10,7 @@ if (isset($_POST['submit'])) {
         <label class="col-sm-4 control-label">Pick List Inventory Filters:</label>
         <div class="col-sm-8">
 			<?php $filters = explode(',',get_config($dbc, 'pick_list_filters')); ?>
-            <label class="form-checkbox"><input name="pick_list_filters[]" value="category" <?= in_array('category',$filters) ? 'checked' : '' ?> type="checkbox"> Category</label>
+            <label class="form-checkbox"><input name="pick_list_filters[]" value="category" <?= in_array('category',$filters) ? 'checked' : '' ?> type="checkbox"> Tab</label>
             <label class="form-checkbox"><input name="pick_list_filters[]" value="ticket_po" <?= in_array('ticket_po',$filters) ? 'checked' : '' ?> type="checkbox"> Purchase Order # (From <?= TICKET_NOUN ?>)</label>
             <label class="form-checkbox"><input name="pick_list_filters[]" value="po_line" <?= in_array('po_line',$filters) ? 'checked' : '' ?> type="checkbox"> PO Line Item # (From <?= TICKET_NOUN ?>)</label>
             <label class="form-checkbox"><input name="pick_list_filters[]" value="ticket" <?= in_array('ticket',$filters) ? 'checked' : '' ?> type="checkbox"> <?= TICKET_NOUN ?> Label</label>

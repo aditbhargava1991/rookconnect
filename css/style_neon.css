@@ -289,8 +289,7 @@ a {
   color: #5ce8c7;
   text-decoration: none; }
   a:hover, a:focus {
-    color: rgb(67, 214, 221);
-    text-decoration: underline; }
+    color: rgb(67, 214, 221); }
   a:focus {
     outline: thin dotted;
     outline: 5px auto -webkit-focus-ring-color;
@@ -5194,11 +5193,26 @@ footer p {
 .theme-color-icon {
   filter: invert(78%) sepia(69%) saturate(340%) hue-rotate(105deg) brightness(95%) contrast(91%) !important;
 }
+.default-color, .dashboard-item label, .main-item label, .text-blue { color:#5ce8c7 !important; }
+.summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable {
+    border-color:#5ce8c7 !important;
+    }
+.info-block-header { background-color:#d4fcf3 !important; }
 .standard-sidebar-searchbox {
   background-color: rgba(92, 232, 199,0.7) !important;
 }
 .sidebar-higher-level a.cursor-hand.active {
   background-color: #5ce8c7 !important;
+  color:#fff !important;
 }
 .sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
   color:#5ce8c7 !important;
@@ -5218,3 +5232,5 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span {
 .blue, .blue span, .icon-pie-chart:hover, .tile-sidebar ul li.active { background-color:#5ce8c7 !important; }
 .calendar .main-screen .panel .panel-title > a:hover { color:#5ce8c7 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #5ce8c7 !important; }
+.tile-sidebar li a:hover, a:hover { color:#5ce8c7 !important; }
+.tile-sidebar .sidebar-higher-level.active a, #dashboard_sidebar li.active a { color:#fff !important; }

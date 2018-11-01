@@ -38,6 +38,10 @@ else if($_GET['action'] == 'setting_sites') {
 			echo mysqli_insert_id($dbc);
 			$safetyid = mysqli_insert_id($dbc);
 		}
+
+		$before_change = '';
+		$history = "Safety entry has been added. <br />";
+		add_update_history($dbc, 'safety_history', $history, '', $before_change);
 	}
 	if(!empty($_POST['user_form_id'])) {
 		mysqli_query($dbc, "UPDATE `safety` SET `user_form_id` = '".$_POST['user_form_id']."' WHERE `safetyid` = '$safetyid'");
@@ -45,4 +49,8 @@ else if($_GET['action'] == 'setting_sites') {
 	if($field != '') {
 		mysqli_query($dbc, "UPDATE `safety` SET `$field`='$value' WHERE `safetyid`='$safetyid'");
 	}
+
+	$before_change = '';
+  $history = "safety_attendance entry has been updated for safetyattid $safetyid <br />";
+  add_update_history($dbc, 'safety_history', $history, '', $before_change);
 }

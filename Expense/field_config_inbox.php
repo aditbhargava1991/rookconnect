@@ -214,8 +214,6 @@ if (isset($_POST['submit'])) {
 		}
 	}
 	// Categories
-
-    echo '<script type="text/javascript"> window.location.replace("?filter_id=all"); </script>';
 }
 
 // Variables
@@ -237,529 +235,531 @@ $expense_rows = $get_expense_config['expense_rows'];
 $exchange_buffer = $get_expense_config['exchange_buffer'];
 $expense_mode = $get_expense_config['expense_mode'];
 ?>
-<div class="expense-settings-container">
-<form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-<ul class="sidebar col-sm-4 col-xs-12" style="background-color:inherit; border-right:1px solid #ddd; padding-top:0;">
-	<h4 class="font-normal text-uppercase">Expense Tracking Setting</h4>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.category_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="active blue">Categories</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.heading_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Headings</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.manage_levels').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Manage Levels</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.expense_defaults_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Expense Default Fields</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.expense_fields_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Expense Fields</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.email_reminders_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Email Reminders</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.exchange_rates_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Exchange Rates</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.team_fields_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Team Fields</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.tax_defaults_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Tax Defaults</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.style_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">Expense Styling</li></a>
-	<a href="" onclick="$('.setting-fields>div:visible').hide(); $('.pdf_div').show(); $('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); return false;"><li class="">PDF Settings</li></a>
-</ul>
-<div class="col-sm-8 setting-fields gap-top">
-	<div class="category_div" style="">
-		<script>
-        $(document).on('change', 'select[name="expense_category_field_name"]', function() { category_fields(); });
-		function set_category(input) {
-			$('input[name="category[]"][data-category="'+$(input).data('category')+'"]').val(input.value);
-		}
-		function set_category_code(input) {
-			var gl_code = input.value;
-			$('input[name="heading_code[]"][data-category="'+$(input).data('category')+'"]').each(function() {
-				var this_code = +this.value % 1000;
-				this.value = this_code + +gl_code;
-				this.min = +gl_code;
-			});
-		}
-		function add_category() {
-			$('.category_div table').append('<tr><td><input type="hidden" name="cat_id[]" value=""><input type="hidden" name="cat_heading[]" value="New Heading"><input type="hidden" name="cat_amount[]" value=0><input type="text" name="category[]" class="form-control"></td><td><input type="number" min=0 step=1000 name="heading_code[]" class="form-control"></td><td></td></tr>');
-		}
-		function remove_category(button) {
-			$('input[name="category[]"][data-category="'+$(input).data('category')+'"]').closest('.panel').remove();
-			$(button).closest('tr').remove();
-		}
-		</script>
-		<table class="table table-bordered">
-			<tr>
-				<th>Category</th>
-				<th>EC Code</th>
-				<th><button onclick="add_category(); return false;" class="btn brand-btn">Add Category</button></th>
-			</tr>
-		<?php $categories_result = mysqli_query($dbc, "SELECT `category`, `EC` FROM `expense_categories` WHERE `deleted`=0 GROUP BY `category`, `EC` ORDER BY `EC`");
-		do { ?>
-			<tr>
-				<td data-title="Category"><input type="text" name="src_category[]" data-category="cat_name_<?= $category['category'] ?>" value="<?= $category['category'] ?>" class="form-control" onchange="set_category(this);"></td>
-				<td data-title="EC Code"><input type="number" min="0" step="1000" data-category="cat_name_<?= $category['category'] ?>" value="<?= $category['EC'] ?>" class="form-control" onchange="set_category_code(this);"></td>
-				<td data-title=""><button data-category="cat_name_<?= $category['category'] ?>" onclick="removeCategory(this); return false;" class="btn brand-btn">Delete</button></td>
-			</tr>
-		<?php } while($category = mysqli_fetch_array($categories_result)); ?>
-		</table>
-	</div>
-	<div class="heading_div" style="display: none;">
-		<script>
-		var new_category = 0;
-		function add_heading(category) {
-			var row = $('input[name=\'category[]\'][data-category=\''+category+'\']').last().closest('tr');
-			var new_row = row.clone();
-			new_row.find('input[name!="category[]"]').val('');
-			var max_code = 0;
-			$('input[name=\'category[]\'][data-category=\''+category+'\']').each(function() {
-				var code = $(this).closest('tr').find('[name="heading_code[]"]').val();
-				if(code > max_code) {
-					max_code = code;
-				}
-			});
-			new_row.find('input[name="heading_code[]"]').val(+max_code + 1);
-			row.after(new_row);
-			row.nextAll('tr').find('input[type=text]').first().focus();
-		}
-		</script>
-		<h3>Heading</h3>
-		Below are the expense headings your staff will see on the web and in the app. Click on the category to edit and add subcategories for that category.
-		<div class="panel-group block-panels" id="category_div_panel">
-			<?php $categories_result = mysqli_query($dbc, "SELECT `categoryid`, `category`, `EC`, `heading`, `GL`, `amount` FROM `expense_categories` WHERE `deleted`=0 ORDER BY `EC`, `GL`");
-			$category_name = '';
-			$table_exists = false;
-			$collapse_id = 0;
-			while($row = mysqli_fetch_array($categories_result)) {
-				if($row['category'] != $category_name) {
-					if($table_exists) { ?>
-									</table>
-								</div>
-							</div>
-						</div>
-					<?php }
-					$table_exists = true;
-					$category_name = $row['category']; ?>
-					<div class="panel panel-default">
-						<div class="panel-heading">
-							<h4 class="panel-title">
-								<a data-toggle="collapse" data-parent="#category_div_panel" href="#collapse_<?= $collapse_id ?>" >
-									Category: <?= $category_name != '' ? 'EC '.$row['EC'].': '.$category_name : 'New Category' ?><span class="glyphicon glyphicon-plus"></span>
-								</a>
-							</h4>
-						</div>
-
-						<div id="collapse_<?= $collapse_id++ ?>" class="panel-collapse collapse">
-							<div class="panel-body">
-								<table class="table table-bordered" id="category_table">
-									<tr class="hidden-xs hidden-sm">
-										<th style="width: 50%;">Heading</th>
-										<th style="width: 20%;"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Setting a Per Diem amount will set a specific amount for expenses with this heading, and it will not be editable."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-											Per Diem Amount</th>
-										<th style="width: 15%;">GL Code</th>
-										<th style="width:1em;"><button class="btn brand-btn pull-right" onclick="add_heading('cat_name_<?= $category_name ?>'); return false;">Add Heading</button></th>
-									</tr>
-				<?php } ?>
-					<tr>
-						<input type="hidden" name="cat_id[]" value="<?php echo $row['categoryid']; ?>">
-						<input type="hidden" name="category[]" class="form-control" value="<?php echo $row['category']; ?>" data-category="cat_name_<?= $category_name ?>">
-						<td data-title="Heading"><input type="text" name="cat_heading[]" class="form-control" value="<?php echo $row['heading']; ?>"></td>
-						<td data-title="Per Diem Amount"><input type="number" min="0" step="0.01" name="cat_amount[]" class="form-control" value="<?php echo $row['amount']; ?>"></td>
-						<td data-title="GL Code"><input data-category="cat_name_<?= $category_name ?>" type="number" min=<?= $row['EC'] ?> max=<?= $row['EC'] + 1000 ?> step=1 name="heading_code[]" value="<?= $row['GL'] ?>" class="form-control"></td>
-						<td><a href="" onclick="$(this).closest('tr').remove(); return false;">Delete</a></td>
-					</tr>
-			<?php }
-			if($table_exists) { ?>
-							</table>
-							<!--<button onclick="add_category(); return false;" class="btn brand-btn pull-right">Add Category</button>-->
-						</div>
-					</div>
-				</div>
-			<?php } ?>
-		</div>
-	</div>
-	
-	<div class="manage_levels" style="display: none;">
-		<div class="standard-dashboard-body-content">
+<div class="has-main-screen scale-to-fill hide-titles-mob">
+<div class="main-screen standard-dashboard-body">
+    <div class="standard-body-content full-height">
         <div class="dashboard-item dashboard-item2 full-height">
-            <div class="form-horizontal block-group block-group-noborder full-height">
-                <!--<label class="hide-titles-mob col-sm-4 pull-right"><span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Select the Category to which you can attach other contacts, such as business."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                    Active Level</label>--><div class="clearfix"></div>
-                <?php 
-                $approval_levels = mysqli_query($dbc, "SELECT expense_approval_role_id FROM `expense_approval_levels` ORDER BY expense_role_sorting");
-                $app_row = mysqli_fetch_all($approval_levels);
-                if(!empty($app_row)){
-                foreach($app_row as $app) {
-                ?>
-                    <div class="form-group tab-group">
-                        <label class="col-sm-4">Levels:<br /></label>
-                        <div class="col-sm-5">
-                        	<select name="approval_role[]" class="form-control approval_role">
+            <form id="form1" name="form1" method="post"	action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+            <input type="hidden" name="settingTabId" value="categorySettingTab">
+            <div class="col-sm-12 setting-fields">
+            	<div class="category_div" style="">
+            		<script>
+                    $(document).on('change', 'select[name="expense_category_field_name"]', function() { category_fields(); });
+            		function set_category(input) {
+            			$('input[name="category[]"][data-category="'+$(input).data('category')+'"]').val(input.value);
+            		}
+            		function set_category_code(input) {
+            			var gl_code = input.value;
+            			$('input[name="heading_code[]"][data-category="'+$(input).data('category')+'"]').each(function() {
+            				var this_code = +this.value % 1000;
+            				this.value = this_code + +gl_code;
+            				this.min = +gl_code;
+            			});
+            		}
+            		function add_category() {
+            			$('.category_div table').append('<tr><td><input type="hidden" name="cat_id[]" value=""><input type="hidden" name="cat_heading[]" value="New Heading"><input type="hidden" name="cat_amount[]" value=0><input type="text" name="category[]" class="form-control"></td><td><input type="number" min=0 step=1000 name="heading_code[]" class="form-control"></td><td></td></tr>');
+            		}
+            		function remove_category(button) {
+            			console.log(button);
+            			$('input[data-category="'+button+'"]').closest('.panel').remove();
+            			$('input[data-category="'+button+'"]').closest('tr').remove();
+            			//$('input[name="src_category[]"][data-category="'+$(input).data('category')+'"]').closest('.panel').remove();
+            			//$(button).closest('tr').remove();
+            		}
+            		</script>
+            		<table class="table table-bordered">
+            			<tr>
+            				<th>Category</th>
+            				<th>EC Code</th>
+            				<th><button onclick="add_category(); return false;" class="btn brand-btn">Add Category</button></th>
+            			</tr>
+            		<?php $categories_result = mysqli_query($dbc, "SELECT `category`, `EC` FROM `expense_categories` WHERE `deleted`=0 GROUP BY `category`, `EC` ORDER BY `EC`");
+            		do { ?>
+            			<tr>
+            				<td data-title="Category"><input type="text" name="src_category[]" data-category="cat_name_<?= $category['category'] ?>" value="<?= $category['category'] ?>" class="form-control" onchange="set_category(this);"></td>
+            				<td data-title="EC Code"><input type="number" min="0" step="1000" data-category="cat_name_<?= $category['category'] ?>" value="<?= $category['EC'] ?>" class="form-control" onchange="set_category_code(this);"></td>
+            				<td data-title=""><button data-category="cat_name_<?= $category['category'] ?>" onclick="remove_category('cat_name_<?= $category['category'] ?>'); return false;" class="btn brand-btn">Delete</button></td>
+            			</tr>
+            		<?php } while($category = mysqli_fetch_array($categories_result)); ?>
+            		</table>
+            	</div>
+            	<div class="heading_div" style="display: none;">
+            		<script>
+            		var new_category = 0;
+            		function add_heading(category) {
+            			var row = $('input[name=\'category[]\'][data-category=\''+category+'\']').last().closest('tr');
+            			var new_row = row.clone();
+            			new_row.find('input[name!="category[]"]').val('');
+            			var max_code = 0;
+            			$('input[name=\'category[]\'][data-category=\''+category+'\']').each(function() {
+            				var code = $(this).closest('tr').find('[name="heading_code[]"]').val();
+            				if(code > max_code) {
+            					max_code = code;
+            				}
+            			});
+            			new_row.find('input[name="heading_code[]"]').val(+max_code + 1);
+            			row.after(new_row);
+            			row.nextAll('tr').find('input[type=text]').first().focus();
+            		}
+            		</script>
+            		<h3>Heading</h3>
+            		Below are the expense headings your staff will see on the web and in the app. Click on the category to edit and add subcategories for that category.
+            		<div class="panel-group block-panels" id="category_div_panel">
+            			<?php $categories_result = mysqli_query($dbc, "SELECT `categoryid`, `category`, `EC`, `heading`, `GL`, `amount` FROM `expense_categories` WHERE `deleted`=0 ORDER BY `EC`, `GL`");
+            			$category_name = '';
+            			$table_exists = false;
+            			$collapse_id = 0;
+            			while($row = mysqli_fetch_array($categories_result)) {
+            				if($row['category'] != $category_name) {
+            					if($table_exists) { ?>
+            									</table>
+            								</div>
+            							</div>
+            						</div>
+            					<?php }
+            					$table_exists = true;
+            					$category_name = $row['category']; ?>
+            					<div class="panel panel-default">
+            						<div class="panel-heading">
+            							<h4 class="panel-title">
+            								<a data-toggle="collapse" data-parent="#category_div_panel" href="#collapse_<?= $collapse_id ?>" >
+            									Category: <?= $category_name != '' ? 'EC '.$row['EC'].': '.$category_name : 'New Category' ?><span class="glyphicon glyphicon-plus"></span>
+            								</a>
+            							</h4>
+            						</div>
+
+            						<div id="collapse_<?= $collapse_id++ ?>" class="panel-collapse collapse">
+            							<div class="panel-body">
+            								<table class="table table-bordered" id="category_table">
+            									<tr class="hidden-xs hidden-sm">
+            										<th style="width: 50%;">Heading</th>
+            										<th style="width: 20%;"><span class="popover-examples list-inline" style="margin:0 3px 0 0;"><a data-toggle="tooltip" data-placement="top" title="Setting a Per Diem amount will set a specific amount for expenses with this heading, and it will not be editable."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+            											Per Diem Amount</th>
+            										<th style="width: 15%;">GL Code</th>
+            										<th style="width:1em;"><button class="btn brand-btn pull-right" onclick="add_heading('cat_name_<?= $category_name ?>'); return false;">Add Heading</button></th>
+            									</tr>
+            				<?php } ?>
+            					<tr>
+            						<input type="hidden" name="cat_id[]" value="<?php echo $row['categoryid']; ?>">
+            						<input type="hidden" name="category[]" class="form-control" value="<?php echo $row['category']; ?>" data-category="cat_name_<?= $category_name ?>">
+            						<td data-title="Heading"><input type="text" name="cat_heading[]" class="form-control" value="<?php echo $row['heading']; ?>"></td>
+            						<td data-title="Per Diem Amount"><input type="number" min="0" step="0.01" name="cat_amount[]" class="form-control" value="<?php echo $row['amount']; ?>"></td>
+            						<td data-title="GL Code"><input data-category="cat_name_<?= $category_name ?>" type="number" min=<?= $row['EC'] ?> max=<?= $row['EC'] + 1000 ?> step=1 name="heading_code[]" value="<?= $row['GL'] ?>" class="form-control"></td>
+            						<td><a href="" onclick="$(this).closest('tr').remove(); return false;">Delete</a></td>
+            					</tr>
+            			<?php }
+            			if($table_exists) { ?>
+            							</table>
+            							<!--<button onclick="add_category(); return false;" class="btn brand-btn pull-right">Add Category</button>-->
+            						</div>
+            					</div>
+            				</div>
+            			<?php } ?>
+            		</div>
+            	</div>
+            	
+            	<div class="manage_levels" style="display: none;">
+            		<div class="standard-dashboard-body-content">
+                    <div class="dashboard-item dashboard-item2 full-height">
+                        <div class="form-horizontal block-group block-group-noborder full-height">
+                            <!--<label class="hide-titles-mob col-sm-4 pull-right"><span class="popover-examples list-inline" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Select the Category to which you can attach other contacts, such as business."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                                Active Level</label>--><div class="clearfix"></div>
                             <?php 
-                            $security_levels = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `active` > 0 AND `identifier` NOT LIKE 'FFMCUST_%'");
-                            while($row = mysqli_fetch_assoc($security_levels)) {
+                            $approval_levels = mysqli_query($dbc, "SELECT expense_approval_role_id FROM `expense_approval_levels` ORDER BY expense_role_sorting");
+                            $app_row = mysqli_fetch_all($approval_levels);
+                            if(!empty($app_row)){
+                            foreach($app_row as $app) {
                             ?>
-                            	<option <?= $app[0] == $row['id'] ? 'selected="selected"' : '' ?> value="<?= $row['id']?>"><?= $row['label']?></option>
-                            <?php
-                            }
-                            ?>
-                            </select>
+                                <div class="form-group tab-group">
+                                    <label class="col-sm-4">Levels:<br /></label>
+                                    <div class="col-sm-5">
+                                    	<select name="approval_role[]" class="form-control approval_role">
+                                        <?php 
+                                        $security_levels = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `active` > 0 AND `identifier` NOT LIKE 'FFMCUST_%'");
+                                        while($row = mysqli_fetch_assoc($security_levels)) {
+                                        ?>
+                                        	<option <?= $app[0] == $row['id'] ? 'selected="selected"' : '' ?> value="<?= $row['id']?>"><?= $row['label']?></option>
+                                        <?php
+                                        }
+                                        ?>
+                                        </select>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <label class="show-on-mob">Attach to approval level</label>
+                                        <!--<input type="radio" name="business_category" <?= $app['expense_approval_active'] == '1' ? 'checked' : '' ?> value="<?= $app['expense_approval_role_id'] ?>"> -->
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">
+                                        <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_option(this);">
+                                        <img src="../img/icons/drag_handle.png" class="inline-img drag-handle pull-right">
+                                    </div>
+                                </div>
+                            <?php }
+                                }else{ ?>
+                                <div class="form-group tab-group">
+                                    <label class="col-sm-4">Levels:<br /></label>
+                                    <div class="col-sm-5">
+                                    <select name="approval_role[]" class="form-control approval_role">
+                                    <?php
+                                    $security_levels = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `active` > 0 AND `identifier` NOT LIKE 'FFMCUST_%'");
+                                    while($row = mysqli_fetch_assoc($security_levels)) {
+                                    ?>
+                                    	<option value="<?= $row['id']?>"><?= $row['label']?></option>
+                                    <?php
+                                    }
+                                    ?>
+                                    </select>
+                                    </div>
+                                    <div class="col-sm-1">
+                                        <label class="show-on-mob">Attach to approval level</label>
+                                        <!--<input type="radio" name="business_category" value="">-->
+                                    </div>
+                                    <div class="col-sm-2">
+                                        <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">
+                                        <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_option(this);">
+                                        <img src="../img/icons/drag_handle.png" class="inline-img drag-handle pull-right">
+                                    </div>
+                                </div>
+                            <?php }?>
                         </div>
-                        <div class="col-sm-1">
-                            <label class="show-on-mob">Attach to approval level</label>
-                            <!--<input type="radio" name="business_category" <?= $app['expense_approval_active'] == '1' ? 'checked' : '' ?> value="<?= $app['expense_approval_role_id'] ?>"> -->
-                        </div>
-                        <div class="col-sm-2">
-                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">
-                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_option(this);">
-                            <img src="../img/icons/drag_handle.png" class="inline-img drag-handle pull-right">
-                        </div>
-                    </div>
-                <?php }
-                    }else{ ?>
-                    <div class="form-group tab-group">
-                        <label class="col-sm-4">Levels:<br /></label>
-                        <div class="col-sm-5">
-                        <select name="approval_role[]" class="form-control approval_role">
-                        <?php
-                        $security_levels = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `active` > 0 AND `identifier` NOT LIKE 'FFMCUST_%'");
-                        while($row = mysqli_fetch_assoc($security_levels)) {
-                        ?>
-                        	<option value="<?= $row['id']?>"><?= $row['label']?></option>
-                        <?php
-                        }
-                        ?>
-                        </select>
-                        </div>
-                        <div class="col-sm-1">
-                            <label class="show-on-mob">Attach to approval level</label>
-                            <!--<input type="radio" name="business_category" value="">-->
-                        </div>
-                        <div class="col-sm-2">
-                            <img src="../img/icons/ROOK-add-icon.png" class="inline-img pull-right" onclick="add_option();">
-                            <img src="../img/remove.png" class="inline-img pull-right" onclick="remove_option(this);">
-                            <img src="../img/icons/drag_handle.png" class="inline-img drag-handle pull-right">
-                        </div>
-                    </div>
-                <?php }?>
+                    </div><!-- .dashboard-item -->
+                </div><!-- .standard-dashboard-body-content -->
+            	</div>
+            	
+            	<div class="style_div" style="display: none;">
+            		<h3>Expense Tile Mode</h3>
+            		<label class="form-checkbox"><input type="radio" name="expense_mode" value="tables" <?php if($expense_mode == 'tables'){ echo "checked";}?>> Table Mode</label>
+            		<label class="form-checkbox"><input type="radio" name="expense_mode" value="inbox" <?php if($expense_mode == 'inbox'){ echo "checked";}?>> Inbox Mode</label>
+            	</div>
+            	<div class="expense_defaults_div" style="display: none;">
+            		<h3>Expense Fields</h3>
+            		<script>
+            		$(document).ready(function() {
+            			$('.expense_defaults_div').sortable({
+            				connectWith: '.expense_defaults_div',
+            				handle: '.sort-handle',
+            				items: 'label:not(.no-sort)'
+            			});
+
+            			$('.approval_role').change(save_fields);
+            			$('.block-group').sortable({
+            				connectWith: '.block-group',
+            				handle: '.drag-handle',
+            				items: '.tab-group',
+            				update: save_fields
+            			});
+            		});
+            		function save_fields() {
+            			var options = [];
+            			var business_category = '';
+            			$('.approval_role').each(function() {
+            				this.value = this.value.replace(',','');
+            				options.push(this.value);
+            			});
+            		}
+            		function add_option() {
+            			var row = $('.tab-group').last();
+            			var clone = row.clone();
+            			clone.find('input').val('');
+            			row.after(clone);
+            			$('.approval_role').off('change', save_fields).change(save_fields);
+            		}
+            		function remove_option(target) {
+            			if($('.tab-group').length <= 0) {
+            				add_option();
+            			}
+            			$(target).closest('.form-group').remove();
+            			save_fields();
+            		}
+            		</script>
+            		<?php $db_config = explode(',',trim($db_config,','));
+            		$db_config_arr = array_filter(array_unique(array_merge($db_config,explode(',','Exchange,Tips,Third Tax,Local Tax,Tax,Description,Date,Work Order,Project,Province,Country,Vendor,Category,Heading,Reimburse,Receipt'))));
+            		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Exchange',$db_config) ? 'checked' : '').' value="Exchange" name="expense_defaults[]"> '.'Exchange Currency'.'</label>';
+            		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Tips',$db_config) ? 'checked' : '').' value="Tips" name="expense_defaults[]"> '.'Tips'.'</label>';
+            		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Third Tax',$db_config) ? 'checked' : '').' value="Third Tax" name="expense_defaults[]"> '.($hst_name == '' ? 'Third Tax' : $hst_name).'</label>';
+            		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Local Tax',$db_config) ? 'checked' : '').' value="Local Tax" name="expense_defaults[]"> '.($pst_name == '' ? 'Additional Tax' : $pst_name).'</label>';
+            		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Tax',$db_config) ? 'checked' : '').' value="Tax" name="expense_defaults[]"> '.($gst_name == '' ? 'Tax' : $gst_name).'</label>';
+            		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Total',$db_config) ? 'checked' : '').' value="Total" name="expense_defaults[]"> Total</label>';
+            		foreach($db_config_arr as $field) {
+            			if($field == 'Description') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Description<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Date') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Expense Date<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Work Order') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Work Order<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Project') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> '.PROJECT_TILE.'<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Province') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Province of Expense<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Country') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Country of Expense<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Vendor') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Vendor<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Category') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Category<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Heading') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Heading<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			} else if($field == 'Reimburse') {
+            				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Reimburse<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
+            			}
+            		}
+            		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Receipt',$db_config) ? 'checked' : '').' value="Receipt" name="expense_defaults[]"> Receipt</label>';
+            		?>
+            	</div>
+            	<div class="expense_fields_div" style="display: none;">
+            		<script>
+            		function category_fields() {
+            			var category = $('[name=expense_category_field_name]').val();
+            			$('[name="expense_category_field[]"]').removeAttr('checked');
+            			if(category == '') {
+            				$('[name="expense_category_field[]"]').removeAttr('checked');
+            			} else {
+            				$.ajax({
+            					url: 'inbox_ajax.php?action=category_fields',
+            					method: 'POST',
+            					data: { category: category },
+            					success: function(response) {console.log(response);
+            						response.split(',').forEach(function(field) {
+            							$('[name="expense_category_field[]"][value="'+field+'"]').prop('checked','checked');
+            						});
+            					}
+            				});
+            			}
+            		}
+            		</script>
+            		<h3>Expense Fields for</h3>
+                    <select data-placeholder="Select a Category" name="expense_category_field_name" class="form-control chosen-select-deselect"><option></option>
+            			<?php if($get_expense_config['tab'] == 'current_month') {
+            				$categories = mysqli_query($dbc, "SELECT `category`, CONCAT('EC ',`EC`,': ',`category`) label FROM `expense_categories` WHERE `category` != '' AND `deleted`=0  GROUP BY `category` ORDER BY `EC`, `category`");
+            				while($ex_category_name = mysqli_fetch_array($categories)) {
+            					echo "<option value='".preg_replace('/[^a-z]/','_',strtolower($ex_category_name['category']))."'>".$ex_category_name['label']."</option>";
+            				}
+            			} else {
+            				echo "<option>Please set the default fields for Expenses before setting the category fields.</option>";
+            			} ?>
+            			</select>
+            		<?php if(in_array('Exchange',$db_config)) {
+            			echo '<label class="form-checkbox"><input type="checkbox" value="Exchange" name="expense_category_field[]"> '.'Exchange Currency'.'</label>';
+            		}
+            		if(in_array('Tips',$db_config)) {
+            			echo '<label class="form-checkbox"><input type="checkbox" value="Tips" name="expense_category_field[]"> '.'Tips'.'</label>';
+            		}
+            		if(in_array('Third Tax',$db_config)) {
+            			echo '<label class="form-checkbox"><input type="checkbox" value="Third Tax" name="expense_category_field[]"> '.($hst_name == '' ? 'Third Tax' : $hst_name).'</label>';
+            		}
+            		if(in_array('Local Tax',$db_config)) {
+            			echo '<label class="form-checkbox"><input type="checkbox" value="Local Tax" name="expense_category_field[]"> '.($pst_name == '' ? 'Additional Tax' : $pst_name).'</label>';
+            		}
+            		if(in_array('Tax',$db_config)) {
+            			echo '<label class="form-checkbox"><input type="checkbox" value="Tax" name="expense_category_field[]"> '.($gst_name == '' ? 'Tax' : $gst_name).'</label>';
+            		}
+            		if(in_array('Total',$db_config)) {
+            			echo '<label class="form-checkbox"><input type="checkbox" value="Total" name="expense_category_field[]"> Total</label>';
+            		}
+            		foreach($db_config as $field) {
+            			if($field == 'Description') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Description</label>';
+            			} else if($field == 'Date') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Expense Date</label>';
+            			} else if($field == 'Work Order') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Work Order</label>';
+            			} else if($field == 'Project') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> '.PROJECT_TILE.'</label>';
+            			} else if($field == 'Province') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Province of Expense</label>';
+            			} else if($field == 'Country') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Country of Expense</label>';
+            			} else if($field == 'Vendor') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Vendor</label>';
+            			} else if($field == 'Category') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Category</label>';
+            			} else if($field == 'Heading') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Heading</label>';
+            			} else if($field == 'Reimburse') {
+            				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Reimburse</label>';
+            			}
+            		}
+            		if(in_array('Receipt',$db_config)) {
+            			echo '<label class="form-checkbox"><input type="checkbox" value="Receipt" name="expense_category_field[]"> Receipt</label>';
+            		} ?>
+            	</div>
+            	<div class="pdf_div" style="display: none;">
+            		<div class="form-group">
+            		<label for="file[]" class="col-sm-4 control-label">Header Logo
+            		<span class="popover-examples list-inline">&nbsp;
+            		<a  data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas"><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
+            		</span>
+            		:</label>
+            		<div class="col-sm-8">
+            		<?php
+            			$logo = get_config($dbc, 'expense_logo');
+            			if($logo != '') {
+            			echo '<a href="download/'.$logo.'" target="_blank">View</a>';
+            			?>
+            			<input type="hidden" name="logo_file" value="<?php echo $logo; ?>" />
+            			<input name="logo" type="file" data-filename-placement="inside" class="form-control" />
+            		  <?php } else { ?>
+            		  <input name="logo" type="file" data-filename-placement="inside" class="form-control" />
+            		  <?php } ?>
+            		</div>
+            		</div>
+
+            		<div class="form-group">
+            			<label for="office_country" class="col-sm-4 control-label">Header Info:<br><em>(e.g. - company name, address, phone, etc.)</em></label>
+            			<div class="col-sm-8">
+            				<textarea name="expense_header" rows="3" cols="50" class="form-control"><?php echo get_config($dbc, 'expense_header'); ?></textarea>
+            			</div>
+            		</div>
+
+            		<div class="form-group">
+            			<label for="office_country" class="col-sm-4 control-label">Footer Info:<br><em>(e.g. - company name, address, phone, etc.)</em></label>
+            			<div class="col-sm-8">
+            				<textarea name="expense_footer" rows="3" cols="50" class="form-control"><?php echo get_config($dbc, 'expense_footer'); ?></textarea>
+            			</div>
+            		</div>
+            	</div>
+            	<div class="email_reminders_div" style="display: none;">
+            		<h3>Expense Reminder</h3>
+            		<div class="form-group">
+            			<label class="col-sm-4 control-label">Days Before End of Month:<br /><em>To disable reminders, set this field to 0.<br />Any higher number will send a reminder that many days before the last day of the month.</em></label>
+            			<div class="col-sm-8">
+            				<input type="number" name="expense_reminder_days" value="<?= get_config($dbc, 'expense_reminder_days') ?>" class="form-control" min=0>
+            			</div>
+            		</div>
+            		<div class="form-group">
+            			<label class="col-sm-4 control-label">Email Sender:</label>
+            			<div class="col-sm-8">
+            				<input type="text" name="expense_reminder_sender" value="<?= get_config($dbc, 'expense_reminder_sender') ?>" class="form-control">
+            			</div>
+            		</div>
+            		<div class="form-group">
+            			<label class="col-sm-4 control-label">Email Subject:</label>
+            			<div class="col-sm-8">
+            				<input type="text" name="expense_reminder_subject" value="<?= get_config($dbc, 'expense_reminder_subject') ?>" class="form-control">
+            			</div>
+            		</div>
+            		<div class="form-group">
+            			<label class="col-sm-4 control-label">Email Body:</label>
+            			<div class="col-sm-8">
+            				<textarea name="expense_reminder_body" class="form-control"><?= get_config($dbc, 'expense_reminder_body') ?></textarea>
+            			</div>
+            		</div>
+            	</div>
+            	<div class="exchange_rates_div" style="display: none;">
+            		<h3>Exchange Rates</h3>
+            		<p><em>Exchange Rates are loaded from the Bank of Canada when the Expense is entered, and uses the exchange rate for the expense date, if available. The rates are available from
+            			2017-01-02. All Bank of Canada exchange rates are indicative rates only, obtained from averages of aggregated price quotes from financial institutions. You can read their full
+            			<a href="https://www.bankofcanada.ca/terms/#fx-rates">Terms and Conditions</a> for details.</em></p>
+            		<div class="form-group">
+            			<label class="col-sm-4 control-label">Exchange Rate Buffer Allowance:<br /><em>Exchange rates listed are the average exchange rate for the day. When exchanging currency, there
+            				is an additional amount that is typically charged, often referred to as a currency conversion fee of two to three percent. If you wish to automatically add a percentage
+            				allowance to cover this fee, enter the percent here.</em></label>
+            			<div class="col-sm-8">
+            				<input type="number" name="exchange_buffer" step="any" value="<?= $exchange_buffer * 100 ?>" class="form-control" min=0>
+            			</div>
+            		</div>
+            	</div>
+            	<div class="team_fields_div" style="display: none;">
+            	</div>
+            	<div class="tax_defaults_div" style="display: none;">
+            		<h3>Tax Defaults</h3>
+
+            		<div class="form-group">
+            			<label for="office_zip" class="col-sm-4 control-label">Tax Name:<br><em>(e.g. - GST, HST, etc.)</em></label>
+            			<div class="col-sm-8">
+            				<input name="gst_name" value="<?php echo $gst_name; ?>" type="text" class="form-control" />
+            			</div>
+            		</div>
+            		<div class="form-group">
+            			<label for="office_zip" class="col-sm-4 control-label">Tax Amount %:<br><em>(e.g. - 5)</em></label>
+            			<div class="col-sm-8">
+            				<input name="gst_amt" value="<?php echo $gst_amt; ?>" type="text" class="form-control" />
+            			</div>
+            		</div>
+            		<div class="form-group">
+            			<label for="office_zip" class="col-sm-4 control-label">Additional Tax Name:<br><em>(e.g. - HST, PST, Sales Tax, etc.)</em></label>
+            			<div class="col-sm-8">
+            				<input name="pst_name" value="<?php echo $pst_name; ?>" type="text" class="form-control" />
+            			</div>
+            		</div>
+            		<div class="form-group">
+            			<label for="office_zip" class="col-sm-4 control-label">Additional Tax Amount %:<br><em>(e.g. - 5)</em></label>
+            			<div class="col-sm-8">
+            				<input name="pst_amt" value="<?php echo $pst_amt; ?>" type="text" class="form-control" />
+            			</div>
+            		</div>
+            		<div class="form-group">
+            			<label for="office_zip" class="col-sm-4 control-label">Additional Tax Name:<br><em>(e.g. - HST, PST, Sales Tax, etc.)</em></label>
+            			<div class="col-sm-8">
+            				<input name="hst_name" value="<?php echo $hst_name; ?>" type="text" class="form-control" />
+            			</div>
+            		</div>
+            		<div class="form-group">
+            			<label for="office_zip" class="col-sm-4 control-label">Additional Tax Amount %:<br><em>(e.g. - 5)</em></label>
+            			<div class="col-sm-8">
+            				<input name="hst_amt" value="<?php echo $hst_amt; ?>" type="text" class="form-control" />
+            			</div>
+            		</div>
+            		<label class="col-sm-4 control-label">Default Assigned Staff:</label>
+            		<div class="col-sm-8">
+            			<?php $default_staff = get_config($dbc, 'expense_default_staff'); ?>
+            			<select class="chosen-select-deselect" name="default_staff" data-placeholder="Select Staff"><option />
+            				<option <?= $default_staff == 'NA' ? 'selected' : '' ?> value="NA">Current User</option>
+            				<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status`>=0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."")) as $staff_row) { ?>
+            					<option <?= $default_staff == $staff_row['contactid'] ? 'selected' : '' ?> value="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></option>
+            				<?php } ?>
+            			</select>
+            		</div>
+            		<label class="col-sm-4 control-label">Default Country:</label>
+            		<div class="col-sm-8">
+            			<input type="text" name="default_country" value="<?= get_config($dbc, 'default_country') ?>" class="form-control">
+            		</div>
+            		<label class="col-sm-4 control-label">Default Province:</label>
+            		<div class="col-sm-8">
+            			<input type="text" name="default_province" value="<?= get_config($dbc, 'default_province') ?>" class="form-control">
+            		</div>
+            		<label class="col-sm-4 control-label">Provinces:</label>
+            		<div class="col-sm-8">
+            			<script>
+            			function add_province() {
+            				var clone = $('.province_line').last().clone();
+            				clone.find('input').val('');
+            				$('.province_line').last().after(clone);
+            			}
+            			</script>
+            			<div class="col-sm-4 text-center">Province</div><div class="col-sm-2 text-center"><?= $gst_name ?> Rate</div><div class="col-sm-2 text-center"><?= $pst_name ?> Rate</div><div class="col-sm-2 text-center"><?= $hst_name ?> Rate</div>
+            			<?php $province_list = explode('#*#',get_config($dbc, 'expense_provinces'));
+            			foreach($province_list as $province_data) {
+            				$data = explode('*',$province_data); ?>
+            				<div class="province_line">
+            					<div class="col-sm-4"><input type="text" name="province_code[]" value="<?= $data[0] ?>" class="form-control"></div>
+            					<div class="col-sm-2"><input type="text" name="province_gst[]" value="<?= $data[1] ?>" class="form-control"></div>
+            					<div class="col-sm-2"><input type="text" name="province_pst[]" value="<?= $data[2] ?>" class="form-control"></div>
+            					<div class="col-sm-2"><input type="text" name="province_hst[]" value="<?= $data[3] ?>" class="form-control"></div>
+            					<div class="col-sm-2"><button class="btn brand-btn" onclick="$(this).closest('.province_line').remove();">Delete</button></div>
+            				</div>
+            			<?php } ?>
+            			<button class="btn brand-btn pull-right" onclick="add_province(); return false;">Add Province</button>
+            		</div>
+            	</div>
+
             </div>
-        </div><!-- .dashboard-item -->
-    </div><!-- .standard-dashboard-body-content -->
-	</div>
-	
-	<div class="style_div" style="display: none;">
-		<h3>Expense Tile Mode</h3>
-		<label class="form-checkbox"><input type="radio" name="expense_mode" value="tables" <?php if($expense_mode == 'tables'){ echo "checked";}?>> Table Mode</label>
-		<label class="form-checkbox"><input type="radio" name="expense_mode" value="inbox" <?php if($expense_mode == 'inbox'){ echo "checked";}?>> Inbox Mode</label>
-	</div>
-	<div class="expense_defaults_div" style="display: none;">
-		<h3>Expense Fields</h3>
-		<script>
-		$(document).ready(function() {
-			$('.expense_defaults_div').sortable({
-				connectWith: '.expense_defaults_div',
-				handle: '.sort-handle',
-				items: 'label:not(.no-sort)'
-			});
 
-			$('.approval_role').change(save_fields);
-			$('.block-group').sortable({
-				connectWith: '.block-group',
-				handle: '.drag-handle',
-				items: '.tab-group',
-				update: save_fields
-			});
-		});
-		function save_fields() {
-			var options = [];
-			var business_category = '';
-			$('.approval_role').each(function() {
-				this.value = this.value.replace(',','');
-				options.push(this.value);
-			});
-		}
-		function add_option() {
-			var row = $('.tab-group').last();
-			var clone = row.clone();
-			clone.find('input').val('');
-			row.after(clone);
-			$('.approval_role').off('change', save_fields).change(save_fields);
-		}
-		function remove_option(target) {
-			if($('.tab-group').length <= 0) {
-				add_option();
-			}
-			$(target).closest('.form-group').remove();
-			save_fields();
-		}
-		</script>
-		<?php $db_config = explode(',',trim($db_config,','));
-		$db_config_arr = array_filter(array_unique(array_merge($db_config,explode(',','Exchange,Tips,Third Tax,Local Tax,Tax,Description,Date,Work Order,Project,Province,Country,Vendor,Category,Heading,Reimburse,Receipt'))));
-		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Exchange',$db_config) ? 'checked' : '').' value="Exchange" name="expense_defaults[]"> '.'Exchange Currency'.'</label>';
-		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Tips',$db_config) ? 'checked' : '').' value="Tips" name="expense_defaults[]"> '.'Tips'.'</label>';
-		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Third Tax',$db_config) ? 'checked' : '').' value="Third Tax" name="expense_defaults[]"> '.($hst_name == '' ? 'Third Tax' : $hst_name).'</label>';
-		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Local Tax',$db_config) ? 'checked' : '').' value="Local Tax" name="expense_defaults[]"> '.($pst_name == '' ? 'Additional Tax' : $pst_name).'</label>';
-		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Tax',$db_config) ? 'checked' : '').' value="Tax" name="expense_defaults[]"> '.($gst_name == '' ? 'Tax' : $gst_name).'</label>';
-		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Total',$db_config) ? 'checked' : '').' value="Total" name="expense_defaults[]"> Total</label>';
-		foreach($db_config_arr as $field) {
-			if($field == 'Description') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Description<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Date') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Expense Date<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Work Order') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Work Order<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Project') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> '.PROJECT_TILE.'<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Province') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Province of Expense<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Country') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Country of Expense<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Vendor') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Vendor<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Category') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Category<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Heading') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Heading<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			} else if($field == 'Reimburse') {
-				echo '<label class="form-checkbox"><input type="checkbox" '.(in_array($field,$db_config) ? 'checked' : '').' value="'.$field.'" name="expense_defaults[]"> Reimburse<img class="inline-img sort-handle pull-right" src="../img/icons/drag_handle.png"></label>';
-			}
-		}
-		echo '<label class="form-checkbox no-sort"><input type="checkbox" '.(in_array('Receipt',$db_config) ? 'checked' : '').' value="Receipt" name="expense_defaults[]"> Receipt</label>';
-		?>
-	</div>
-	<div class="expense_fields_div" style="display: none;">
-		<script>
-		function category_fields() {
-			var category = $('[name=expense_category_field_name]').val();
-			$('[name="expense_category_field[]"]').removeAttr('checked');
-			if(category == '') {
-				$('[name="expense_category_field[]"]').removeAttr('checked');
-			} else {
-				$.ajax({
-					url: 'inbox_ajax.php?action=category_fields',
-					method: 'POST',
-					data: { category: category },
-					success: function(response) {console.log(response);
-						response.split(',').forEach(function(field) {
-							$('[name="expense_category_field[]"][value="'+field+'"]').prop('checked','checked');
-						});
-					}
-				});
-			}
-		}
-		</script>
-		<h3>Expense Fields for</h3>
-        <select data-placeholder="Select a Category" name="expense_category_field_name" class="form-control chosen-select-deselect"><option></option>
-			<?php if($get_expense_config['tab'] == 'current_month') {
-				$categories = mysqli_query($dbc, "SELECT `category`, CONCAT('EC ',`EC`,': ',`category`) label FROM `expense_categories` WHERE `category` != '' AND `deleted`=0  GROUP BY `category` ORDER BY `EC`, `category`");
-				while($ex_category_name = mysqli_fetch_array($categories)) {
-					echo "<option value='".preg_replace('/[^a-z]/','_',strtolower($ex_category_name['category']))."'>".$ex_category_name['label']."</option>";
-				}
-			} else {
-				echo "<option>Please set the default fields for Expenses before setting the category fields.</option>";
-			} ?>
-			</select>
-		<?php if(in_array('Exchange',$db_config)) {
-			echo '<label class="form-checkbox"><input type="checkbox" value="Exchange" name="expense_category_field[]"> '.'Exchange Currency'.'</label>';
-		}
-		if(in_array('Tips',$db_config)) {
-			echo '<label class="form-checkbox"><input type="checkbox" value="Tips" name="expense_category_field[]"> '.'Tips'.'</label>';
-		}
-		if(in_array('Third Tax',$db_config)) {
-			echo '<label class="form-checkbox"><input type="checkbox" value="Third Tax" name="expense_category_field[]"> '.($hst_name == '' ? 'Third Tax' : $hst_name).'</label>';
-		}
-		if(in_array('Local Tax',$db_config)) {
-			echo '<label class="form-checkbox"><input type="checkbox" value="Local Tax" name="expense_category_field[]"> '.($pst_name == '' ? 'Additional Tax' : $pst_name).'</label>';
-		}
-		if(in_array('Tax',$db_config)) {
-			echo '<label class="form-checkbox"><input type="checkbox" value="Tax" name="expense_category_field[]"> '.($gst_name == '' ? 'Tax' : $gst_name).'</label>';
-		}
-		if(in_array('Total',$db_config)) {
-			echo '<label class="form-checkbox"><input type="checkbox" value="Total" name="expense_category_field[]"> Total</label>';
-		}
-		foreach($db_config as $field) {
-			if($field == 'Description') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Description</label>';
-			} else if($field == 'Date') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Expense Date</label>';
-			} else if($field == 'Work Order') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Work Order</label>';
-			} else if($field == 'Project') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> '.PROJECT_TILE.'</label>';
-			} else if($field == 'Province') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Province of Expense</label>';
-			} else if($field == 'Country') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Country of Expense</label>';
-			} else if($field == 'Vendor') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Vendor</label>';
-			} else if($field == 'Category') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Category</label>';
-			} else if($field == 'Heading') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Heading</label>';
-			} else if($field == 'Reimburse') {
-				echo '<label class="form-checkbox"><input type="checkbox" value="'.$field.'" name="expense_category_field[]"> Reimburse</label>';
-			}
-		}
-		if(in_array('Receipt',$db_config)) {
-			echo '<label class="form-checkbox"><input type="checkbox" value="Receipt" name="expense_category_field[]"> Receipt</label>';
-		} ?>
-	</div>
-	<div class="pdf_div" style="display: none;">
-		<div class="form-group">
-		<label for="file[]" class="col-sm-4 control-label">Header Logo
-		<span class="popover-examples list-inline">&nbsp;
-		<a  data-toggle="tooltip" data-placement="top" title="File name cannot contain apostrophes, quotations or commas"><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a>
-		</span>
-		:</label>
-		<div class="col-sm-8">
-		<?php
-			$logo = get_config($dbc, 'expense_logo');
-			if($logo != '') {
-			echo '<a href="download/'.$logo.'" target="_blank">View</a>';
-			?>
-			<input type="hidden" name="logo_file" value="<?php echo $logo; ?>" />
-			<input name="logo" type="file" data-filename-placement="inside" class="form-control" />
-		  <?php } else { ?>
-		  <input name="logo" type="file" data-filename-placement="inside" class="form-control" />
-		  <?php } ?>
-		</div>
-		</div>
+            <div class="form-group double-gap-top gap-right">
+                <a href="?filter_id=all" class="btn brand-btn pull-left gap-left gap-top">Back</a>
+                <button	type="submit" name="submit"	value="Submit" class="btn brand-btn pull-right gap-top">Submit</button>
+            </div>
 
-		<div class="form-group">
-			<label for="office_country" class="col-sm-4 control-label">Header Info:<br><em>(e.g. - company name, address, phone, etc.)</em></label>
-			<div class="col-sm-8">
-				<textarea name="expense_header" rows="3" cols="50" class="form-control"><?php echo get_config($dbc, 'expense_header'); ?></textarea>
-			</div>
-		</div>
-
-		<div class="form-group">
-			<label for="office_country" class="col-sm-4 control-label">Footer Info:<br><em>(e.g. - company name, address, phone, etc.)</em></label>
-			<div class="col-sm-8">
-				<textarea name="expense_footer" rows="3" cols="50" class="form-control"><?php echo get_config($dbc, 'expense_footer'); ?></textarea>
-			</div>
-		</div>
-	</div>
-	<div class="email_reminders_div" style="display: none;">
-		<h3>Expense Reminder</h3>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Days Before End of Month:<br /><em>To disable reminders, set this field to 0.<br />Any higher number will send a reminder that many days before the last day of the month.</em></label>
-			<div class="col-sm-8">
-				<input type="number" name="expense_reminder_days" value="<?= get_config($dbc, 'expense_reminder_days') ?>" class="form-control" min=0>
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Email Sender:</label>
-			<div class="col-sm-8">
-				<input type="text" name="expense_reminder_sender" value="<?= get_config($dbc, 'expense_reminder_sender') ?>" class="form-control">
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Email Subject:</label>
-			<div class="col-sm-8">
-				<input type="text" name="expense_reminder_subject" value="<?= get_config($dbc, 'expense_reminder_subject') ?>" class="form-control">
-			</div>
-		</div>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Email Body:</label>
-			<div class="col-sm-8">
-				<textarea name="expense_reminder_body" class="form-control"><?= get_config($dbc, 'expense_reminder_body') ?></textarea>
-			</div>
-		</div>
-	</div>
-	<div class="exchange_rates_div" style="display: none;">
-		<h3>Exchange Rates</h3>
-		<p><em>Exchange Rates are loaded from the Bank of Canada when the Expense is entered, and uses the exchange rate for the expense date, if available. The rates are available from
-			2017-01-02. All Bank of Canada exchange rates are indicative rates only, obtained from averages of aggregated price quotes from financial institutions. You can read their full
-			<a href="https://www.bankofcanada.ca/terms/#fx-rates">Terms and Conditions</a> for details.</em></p>
-		<div class="form-group">
-			<label class="col-sm-4 control-label">Exchange Rate Buffer Allowance:<br /><em>Exchange rates listed are the average exchange rate for the day. When exchanging currency, there
-				is an additional amount that is typically charged, often referred to as a currency conversion fee of two to three percent. If you wish to automatically add a percentage
-				allowance to cover this fee, enter the percent here.</em></label>
-			<div class="col-sm-8">
-				<input type="number" name="exchange_buffer" step="any" value="<?= $exchange_buffer * 100 ?>" class="form-control" min=0>
-			</div>
-		</div>
-	</div>
-	<div class="team_fields_div" style="display: none;">
-	</div>
-	<div class="tax_defaults_div" style="display: none;">
-		<h3>Tax Defaults</h3>
-
-		<div class="form-group">
-			<label for="office_zip" class="col-sm-4 control-label">Tax Name:<br><em>(e.g. - GST, HST, etc.)</em></label>
-			<div class="col-sm-8">
-				<input name="gst_name" value="<?php echo $gst_name; ?>" type="text" class="form-control" />
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="office_zip" class="col-sm-4 control-label">Tax Amount %:<br><em>(e.g. - 5)</em></label>
-			<div class="col-sm-8">
-				<input name="gst_amt" value="<?php echo $gst_amt; ?>" type="text" class="form-control" />
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="office_zip" class="col-sm-4 control-label">Additional Tax Name:<br><em>(e.g. - HST, PST, Sales Tax, etc.)</em></label>
-			<div class="col-sm-8">
-				<input name="pst_name" value="<?php echo $pst_name; ?>" type="text" class="form-control" />
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="office_zip" class="col-sm-4 control-label">Additional Tax Amount %:<br><em>(e.g. - 5)</em></label>
-			<div class="col-sm-8">
-				<input name="pst_amt" value="<?php echo $pst_amt; ?>" type="text" class="form-control" />
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="office_zip" class="col-sm-4 control-label">Additional Tax Name:<br><em>(e.g. - HST, PST, Sales Tax, etc.)</em></label>
-			<div class="col-sm-8">
-				<input name="hst_name" value="<?php echo $hst_name; ?>" type="text" class="form-control" />
-			</div>
-		</div>
-		<div class="form-group">
-			<label for="office_zip" class="col-sm-4 control-label">Additional Tax Amount %:<br><em>(e.g. - 5)</em></label>
-			<div class="col-sm-8">
-				<input name="hst_amt" value="<?php echo $hst_amt; ?>" type="text" class="form-control" />
-			</div>
-		</div>
-		<label class="col-sm-4 control-label">Default Assigned Staff:</label>
-		<div class="col-sm-8">
-			<?php $default_staff = get_config($dbc, 'expense_default_staff'); ?>
-			<select class="chosen-select-deselect" name="default_staff" data-placeholder="Select Staff"><option />
-				<option <?= $default_staff == 'NA' ? 'selected' : '' ?> value="NA">Current User</option>
-				<?php foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status`>=0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."")) as $staff_row) { ?>
-					<option <?= $default_staff == $staff_row['contactid'] ? 'selected' : '' ?> value="<?= $staff_row['contactid'] ?>"><?= $staff_row['full_name'] ?></option>
-				<?php } ?>
-			</select>
-		</div>
-		<label class="col-sm-4 control-label">Default Country:</label>
-		<div class="col-sm-8">
-			<input type="text" name="default_country" value="<?= get_config($dbc, 'default_country') ?>" class="form-control">
-		</div>
-		<label class="col-sm-4 control-label">Default Province:</label>
-		<div class="col-sm-8">
-			<input type="text" name="default_province" value="<?= get_config($dbc, 'default_province') ?>" class="form-control">
-		</div>
-		<label class="col-sm-4 control-label">Provinces:</label>
-		<div class="col-sm-8">
-			<script>
-			function add_province() {
-				var clone = $('.province_line').last().clone();
-				clone.find('input').val('');
-				$('.province_line').last().after(clone);
-			}
-			</script>
-			<div class="col-sm-4 text-center">Province</div><div class="col-sm-2 text-center"><?= $gst_name ?> Rate</div><div class="col-sm-2 text-center"><?= $pst_name ?> Rate</div><div class="col-sm-2 text-center"><?= $hst_name ?> Rate</div>
-			<?php $province_list = explode('#*#',get_config($dbc, 'expense_provinces'));
-			foreach($province_list as $province_data) {
-				$data = explode('*',$province_data); ?>
-				<div class="province_line">
-					<div class="col-sm-4"><input type="text" name="province_code[]" value="<?= $data[0] ?>" class="form-control"></div>
-					<div class="col-sm-2"><input type="text" name="province_gst[]" value="<?= $data[1] ?>" class="form-control"></div>
-					<div class="col-sm-2"><input type="text" name="province_pst[]" value="<?= $data[2] ?>" class="form-control"></div>
-					<div class="col-sm-2"><input type="text" name="province_hst[]" value="<?= $data[3] ?>" class="form-control"></div>
-					<div class="col-sm-2"><button class="btn brand-btn" onclick="$(this).closest('.province_line').remove();">Delete</button></div>
-				</div>
-			<?php } ?>
-			<button class="btn brand-btn pull-right" onclick="add_province(); return false;">Add Province</button>
-		</div>
-	</div>
-
+            </form>
+        </div>
+    </div>
 </div>
-
-<div class="form-group double-gap-top gap-right">
-    <a href="?filter_id=all" class="btn brand-btn pull-left gap-left gap-top">Back</a>
-    <button	type="submit" name="submit"	value="Submit" class="btn brand-btn pull-right gap-top">Submit</button>
-</div>
-
-</form>
 </div><!-- .expense-settings-container -->
 </div>
 </div>
+<script type="text/javascript">
+    var selectedSettingTab = '<?php echo $_POST['settingTabId'];?>';
+    if(selectedSettingTab!=''){
+        $("#"+selectedSettingTab)[0].click();
+    }
+</script>

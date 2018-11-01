@@ -70,7 +70,7 @@ $(document).ready(function() {
 				<td data-title="PO">#<?= $po['id'] ?></td>
 				<td data-title="3rd Party Invoice #"><input type="text" class="form-control" name="invoice_number" data-table="ticket_purchase_orders" data-id="<?= $po['id'] ?>" data-id-field="id" value="<?= $po['invoice_number'] ?>"></td>
 				<td data-title="Invoice"><?= ($po['invoice'] != '' && file_exists('download/'.$po['invoice']) ? '<a href="download/'.$po['invoice'].'" target="_blank">View</a>' : '') ?>
-					<a href="" onclick="po_attach_invoice(this); return false;" data-id="<?= $po['id'] ?>"><img class="inline-img" src="../img/icons/ROOK-attachment-icon.png"></a></td>
+					<a href="" onclick="po_attach_invoice(this); return false;" data-history-label="Attach PO Invoice" data-id="<?= $po['id'] ?>"><img class="inline-img" src="../img/icons/ROOK-attachment-icon.png"></a></td>
 				<td data-title="Total Price"><?= $po['final_total'] ?></td>
 				<td data-title="Mark Up"><input type="text" name="mark_up[]" value="0" class="form-control" onchange="markup(this, <?= $po['final_total'] ?>);"></td>
 				<td data-title="Total"><input type="text" name="marked_up_total" value="<?= $po['final_total'] ?>" class="form-control"></td>
@@ -87,4 +87,4 @@ $(document).ready(function() {
 	<span class='iframe_title' style='color:white; font-weight:bold; position: relative; left:1em; top:0.25em; font-size:3em;'>Add New PO</span>
 	<iframe name="iframe_new_po" id="iframe_new_po" style="border: 1em solid gray; border-top: 5em solid gray; margin-top: -4em; width: 100%;" src=""></iframe>
 </div>
-<button class="btn brand-btn pull-right po-btn" onclick="overlayIFrameSlider('new_po.php?workorderid=<?= $ticketid ?>','auto',true,true); return false;">Create PO</button>
+<button class="btn brand-btn pull-right po-btn" data-history-label="New PO" onclick="overlayIFrameSlider('new_po.php?workorderid=<?= $ticketid ?>','auto',true,true); return false;">Create PO</button>

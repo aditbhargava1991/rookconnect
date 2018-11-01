@@ -91,6 +91,11 @@ if (isset($_POST['printpdf'])) {
                 $starttime = $_POST['starttime'];
                 $endtime = $_POST['endtime'];
             }
+            
+            if (isset($_GET['pos_submit'])) {
+                $starttime = $_GET['from'];
+                $endtime = $_GET['to'];
+            }
 
             if($starttime == 0000-00-00) {
                 $starttime = date('Y-m-01');
@@ -232,3 +237,18 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     $report_data .= '</table>';
     return $report_data;
 }
+?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

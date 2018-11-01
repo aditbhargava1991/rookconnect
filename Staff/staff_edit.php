@@ -373,6 +373,7 @@ foreach($security_levels as $security_level) {
 									
 									$value_config_hidden = ','.implode(',',$value_config_hidden).',';
 									$value_config = ','.implode(',',$value_config).',';
+									$contacts_mandatory_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contacts` FROM `field_config_mandatory_contacts`"))['contacts'];
 									if(str_replace(',','',$value_config) != '') {
 										?>
 <!--   echo ($row_main['subtab'] == $subtab ? '' : 'style="display:none;"');  (in_array($sidebar_fields[$subtab][0], $subtabs_viewonly) || (edit_visible_function($dbc, 'staff') == 0 && add_visible_function($dbc, 'staff') == 0)) ? 'class="viewonly_fields"' : ''  -->

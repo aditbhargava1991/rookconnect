@@ -25,7 +25,7 @@ if (isset($_POST['submit'])) {
         </div>
     </div>
     <div class="form-group">
-        <label for="fax_number" class="col-sm-4 control-label">Default Category:<br /><em>Inventory without a Category will be set to this category.</em></label>
+        <label for="fax_number" class="col-sm-4 control-label">Default Tab:<br /><em>Inventory without a Tab will be set to this tab.</em></label>
         <div class="col-sm-8">
 			<select name="inventory_default" class="chosen-select-deselect"><option></option>
 				<?php $inventory_default = get_config($dbc, 'inventory_default');

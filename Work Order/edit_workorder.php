@@ -625,7 +625,7 @@ function noteSendEmail(checkbox) {
                                     $staff .= get_contact($dbc, $staffid).', ';
                                 }
                             }
-                            $staff = rtrim($staff, ', '); 
+                            $staff = rtrim($staff, ', ');
                         ?>
                             <tr>
                                 <td><?= $row['status'] ?></td>
@@ -781,7 +781,6 @@ function noteSendEmail(checkbox) {
                 <label class="super-label">Staff:
                 <div class="form-input">
                     <select multiple data-placeholder="Select Staff" name="contactid[]" class="chosen-select-deselect form-control">
-                        <option></option>
                         <?php
                             $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = 'Staff' AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
                             foreach ($query as $id) {
@@ -819,7 +818,7 @@ function noteSendEmail(checkbox) {
             <?php } ?>
 
             <?php if (strpos($enabled_fields, ',assign_equip_assignid,') !== FALSE) { ?>
-                <?php 
+                <?php
                 $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"));
                 if (!empty($get_field_config)) {
                     $equipment_category = $get_field_config['equipment_category']; ?>
@@ -911,7 +910,7 @@ function noteSendEmail(checkbox) {
                         </div></label>
 
                         <label class="super-label">Assign/Email To:</label>
-                        <div class="form-input">                                
+                        <div class="form-input">
                             <select data-placeholder="Select Staff" name="note_email_staff" class="chosen-select-deselect form-control">
                                 <option></option>
                                 <?php

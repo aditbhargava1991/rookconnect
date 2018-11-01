@@ -60,11 +60,17 @@ foreach($query_count as $query_label => $query_value) {
 	}
 }
 $project_counts['documents'] = intval(mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) docs FROM `project_document` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `deleted` = 0"))['docs']);
+$query_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `project_path`,`external_path`,`project_lead`,`project_colead`,`project_team` FROM `project` WHERE `projectid`='$projectid' AND '$projectid' > 0 AND `deleted`=0"));
+$project_counts['paths'] = count(array_filter(explode(',',$query_count['project_path'].','.$query_count['external_path'])));
+$project_counts['staff'] = count(array_filter(explode(',',$query_count['project_lead'].','.$query_count['project_colead'].','.$query_count['project_team'])));
 if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 	<?php if($_GET['iframe_slider'] == 1) { ?>
 		<h1><?= $label ?></h1>
 	<?php } ?>
 	<div id='project_accordions' class='sidebar <?= $_GET['iframe_slider'] == 1 ? '' : 'show-on-mob' ?> panel-group block-panels col-xs-12 form-horizontal'>
+		<?php echo '<span class="pull-right">';
+		include('quick_actions.php');
+		echo '</span><span class="clearfix"></span>'; ?>
 		<div class="panel panel-default" style='<?= in_array('Summary',$tab_config) && $projectid > 0 ? '' : 'display:none;' ?>'>
 			<div class="panel-heading mobile_load">
 				<h4 class="panel-title">
@@ -75,7 +81,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_info" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_summary.php?projectid=<?= $projectid ?>">
+				<div class="panel-body" data-file-name="edit_project_summary.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>">
 					Loading...
 				</div>
 			</div>
@@ -94,7 +100,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</div>
 
 					<div id="collapse_path_<?= $tab_id ?>" class="panel-collapse collapse">
-						<div class="panel-body" data-file-name="edit_project_path.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=<?= $tab_id ?>">
+						<div class="panel-body" data-file-name="edit_project_path.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=<?= $tab_id ?>">
 							Loading...
 						</div>
 					</div>
@@ -112,7 +118,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</div>
 
 					<div id="collapse_<?= $tab_id ?>" class="panel-collapse collapse">
-						<div class="panel-body" data-file-name="edit_project_path.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=<?= $tab_id ?>">
+						<div class="panel-body" data-file-name="edit_project_path.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=<?= $tab_id ?>">
 							Loading...
 						</div>
 					</div>
@@ -130,7 +136,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</div>
 
 					<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-						<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+						<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 							Loading...
 						</div>
 					</div>
@@ -146,7 +152,82 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_info" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_info.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+					<div class="panel-body" data-file-name="edit_project_info.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default" style='<?= in_array('Estimate Info',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_est_info">
+							<?= ESTIMATE_TILE ?> Information<span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_est_info" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_estimate.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default" style='<?= in_array('Staff',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_info">
+							<?= PROJECT_NOUN ?> Staff<span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_info" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_staff.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default" style='<?= in_array('Details Path',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_info">
+							<?= PROJECT_NOUN ?> Path Templates<span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_info" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_path_templates.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default" style='<?= in_array('Details',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_details">
+							<?= PROJECT_NOUN ?> Details<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['details'] ?></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_details" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_details.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+						Loading...
+					</div>
+				</div>
+			</div>
+			<div class="panel panel-default" style='<?= in_array('Notes',$tab_config) ? '' : 'display:none;' ?>'>
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_notes">
+							<?= PROJECT_NOUN ?> Notes<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['notes'] ?></span>
+						</a>
+					</h4>
+				</div>
+
+				<div id="collapse_notes" class="panel-collapse collapse">
+					<div class="panel-body" data-file-name="edit_project_notes.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 						Loading...
 					</div>
 				</div>
@@ -166,32 +247,17 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</div>
 				</div>
 			</div>
-			<div class="panel panel-default" style='<?= in_array('Details',$tab_config) ? '' : 'display:none;' ?>'>
-				<div class="panel-heading mobile_load">
-					<h4 class="panel-title">
-						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_details">
-							<?= PROJECT_NOUN ?> Details<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['details'] ?></span>
-						</a>
-					</h4>
-				</div>
-
-				<div id="collapse_details" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_details.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
-						Loading...
-					</div>
-				</div>
-			</div>
 			<div class="panel panel-default" style='<?= in_array('Documents',$tab_config) ? '' : 'display:none;' ?>'>
 				<div class="panel-heading mobile_load">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_docs">
-							Documents<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['documents'] ?></span>
+							<?= PROJECT_NOUN ?> Documents<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $project_counts['documents'] ?></span>
 						</a>
 					</h4>
 				</div>
 
 				<div id="collapse_docs" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_documents.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+					<div class="panel-body" data-file-name="edit_project_documents.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 						Loading...
 					</div>
 				</div>
@@ -200,13 +266,13 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<div class="panel-heading mobile_load">
 					<h4 class="panel-title">
 						<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_dates">
-							Dates<span class="glyphicon glyphicon-plus"></span>
+							<?= PROJECT_NOUN ?> Dates<span class="glyphicon glyphicon-plus"></span>
 						</a>
 					</h4>
 				</div>
 
 				<div id="collapse_dates" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_dates.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+					<div class="panel-body" data-file-name="edit_project_dates.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 						Loading...
 					</div>
 				</div>
@@ -223,7 +289,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 					</div>
 
 					<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-						<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+						<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 							Loading...
 						</div>
 					</div>
@@ -243,7 +309,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 						</div>
 
 						<div id="collapse_custom_<?= config_safe_str($custom_tab['tab']) ?>" class="panel-collapse collapse">
-							<div class="panel-body" data-file-name="edit_project_custom_details.php?projectid=<?= $projectid ?>&custom_tab=<?= $custom_tab['tab'] ?>">
+							<div class="panel-body" data-file-name="edit_project_custom_details.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&custom_tab=<?= $custom_tab['tab'] ?>">
 								Loading...
 							</div>
 						</div>
@@ -261,7 +327,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_scope" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -276,7 +342,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_sales_orders" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_sales_orders.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_sales_orders.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -291,7 +357,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_intake" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_intake.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_intake.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -306,7 +372,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_info_gather" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_info_gathering.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_info_gathering.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -321,7 +387,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_incident_reports" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_incident_reports.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_incident_reports.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -336,7 +402,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_time_sheets" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_time_sheets.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_time_sheets.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -353,7 +419,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+					<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 						Loading...
 					</div>
 				</div>
@@ -369,7 +435,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_tickets" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_tickets.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_tickets.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -384,7 +450,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_workorders" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_workorders.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_workorders.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -393,13 +459,13 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			<div class="panel-heading mobile_load">
 				<h4 class="panel-title">
 					<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_tasks">
-						Tasks<span class="glyphicon glyphicon-plus"></span>
+						<?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
 					</a>
 				</h4>
 			</div>
 
 			<div id="collapse_tasks" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_checklists.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_checklists.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -414,7 +480,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_checklist" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_checklists.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_checklists.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -429,7 +495,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_action_status_report" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_status_report.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_status_report.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -444,7 +510,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_time_clock" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_scope_time.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_scope_time.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -461,7 +527,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+					<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 						Loading...
 					</div>
 				</div>
@@ -477,7 +543,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_administration" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="project_administration.php?projectid=<?= $projectid ?>">
+				<div class="panel-body" data-file-name="project_administration.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>">
 					Loading...
 				</div>
 			</div>
@@ -494,7 +560,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+					<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 						Loading...
 					</div>
 				</div>
@@ -510,7 +576,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_email" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_comm_email.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_comm_email.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -525,7 +591,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_phone" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_comm_phone.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_comm_phone.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -540,7 +606,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_agenda" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_comm_agendas.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_comm_agendas.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -555,7 +621,22 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_meeting" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_comm_meetings.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_comm_meetings.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+					Loading...
+				</div>
+			</div>
+		</div>
+		<div class="panel panel-default" style='<?= in_array('Meetings',$tab_config) ? '' : 'display:none;' ?>'>
+			<div class="panel-heading mobile_load">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_comm_log">
+						Communication History<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+
+			<div id="collapse_comm_log" class="panel-collapse collapse">
+				<div class="panel-body" data-file-name="edit_project_comm_log.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -572,7 +653,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+					<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 						Loading...
 					</div>
 				</div>
@@ -588,7 +669,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_timesheet" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_acct_timesheet.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_acct_timesheet.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -603,7 +684,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_payroll" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_acct_payroll.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_acct_payroll.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -618,7 +699,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_payable" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_acct_expenses.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_acct_expenses.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -633,7 +714,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_payable" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_acct_payables.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_acct_payables.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -650,7 +731,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+					<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 						Loading...
 					</div>
 				</div>
@@ -666,7 +747,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_deliverables" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_report_deliverables.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_report_deliverables.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -681,7 +762,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_gantt" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_report_gantt.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_report_gantt.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -696,7 +777,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_profit" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_report_profit_loss.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_report_profit_loss.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -711,7 +792,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_reminder" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_comm_reminders.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_comm_reminders.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -726,7 +807,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_estimate_time" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_report_estimated.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_report_estimated.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -741,7 +822,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_tracked" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_report_tracked.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_report_tracked.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -756,7 +837,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_tracked" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_report_time.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_report_time.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -773,7 +854,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+					<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 						Loading...
 					</div>
 				</div>
@@ -790,7 +871,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_new_bill" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_billing_new.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+					<div class="panel-body" data-file-name="edit_project_billing_new.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 						Loading...
 					</div>
 				</div>
@@ -806,7 +887,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_payment_schedule" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=payment_schedule">
+				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=payment_schedule">
 					Loading...
 				</div>
 			</div>
@@ -821,7 +902,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_field_service_ticket" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=field_service_ticket">
+				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=field_service_ticket">
 					Loading...
 				</div>
 			</div>
@@ -836,7 +917,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_purchase_orders" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_invoices.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=purchase_order">
+				<div class="panel-body" data-file-name="edit_project_invoices.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=purchase_order">
 					Loading...
 				</div>
 			</div>
@@ -851,7 +932,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_work_tickets" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=work_ticket">
+				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=work_ticket">
 					Loading...
 				</div>
 			</div>
@@ -866,7 +947,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_invoices" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=invoice">
+				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=invoice">
 					Loading...
 				</div>
 			</div>
@@ -881,7 +962,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_outstanding" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=outstanding">
+				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=outstanding">
 					Loading...
 				</div>
 			</div>
@@ -896,7 +977,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_paid" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=paid">
+				<div class="panel-body" data-file-name="edit_project_billing_invoices.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>&tab=paid">
 					Loading...
 				</div>
 			</div>
@@ -911,7 +992,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_recurring" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_billing_reminders.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_billing_reminders.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -928,7 +1009,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				</div>
 
 				<div id="collapse_form_<?= $user_form['id'] ?>" class="panel-collapse collapse">
-					<div class="panel-body" data-file-name="edit_project_user_form.php?projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
+					<div class="panel-body" data-file-name="edit_project_user_form.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&project_form_id=<?= $user_form['id'] ?>">
 						Loading...
 					</div>
 				</div>
@@ -944,7 +1025,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</div>
 
 			<div id="collapse_history" class="panel-collapse collapse">
-				<div class="panel-body" data-file-name="edit_project_report_history.php?projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
+				<div class="panel-body" data-file-name="edit_project_report_history.php?tile_name=<?= $_GET['tile_name'] ?>&projectid=<?= $projectid ?>&projecttype=<?= $projecttype ?>">
 					Loading...
 				</div>
 			</div>
@@ -963,7 +1044,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		$previous_tab = '';
 		$next_set = false;
 		$ticket_bypass = true;
-		$sub_tabs = ['Summary'];
+		$sub_tabs = ['Summary', 'Project', 'Tickets', 'Tasks', 'Checklists', 'Projections'];
 		foreach($sub_tabs as $i => $tab) {
 			if(!in_array($tab,$tab_config)) {
 				unset($sub_tabs[$i]);
@@ -971,12 +1052,17 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		}
 		if(count($sub_tabs) > 0 && $projectid > 0) {
 			$ticket_bypass = false;
-			$show_sub = in_array($_GET['tab'],['summary']) || $no_sub_shown;
-			$no_sub_shown = false; ?>
+			$show_sub = in_array($_GET['tab'],['summary', 'summary_project', 'summary_tickets', 'summary_tasks', 'summary_checklists', 'summary_projections']) || $no_sub_shown;
+			$no_sub_shown = false;
+            $_GET['tab'] = ($_GET['tab'] == '' ? 'summary' : $_GET['tab']); ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&tab=summary" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Summary<span class="arrow"></span></li></a>
-			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
-				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary' : $_GET['tab']); $next_tab = (!$next_set ? 'summary' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a><?php } ?>
+			<ul id="ul_summ" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
+				<a href="?edit=<?= $_GET['edit'] ?>&tab=summary"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary' ? 'active blue' : '' ?>"><?php echo PROJECT_NOUN ?></li></a>
+				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary_tickets' : $_GET['tab']); $next_tab = (!$next_set ? 'summary_tickets' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary_tickets' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary_tickets'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary_tickets"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary_tickets' ? 'active blue' : '' ?>">Tickets</li></a><?php } ?>
+				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary_tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'summary_tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary_tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary_tasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary_tasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary_tasks' ? 'active blue' : '' ?>">Tasks</li></a><?php } ?>
+				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary_checklists' : $_GET['tab']); $next_tab = (!$next_set ? 'summary_checklists' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary_checklists' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary_checklists'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary_checklists"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary_checklists' ? 'active blue' : '' ?>">Checklists</li></a><?php } ?>
+				<?php if(in_array('Summary',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'summary_projections' : $_GET['tab']); $next_tab = (!$next_set ? 'summary_projections' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'summary_projections' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'summary_projections'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=summary_projections"><li class="sidebar-lower-level <?= $_GET['tab'] == 'summary_projections' ? 'active blue' : '' ?>">Projections</li></a><?php } ?>
 			</ul>
 		<?php }
 		if($security['edit'] > 0) {
@@ -1030,7 +1116,8 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 									}
 								}
 							}
-							$path_milestones = $dbc->query("SELECT `milestones`.`milestone`,`milestones`.`label`,SUM(IF(`milestones`.`path_type`='E' AND `milestones`.`milestone`=`list`.`external`,1,IF(`milestones`.`path_type`='I' AND `milestones`.`milestone`=`list`.`milestone`,1,0))) `count` FROM `project_path_custom_milestones` `milestones` LEFT JOIN (SELECT `ticketid` `id`, '' `external`, `milestone_timeline` `milestone`, `projectid` FROM `tickets` WHERE `status` NOT IN ('Done','Archive','Archived') AND `deleted`=0 UNION SELECT `tasklistid` `id`, `external`, `project_milestone` `milestone`, `projectid` FROM `tasklist` WHERE `status` != 'Done' AND `deleted`=0) `list` ON `milestones`.`projectid`=`list`.`projectid` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$projectpathid' AND `milestones`.`path_type`='I' AND `deleted`=0 GROUP BY `milestones`.`projectid`, `milestones`.`milestone`, `milestones`.`pathid`, `milestones`.`path_type` ORDER BY `milestones`.`sort`, `milestones`.`id`");
+
+							$path_milestones = $dbc->query("SELECT `milestones`.`milestone`,`milestones`.`label`,SUM(IF(`milestones`.`path_type`='E' AND `milestones`.`milestone`=`list`.`external`,1,IF(`milestones`.`path_type`='I' AND `milestones`.`milestone`=`list`.`milestone`,1,0))) `count` FROM `project_path_custom_milestones` `milestones` LEFT JOIN (SELECT `ticketid` `id`, '' `external`, `milestone_timeline` `milestone`, `projectid` FROM `tickets` WHERE `status` NOT IN ('Done','Archive','Archived') AND `deleted`=0 UNION SELECT `tasklistid` `id`, `external`, `project_milestone` `milestone`, `projectid` FROM `tasklist` WHERE archived_date IS NULL AND `deleted`=0) `list` ON `milestones`.`projectid`=`list`.`projectid` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$projectpathid' AND `milestones`.`path_type`='I' AND `deleted`=0 GROUP BY `milestones`.`projectid`, `milestones`.`milestone`, `milestones`.`pathid`, `milestones`.`path_type` ORDER BY `milestones`.`sort`, `milestones`.`id`");
 							while($path_milestone = $path_milestones->fetch_assoc()) {
 								if($path_milestone['milestone'] != '') {
 									$tab_count = $path_milestone['count'];
@@ -1114,11 +1201,11 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			$no_sub_shown = false; ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&tab=services" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Projections<span class="arrow"></span></li></a>
-			<ul id="ul_comm" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
+			<ul id="ul_projection" style="<?= $show_sub ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'services' : $_GET['tab']); $next_tab = (!$next_set ? 'services' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'services' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'services'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=services"><li class="sidebar-lower-level <?= $_GET['tab'] == 'services' ? 'active blue' : '' ?>">Services</li></a>
 				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'products' : $_GET['tab']); $next_tab = (!$next_set ? 'products' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'products' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'products'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=products"><li class="sidebar-lower-level <?= $_GET['tab'] == 'products' ? 'active blue' : '' ?>">Products</li></a>
 
-				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'ptasks' : $_GET['tab']); $next_tab = (!$next_set ? 'ptasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'ptasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'ptasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=ptasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'ptasks' ? 'active blue' : '' ?>">Tasks</li></a>
+				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'ptasks' : $_GET['tab']); $next_tab = (!$next_set ? 'ptasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'ptasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'ptasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=ptasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'ptasks' ? 'active blue' : '' ?>"><?= TASK_TILE ?></li></a>
 
 				<?php $_GET['tab'] = ($_GET['tab'] == '' ? 'inventory' : $_GET['tab']); $next_tab = (!$next_set ? 'inventory' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'inventory' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'inventory'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=inventory"><li class="sidebar-lower-level <?= $_GET['tab'] == 'inventory' ? 'active blue' : '' ?>">Inventory</li></a>
 
@@ -1127,11 +1214,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			</ul>
 		<?php }
 
-
-
-
-
-			$sub_tabs = ['Information','Estimate Info','Details','Notes','Documents','Dates'];
+			$sub_tabs = ['Information','Estimate Info','Staff','Details Path','Notes','Details','Documents','Dates'];
 			foreach($sub_tabs as $i => $tab) {
 				if(!in_array($tab,$tab_config)) {
 					unset($sub_tabs[$i]);
@@ -1144,18 +1227,20 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			}
 			if(check_subtab_persmission($dbc, 'project', ROLE, 'view_details') && (count($sub_tabs) > 0 || count($user_forms) > 0) || $_GET['edit'] == 0) {
 				$ticket_bypass = false;
-				$show_sub = in_array($_GET['tab'],['info','estimate','details','notes','documents','dates']) || $no_sub_shown || empty($_GET['tab']) || array_key_exists($_GET['project_form_id'], $user_forms);
+				$show_sub = in_array($_GET['tab'],['info','estimate','details_path','staff','details','notes','documents','dates']) || $no_sub_shown || empty($_GET['tab']) || array_key_exists($_GET['project_form_id'], $user_forms);
 				$no_sub_shown = false; ?>
 				<a href="?edit=<?= $_GET['edit'] ?>&tab=info" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 					<li class="sidebar-higher-level <?= $show_sub || $_GET['edit'] == 0 ? 'active blue' : 'collapsed' ?>"><?= PROJECT_NOUN ?> Details<span class="arrow"></span></li></a>
 				<ul id="ul_details" style="<?= $show_sub || $_GET['edit'] == 0 ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
-					<?php if(in_array('Information',$tab_config) || $_GET['edit'] == 0) { $_GET['tab'] = ($_GET['tab'] == '' ? 'info' : $_GET['tab']); $next_tab = (!$next_set ? 'info' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'info' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'info'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=info"><li class="sidebar-lower-level <?= $_GET['tab'] == 'info' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Information</li></a><?php } ?>
+					<?php if(in_array('Information',$tab_config) || $_GET['edit'] == 0) { $_GET['tab'] = ($_GET['tab'] == '' ? 'info' : $_GET['tab']); $next_tab = (!$next_set ? 'info' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'info' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'info'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=info"><li class="sidebar-lower-level <?= $_GET['tab'] == 'info' ? 'active blue' : '' ?>">Information</li></a><?php } ?>
 					<?php if(mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `estimate` WHERE `projectid`='$projectid' AND `projectid` > 0 AND `deleted`=0"))[0] > 0) {
 						$estimate_list = true; ?>
 						<?php if(in_array('Estimate Info',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'estimate' : $_GET['tab']); $next_tab = (!$next_set ? 'estimate' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'estimate' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'estimate'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=estimate"><li class="sidebar-lower-level <?= $_GET['tab'] == 'estimate' ? 'active blue' : '' ?>">Estimate Details</li></a><?php } ?>
 					<?php } ?>
-					<?php if(in_array('Notes',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'notes' : $_GET['tab']); $next_tab = (!$next_set ? 'notes' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'notes' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'notes'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=notes"><li class="sidebar-lower-level <?= $_GET['tab'] == 'notes' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Notes <span class="pull-right"><?= $project_counts['notes'] ?></span></li></a><?php } ?>
-					<?php if(in_array('Details',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details' : $_GET['tab']); $next_tab = (!$next_set ? 'details' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details' ? 'active blue' : '' ?>"><?= PROJECT_NOUN ?> Details <span class="pull-right"><?= $project_counts['details'] ?></span></li></a><?php } ?>
+					<?php if(in_array('Staff',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'path' : $_GET['tab']); $next_tab = (!$next_set ? 'staff' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'staff' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'staff'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=staff"><li class="sidebar-lower-level <?= $_GET['tab'] == 'staff' ? 'active blue' : '' ?>">Staff <span class="pull-right"><?= $project_counts['staff'] ?></span></li></a><?php } ?>
+					<?php if(in_array('Details Path',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details_path' : $_GET['tab']); $next_tab = (!$next_set ? 'details_path' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details_path' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details_path'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details_path"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details_path' ? 'active blue' : '' ?>">Path Template <span class="pull-right"><?= $project_counts['paths'] ?></span></li></a><?php } ?>
+					<?php if(in_array('Notes',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'notes' : $_GET['tab']); $next_tab = (!$next_set ? 'notes' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'notes' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'notes'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=notes"><li class="sidebar-lower-level <?= $_GET['tab'] == 'notes' ? 'active blue' : '' ?>">Notes <span class="pull-right"><?= $project_counts['notes'] ?></span></li></a><?php } ?>
+					<?php if(in_array('Details',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'details' : $_GET['tab']); $next_tab = (!$next_set ? 'details' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'details' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'details'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=details"><li class="sidebar-lower-level <?= $_GET['tab'] == 'details' ? 'active blue' : '' ?>">Details <span class="pull-right"><?= $project_counts['details'] ?></span></li></a><?php } ?>
 					<?php if(in_array('Documents',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'documents' : $_GET['tab']); $next_tab = (!$next_set ? 'documents' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'documents' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'documents'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=documents"><li class="sidebar-lower-level <?= $_GET['tab'] == 'documents' ? 'active blue' : '' ?>">Documents <span class="pull-right"><?= $project_counts['documents'] ?></span></li></a><?php } ?>
 					<?php if(in_array('Dates',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'dates' : $_GET['tab']); $next_tab = (!$next_set ? 'dates' : $next_tab); $next_set = ($prev_set && !$show_sub ? true : false); $prev_set = ($_GET['tab'] == 'dates' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'dates'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=dates"><li class="sidebar-lower-level <?= $_GET['tab'] == 'dates' ? 'active blue' : '' ?>">Dates</li></a><?php }
 					if(count($user_forms) > 0 && $_GET['edit'] > 0) {
@@ -1244,7 +1329,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				while($sales_order = mysqli_fetch_array($sales_orders)) { ?>
 					<?php if(in_array('Sales Orders',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'sales_order' : $_GET['tab']); $next_tab = (!$next_set ? 'sales_order' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'sales_order' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'sales_order'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=sales_order&posid=<?= $sales_order['posid'] ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'sales_order' && $_GET['posid'] == $sales_order['posid'] ? 'active blue' : '' ?>"><?= SALES_ORDER_NOUN ?>: <?= $sales_order['name'] ?></li></a><?php } ?>
 				<?php } ?>
-				<?php if(in_array('Intake',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'intake' : $_GET['tab']); $next_tab = (!$next_set ? 'intake' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'intake' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'intake'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=intake"><li class="sidebar-lower-level <?= $_GET['tab'] == 'intake' ? 'active blue' : '' ?>">Intake</li></a><?php } ?>
+				<?php if(in_array('Intake',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'intake' : $_GET['tab']); $next_tab = (!$next_set ? 'intake' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'intake' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'intake'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=intake"><li class="sidebar-lower-level <?= $_GET['tab'] == 'intake' ? 'active blue' : '' ?>">Intake Forms</li></a><?php } ?>
 				<?php if(in_array('Info Gathering',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'info_gathering' : $_GET['tab']); $next_tab = (!$next_set ? 'info_gathering' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'info_gathering' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'info_gathering'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=info_gathering"><li class="sidebar-lower-level <?= $_GET['tab'] == 'info_gathering' ? 'active blue' : '' ?>">Information Gathering</li></a><?php } ?>
 				<?php if(in_array('Incident Reports',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'incident_reports' : $_GET['tab']); $next_tab = (!$next_set ? 'incident_reports' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'incident_reports' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'incident_reports'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=incident_reports"><li class="sidebar-lower-level <?= $_GET['tab'] == 'incident_reports' ? 'active blue' : '' ?>"><?= INC_REP_TILE ?></li></a><?php } ?>
 				<?php if(in_array('Time Sheets',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'time_sheets' : $_GET['tab']); $next_tab = (!$next_set ? 'time_sheets' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'time_sheets' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'time_sheets'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=time_sheets"><li class="sidebar-lower-level <?= $_GET['tab'] == 'time_sheets' ? 'active blue' : '' ?>">Time Sheets</li></a><?php }
@@ -1280,6 +1365,13 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<?php if(in_array('Tickets',$tab_config)) {
 					$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(`ticketid`) `num_rows` FROM `tickets` WHERE `projectid` = '$projectid' AND `deleted` = 0"))['num_rows'];
 					$_GET['tab'] = ($_GET['tab'] == '' ? 'tickets' : $_GET['tab']); $next_tab = (!$next_set ? 'tickets' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tickets' && !isset($_GET['ticket_type']) ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tickets'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=tickets"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tickets' && $_GET['ticket_type'] == $type_value ? 'active blue' : '' ?>"><?= (count(array_filter(explode(',',get_config($dbc, 'ticket_tabs')))) > 0 ? 'All ' : '') ?><?= TICKET_TILE ?><span class="pull-right"><?= $count ?></span></li></a><?php
+                    $type_value = 'unassigned';
+                    $next_tab = (!$next_set ? 'tickets&ticket_type='.$type_value : $next_tab);
+                    $next_set = ($prev_set ? true : false);
+                    $prev_set = ($_GET['tab'] == 'tickets' && $_GET['ticket_type'] == $type_value ? true : $prev_set);
+                    $previous_tab = ($prev_set ? $previous_tab : 'tickets&ticket_type='.$type_value);
+                    $count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(milestone_timeline, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '')"))['num_rows'];
+                    ?><a href="?edit=<?= $_GET['edit'] ?>&tab=tickets&ticket_type=<?= $type_value ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tickets' && $_GET['ticket_type'] == $type_value ? 'active blue' : '' ?>">Unassigned<span class="pull-right"><?= $count ?></span></li></a><?php
 					foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
 						$type_value = config_safe_str($ticket_type);
 						$next_tab = (!$next_set ? 'tickets&ticket_type='.$type_value : $next_tab);
@@ -1301,7 +1393,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<?php if(in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) {
 					$_GET['tab'] = ($_GET['tab'] == '' ? 'tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tasks');
 					$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `num_rows` FROM `tasklist` WHERE `projectid` = '$projectid' AND `deleted`=0"))['num_rows']; ?>
-					<a href="?edit=<?= $_GET['edit'] ?>&tab=tasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] != 'project' ? 'active blue' : '' ?>">Tasks<span class="pull-right"><?= $count ?></span></li></a>
+					<a href="?edit=<?= $_GET['edit'] ?>&tab=tasks"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] != 'project' ? 'active blue' : '' ?>"><?= TASK_TILE ?><span class="pull-right"><?= $count ?></span></li></a>
 				<?php } ?>
 				<?php if((in_array('Checklists',$tab_config) || in_array('Tasks',$tab_config)) && tile_visible($dbc, 'checklist')) { $_GET['tab'] = ($_GET['tab'] == '' ? 'tasks' : $_GET['tab']); $next_tab = (!$next_set ? 'tasks' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'tasks' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'tasks'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=tasks&status=project"><li class="sidebar-lower-level <?= $_GET['tab'] == 'tasks' && $_GET['status'] == 'project' ? 'active blue' : '' ?>">Checklists</li></a><?php } ?>
 				<?php if(in_array('Path',$tab_config) && !in_array('Unassigned Hide',$tab_config) && mysqli_num_rows(mysqli_query($dbc, $unassigned_sql)) > 0) {
@@ -1379,7 +1471,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				} ?>
 			</ul>
 		<?php }
-		$sub_tabs = ['Email','Phone','Agendas','Meetings'];
+		$sub_tabs = ['Email','Phone','Agendas','Meetings','Comm Log'];
 		foreach($sub_tabs as $i => $tab) {
 			if(!in_array($tab,$tab_config)) {
 				unset($sub_tabs[$i]);
@@ -1392,7 +1484,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 		}
 		if(check_subtab_persmission($dbc, 'project', ROLE, 'view_communications') && (count($sub_tabs) > 0 || count($user_forms) > 0)) {
 			$ticket_bypass = false;
-			$show_sub = in_array($_GET['tab'],['email','phone','agendas','meetings']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
+			$show_sub = in_array($_GET['tab'],['email','phone','agendas','meetings','comm_log']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms);
 			$no_sub_shown = false; ?>
 			<a href="?edit=<?= $_GET['edit'] ?>&tab=email" onclick="$('.standard-collapsible ul ul:visible').not($(this).next('ul')).toggle().prev('a').find('li').toggleClass('collapsed'); $(this).next('ul').toggle(); $(this).find('li').toggleClass('collapsed'); return false;" style="<?= count($sub_tabs) > 0 ? '' : 'display:none;' ?>">
 				<li class="sidebar-higher-level <?= $show_sub ? 'active blue' : 'collapsed' ?>">Communications<span class="arrow"></span></li></a>
@@ -1400,7 +1492,8 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				<?php if(in_array('Email',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'email' : $_GET['tab']); $next_tab = (!$next_set ? 'email' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'email' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'email'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=email"><li class="sidebar-lower-level <?= $_GET['tab'] == 'email' ? 'active blue' : '' ?>">Email</li></a><?php } ?>
 				<?php if(in_array('Phone',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'phone' : $_GET['tab']); $next_tab = (!$next_set ? 'phone' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'phone' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'phone'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=phone"><li class="sidebar-lower-level <?= $_GET['tab'] == 'phone' ? 'active blue' : '' ?>">Phone</li></a><?php } ?>
 				<?php if(in_array('Agendas',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'agendas' : $_GET['tab']); $next_tab = (!$next_set ? 'agendas' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'agendas' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'agendas'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=agendas"><li class="sidebar-lower-level <?= $_GET['tab'] == 'agendas' ? 'active blue' : '' ?>">Agendas</li></a><?php } ?>
-				<?php if(in_array('Meetings',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'meetings' : $_GET['tab']); $next_tab = (!$next_set ? 'meetings' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'meetings' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'meetings'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=meetings"><li class="sidebar-lower-level <?= $_GET['tab'] == 'meetings' ? 'active blue' : '' ?>">Meetings</li></a><?php }
+				<?php if(in_array('Meetings',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'meetings' : $_GET['tab']); $next_tab = (!$next_set ? 'meetings' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'meetings' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'meetings'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=meetings"><li class="sidebar-lower-level <?= $_GET['tab'] == 'meetings' ? 'active blue' : '' ?>">Meetings</li></a><?php } ?>
+				<?php if(in_array('Comm Log',$tab_config)) { $_GET['tab'] = ($_GET['tab'] == '' ? 'comm_log' : $_GET['tab']); $next_tab = (!$next_set ? 'comm_log' : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'] == 'comm_log' ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : 'comm_log'); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=comm_log"><li class="sidebar-lower-level <?= $_GET['tab'] == 'comm_log' ? 'active blue' : '' ?>">Communication History</li></a><?php }
 				if(count($user_forms) > 0 && $_GET['edit'] > 0) {
 					foreach($user_forms as $project_form_id => $subtab_name) { ?>
 						<a href="?edit=<?= $_GET['edit'] ?>&tab=user_forms&project_form_id=<?= $project_form_id ?>"><li class="sidebar-lower-level <?= $_GET['project_form_id'] == $project_form_id ? 'active blue' : '' ?>"><?= $subtab_name ?></li></a>
@@ -1519,12 +1612,16 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			case 'info':
 			case 'estimate':
 			case 'notes':
+			case 'details_path':
+			case 'staff':
 			case 'details':
 			case 'documents':
 			case 'dates':
 				$body_title = 'Project Details';
 				if(in_array('Information',$tab_config) || $_GET['edit'] == 0) { $include_files[] = 'edit_project_info.php'; }
 				if($estimate_list && in_array('Estimate Info',$tab_config)) { $include_files[] = 'edit_project_estimate.php'; }
+				if(in_array('Staff',$tab_config)) { $include_files[] = 'edit_project_staff.php'; }
+				if(in_array('Details Path',$tab_config)) { $include_files[] = 'edit_project_details_path.php'; }
 				if(in_array('Notes',$tab_config)) { $include_files[] = 'edit_project_notes.php'; }
 				if(in_array('Details',$tab_config)) { $include_files[] = 'edit_project_details.php'; }
 				if(in_array('Documents',$tab_config)) { $include_files[] = 'edit_project_documents.php'; }
@@ -1532,17 +1629,19 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$include_files[] = 'next_buttons.php'; ?>
 				<script>
 				$(document).ready(function() {
-					$('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top);
+					setTimeout(function() { $('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top) }, 250);
 					$('#ul_details').find('a').off('click').click(function() {
 						var tab = this.href.split('tab=')[1];
 						$('.main-screen .default_screen').scrollTop($('#head_'+tab).position().top + $('.main-screen .default_screen').scrollTop()).scroll();
 						return false;
 					});
 					$('.main-screen .default_screen').scroll(function() {
-						var heading = $('.default_screen [id^=head]').filter(function() { return $(this).position().top < 10 }).last().attr('id').split('head_')[1];
+						var heading = [];
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top < 10 }).last().each(function() { heading.push(this.id); });
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top >= 10 && $(this).position().top < $('.default_screen').innerHeight(); }).each(function() { heading.push(this.id); });
 						$('#ul_details li.active.blue').removeClass('active blue');
-						$('#ul_details').find('a[href*='+heading+']').find('li').addClass('active blue');
-					});
+                        heading.forEach(function(heading) { $('#ul_details').find('a[href$='+heading.substr(5)+']').find('li').addClass('active blue'); });
+					}).scroll();
 				});
 				</script>
 				<?php break;
@@ -1583,7 +1682,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$body_title = 'Status Report';
 				$include_files[] = 'edit_project_scope_status_report.php'; break;
 			case 'tasks':
-				$body_title = 'Tasks';
+				$body_title = TASK_TILE;
 				$include_files[] = 'edit_project_scope_checklists.php'; break;
 			case 'unassigned':
 				$body_title = 'Unassigned';
@@ -1602,16 +1701,18 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
                 ?>
 				<script>
 				$(document).ready(function() {
-					$('#ul_comm').find('a').off('click').click(function() {
+					$('#ul_projection').find('a').off('click').click(function() {
 						var tab = this.href.split('tab=')[1];
 						$('.main-screen .default_screen').scrollTop($('#head_'+tab).position().top + $('.main-screen .default_screen').scrollTop());
 						return false;
 					});
 					$('.main-screen .default_screen').scroll(function() {
-						var heading = $('.default_screen h3').filter(function() { return $(this).position().top < 10; }).last().attr('id').split('head_')[1];
-						$('#ul_comm li.active.blue').removeClass('active blue');
-						$('#ul_comm').find('a[href*='+heading+']').find('li').addClass('active blue');
-					});
+						var heading = [];
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top < 10 }).last().each(function() { heading.push(this.id); });
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top >= 10 && $(this).position().top < $('.default_screen').innerHeight(); }).each(function() { heading.push(this.id); });
+						$('#ul_projection li.active.blue').removeClass('active blue');
+                        heading.forEach(function(heading) { $('#ul_projection').find('a[href$='+heading.substr(5)+']').find('li').addClass('active blue'); });
+					}).scroll();
 					setTimeout(function() { $('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top); },100);
 				});
 				</script>
@@ -1621,11 +1722,13 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			case 'phone':
 			case 'agendas':
 			case 'meetings':
+			case 'comm_log':
 				$body_title = 'Communications';
 				if(in_array('Email',$tab_config)) { $include_files[] = 'edit_project_comm_email.php'; }
 				if(in_array('Phone',$tab_config)) { $include_files[] = 'edit_project_comm_phone.php'; }
 				if(in_array('Agendas',$tab_config)) { $include_files[] = 'edit_project_comm_agendas.php'; }
 				if(in_array('Meetings',$tab_config)) { $include_files[] = 'edit_project_comm_meetings.php'; }
+				if(in_array('Comm Log',$tab_config)) { $include_files[] = 'edit_project_comm_log.php'; }
 				$include_files[] = 'next_buttons.php'; ?>
 				<script>
 				$(document).ready(function() {
@@ -1635,10 +1738,12 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 						return false;
 					});
 					$('.main-screen .default_screen').scroll(function() {
-						var heading = $('.default_screen h3').filter(function() { return $(this).position().top < 10; }).last().attr('id').split('head_')[1];
+						var heading = [];
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top < 10 }).last().each(function() { heading.push(this.id); });
+                        $('.default_screen [id^=head]').filter(function() { return $(this).position().top >= 10 && $(this).position().top < $('.default_screen').innerHeight(); }).each(function() { heading.push(this.id); });
 						$('#ul_comm li.active.blue').removeClass('active blue');
-						$('#ul_comm').find('a[href*='+heading+']').find('li').addClass('active blue');
-					});
+                        heading.forEach(function(heading) { $('#ul_comm').find('a[href$='+heading.substr(5)+']').find('li').addClass('active blue'); });
+					}).scroll();
 					setTimeout(function() { $('.main-screen .default_screen').scrollTop($('#head_<?= $_GET['tab'] ?>').position().top); },100);
 				});
 				</script>
@@ -1729,6 +1834,22 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 			case 'summary':
 				$body_title = PROJECT_NOUN.' Summary';
 				$include_files[] = 'edit_project_summary.php'; break;
+			case 'summary_project':
+				$body_title = 'Project Summary';
+				//$include_files[] = 'edit_project_summary_project.php'; break;
+				$include_files[] = 'edit_project_summary.php'; break;
+			case 'summary_tickets':
+				$body_title = 'Tickets Summary';
+				$include_files[] = 'edit_project_summary_tickets.php'; break;
+			case 'summary_tasks':
+				$body_title = 'Tasks Summary';
+				$include_files[] = 'edit_project_summary_tasks.php'; break;
+			case 'summary_checklists':
+				$body_title = 'Checklists Summary';
+				$include_files[] = 'edit_project_summary_checklists.php'; break;
+			case 'summary_projections':
+				$body_title = 'Projections Summary';
+				$include_files[] = 'edit_project_summary_projections.php'; break;
 			case 'custom_details':
 				$body_title = $_GET['custom_tab'];
 				$include_files[] = 'edit_project_custom_details.php'; ?>
@@ -1752,14 +1873,47 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$body_title = '**NO_TITLE**';
 				$include_files[] = 'edit_project_path.php'; break;
 		} ?>
-		<?php if($body_title != '**NO_TITLE**') { ?>
-			<div class='standard-body-title'>
-				<h3><?= $body_title ?></h3>
+		<?php if($body_title != '**NO_TITLE**') {
+			$quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+			$flag_label = '';
+			if($project['flag_colour'] != '' && $project['flag_colour'] != 'FFFFFF') {
+				if(in_array('flag_manual',$quick_actions)) {
+					if(time() < strtotime($project['flag_start']) || time() > strtotime($project['flag_end'].' + 1 day')) {
+						$project['flag_colour'] = '';
+					} else {
+						$flag_label = $project['flag_label'];
+					}
+				} else {
+					$ticket_flag_names = [''=>''];
+					$flag_names = explode('#*#', get_config($dbc, 'ticket_colour_flag_names'));
+					foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
+						$ticket_flag_names[$colour] = $flag_names[$i];
+					}
+					$flag_label = $ticket_flag_names[$ticket['flag_colour']];
+				}
+			} ?>
+			<div class='standard-body-title' data-colour="<?= $project['flag_colour'] ?>" data-table="project" data-id-field="projectid" style="<?= $project['flag_colour'] != '' ? 'background-color: #'.$project['flag_colour'].';' : '' ?>">
+				<h3 style="margin:12px 18px;">
+                    <div class="pull-left" style="margin-top:7px;"><?= $body_title ?></div>
+                    <div class="pull-left" style="height:30px; position:relative; margin:-6px 0 0 3px;">
+                        <?php foreach(explode(',',$project['project_lead'].','.$project['project_colead'].','.$project['project_team']) as $project_staff) {
+                            if($project_staff > 0) {
+                                echo '<div class="pull-left">'.profile_id($dbc,$project_staff,false).'</div>';
+                            }
+                        } ?>
+                    </div>
+                    <div class="pull-right"><?php include('quick_actions.php'); ?></div>
+                    <span class="flag-label"><?= $flag_label ?></span>
+                    <div class="clearfix"></div>
+                </h3>
 			</div>
 		<?php } ?>
 		<div class='standard-dashboard-body-content <?= $body_title != '**NO_TITLE**' ? 'pad-top pad-left pad-right' : '' ?>'>
-			<?php foreach($include_files as $include_file) {
+			<?php foreach($include_files as $i => $include_file) {
 				include($include_file);
+                if($i < count($include_files) - 1) {
+                    echo '<div class="clearfix"></div><hr>';
+                }
 			} ?>
 		</div>
 	</div>

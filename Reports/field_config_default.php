@@ -64,7 +64,6 @@ if (isset($_POST['submit'])) {
                     <option value="Shop Work Orders" <?= $mobile_landing_subtab_config['value']=='Shop Work Orders' ? 'selected="selected"' : '' ?>>Shop Work Orders</option>
                     <option value="Purchase Orders" <?= $mobile_landing_subtab_config['value']=='Purchase Orders' ? 'selected="selected"' : '' ?>>Purchase Orders</option>
                     <option value="Inventory Log" <?= $mobile_landing_subtab_config['value']=='Inventory Log' ? 'selected="selected"' : '' ?>>Inventory Log</option>
-                    <option value="Point of Sale" <?= $mobile_landing_subtab_config['value']=='Point of Sale' ? 'selected="selected"' : '' ?>>Point of Sale (Basic)</option>
                     <option value="POS" <?= $mobile_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>><?= POS_ADVANCE_TILE ?></option>
                     <option value="Credit Card on File" <?= $mobile_landing_subtab_config['value']=='Credit Card on File' ? 'selected="selected"' : '' ?>>Credit Card on File</option>
                     <option value="Checklist Time" <?= $mobile_landing_subtab_config['value']=='Checklist Time' ? 'selected="selected"' : '' ?>>Checklist Time Tracking</option>
@@ -84,6 +83,7 @@ if (isset($_POST['submit'])) {
                     <option value="Ticket Time Summary" <?= $mobile_landing_subtab_config['value']=='Ticket Time Summary' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Time Summary</option>
                     <option value="Ticket Deleted Notes" <?= $mobile_landing_subtab_config['value']=='Ticket Deleted Notes' ? 'selected="selected"' : '' ?>>Archived <?= TICKET_NOUN ?> Notes</option>
                     <option value="Ticket Activity Report" <?= $mobile_landing_subtab_config['value']=='Ticket Activity Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Activity Report per Customer</option>
+                    <option value="Ticket Activity Extra Report" <?= $mobile_landing_subtab_config['value']=='Ticket Activity Extra Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Activity Report for Extra Billing</option>
                     <option value="Rate Card Report" <?= $mobile_landing_subtab_config['value']=='Rate Card Report' ? 'selected="selected"' : '' ?>>Rate Cards Report</option>
                     <option value="Import Summary" <?= $mobile_landing_subtab_config['value']=='Import Summary' ? 'selected="selected"' : '' ?>>Import Summary Report</option>
                     <option value="Import Details" <?= $mobile_landing_subtab_config['value']=='Import Details' ? 'selected="selected"' : '' ?>>Detailed Import Report</option>
@@ -92,8 +92,8 @@ if (isset($_POST['submit'])) {
                 </optgroup>
                 <optgroup label="Sales">
                     <option value="Validation by Therapist" <?= $mobile_landing_subtab_config['value']=='Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>
-                    <option value="POS Validation" <?= $mobile_landing_subtab_config['value']=='POS Validation' ? 'selected="selected"' : '' ?>>POS (Basic) Validation</option>
-                    <option value="POS Advanced Validation" <?= $mobile_landing_subtab_config['value']=='POS Advanced Validation' ? 'selected="selected"' : '' ?>>POS (Advanced) Validation</option>
+                    <!-- <option value="POS Validation" <?= $mobile_landing_subtab_config['value']=='POS Validation' ? 'selected="selected"' : '' ?>>POS (Basic) Validation</option> -->
+                    <option value="POS Advanced Validation" <?= $mobile_landing_subtab_config['value']=='POS Advanced Validation' ? 'selected="selected"' : '' ?>>POS Validation</option>
                     <option value="Phone Communication" <?= $mobile_landing_subtab_config['value']=='Phone Communication' ? 'selected="selected"' : '' ?>>Phone Communication</option>
                     <option value="Daily Deposit Report" <?= $mobile_landing_subtab_config['value']=='Daily Deposit Report' ? 'selected="selected"' : '' ?>>Daily Deposit Report</option>
                     <option value="Monthly Sales by Injury Type" <?= $mobile_landing_subtab_config['value']=='Monthly Sales by Injury Type' ? 'selected="selected"' : '' ?>>Monthly Sales by Injury Type</option>
@@ -117,8 +117,8 @@ if (isset($_POST['submit'])) {
                     <option value="Estimate Item Closing % By Quantity" <?= $mobile_landing_subtab_config['value']=='Estimate Item Closing % By Quantity' ? 'selected="selected"' : '' ?>>Estimate Item Closing % By Quantity</option>
                     <option value="Gross Revenue by Staff" <?= $mobile_landing_subtab_config['value']=='Gross Revenue by Staff' ? 'selected="selected"' : '' ?>>Gross Revenue by Staff</option>
                     <option value="Patient Invoices" <?= $mobile_landing_subtab_config['value']=='Patient Invoices' ? 'selected="selected"' : '' ?>>Customer Invoices</option>
-                    <option value="POS Sales Summary" <?= $mobile_landing_subtab_config['value']=='POS Sales Summary' ? 'selected="selected"' : '' ?>>POS (Basic) Sales Summary</option>
-                    <option value="POS Advanced Sales Summary" <?= $mobile_landing_subtab_config['value']=='POS Advanced Sales Summary' ? 'selected="selected"' : '' ?>>POS (Advanced) Sales Summary</option>
+                    <!-- <option value="POS Sales Summary" <?= $mobile_landing_subtab_config['value']=='POS Sales Summary' ? 'selected="selected"' : '' ?>>POS (Basic) Sales Summary</option> -->
+                    <option value="POS Advanced Sales Summary" <?= $mobile_landing_subtab_config['value']=='POS Advanced Sales Summary' ? 'selected="selected"' : '' ?>>POS Sales Summary</option>
                     <option value="Profit-Loss" <?= $mobile_landing_subtab_config['value']=='Profit-Loss' ? 'selected="selected"' : '' ?>>Profit-Loss</option>
                     <option value="Profit-Loss POS Advanced" <?= $mobile_landing_subtab_config['value']=='Profit-Loss POS Advanced' ? 'selected="selected"' : '' ?>>Profit-Loss (POS Advanced)</option>
                     <option value="Transaction List by Customer" <?= $mobile_landing_subtab_config['value']=='Transaction List by Customer' ? 'selected="selected"' : '' ?>>Transaction List by Customer</option>
@@ -134,8 +134,8 @@ if (isset($_POST['submit'])) {
                     <option value="Customer Balance by Invoice" <?= $mobile_landing_subtab_config['value']=='Customer Balance by Invoice' ? 'selected="selected"' : '' ?>>Customer Balance by Invoice</option>
                     <option value="Collections Report by Customer" <?= $mobile_landing_subtab_config['value']=='Collections Report by Customer' ? 'selected="selected"' : '' ?>>Collections Report by Customer</option>
                     <option value="Invoice List" <?= $mobile_landing_subtab_config['value']=='Invoice List' ? 'selected="selected"' : '' ?>>Invoice List</option>
-                    <option value="POS Receivables (Basic)" <?= $mobile_landing_subtab_config['value']=='POS Receivables (Basic)' ? 'selected="selected"' : '' ?>>POS Receivables (Basic)</option>
-                    <option value="POS Receivables (Advanced)" <?= $mobile_landing_subtab_config['value']=='POS Receivables (Advanced)' ? 'selected="selected"' : '' ?>>POS Receivables (Advanced)</option>
+                    <!-- <option value="POS Receivables (Basic)" <?= $mobile_landing_subtab_config['value']=='POS Receivables (Basic)' ? 'selected="selected"' : '' ?>>POS Receivables (Basic)</option> -->
+                    <option value="POS Receivables" <?= $mobile_landing_subtab_config['value']=='POS Receivables' ? 'selected="selected"' : '' ?>>POS Receivables </option>
                     <option value="UI Invoice Report" <?= $mobile_landing_subtab_config['value']=='UI Invoice Report' ? 'selected="selected"' : '' ?>>UI Invoice Report</option>
                 </optgroup>
                 <optgroup label="Profit & Loss">
@@ -228,7 +228,6 @@ if (isset($_POST['submit'])) {
                     <option value="Shop Work Orders" <?= $desktop_landing_subtab_config['value']=='Shop Work Orders' ? 'selected="selected"' : '' ?>>Shop Work Orders</option>
                     <option value="Purchase Orders" <?= $desktop_landing_subtab_config['value']=='Purchase Orders' ? 'selected="selected"' : '' ?>>Purchase Orders</option>
                     <option value="Inventory Log" <?= $desktop_landing_subtab_config['value']=='Inventory Log' ? 'selected="selected"' : '' ?>>Inventory Log</option>
-                    <option value="Point of Sale" <?= $desktop_landing_subtab_config['value']=='Point of Sale' ? 'selected="selected"' : '' ?>>Point of Sale (Basic)</option>
                     <option value="POS" <?= $desktop_landing_subtab_config['value']=='POS' ? 'selected="selected"' : '' ?>><?= POS_ADVANCE_TILE ?></option>
                     <option value="Credit Card on File" <?= $desktop_landing_subtab_config['value']=='Credit Card on File' ? 'selected="selected"' : '' ?>>Credit Card on File</option>
                     <option value="Checklist Time" <?= $desktop_landing_subtab_config['value']=='Checklist Time' ? 'selected="selected"' : '' ?>>Checklist Time Tracking</option>
@@ -248,6 +247,7 @@ if (isset($_POST['submit'])) {
                     <option value="Ticket Time Summary" <?= $desktop_landing_subtab_config['value']=='Ticket Time Summary' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Time Summary</option>
                     <option value="Ticket Deleted Notes" <?= $desktop_landing_subtab_config['value']=='Ticket Deleted Notes' ? 'selected="selected"' : '' ?>>Archived <?= TICKET_NOUN ?> Notes</option>
                     <option value="Ticket Activity Report" <?= $desktop_landing_subtab_config['value']=='Ticket Activity Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Activity Report per Customer</option>
+                    <option value="Ticket Activity Extra Report" <?= $desktop_landing_subtab_config['value']=='Ticket Activity Extra Report' ? 'selected="selected"' : '' ?>><?= TICKET_NOUN ?> Activity Report for Extra Billing</option>
                     <option value="Rate Card Report" <?= $desktop_landing_subtab_config['value']=='Rate Card Report' ? 'selected="selected"' : '' ?>>Rate Cards Report</option>
                     <option value="Import Summary" <?= $desktop_landing_subtab_config['value']=='Import Summary' ? 'selected="selected"' : '' ?>>Import Summary Report</option>
                     <option value="Import Details" <?= $desktop_landing_subtab_config['value']=='Import Details' ? 'selected="selected"' : '' ?>>Detailed Import Report</option>
@@ -256,8 +256,8 @@ if (isset($_POST['submit'])) {
                 </optgroup>
                 <optgroup label="Sales">
                     <option value="Validation by Therapist" <?= $desktop_landing_subtab_config['value']=='Validation by Therapist' ? 'selected="selected"' : '' ?>>Validation by Therapist</option>
-                    <option value="POS Validation" <?= $desktop_landing_subtab_config['value']=='POS Validation' ? 'selected="selected"' : '' ?>>POS (Basic) Validation</option>
-                    <option value="POS Advanced Validation" <?= $desktop_landing_subtab_config['value']=='POS Advanced Validation' ? 'selected="selected"' : '' ?>>POS (Advanced) Validation</option>
+                    <!-- <option value="POS Validation" <?= $desktop_landing_subtab_config['value']=='POS Validation' ? 'selected="selected"' : '' ?>>POS (Basic) Validation</option> -->
+                    <option value="POS Advanced Validation" <?= $desktop_landing_subtab_config['value']=='POS Advanced Validation' ? 'selected="selected"' : '' ?>>POS Validation</option>
                     <option value="Phone Communication" <?= $desktop_landing_subtab_config['value']=='Phone Communication' ? 'selected="selected"' : '' ?>>Phone Communication</option>
                     <option value="Daily Deposit Report" <?= $desktop_landing_subtab_config['value']=='Daily Deposit Report' ? 'selected="selected"' : '' ?>>Daily Deposit Report</option>
                     <option value="Monthly Sales by Injury Type" <?= $desktop_landing_subtab_config['value']=='Monthly Sales by Injury Type' ? 'selected="selected"' : '' ?>>Monthly Sales by Injury Type</option>
@@ -281,8 +281,8 @@ if (isset($_POST['submit'])) {
                     <option value="Estimate Item Closing % By Quantity" <?= $desktop_landing_subtab_config['value']=='Estimate Item Closing % By Quantity' ? 'selected="selected"' : '' ?>>Estimate Item Closing % By Quantity</option>
                     <option value="Gross Revenue by Staff" <?= $desktop_landing_subtab_config['value']=='Gross Revenue by Staff' ? 'selected="selected"' : '' ?>>Gross Revenue by Staff</option>
                     <option value="Patient Invoices" <?= $desktop_landing_subtab_config['value']=='Patient Invoices' ? 'selected="selected"' : '' ?>>Customer Invoices</option>
-                    <option value="POS Sales Summary" <?= $desktop_landing_subtab_config['value']=='POS Sales Summary' ? 'selected="selected"' : '' ?>>POS (Basic) Sales Summary</option>
-                    <option value="POS Advanced Sales Summary" <?= $desktop_landing_subtab_config['value']=='POS Advanced Sales Summary' ? 'selected="selected"' : '' ?>>POS (Advanced) Sales Summary</option>
+                    <!-- <option value="POS Sales Summary" <?= $desktop_landing_subtab_config['value']=='POS Sales Summary' ? 'selected="selected"' : '' ?>>POS (Basic) Sales Summary</option> -->
+                    <option value="POS Advanced Sales Summary" <?= $desktop_landing_subtab_config['value']=='POS Advanced Sales Summary' ? 'selected="selected"' : '' ?>>POS Sales Summary</option>
                     <option value="Profit-Loss" <?= $desktop_landing_subtab_config['value']=='Profit-Loss' ? 'selected="selected"' : '' ?>>Profit-Loss</option>
                     <option value="Profit-Loss POS Advanced" <?= $desktop_landing_subtab_config['value']=='Profit-Loss POS Advanced' ? 'selected="selected"' : '' ?>>Profit-Loss (POS Advanced)</option>
                     <option value="Transaction List by Customer" <?= $desktop_landing_subtab_config['value']=='Transaction List by Customer' ? 'selected="selected"' : '' ?>>Transaction List by Customer</option>
@@ -298,7 +298,7 @@ if (isset($_POST['submit'])) {
                     <option value="Customer Balance by Invoice" <?= $desktop_landing_subtab_config['value']=='Customer Balance by Invoice' ? 'selected="selected"' : '' ?>>Customer Balance by Invoice</option>
                     <option value="Collections Report by Customer" <?= $desktop_landing_subtab_config['value']=='Collections Report by Customer' ? 'selected="selected"' : '' ?>>Collections Report by Customer</option>
                     <option value="Invoice List" <?= $desktop_landing_subtab_config['value']=='Invoice List' ? 'selected="selected"' : '' ?>>Invoice List</option>
-                    <option value="POS Receivables (Basic)" <?= $desktop_landing_subtab_config['value']=='POS Receivables (Basic)' ? 'selected="selected"' : '' ?>>POS Receivables (Basic)</option>
+                    <!-- <option value="POS Receivables (Basic)" <?= $desktop_landing_subtab_config['value']=='POS Receivables (Basic)' ? 'selected="selected"' : '' ?>>POS Receivables (Basic)</option> -->
                     <option value="UI Invoice Report" <?= $desktop_landing_subtab_config['value']=='UI Invoice Report' ? 'selected="selected"' : '' ?>>UI Invoice Report</option>
                 </optgroup>
                 <optgroup label="Profit & Loss">
@@ -380,6 +380,9 @@ if (isset($_POST['submit'])) {
                   <option value="History Expenses History" <?= $desktop_landing_subtab_config['value']=='History Expenses History' ? 'selected="selected"' : '' ?>>Expenses History</option>
                   <option value="History Estimates History" <?= $desktop_landing_subtab_config['value']=='History Estimates History' ? 'selected="selected"' : '' ?>>Estimates History</option>
                   <option value="History Products History" <?= $desktop_landing_subtab_config['value']=='History Products History' ? 'selected="selected"' : '' ?>>Products History</option>
+                  <option value="History Safety History" <?= $desktop_landing_subtab_config['value']=='History Safety History' ? 'selected="selected"' : '' ?>>Safety History</option>
+                  <option value="History DB Backup History" <?= $desktop_landing_subtab_config['value']=='History DB Backup History' ? 'selected="selected"' : '' ?>>DB Backup History</option>
+                  <option value="History Field Jobs History" <?= $desktop_landing_subtab_config['value']=='History Field Jobs History' ? 'selected="selected"' : '' ?>>Field Jobs History</option>
               </optgroup>
               <optgroup label="Estimates">
                   <option value="Estimate Report" <?= $desktop_landing_subtab_config['value']=='Estimate Report' ? 'selected="selected"' : '' ?>>Estimate Report</option>

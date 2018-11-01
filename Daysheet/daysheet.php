@@ -33,6 +33,13 @@ if(empty($daysheet_button_config)) {
     $daysheet_button_config = explode(',', $daysheet_button_config);
 }
 
+$quick_actions = explode(',',get_config($dbc, 'daysheet_quick_action_icons'));
+$quick_action_html = '';
+$quick_action_html .= '<div class="action-icons pull-right gap-right">';
+$quick_action_html .= (in_array('reply',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">' : '');
+$quick_action_html .= (in_array('email',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">' : '');
+$quick_action_html .= (in_array('reminder',$quick_actions) ? '<img src="'.WEBSITE_URL.'/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">' : '');
+$quick_action_html .= '</div>';
 ?>
 </head>
 <style>
@@ -42,27 +49,36 @@ hr {
 </style>
 <script type="text/javascript" src="../Profile/profile.js"></script>
 <script type="text/javascript">
-    $(document).ready(function(){        
-        if($(window).width() >= 768) {
-            $(window).resize(function() {
-                var screen_height = $(window).height() > 500 ? $(window).height() : 500;
-                $('.main-screen .set-section-height').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen .set-section-height').offset().top - 1);
-                $('ul.sidebar').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen .set-section-height').offset().top - 1);
-                $('div.sidebar').not('.weekly').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen-details').offset().top - 1);
-                if($('div.sidebar.weekly').length > 0) {
-                    $('div.sidebar.weekly').outerHeight(screen_height - $('#footer:visible').height() - $('div.sidebar.weekly').offset().top - 1);
-                }
-                if($('[name="daysheet_notepad"]').length > 0) {
-                    $('[name="daysheet_notepad"]').outerHeight(screen_height - $('#footer:visible').height() - $('div.sidebar.weekly').offset().top - 170 - 1);
-                }
-            }).resize();
-        } else {
-            $(window).resize(function() {
-                $('div.sidebar').css('height', '100%');
-                $('div.tile-content').height($(window).height() - $('#footer:visible').height() - $('div.tile-content').offset().top - 1);
-            }).resize();
-        }
+$(document).ready(function(){        
+    if($(window).width() >= 768) {
+        $(window).resize(function() {
+            var screen_height = $(window).height() > 500 ? $(window).height() : 500;
+            $('.main-screen .set-section-height').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen .set-section-height').offset().top - 1);
+            $('ul.sidebar').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen .set-section-height').offset().top - 1);
+            $('div.sidebar').not('.weekly').outerHeight(screen_height - $('#footer:visible').height() - $('.main-screen-details').offset().top - 1);
+            if($('div.sidebar.weekly').length > 0) {
+                $('div.sidebar.weekly').outerHeight(screen_height - $('#footer:visible').height() - $('div.sidebar.weekly').offset().top - 1);
+            }
+            if($('[name="daysheet_notepad"]').length > 0) {
+                $('[name="daysheet_notepad"]').outerHeight(screen_height - $('#footer:visible').height() - $('div.sidebar.weekly').offset().top - 170 - 1);
+            }
+        }).resize();
+    } else {
+        $(window).resize(function() {
+            $('div.sidebar').css('height', '100%');
+            $('div.tile-content').height($(window).height() - $('#footer:visible').height() - $('div.tile-content').offset().top - 1);
+        }).resize();
+    }
+    $('.reply-icon').off('click').click(function() {
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=planner&id=<?= $_SESSION['contactid'] ?>', 'auto', false, true);
     });
+    $('.reminder-icon').off('click').click(function() {
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=planner&id=<?= $_SESSION['contactid'] ?>', 'auto', false, true);
+    });
+    $('.email-icon').off('click').click(function() {
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=planner&id=<?= $_SESSION['contactid'] ?>', 'auto', false, true);
+    });
+});
 </script>
 <body>
 <?php include_once ('../navigation.php');
@@ -99,13 +115,17 @@ checkAuthorised();
 						<?php if(get_config($dbc, 'planner_end_day') == 'show') { ?>
 							<a href="?end_day=end" class="btn brand-btn pull-right">End Day</a>
 						<?php } ?>
+                        <?= '<div class="pull-right hide-titles-mob">'.$quick_action_html.'</div>' ?>
+                        <?= '<div class="clearfix"></div><div class="show-on-mob pull-right">'.$quick_action_html.'</div>' ?>
                     </div>
                 </div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
 
             <div class="tile-container" style="height: 100%;">
-                <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+                <?php if($_GET['tab'] != 'timesheets') { ?>
+                    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
+                <?php } ?>
 
                 	<?php if($_GET['settings'] == 'config') { ?>
 	                    <!-- Sidebar -->
@@ -125,7 +145,7 @@ checkAuthorised();
                             include('../Profile/daysheet_overview.php');
                         } else if ($_GET['settings'] == 'config') {
                             include('../Profile/field_config_daysheet.php');
-                        } else if ($_GET['tab'] == 'journals') {
+                        } else if ($_GET['tab'] == 'journals' || $_GET['tab'] == 'notes' || $_GET['tab'] == 'scrum_notes') {
                             include('../Daysheet/journal.php');
                         } else {
                             include('../Profile/daysheet_main.php');
@@ -134,7 +154,9 @@ checkAuthorised();
                     
                     <div class="clearfix"></div>
                 </div><!-- .tile-container -->
-            </form>
+            <?php if($_GET['tab'] != 'timesheets') { ?>
+                </form>
+            <?php } ?>
 
         </div><!-- .main-screen -->
     </div><!-- .row -->

@@ -77,7 +77,7 @@ if (isset($_POST['submit_btn'])) {
         } else if($search_invoice != '') {
             echo '<script type="text/javascript"> alert("Invoice Updated."); window.location.replace("all_invoice.php?search_invoice='.$search_invoice.'");</script>';
         } else {
-            echo '<script type="text/javascript"> alert("Invoice Generated."); window.location.replace("today_invoice.php");
+            echo '<script type="text/javascript"> alert("Invoice Generated."); window.location.replace("index.php?tab=today");
             window.open("download/invoice_'.$invoiceid.'.pdf", "fullscreen=yes");
             </script>';
         }

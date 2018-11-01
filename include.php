@@ -8,8 +8,8 @@ $_SERVER['page_load_info'] .= 'Database Connected: '.number_format(microtime(tru
 include_once ('function.php');
 $_SERVER['page_load_info'] .= 'Functions Loaded: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 include_once ('global.php');
-session_write_close();
 $_SERVER['page_load_info'] .= 'Globals Declared: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
+session_write_close();
 if ($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest') {
 	include_once ('header.php');
 } else { ?>
@@ -65,6 +65,35 @@ if(mysqli_num_rows($page_options) > 0) {
 		}
 	}
 }
+
+// Get User's time zone offset
+$_SESSION['time_offset'] = '';
+$user_regions = get_contact($dbc, $_SESSION['contactid'], 'region');
+$user_classes = get_contact($dbc, $_SESSION['contactid'], 'classification');
+foreach(array_filter(explode(',',$user_regions)) as $user_region) {
+    foreach(explode(',',get_config($dbc, 'contacts_region')) as $i => $region_name) {
+        if($region_name == $user_region && $region_name != '') {
+            $_SESSION['time_offset'] = explode(',',get_config($dbc, 'region_time_offset'))[$i];
+        }
+    }
+}
+foreach(array_filter(explode(',',$user_classes)) as $user_class) {
+    foreach(explode(',',get_config($dbc, 'contacts_classification')) as $i => $class_name) {
+        if($class_name == $user_class && $class_name != '') {
+            $_SESSION['time_offset'] = explode(',',get_config($dbc, 'classification_time_offset'))[$i];
+        }
+    }
+}
+$offset = new DateTime();
+if(empty($_SESSION['time_offset'])) {
+    $_SESSION['time_offset'] = $offset->getOffset();
+} else {
+    $_SESSION['time_offset'] = get_offset_from_zone($_SESSION['time_offset']);
+}
+$offset = sprintf('%d:%02d', $offset->getOffset() / 3600, ($offset->getOffset() / 60) % 60);
+$offset = $dbc->prepare("SET time_zone='$offset'");
+$offset->execute();
+
 if(strpos_any !== FALSE)
 $_SERVER['page_load_info'] .= 'Start of Page: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 if(get_config($dbc, 'timesheet_force_end_midnight') > 0 && strtotime(get_config($dbc, 'timesheet_midnight_last_ended')) < strtotime(date('Y-m-d'))) {

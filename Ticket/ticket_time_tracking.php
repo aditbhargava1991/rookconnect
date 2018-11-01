@@ -22,7 +22,7 @@ if($num_rows > 0) { ?>
 	<div id="no-more-tables">
     <table class='table table-bordered'>
 	<tr class='hidden-xs'>
-		<th>Type</th>
+		<th>Tab</th>
 		<th>Time</th>
 		<th>Date</th>
 		<th>Added By</th>
@@ -30,6 +30,10 @@ if($num_rows > 0) { ?>
 	</tr>
 	<?php $add_times = 0;
 	$est_times = 0;
+	$manual_time_total = array();
+	$manual_second = 0;
+	$manual_minute = 0;
+	$manual_hour = 0;
 	while($row = mysqli_fetch_array($result)) {
 		if($row['deleted'] == 1) {
 			$deleted_styling = 'style="text-decoration: line-through;"';
@@ -38,7 +42,7 @@ if($num_rows > 0) { ?>
 		}
 		echo '<tr data-table="'.$row['ticket_table'].'" data-id="'.($row['id'] > 0 ? $row['id'] : $row['tickettimerid']).'" '.$deleted_styling.'>';
 		$by = $row['created_by'];
-		echo '<td data-title="Type">'.$row['type'].'</td>';
+		echo '<td data-title="Tab">'.$row['type'].'</td>';
 		echo '<td data-title="Time">'.$row['time'].'</td>';
 		echo '<td data-title="Date">'.substr($row['created_date'],0,10).'</td>';
 		echo '<td data-title="Added By">'.get_staff($dbc, $by).'</td>';
@@ -63,6 +67,13 @@ if($num_rows > 0) { ?>
 				$est_times += $row['second_count'];
 			}
 		}
+
+		if($row['type'] == 'Manual Time' && $row['deleted'] != 1) {
+			$manual_time_total_array = explode(":", $row['time']);
+			$manual_second += $manual_time_total_array[2];
+			$manual_minute += $manual_time_total_array[1];
+			$manual_hour += $manual_time_total_array[0];
+		}
 	}
 
 	$hours = str_pad(floor($add_times / 3600),2,'0',STR_PAD_LEFT);
@@ -71,10 +82,14 @@ if($num_rows > 0) { ?>
 	$est_hours = str_pad(floor($est_times / 3600),2,'0',STR_PAD_LEFT);
 	$est_minutes = str_pad(floor(($est_times % 3600) / 60),2,'0',STR_PAD_LEFT);
 	$est_seconds = str_pad(floor($est_times % 60),2,'0',STR_PAD_LEFT);
+	$manual_hour = str_pad($manual_hour,2,'0',STR_PAD_LEFT);
+	$manual_minute = str_pad($manual_minute,2,'0',STR_PAD_LEFT);
+	$manual_second = str_pad($manual_second,2,'0',STR_PAD_LEFT);
+
 
 	echo '<tr><td><b>Total Time Estimated</b></td><td colspan="4"><b>'.$est_hours.':'.$est_minutes.':'.$est_seconds.'</b></td></tr>';
 	echo '<tr><td><b>Total Time Spent - Timer</b></td><td colspan="4"><b>'.$hours.':'.$minutes.':'.$seconds.'</b></td></tr>';
-	echo '<tr><td><b>Total Time Spent - Manual</b></td><td colspan="4"><b>'.$get_ticket['spent_time'].'</b></td></tr>';
+	echo '<tr><td><b>Total Time Spent - Manual</b></td><td colspan="4"><b>'.$manual_hour.':'.$manual_minute.':'.$manual_second.'</b></td></tr>';
 	echo '</table></div>';
 } else {
 	echo "<h5>No Time Tracked</h5>";

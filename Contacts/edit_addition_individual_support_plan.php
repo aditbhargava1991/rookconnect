@@ -1535,10 +1535,10 @@ function selectContactCategory(sel) {
 }
 
 function addAnotherGoal(link) {
-    var clone = $('[name="isp_goals_name[]"]').first().clone();
+    var clone = $('[name="isp_goals[]"]').first().clone(true);
     clone.val('');
     $(link).closest('.form-group').find('div.col-sm-8').append(clone);
-    $('[data-field]').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+    $('[data-field]').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 }
 var default_contact_list = '';
 function contact_clone(btn) {
@@ -1555,13 +1555,17 @@ function contact_clone(btn) {
         group = group.next('.contact_group');
     }
     group.after(contact);
-    $('[data-field]').off('change', saveField).change(saveField).off('keyup').keyup(syncUnsaved);
+    $('[data-field]').off('blur',unsaved).blur(unsaved).off('focus',unsaved).focus(unsaved).off('change',saveField).change(saveField);
 }
 function contact_remove(btn) {
     if($(btn).closest('.contact_group').next('h3').length == 1 && $(btn).closest('.contact_group').prev('h3').length == 1) {
         contact_clone(btn);
     }
+    var select_name = $(btn).closest('.contact_group').find('select').last().prop('name');
     $(btn).closest('.contact_group').remove();
+    if(select_name != undefined && select_name != '') {
+        $('[name="'+select_name+'"]').first().change();
+    }
 }
 function checkContactChange(sel) {
     if(sel.value == 'NEW_CONTACT') {

@@ -100,7 +100,6 @@ if (isset($_POST['submit'])) {
                         <label for="fax_number"	class="col-sm-4	control-label"><?php echo $cat_tab_cat; ?>:</label>
                         <div class="col-sm-8">
                             <select multiple name="password_assign_<?php echo $i; ?>[]" data-placeholder="Choose a User..." class="chosen-select-deselect form-control" width="380">
-                              <option value=""></option>
 							  <?php
 								$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status` > 0"),MYSQLI_ASSOC));
 								foreach($query as $id) {

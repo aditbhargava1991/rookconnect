@@ -172,7 +172,9 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
     $total9 =  0;
     $final_total = 0;
 
+    $odd_even=0;
     foreach($daterange as $date) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $sub_total = 0;
         $check_date = $date->format("Y-m-d") . "<br>";
 
@@ -203,7 +205,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
         $all_probono = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT SUM(patient_price) as `all_probono` FROM invoice_patient WHERE paid='Pro-Bono' AND paid_date = '".$check_date."'"));
         $probono = $all_probono['all_probono'];
 
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         $report_data .=  '<td>'.$check_date.'</td>';
 
         $report_data .= '<td>';
@@ -384,6 +386,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
         $report_data .=  '<td>$'.number_format($dd, 2).'</td><td><b>$'.$sub_total.'</b></td>';
         $report_data .=  '</tr>';
         $final_total += $sub_total;
+        $odd_even++;
     }
 
     $report_data .=  '<tr><td><b>Grand Total</b></td><td><b>$'.number_format($total1, 2).'</b></td><td><b>$'.number_format($total2, 2).'</b></td><td><b>$'.number_format($total6, 2).'</b></td><td><b>$'.number_format($total3, 2).'</b></td><td><b>$'.number_format($total4, 2).'</b></td><td><b>$'.number_format($total5, 2).'</b></td><td><b>$'.number_format($total7, 2).'</b></td><td><b>$'.number_format($total8, 2).'</b></td><td><b>$'.number_format($total9, 2).'</b></td><td><b>$'.number_format(($final_total), 2).'</b></td></tr>';

@@ -61,7 +61,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_summary.php') {
 			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
-	
+
 	//Apply Templates
 	if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
 		$value_config = ',Information,PI Business,PI Name,PI Project,PI AFE,PI Sites,Staff,Staff Position,Staff Hours,Staff Overtime,Staff Travel,Staff Subsistence,Services,Service Category,Equipment,Materials,Material Quantity,Material Rates,Purchase Orders,Notes,';
@@ -76,8 +76,9 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'add_ticket_summary.php') {
 }
 if(!empty($_GET['date'])) {
 	$current_date = filter_var($_GET['date'],FILTER_SANITIZE_STRING);
-	$query_daily = " AND `date_stamp`='".$current_date."' ";
-}
+	$query_daily = " AND `date_stamp`='".$current_date."' "; ?>
+    <input type="hidden" name="load_for_date" value="<?= $_GET['date'] ?>">
+<?php }
 
 $summary_hide_positions = get_config($dbc, 'ticket_summary_hide_positions');
 if($get_ticket['ticket_type'] != '') {
@@ -164,8 +165,8 @@ if(!empty($summary_hide_positions)) {
 						</div>
 						<div class="col-sm-1">
 							<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-							<a href="" onclick="addMulti(this, 'inline'); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
-							<a href="" onclick="remMulti(this); return false;"><img class="inline-img pull-right" src="../img/remove.png"></a>
+							<a href="" onclick="addMulti(this, 'inline'); return false;"><img class="inline-img pull-right" data-history-label="Staff Summary" src="../img/icons/ROOK-add-icon.png"></a>
+							<a href="" onclick="remMulti(this); return false;"><img class="inline-img pull-right" data-history-label="Staff Summary" src="../img/remove.png"></a>
 						</div>
 					</div>
 				<?php }
@@ -515,18 +516,101 @@ if(!empty($summary_hide_positions)) {
 						<td data-title="Staff"><?= get_contact($dbc, $summary['item_id']) ?>
 						<br><label class="form-checkbox"><input type="checkbox" name="discrepancy" <?= $summary['discrepancy'] == 1 ? 'checked' : '' ?> data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="1">Do Not Require Notes</label></td>
 						<td data-title="Planned Hours"><?= $get_ticket['start_time'].' - '.$get_ticket['end_time'] ?></td>
-						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
+						<td data-title="Tracked Hours">
+							<?php $tracked_hours = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$summary['id']."'"),MYSQLI_ASSOC);
+							if(!empty($tracked_hours)) {
+								$tracked_html = [];
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_html[] = $tracked_hour['checked_in'].' - '.$tracked_hour['checked_out'];
+								}
+								$tracked_html = implode('<br />',$tracked_html);
+							} else {
+								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
+							}
+							echo $tracked_html;
+							?>
+						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-							if($summary['hours_tracked'] > 0) {
-								$tracked_time = number_format($summary['hours_tracked'],2);
+
+							if(!empty($tracked_hours)) {
+								$tracked_time = 0;
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_time += number_format((strtotime(date('Y-m-d').' '.$tracked_hour['checked_out']) - strtotime(date('Y-m-d').' '.$tracked_hour['checked_in']))/3600,2);
+								}
 							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
 							}
 							echo $tracked_time; ?>
 						</td>
 						<td data-title="Payable Hours" <?= check_subtab_persmission($dbc, 'ticket', ROLE, 'view_payable') ? '' : 'style="display:none;"' ?>>
 							<input data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" <?= strpos($value_config,',Time Tracking Edit Past Date') !== FALSE && $get_ticket['to_do_date'] != '' ? 'data-date="'.$get_ticket['to_do_date'].'"' : '' ?> type="number" name="time_set" value="<?= $summary['hours_set'] ?>" class="form-control" min="0" step="any">
+						</td>
+					</tr>
+				<?php } ?>
+			</table>
+		</div>
+	<?php }
+	if(strpos($value_config,',Planned Tracked Payable Staff Multiple Times,')) { ?>
+		<div class="form-group">
+			<table id="no-more-tables" class="table table-bordered summary_table">
+				<tr class='hide-titles-mob'>
+					<th>Staff</th>
+					<th>Planned Hours</th>
+					<th>Tracked Hours</th>
+					<th>Total Tracked Time</th>
+					<th <?= check_subtab_persmission($dbc, 'ticket', ROLE, 'view_payable') ? '' : 'style="display:none;"' ?>>Payable Hours</th>
+				</tr>
+				<?php $summary_staff = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily);
+				 while($summary = mysqli_fetch_array($summary_staff)) {
+					 $staff_times = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Multiple_Timesheet_Row' AND `item_id` = '".$summary['id']."' AND '".$summary['id']."' > 0 AND `deleted` = 0"),MYSQLI_ASSOC); ?>
+					<tr class="summary">
+						<td data-title="Staff"><?= get_contact($dbc, $summary['item_id']) ?>
+						<br><label class="form-checkbox"><input type="checkbox" name="discrepancy" <?= $summary['discrepancy'] == 1 ? 'checked' : '' ?> data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="1">Do Not Require Notes</label></td>
+						<td data-title="Planned Hours">
+							<?php $planned_html = [];
+							foreach($staff_times as $staff_time) {
+								$planned_html[] = $staff_time['date_stamp'].' '.$staff_time['start_time'].' - '.$staff_time['end_time'];
+							}
+							$planned_html = implode('<br />',$planned_html);
+							echo $planned_html;
+							?>
+						</td>
+						<td data-title="Tracked Hours">
+							<?php $tracked_hours = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$summary['id']."'"),MYSQLI_ASSOC);
+							if(!empty($tracked_hours)) {
+								$tracked_html = [];
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_html[] = (!empty(str_replace('0000-00-00','',$tracked_hour['checked_in_date'])) ? $tracked_hour['checked_in_date'].' ' : '').$tracked_hour['checked_in'].' - '.(!empty(str_replace('0000-00-00','',$tracked_hour['checked_out_date'])) ? $tracked_hour['checked_out_date'].' ' : '').$tracked_hour['checked_out'];
+								}
+								$tracked_html = implode('<br />',$tracked_html);
+							} else {
+								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
+							}
+							echo $tracked_html;
+							?>
+						</td>
+						<td data-title="Total Tracked Time">
+							<?php $tracked_time = '-';
+
+							if(!empty($tracked_hours)) {
+								$tracked_time = 0;
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_time += number_format((strtotime((!empty(str_replace('0000-00-00','',$tracked_hour['checked_out_date'])) ? $tracked_hour['checked_out_date'] : date('Y-m-d')).' '.$tracked_hour['checked_out']) - strtotime((!empty(str_replace('0000-00-00','',$tracked_hour['checked_in_date'])) ? $tracked_hour['checked_in_date'] : date('Y-m-d')).' '.$tracked_hour['checked_in']))/3600,2);
+								}
+							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
+								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
+							}
+							echo $tracked_time; ?>
+						</td>
+						<td data-title="Payable Hours" <?= check_subtab_persmission($dbc, 'ticket', ROLE, 'view_payable') ? '' : 'style="display:none;"' ?>>
+							<?php foreach($staff_times as $staff_time) { ?>
+								<input type="number" min=0 step="<?= $hour_increment ?>" name="hours_set" data-table="ticket_attached" data-id="<?= $staff_time['id'] ?>" data-id-field="id" data-type="Multiple_Timesheet_Row" data-type-field="src_table" class="form-control" value="<?= $staff_time['hours_set'] ?>">
+							<?php } ?>
 						</td>
 					</tr>
 				<?php } ?>
@@ -548,13 +632,32 @@ if(!empty($summary_hide_positions)) {
 					<tr class="summary">
 						<td data-title="Member"><?= get_contact($dbc, $summary['item_id']) ?></td>
 						<td data-title="Planned Hours"><?= $get_ticket['member_start_time'].' - '.$get_ticket['member_end_time'] ?></td>
-						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
+						<td data-title="Tracked Hours">
+							<?php $tracked_hours = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$summary['id']."'"),MYSQLI_ASSOC);
+							if(!empty($tracked_hours)) {
+								$tracked_html = [];
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_html[] = $tracked_hour['checked_in'].' - '.$tracked_hour['checked_out'];
+								}
+								$tracked_html = implode('<br />',$tracked_html);
+							} else {
+								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
+							}
+							echo $tracked_html;
+							?>
+						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-							if($summary['hours_tracked'] > 0) {
-								$tracked_time = number_format($summary['hours_tracked'],2);
+
+							if(!empty($tracked_hours)) {
+								$tracked_time = 0;
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_time += number_format((strtotime(date('Y-m-d').' '.$tracked_hour['checked_out']) - strtotime(date('Y-m-d').' '.$tracked_hour['checked_in']))/3600,2);
+								}
 							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
 							}
 							echo $tracked_time; ?>
 						</td>
@@ -573,7 +676,7 @@ if(!empty($summary_hide_positions)) {
 		<div class="form-group">
 			<table id="no-more-tables" class='table table-bordered'>
 				<tr class='hide-titles-mob'>
-					<th>Type</th>
+					<th>Tab</th>
 					<th>Total Hours Tracked</th>
 				</tr>
 				<?php if(strpos($value_config,',Total Time Tracked Staff,')) { ?>
@@ -600,17 +703,21 @@ if(!empty($summary_hide_positions)) {
 	if(strpos($value_config, ',Summary Materials Summary,')) { ?>
 		<h4>Materials Summary</h4>
 		<div class="form-group">
-			<?php $summary_materials = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND `src_table`='material'".$query_daily);
+			<?php $summary_materials = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE (`ticket_attached`.`item_id` > 0 OR `description` != '') AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND `src_table`='material'".$query_daily);
 			if($summary_materials->num_rows > 0) { ?>
 				<div class="col-sm-4 text-center"><label>Material</label></div>
-				<div class="col-sm-4 text-center"><label>Checked In</label></div>
-				<div class="col-sm-4 text-center"><label>Checked Out</label></div>
+				<div class="col-sm-4 text-center"><label>Quantity</label></div>
+				<div class="col-sm-4 text-center"><label>Used</label></div>
 				<div class="clearfix"></div>
 				<?php while($summary = mysqli_fetch_array($summary_materials)) {
-					$material = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `material` where `materialid` = '".$summary['item_id']."'")); ?>
+                    if($summary['item_id'] > 0) {
+                        $material = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `material` where `materialid` = '".$summary['item_id']."'"));
+                    } else {
+                        $material = ['name' => $summary['description']];
+                    } ?>
 					<div class="form-group summary">
-						<div class="col-sm-4 text-center"><?= $material['category'].': '.$material['sub_category'].' ',$material['name'] ?></div>
-						<div class="col-sm-4 text-center"><?= $summary['arrived'] == 1 ? 'Yes' : 'No' ?></div>
+						<div class="col-sm-4 text-center"><?= (!empty($material['category']) ? $material['category'].': ' : '').$material['sub_category'].' ',$material['name'] ?></div>
+						<div class="col-sm-4 text-center"><?= $summary['qty'] ?></div>
 						<div class="col-sm-4 text-center"><?= $summary['completed'] == 1 ? 'Yes' : 'No' ?></div>
 						<div class="clearfix"></div>
 					</div>
@@ -797,13 +904,32 @@ if(!empty($summary_hide_positions)) {
 					<tr class="summary">
 						<td data-title="Staff"><?= get_contact($dbc, $summary['item_id']) ?></td>
 						<td data-title="Planned Hours"><?= $get_ticket['start_time'].' - '.$get_ticket['end_time'] ?></td>
-						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
+						<td data-title="Tracked Hours">
+							<?php $tracked_hours = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$summary['id']."'"),MYSQLI_ASSOC);
+							if(!empty($tracked_hours)) {
+								$tracked_html = [];
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_html[] = $tracked_hour['checked_in'].' - '.$tracked_hour['checked_out'];
+								}
+								$tracked_html = implode('<br />',$tracked_html);
+							} else {
+								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
+							}
+							echo $tracked_html;
+							?>
+						</td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-							if($summary['hours_tracked'] > 0) {
-								$tracked_time = number_format($summary['hours_tracked'],2);
+
+							if(!empty($tracked_hours)) {
+								$tracked_time = 0;
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_time += number_format((strtotime(date('Y-m-d').' '.$tracked_hour['checked_out']) - strtotime(date('Y-m-d').' '.$tracked_hour['checked_in']))/3600,2);
+								}
 							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
 							}
 							echo $tracked_time; ?>
 						</td>
@@ -811,8 +937,83 @@ if(!empty($summary_hide_positions)) {
 					</tr>
 					<?php $pdf_content= '';
 					$pdf_content .= 'Planned Hours: '.$get_ticket['start_time'].' - '.$get_ticket['end_time'].'<br>';
-					$pdf_content .= 'Tracked Hours: '.$summary['checked_in'].' - '.$summary['checked_out'].'<br>';
+					$pdf_content .= 'Tracked Hours: '.$tracked_html.'<br>';
+					$pdf_content .= 'Tracked Time: '.$tracked_time.'<br>';
 					$pdf_content .= 'Payable Hours: '.$summary['hours_set'];
+					$pdf_contents[] = ['Staff: '.get_contact($dbc, $summary['item_id']), $pdf_content]; ?>
+				<?php } ?>
+			</table>
+		</div>
+	<?php }
+	if(strpos($value_config,',Planned Tracked Payable Staff Multiple Times,')) { ?>
+		<div class="form-group">
+			<table id="no-more-tables" class="table table-bordered summary_table">
+				<tr class='hide-titles-mob'>
+					<th>Staff</th>
+					<th>Planned Hours</th>
+					<th>Tracked Hours</th>
+					<th>Total Tracked Time</th>
+					<th <?= check_subtab_persmission($dbc, 'ticket', ROLE, 'view_payable') ? '' : 'style="display:none;"' ?>>Payable Hours</th>
+				</tr>
+				<?php $summary_staff = mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticket_attached`.`item_id` > 0 AND `tile_name`='".FOLDER_NAME."' AND `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 $hide_positions AND `src_table` IN ('Staff','Staff_Tasks')".$query_daily);
+				 while($summary = mysqli_fetch_array($summary_staff)) {
+					 $staff_times = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `src_table` = 'Multiple_Timesheet_Row' AND `item_id` = '".$summary['id']."' AND '".$summary['id']."' > 0 AND `deleted` = 0"),MYSQLI_ASSOC); ?>
+					<tr class="summary">
+						<td data-title="Staff"><?= get_contact($dbc, $summary['item_id']) ?>
+						<br><label class="form-checkbox"><input type="checkbox" name="discrepancy" <?= $summary['discrepancy'] == 1 ? 'checked' : '' ?> data-table="ticket_attached" data-id="<?= $summary['id'] ?>" data-id-field="id" data-type="Staff" data-type-field="src_table" value="1">Do Not Require Notes</label></td>
+						<td data-title="Planned Hours">
+							<?php $planned_html = [];
+							foreach($staff_times as $staff_time) {
+								$planned_html[] = $staff_time['date_stamp'].' '.$staff_time['start_time'].' - '.$staff_time['end_time'];
+							}
+							$planned_html = implode('<br />',$planned_html);
+							echo $planned_html;
+							?>
+						</td>
+						<td data-title="Tracked Hours">
+							<?php $tracked_hours = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached_checkin` WHERE `ticket_attached_id` = '".$summary['id']."'"),MYSQLI_ASSOC);
+							if(!empty($tracked_hours)) {
+								$tracked_html = [];
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_html[] = (!empty(str_replace('0000-00-00','',$tracked_hour['checked_in_date'])) ? $tracked_hour['checked_in_date'].' ' : '').$tracked_hour['checked_in'].' - '.(!empty(str_replace('0000-00-00','',$tracked_hour['checked_out_date'])) ? $tracked_hour['checked_out_date'].' ' : '').$tracked_hour['checked_out'];
+								}
+								$tracked_html = implode('<br />',$tracked_html);
+							} else {
+								$tracked_html = $summary['checked_in'].' - '.$summary['checked_out'];
+							}
+							echo $tracked_html;
+							?>
+						</td>
+						<td data-title="Total Tracked Time">
+							<?php $tracked_time = '-';
+
+							if(!empty($tracked_hours)) {
+								$tracked_time = 0;
+								foreach($tracked_hours as $tracked_hour) {
+									$tracked_time += number_format((strtotime((!empty(str_replace('0000-00-00','',$tracked_hour['checked_out_date'])) ? $tracked_hour['checked_out_date'] : date('Y-m-d')).' '.$tracked_hour['checked_out']) - strtotime((!empty(str_replace('0000-00-00','',$tracked_hour['checked_in_date'])) ? $tracked_hour['checked_in_date'] : date('Y-m-d')).' '.$tracked_hour['checked_in']))/3600,2);
+								}
+							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
+								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
+							}
+							echo $tracked_time; ?>
+						</td>
+						<td data-title="Payable Hours" <?= check_subtab_persmission($dbc, 'ticket', ROLE, 'view_payable') ? '' : 'style="display:none;"' ?>>
+							<?php $payable_html = [];
+							foreach($staff_times as $staff_time) {
+								$payable_html[] = $staff_time['hours_set'];
+							}
+							$payable_html = implode('<br />',$payable_html);
+							echo $payable_html;
+							?>
+						</td>
+					</tr>
+					<?php $pdf_content= '';
+					$pdf_content .= 'Planned Hours: '.$planned_html.'<br>';
+					$pdf_content .= 'Tracked Hours: '.$tracked_html.'<br>';
+					$pdf_content .= 'Tracked Time: '.$tracked_time.'<br>';
+					$pdf_content .= 'Payable Hours: '.$payable_html;
 					$pdf_contents[] = ['Staff: '.get_contact($dbc, $summary['item_id']), $pdf_content]; ?>
 				<?php } ?>
 			</table>
@@ -836,10 +1037,10 @@ if(!empty($summary_hide_positions)) {
 						<td data-title="Tracked Hours"><?= $summary['checked_in'].' - '.$summary['checked_out'] ?></td>
 						<td data-title="Total Tracked Time">
 							<?php $tracked_time = '-';
-							if($summary['hours_tracked'] > 0) {
-								$tracked_time = number_format($summary['hours_tracked'],2);
-							} else if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
+							if(!empty($summary['checked_out']) && !empty($summary['checked_in'])) {
 								$tracked_time = number_format((strtotime(date('Y-m-d').' '.$summary['checked_out']) - strtotime(date('Y-m-d').' '.$summary['checked_in']))/3600,2);
+							} else if($summary['hours_tracked'] > 0) {
+								$tracked_time = number_format($summary['hours_tracked'],2);
 							}
 							echo $tracked_time; ?>
 						</td>

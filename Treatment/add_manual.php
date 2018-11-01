@@ -259,7 +259,7 @@ if(!empty($_GET['patientformid'])) {
     $user_form_id = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM patientform WHERE patientformid='".$_GET['patientformid']."'"))['user_form_id'];
     if($user_form_id > 0) {
         $user_form_layout = mysqli_fetch_array(mysqli_query($dbc,"SELECT * FROM `user_forms` WHERE `form_id` = '$user_form_id'"))['form_layout'];
-        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';   
+        $user_form_layout = !empty($user_form_layout) ? $user_form_layout : 'Accordions';
     }
 }
 ?>
@@ -344,7 +344,7 @@ if(!empty($_GET['patientformid'])) {
 
         ?>
         <input type="hidden" id="patientformid" name="patientformid" value="<?php echo $patientformid ?>" />
-        <?php   } 
+        <?php   }
         if(!empty($_GET['ticketid'])) {
             $ticketid = $_GET['ticketid'];
         }
@@ -689,7 +689,6 @@ if(!empty($_GET['patientformid'])) {
                                 <label for="first_name" class="col-sm-4 control-label text-right">Staff:</label>
                                 <div class="col-sm-8">
                                     <select name="assign_staff[]" data-placeholder="Choose a Staff..." class="chosen-select-deselect form-control" multiple width="380">
-										<option value=""></option>
 										  <?php
 											$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`>0"),MYSQLI_ASSOC));
 											foreach($query as $id) {

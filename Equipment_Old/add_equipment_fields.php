@@ -380,7 +380,7 @@ function filterClassifications() {
   <div class="form-group">
     <label for="fax_number" class="col-sm-4 control-label">Staff:</label>
     <div class="col-sm-8">
-      <select name="staff[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect form-control"><option></option>
+      <select name="staff[]" multiple data-placeholder="Select Staff" class="chosen-select-deselect form-control">
         <?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address` != '' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
         foreach($staff_list as $staff_id) {
           echo '<option '.(strpos(','.$staff.',', ','.$staff_id.',') !== FALSE ? 'selected' : '').' value="'.$staff_id.'">'.get_contact($dbc, $staff_id).'</option>';
@@ -425,7 +425,7 @@ foreach ($location as $single_location) { ?>
     <?php $location_list = array_filter(array_unique(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `con_locations` SEPARATOR ',') FROM `field_config_contacts`"))[0])));
     foreach ($location_list as $con_location) {
       if(in_array($con_location, $allowed_locations)) {
-        echo "<option ".($con_location == $single_location ? 'selected' : '')." value='$con_location'>$con_location</option>"; 
+        echo "<option ".($con_location == $single_location ? 'selected' : '')." value='$con_location'>$con_location</option>";
       }
     } ?>
   </select>
@@ -466,7 +466,7 @@ foreach ($classification as $single_classification) { ?>
       if(!empty($region) && !empty($get_equipment['region']) && empty(array_intersect($classification_regions[$i], $region)) && !empty($classification_regions[$i])) {
         $hidden_classification = 'style="display:none;"';
       }
-      echo "<option ".($con_classification == $single_classification ? 'selected' : '')." data-regions='".json_encode($classification_regions[$i])."' value='$con_classification' $hidden_classification>$con_classification</option>"; 
+      echo "<option ".($con_classification == $single_classification ? 'selected' : '')." data-regions='".json_encode($classification_regions[$i])."' value='$con_classification' $hidden_classification>$con_classification</option>";
     } ?>
   </select>
 </div>
@@ -843,20 +843,20 @@ foreach ($classification as $single_classification) { ?>
 	$reminder   = mysqli_query ( $dbc, "SELECT * FROM `reminders` WHERE `verify` LIKE '".$verify."%' AND `sent`=0 ORDER BY `reminder_date` ASC" );
 	$staff      = [];
     $ins_reminder_date = '';
-    
+
     if ( mysqli_num_rows($reminder) > 0 ) {
 		$reminder = mysqli_fetch_array($reminder);
         $ins_reminder_date = $reminder['reminder_date'];
         $staff    = explode ( '<br>', get_multiple_contact($dbc, $reminder['contactid']) );
     } ?>
-    
+
     <!--
     <label for="first_name" class="col-sm-4 control-label text-right">Upcoming Scheduled Reminder:</label>
     <div class="col-sm-8">
         Date: <?php //$reminder['reminder_date'] ?><br />Staff: <?php //get_multiple_contact($dbc, $reminder['contactid']) ?>
     </div>
     -->
-    
+
     <label for="first_name" class="col-sm-4 control-label text-right">Registration Reminder Date:</label>
     <div class="col-sm-8">
         <input name="reg_reminder_date" value="<?= $ins_reminder_date; ?>" type="text" class="form-control datepicker">
@@ -864,7 +864,7 @@ foreach ($classification as $single_classification) { ?>
     <label for="first_name" class="col-sm-4 control-label text-right">Staff Assigned Reminder:</label>
     <div class="col-sm-8">
         <select name="reg_reminder_staff[]" data-placeholder="Select Staff" multiple class="chosen-select-deselect">
-            <option></option><?php
+            <?php
             $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address` != '' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
             foreach($staff_list as $staff_id) {
                 $staff_name  = get_contact($dbc, $staff_id);
@@ -892,20 +892,20 @@ foreach ($classification as $single_classification) { ?>
 	$reminder   = mysqli_query($dbc, "SELECT * FROM `reminders` WHERE `verify` LIKE '".$verify."%' AND `sent`=0 ORDER BY `reminder_date` ASC");
 	$staff      = [];
     $ins_reminder_date = '';
-    
+
     if ( mysqli_num_rows($reminder) > 0 ) {
 		$reminder = mysqli_fetch_array($reminder);
         $ins_reminder_date = $reminder['reminder_date'];
         $staff    = explode ( '<br>', get_multiple_contact($dbc, $reminder['contactid']) );
     } ?>
-    
+
     <!--
     <label for="first_name" class="col-sm-4 control-label text-right">Upcoming Scheduled Reminder:</label>
     <div class="col-sm-8">
         Date: <?php //$reminder['reminder_date'] ?><br />Staff: <?php //get_multiple_contact($dbc, $reminder['contactid']) ?>
     </div>
     -->
-    
+
     <label for="first_name" class="col-sm-4 control-label text-right">Insurance Reminder Date:</label>
     <div class="col-sm-8">
         <input name="ins_reminder_date" value="<?= $ins_reminder_date; ?>" type="text" class="form-control datepicker">
@@ -913,7 +913,7 @@ foreach ($classification as $single_classification) { ?>
     <label for="first_name" class="col-sm-4 control-label text-right">Staff Assigned Reminder:</label>
     <div class="col-sm-8">
         <select name="ins_reminder_staff[]" data-placeholder="Select Staff" multiple class="chosen-select-deselect">
-            <option></option><?php
+            <?php
             $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address` != '' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
             foreach($staff_list as $staff_id) {
                 $staff_name  = get_contact($dbc, $staff_id);

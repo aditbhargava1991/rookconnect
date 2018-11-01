@@ -210,7 +210,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(!empty($_GET['projectid'])) {
 		$projectid = $_GET['projectid'];
 		$businessid = get_project($dbc, $projectid, 'businessid');
-		$clientid = get_project($dbc, $projectid, 'clientid');
+		$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 		$project_path = get_project($dbc, $projectid, 'project_path');
 		$project_lead = get_project($dbc, $projectid, 'project_lead');
 	}
@@ -360,6 +360,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		$spent_time = $get_ticket['spent_time'];
 		$total_days = $get_ticket['total_days'];
 		$contactid = $get_ticket['contactid']; ?>
+		<script type="text/javascript" src="ticket.js"></script>
 		<script>
 		$(document).ready(function() {
 			$('.start_time').val(<?= $time_seconds ?>);
@@ -370,7 +371,7 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	<?php }
 	if(!empty(MATCH_CONTACTS) && !in_array($get_ticket['businessid'],explode(',',MATCH_CONTACTS)) && !in_array_any(array_filter(explode(',',$get_ticket['clientid'])),explode(',',MATCH_CONTACTS))) {
 		ob_clean();
-		header('Location: index.php');
+		header('Location: index.php'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']));
 		exit();
 	} ?>
 	<script>
@@ -402,65 +403,75 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(typeof setHeading == 'undefined') {
 		setHeading = function() {
 			if(ticketid > 0) {
+                var new_heading = '';
 			<?php if(strpos($value_config, ','."Heading Business Invoice".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=salesorderid]').length > 0) {
 					var business = $('[name=businessid] option:selected').first().text();
 					var invoice = $('[name=salesorderid]').first().val();
-					$('[name=heading]').val(business+' - '+invoice).change();
+                    new_heading = business+' - '+invoice;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Bus Invoice Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=salesorderid]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var business = $('[name=businessid] option:selected').first().text();
 					var invoice = $('[name=salesorderid]').first().val();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(invoice+' - '+business+' '+date).change();
+                    new_heading = invoice+' - '+business+' '+date;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Project Invoice Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=projectid]').length > 0 && $('[name=salesorderid]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var project = $('[name=projectid] option:selected').first().text();
 					var invoice = $('[name=salesorderid]').first().val();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(invoice+' - '+project+' '+date).change();
+                    new_heading = invoice+' - '+project+' '+date;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=to_do_date]').length > 0) {
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(date).change();
+                    new_heading = date;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Business Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var business = $('[name=businessid] option:selected').first().text();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(business+' - '+date).change();
+                    new_heading = business+' - '+date;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Contact Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=clientid]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var contact = $('[name=clientid] option:selected').first().text();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(contact+' - '+date).change();
+                    new_heading = contact+' - '+date;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Business".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0) {
 					var business = $('[name=businessid] option:selected').first().text();
-					$('[name=heading]').val(business).change();
+                    new_heading = business;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Contact".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=clientid]').length > 0) {
 					var contact = $('[name=clientid] option:selected').first().text();
-					$('[name=heading]').val(contact).change();
+                    new_heading = contact;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Milestone Date".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=milestone_timeline]').length > 0 && $('[name=to_do_date]').length > 0) {
 					var milestone = $('[name=milestone_timeline] option:selected').text();
 					var date = $('[name=to_do_date]').first().val();
-					$('[name=heading]').val(milestone+': '+invoice).change();
+                    new_heading = milestone+': '+invoice;
 				}
 			<?php } else if(strpos($value_config, ','."Heading Assigned".',') !== false) { ?>
 				if($('[name=heading_auto]').val() == 1 && $('[name=contactid]').length > 0) {
 					var assigned = $('[name=contactid] option:selected,[name=item_id][data-type=Staff] option:selected').first().text();
-					$('[name=heading]').val(assigned).change();
+                    new_heading = assigned;
 				}
 			<?php } ?>
+                if(new_heading != heading) {
+                    heading = new_heading;
+                    $('[name=heading]').val(heading);
+                    if($('[name=heading]:visible').length > 0) {
+                        $('[name=heading]:visible').first().change();
+                    } else {
+                        $('[name=heading]').first().change();
+                    }
+                }
 			} else { setTimeout(setHeading, 250); }
 		}
 	}
@@ -517,6 +528,28 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		}
 	}
 
+	//Estimate Mode Fields
+	if($_GET['estimate_mode'] == 1) {
+		$value_config_all = $value_config;
+		$value_config = ','.get_config($dbc, 'ticket_estimate_fields').',';
+		if(!empty($ticket_type)) {
+			$value_config .= get_config($dbc, 'ticket_estimate_fields_'.$ticket_type).',';
+		}
+		if(empty(trim($value_config,','))) {
+			$value_config = $value_config_all;
+		} else {
+			foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+				if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+					$value_config .= ','.$action_mode_ignore_field;
+				}
+			}
+			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+		}
+        foreach($estimate_mode_restrict as $remove_field) {
+            $value_config = str_replace($remove_field.',','',$value_config);
+        }
+	}
+
 	//Overview Fields
 	if($_GET['overview_mode'] == 1) {
 		$value_config_all = $value_config;
@@ -536,6 +569,32 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		}
 		$force_readonly = true;
 	}
+
+	//Force read only if Ticket is deleted
+	if($get_ticket['deleted'] == 1) {
+		$force_readonly = true;
+		$strict_view = 1;
+	}
+
+    //Status Fields
+    if(!empty($ticket_status)) {
+        $value_config_all = $value_config;
+        $value_config = ','.get_config($dbc, 'ticket_status_fields_'.$ticket_status).',';
+        if(!empty($ticket_type)) {
+            $value_config .= get_config($dbc, 'ticket_status_fields_'.$ticket_status.'_'.$ticket_type).',';
+        }
+        if(empty(trim($value_config,','))) {
+            $value_config = $value_config_all;
+        } else {
+            foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+                if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+                    $value_config .= ','.$action_mode_ignore_field;
+                }
+            }
+            $value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+        }
+        $ticket_layout = $calendar_ticket_slider = 'full';
+    }
 
 	//Apply Templates
 	if(strpos($value_config,',TEMPLATE Work Ticket') !== FALSE) {
@@ -560,10 +619,23 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 		if($get_ticket['status'] == $admin_group['status']) {
 			$wait_on_approval = true;
 		}
-		$value_config_all = $value_config;
-		if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
-			$value_config = $admin_group['unlocked_fields'];
-		}
+        $value_config_all = $value_config;
+        if(!empty($admin_group['unlocked_fields']) && !$wait_on_approval && $get_ticket['status'] != 'Archive' && !$force_readonly) {
+            $value_config = ','.$admin_group['unlocked_fields'].',';
+        }
+        if(empty(trim($value_config,','))) {
+            $value_config = $value_config_all;
+        } else {
+            if(strpos($value_config, ','."Hide Trash Icon".',') !== FALSE) {
+                $hide_trash_icon = 1;
+            }
+            foreach($action_mode_ignore_fields as $action_mode_ignore_field) {
+                if(strpos(','.$value_config_all.',',','.$action_mode_ignore_field.',') !== FALSE) {
+                    $value_config .= ','.$action_mode_ignore_field;
+                }
+            }
+            $value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
+        }
 	} else {
 		$admin_group = [];
 	}	
@@ -583,7 +655,19 @@ if(basename($_SERVER['SCRIPT_FILENAME']) == 'edit_ticket_tab.php' && ($_GET['tic
 	if(!empty($get_ticket['status']) && strpos($uneditable_statuses, ','.$get_ticket['status'].',') !== FALSE) {
 		$strict_view = 1;
 	}
-	if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || $wait_on_approval) {
+	if((isset($_GET['intake_key']) && !($ticketid > 0)) || $_GET['estimate_mode'] > 0) {
+		$access_project = true;
+		$access_staff = true;
+		$access_contacts = true;
+		$access_waitlist = true;
+		$access_staff_checkin = true;
+		$access_all_checkin = true;
+		$access_medication = true;
+		$access_complete = true;
+		$access_services = true;
+		$access_all = true;
+		$access_any = true;
+    } else if(($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_access < 1) || $strict_view > 0 || ($wait_on_approval && strpos(','.$admin_group.',',','.$_SESSION['contactid'].',') !== false)) {
 		$access_project = false;
 		$access_staff = false;
 		$access_contacts = false;
@@ -691,7 +775,7 @@ if(!empty($_GET['clientid'])) {
 if(!empty($_GET['projectid'])) {
 	$projectid = $_GET['projectid'];
 	$businessid = get_project($dbc, $projectid, 'businessid');
-	$clientid = get_project($dbc, $projectid, 'clientid');
+	$clientid = explode(',',trim(get_project($dbc, $projectid, 'clientid'),','))[0];
 	$project_path = get_project($dbc, $projectid, 'project_path');
 	$project_lead = get_project($dbc, $projectid, 'project_lead');
 }
@@ -715,7 +799,17 @@ if(!empty($_GET['endtime'])) {
 	$to_do_end_time = $_GET['endtime'];
 }
 
-$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = '".$sort_field."'"))['accordion_name'];
+$acc_label_id = $sort_field;
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_destination') {
+    $acc_label_id = 'Transport Destination';
+}
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_origin') {
+    $acc_label_id = 'Transport Origin';
+}
+if($sort_field == 'Transport' && $_GET['tab'] == 'ticket_transport_details') {
+    $acc_label_id = 'Transport Carrier';
+}
+$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($ticket_type) ? 'tickets' : 'tickets_'.$ticket_type)."' AND `accordion` = '".$acc_label_id."'"))['accordion_name'];
 if(!empty($renamed_accordion)) {
 	$acc_label = $renamed_accordion;
 }

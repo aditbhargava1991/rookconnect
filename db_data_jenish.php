@@ -11,11 +11,40 @@ echo "====== Jenish's db changes: ======\n";
 /****************** Adding indexing for Ticket tables *********************/
 
 
-if(!mysqli_query($dbc, "ALTER TABLE `contacts_history` ADD `before_change` TEXT AFTER `description`")) {
+if(!mysqli_query($dbc, "ALTER TABLE `field_config_contacts` ADD `mandatory` BOOLEAN DEFAULT 0")) {
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
-mysqli_query($dbc, "CREATE TABLE `checklist_history` (
+if(!mysqli_query($dbc, "CREATE TABLE `field_config_mandatory_project` LIKE `field_config_project`")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `general_configuration` ADD `mandatory` BOOLEAN DEFAULT 0")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "CREATE TABLE `field_config_mandatory_contacts` LIKE `field_config_contacts`")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "CREATE TABLE `db_backup_history` LIKE `checklist_history`")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+if(!mysqli_query($dbc, "ALTER TABLE `email_communication` ADD `draft` BOOLEAN DEFAULT 0")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+
+/*if(!mysqli_query($dbc, "CREATE TABLE `email_communication_draft`
+  ( `email_draft_number` INT(11) NOT NULL AUTO_INCREMENT , `from_email` TEXT NULL DEFAULT NULL ,
+  `from_name` TEXT NULL DEFAULT NULL , `to_emails` TEXT NULL DEFAULT NULL ,
+  `cc_emails` TEXT NULL DEFAULT NULL , `subject` TEXT NULL DEFAULT NULL ,
+  `send_body` TEXT NULL DEFAULT NULL , `meeting_attachment` TEXT NULL DEFAULT NULL ,
+  PRIMARY KEY (`email_draft_number`))")) {
+  echo "Error: ".mysqli_error($dbc)."<br />\n";
+}*/
+
+mysqli_query($dbc, "CREATE TABLE `field_jobs_history` (
   `history_id` int(11) NOT NULL,
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_by` varchar(100) NOT NULL,
@@ -23,248 +52,27 @@ mysqli_query($dbc, "CREATE TABLE `checklist_history` (
   `before_change` text,
   `contactid` int(11) NOT NULL)"
 );
-
-if(!mysqli_query($dbc, "ALTER TABLE `checklist_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
+if(!mysqli_query($dbc, "ALTER TABLE `field_jobs_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
-if(!mysqli_query($dbc, "ALTER TABLE `sales_history` ADD `before_change` TEXT AFTER `history`")) {
+if(!mysqli_query($dbc, "CREATE TABLE `newsboard_tag` ( `newsboard_tagid` INT NOT NULL AUTO_INCREMENT ,
+                        `boardid` INT(11) NOT NULL , `newsboardid` INT(11) NOT NULL ,
+                        `staff` TEXT NOT NULL , PRIMARY KEY (`newsboard_tagid`))"))
+{
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
 
-if(!mysqli_query($dbc, "ALTER TABLE `sales_history` ADD `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `salesid`")) {
+if(!mysqli_query($dbc, "ALTER TABLE `tasklist` ADD `is_sync` BOOLEAN DEFAULT 0")) {
   echo "Error: ".mysqli_error($dbc)."<br />\n";
 }
-
-if(!mysqli_query($dbc, "ALTER TABLE `sales_history` ADD `updated_by` TEXT AFTER `history`")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `hr_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `hr_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `hr_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `pos_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `pos_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `pos_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "ALTER TABLE `contacts` ADD INDEX `scrum_query` (`deleted`,`status`,`category`)");
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `inventory_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `inventory_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `inventory_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `security_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `security_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `security_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `updated_by` varchar(100) NOT NULL")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `description` text NOT NULL")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `before_change` text")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `equipment_history` ADD `contactid` int(11) NOT NULL")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `vendorpl_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `vendorpl_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `vendorpl_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `ratecard_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `ratecard_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `ratecard_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `po_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `po_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `po_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `intake_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `intake_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `intake_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `service_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `service_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `service_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `expenses_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `expenses_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `expenses_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `estimates_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `estimates_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `estimates_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-mysqli_query($dbc, "CREATE TABLE IF NOT EXISTS `products_history` (
-  `history_id` int(11) NOT NULL,
-  `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_by` varchar(100) NOT NULL,
-  `description` text NOT NULL,
-  `before_change` text,
-  `contactid` int(11) NOT NULL)"
-);
-
-if(!mysqli_query($dbc, "ALTER TABLE `products_history` ADD PRIMARY KEY(`history_id`)")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
-if(!mysqli_query($dbc, "ALTER TABLE `products_history` CHANGE `history_id` `history_id` INT(11) NOT NULL AUTO_INCREMENT")) {
-  echo "Error: ".mysqli_error($dbc)."<br />\n";
-}
-
 echo "<br> ======Jenish's db changes Done======<br>";
+
+$task_status_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(*) as task_status_count FROM `general_configuration` where name = 'task_scrum_status'"));
+if($task_status_count['task_status_count'] == 0) {
+  if(!mysqli_query($dbc, "INSERT INTO `general_configuration`(`name`, `value`) VALUES('task_scrum_status', 'To Do,Information Gathering,Scheduled/To Do,Done,To Be Scheduled,On Hold,Scheduled/To Do,Doing Today,Internal QA,QA Dev Needed,Customer QA,Waiting On Customer')")) {
+    echo "Error: ".mysqli_error($dbc)."<br />\n";
+  }
+}
+
 ?>

@@ -1,4 +1,8 @@
 $(document).ready(function() {
+
+	$('.dispatch-legend-block').on('mouseover', function() { toggle_ticket_legend('show') });
+	$('.dispatch-legend-block').on('mouseout', function() { toggle_ticket_legend('hide') });
+
 	if($('[name="timesheet_time_format"]').val() != undefined && $('[name="timesheet_time_format"]').val() == 'decimal') {
 		$('.timesheet_div .timepicker').each(function() {
 			$(this).timepicker('destroy');
@@ -6,6 +10,14 @@ $(document).ready(function() {
 		});
 	}
 });
+
+function toggle_ticket_legend(display) {
+	if(display == 'show') {
+		$('.dispatch-status-legend').show();
+	} else {
+		$('.dispatch-status-legend').hide();
+	}
+}
 function calculateHoursByStartEndTimes(input) {
 	var block = $(input).closest('tr');
 	var start_time = $(block).find('[name="start_time"]').val();
@@ -79,7 +91,7 @@ function saveFieldMethod(field) {
     var block_length = blocks.length;
     $(blocks).each(function() {
         var block = $(this);
-        $.post('time_cards_ajax.php?action=update_time', {
+        $.post('../Timesheet/time_cards_ajax.php?action=update_time', {
             field: field.name,
             value: saveValue,
             type_of_time: block.find('[name=type_of_time]').val(),
@@ -102,13 +114,16 @@ function saveFieldMethod(field) {
             if(block_length == 0) {
                 doneSaving();
             }
+            if($(field).data('check-conflicts') != undefined && $(field).data('check-conflicts') == 1) {
+                checkTicketBookingConflicts(field);
+            }
         });
     });
     if(block_length == 0 && field.name != 'approv') {
         doneSaving();
     } else if(block_length == 0 && field.name == 'approv') {
         var block = $(this);
-        $.post('time_cards_ajax.php?action=update_time', {
+        $.post('../Timesheet/time_cards_ajax.php?action=update_time', {
             field: field.name,
             value: field.value,
             save_type: 'multi',
@@ -151,6 +166,23 @@ function displayPDFOptions(a) {
             },
             Cancel: function() {
                 $(this).dialog('close');
+            }
+        }
+    });
+}
+function checkTicketBookingConflicts(input) {
+    var row = $(input).closest('tr');
+    var startdate = $(row).find('[name="date"]').val();
+    var enddate = $(row).find('[name="date"]').val();
+    var staff = $(row).find('[name="staff"]').val();
+
+    $.ajax({
+        url: '../Calendar/calendar_ajax_all.php?fill=check_ticket_booking_conflicts',
+        method: 'POST',
+        data: { contactid: staff, startdate: startdate, enddate: enddate },
+        success:function(response) {
+            if(response != '') {
+                alert(response);
             }
         }
     });

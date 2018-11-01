@@ -406,7 +406,7 @@ $(document).ready(function() {
 
 		<?php if(strpos($edit_config,',type,') !== false): ?>
 		  <div class="form-group">
-			<label for="file[]" class="col-sm-4 control-label">Type:</label>
+			<label for="file[]" class="col-sm-4 control-label">Tab:</label>
 			<div class="col-sm-8">
 				<label class="form-checkbox"><input type="radio" <?php if ($type == "3rd Party") { echo " checked readonly"; } if ($type !== '') { echo "readonly";} if ($type == '') { echo "checked";} ?> name="type" value="3rd Party">3rd Party</label>
 				<label class="form-checkbox"><input type="radio" <?php if ($type == "Other") { echo " checked readonly"; } if ($type !== '') { echo "readonly";} ?> name="type" value="Other">Other</label>

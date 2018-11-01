@@ -2,6 +2,9 @@
     include ('../include.php');
 checkAuthorised('tasks');
 ?>
+<div class="standard-dashboard-body-content">
+<div class="dashboard-item">
+
 <div class="container"><?php
     $table_row_style = '';
     $table_style = '';
@@ -13,20 +16,20 @@ checkAuthorised('tasks');
     }
 
     $offset = ($pageNum - 1) * $rowsPerPage;
-    
+
     $board_name = '';
     $staff = '';
     $startdate = date('Y-m-01');
     $enddate = date('Y-m-d');
     $query_mod_board = '';
     $query_mod_staff = '';
-    
+
     if ( $_SERVER["REQUEST_METHOD"] == "POST" ) {
         $board_name = $_POST['board_name'];
         $staff = $_POST['staff'];
         $startdate = $_POST['startdate'];
         $enddate = !empty($_POST['enddate']) ? $_POST['enddate'] : date('Y-m-d');
-        
+
         if ( !empty($board_name) ) {
             $query_mod_board = " AND task_board='$board_name'";
         }
@@ -36,25 +39,25 @@ checkAuthorised('tasks');
         if ( !empty($startdate) ) {
             $query_mod_date = " AND (created_date BETWEEN '$startdate' AND '$enddate')";
         }
-        
+
     }
-    
+
     $query_mod_date = " AND (created_date BETWEEN '$startdate' AND '$enddate')";
-    
+
     $result = mysqli_query($dbc,"SELECT * FROM tasklist WHERE deleted=0". $query_mod_board . $query_mod_staff . $query_mod_date ." ORDER BY tasklistid DESC LIMIT $offset, $rowsPerPage");
     $query = "SELECT COUNT(tasklistid) AS numrows FROM tasklist WHERE deleted=0". $query_mod_board . $query_mod_staff . $query_mod_date;
 
     $num_rows = mysqli_num_rows($result);
-    
+
     echo '<div id="no-more-tables">'; ?>
-        
+
         <form action="" method="post" class="form-horizontal">
             <div class="form-group gap-top">
                 <div class="row">
                     <div class="col-sm-6">
-                        <div class="col-sm-4"><label class="control-label">Task Board:</label></div>
+                        <div class="col-sm-4"><label class="control-label"><?= TASK_NOUN ?> Board:</label></div>
                         <div class="col-sm-6">
-                            <select name="board_name" class="chosen-select-deselect" data-placeholder="Select Task Board...">
+                            <select name="board_name" class="chosen-select-deselect" data-placeholder="Select <?= TASK_NOUN ?> Board...">
                                 <option></option><?php
                                 $board_result = mysqli_query($dbc, "SELECT taskboardid, board_name FROM task_board WHERE deleted=0 ORDER BY board_name");
                                 if ( $board_result->num_rows > 0 ) {
@@ -103,7 +106,7 @@ checkAuthorised('tasks');
                 </div>
             </div>
         </form><?php
-    
+
         if($num_rows > 0) {
             echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
             echo "<table class='table table-bordered'>";
@@ -154,9 +157,12 @@ checkAuthorised('tasks');
         }
 
         echo '</table>';
-        
+
         echo display_pagination($dbc, $query, $pageNum, $rowsPerPage);
-    
+
     echo '</div><!-- #no-more-tables -->';
     ?>
 </div><!-- .container -->
+
+</div>
+</div>

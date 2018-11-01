@@ -24,6 +24,10 @@ if($_GET['action'] == 'settings_tabs') {
 	set_config($dbc, 'hr_tabs', filter_var(implode(',',$_POST['types']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'hr_tiles', filter_var(implode(',',$_POST['tiles']),FILTER_SANITIZE_STRING));
 	set_config($dbc, 'hr_include_profile', filter_var($_POST['hr_include_profile'],FILTER_SANITIZE_STRING));
+} else if($_GET['action'] == 'settings_request_update') {
+	set_config($dbc, 'hr_request_update_security', filter_var(implode(',',$_POST['hr_request_update_security']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'hr_request_update_staff', filter_var(implode(',',$_POST['hr_request_update_staff']),FILTER_SANITIZE_STRING));
+	set_config($dbc, 'hr_include_request_update', filter_var($_POST['hr_include_request_update'],FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'settings_fields') {
 	set_config($dbc, 'hr_fields', filter_var(implode(',',$_POST['fields']),FILTER_SANITIZE_STRING));
 } else if($_GET['action'] == 'mark_favourite') {

@@ -2,6 +2,7 @@
 checkAuthorised('calendar_rook');
 error_reporting(0);
 if (isset($_POST['submit'])) {
+    $heading = filter_var($_POST['shift_heading'],FILTER_SANITIZE_STRING);
     $contactid = filter_var($_POST['shift_contactid'],FILTER_SANITIZE_STRING);
     $security_level = filter_var($_POST['shift_security_level'],FILTER_SANITIZE_STRING);
     if(!empty($security_level)) {
@@ -36,7 +37,7 @@ if (isset($_POST['submit'])) {
     $set_hours = filter_var($_POST['set_hours'],FILTER_SANITIZE_STRING);
 
     if (empty($_POST['shiftid'])) {
-        $query = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`, `set_hours`) VALUES ('$contactid', '$security_level', '$clientid', '$startdate', '$enddate', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes', '$set_hours')";
+        $query = "INSERT INTO `contacts_shifts` (`heading`, `contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`, `set_hours`) VALUES ('$heading', '$contactid', '$security_level', '$clientid', '$startdate', '$enddate', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes', '$set_hours')";
         $result = mysqli_query($dbc, $query);
         $shiftid = mysqli_insert_id($dbc);
     } else {
@@ -53,7 +54,7 @@ if (isset($_POST['submit'])) {
                     $sql = "UPDATE `contacts_shifts` SET `hide_days` = '$hide_days' WHERE `shiftid` = '$shiftid'";
                     mysqli_query($dbc, $sql);
 
-                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `notes`, `set_hours`) VALUES ('$contactid', '$security_level', '$clientid', '$shift_current_date', '$shift_current_date', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$notes', '$set_hours')";
+                    $query = "INSERT INTO `contacts_shifts` (`heading`, `contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `notes`, `set_hours`) VALUES ('$heading', '$contactid', '$security_level', '$clientid', '$shift_current_date', '$shift_current_date', '$starttime', '$endtime', '$availability', '$break_starttime', '$break_endtime', '$dayoff_type', '$notes', '$set_hours')";
                     $result = mysqli_query($dbc, $query);
                     $shiftid = mysqli_insert_id($dbc);
                     break;
@@ -62,19 +63,79 @@ if (isset($_POST['submit'])) {
                     $sql = "UPDATE `contacts_shifts` SET `enddate` = '$end_date' WHERE `shiftid` = '$shiftid'";
                     mysqli_query($dbc, $sql);
 
-                    $query = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`, `set_hours`) VALUES ('$contactid', '$security_level', '$clientid', '$shift_current_date', '$enddate', '$starttime', '$availability', '$endtime', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes', '$set_hours')";
+                    $query = "INSERT INTO `contacts_shifts` (`heading`, `contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `availability`, `break_starttime`, `break_endtime`, `dayoff_type`, `repeat_type`, `repeat_interval`, `repeat_days`, `notes`, `set_hours`) VALUES ('$heading', '$contactid', '$security_level', '$clientid', '$shift_current_date', '$enddate', '$starttime', '$availability', '$endtime', '$break_starttime', '$break_endtime', '$dayoff_type', '$repeat_type', '$repeat_interval', '$repeat_days', '$notes', '$set_hours')";
                     $result = mysqli_query($dbc, $query);
                     $shiftid = mysqli_insert_id($dbc);
                     break;
                 case 'all':
                 default:
-                    $query = "UPDATE `contacts_shifts` SET `contactid` = '$contactid', `security_level` = '$security_level', `clientid` = '$clientid', `startdate` = '$startdate', `enddate` = '$enddate', `starttime` = '$starttime', `endtime` = '$endtime', `availability` = '$availability', `break_starttime` = '$break_starttime', `break_endtime` = '$break_endtime', `dayoff_type` = '$dayoff_type', `repeat_type` = '$repeat_type', `repeat_interval` = '$repeat_interval', `repeat_days` = '$repeat_days', `notes` = '$notes' WHERE `shiftid` = '$shiftid'";
+                    $query = "UPDATE `contacts_shifts` SET `heading` = '$heading', `contactid` = '$contactid', `security_level` = '$security_level', `clientid` = '$clientid', `startdate` = '$startdate', `enddate` = '$enddate', `starttime` = '$starttime', `endtime` = '$endtime', `availability` = '$availability', `break_starttime` = '$break_starttime', `break_endtime` = '$break_endtime', `dayoff_type` = '$dayoff_type', `repeat_type` = '$repeat_type', `repeat_interval` = '$repeat_interval', `repeat_days` = '$repeat_days', `notes` = '$notes' WHERE `shiftid` = '$shiftid'";
                     $result = mysqli_query($dbc, $query);
                     break;
             }
         } else {
-            $query = "UPDATE `contacts_shifts` SET `contactid` = '$contactid', `security_level` = '$security_level', `clientid` = '$clientid', `startdate` = '$startdate', `enddate` = '$enddate', `starttime` = '$starttime', `endtime` = '$endtime', `availability` = '$availability', `break_starttime` = '$break_starttime', `break_endtime` = '$break_endtime', `dayoff_type` = '$dayoff_type', `repeat_type` = '$repeat_type', `repeat_interval` = '$repeat_interval', `repeat_days` = '$repeat_days', `notes` = '$notes' WHERE `shiftid` = '$shiftid'";
+            $query = "UPDATE `contacts_shifts` SET `heading` = '$heading', `contactid` = '$contactid', `security_level` = '$security_level', `clientid` = '$clientid', `startdate` = '$startdate', `enddate` = '$enddate', `starttime` = '$starttime', `endtime` = '$endtime', `availability` = '$availability', `break_starttime` = '$break_starttime', `break_endtime` = '$break_endtime', `dayoff_type` = '$dayoff_type', `repeat_type` = '$repeat_type', `repeat_interval` = '$repeat_interval', `repeat_days` = '$repeat_days', `notes` = '$notes' WHERE `shiftid` = '$shiftid'";
             $result = mysqli_query($dbc, $query);
+        }
+    }
+
+    if(!empty($dayoff_type)) {
+        $total_hrs = number_format((strtotime(empty($end_time) ? '11:59 PM' : $end_time) - strtotime(empty($start_time) ? '12:00 AM' : $start_time))/3600,2);
+        $dayoff_types = '';
+        $dayoff_types_timesheet = '';
+        $get_field_config = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_contacts_shifts`"));
+        if (!empty($get_field_config)) {
+            $dayoff_types = explode(',', $get_field_config['dayoff_types']);
+            $dayoff_types_timesheet = explode(',', $get_field_config['dayoff_types_timesheet']);
+        }
+        $hide_days = array_filter(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'"))['hide_days']));
+        foreach($dayoff_types as $i => $type) {
+            if($type == $dayoff_type && !empty($dayoff_types_timesheet[$i])) {
+                $type_of_time = $dayoff_types_timesheet[$i];
+                mysqli_query($dbc, "UPDATE `time_cards` SET `deleted` = 1 WHERE `shiftid` = '".$shiftid."'");
+                $check_startdate = (empty($startdate) || strtotime(date('Y-m-d')) > strtotime($startdate)) ? date('Y-m-d') : $startdate;
+                $check_enddate =  empty($enddate) ? date(strtotime(date('Y-m-d').' + 1 month')) : $enddate;
+                for($current_date = $check_startdate; strtotime($current_date) <= strtotime($check_enddate); $current_date = date('Y-m-d', strtotime($current_date.' + 1 day'))) {
+                    $is_shift = false;
+                    if(!in_array($current_date, $hide_days)) {
+                        switch($repeat_type) {
+                            case 'weekly':
+                                $repeat_type = 'W';
+                                $start_date = date('Y-m-d', strtotime('next Sunday -1 week', strtotime($startdate)));
+                                $start_date = new DateTime($start_date);
+                                $start_date->modify($day_of_week);
+                                $end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 week')));
+                                break;
+                            case 'daily':
+                                $repeat_type = 'D';
+                                $start_date = date('Y-m-d', strtotime($startdate));
+                                $start_date = new DateTime($start_date);
+                                $end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 day')));
+                                break;
+                            case 'monthly':
+                                $repeat_type = 'M';
+                                $start_date = date('Y-m-d', strtotime($startdate));
+                                $start_date = new DateTime($start_date);
+                                $end_date = new DateTime(date('Y-m-d', strtotime($calendar_date.' + 1 month')));
+                                break;
+                        }
+                        if($interval > 1) {
+                            $interval = new DateInterval("P{$interval}{$repeat_type}");
+                            $period = new DatePeriod($start_date, $interval, $end_date);
+                            foreach($period as $period_date) {
+                                if (date('Y-m-d', strtotime($calendar_date)) == $period_date->format('Y-m-d')) {
+                                    $is_shift = true;
+                                }
+                            }
+                        } else {
+                            $is_shift = true;
+                        }
+                        if($is_shift) {
+                            mysqli_query($dbc, "INSERT INTO `time_cards` (`staff`, `date`, `shiftid`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$current_date', '$shiftid', '$type_of_time', '$total_hrs', 'Time added from Day Off.')");
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -143,6 +204,7 @@ if (!empty($get_field_config)) {
     $contact_category = $get_field_config['contact_category'];
 }
 
+$heading = '';
 $contactid = '';
 if(isset($_GET['shift_staffid'])) {
     $contactid = $_GET['shift_staffid'];
@@ -184,6 +246,7 @@ if(isset($_GET['set_hours'])) {
 if (!empty($shiftid)) {
     $get_shifts = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'"));
 
+    $heading = $get_shifts['heading'];
     $contactid = $get_shifts['contactid'];
     $security_level = $get_shifts['security_level'];
     $clientid = $get_shifts['clientid'];
@@ -211,6 +274,7 @@ if (!empty($shiftid)) {
 $(document).ready(function() {
     window.submitForm = false;
     window.checkedConflicts = false;
+    window.checkedTicketBookingConflicts = false;
 
     $('[name="submit"]').on('click', function() {
         if($('[name="old_startdate"]').val() == $('[name="shift_startdate"]').val() && $('[name="old_enddate"]').val() == $('[name="shift_enddate"]').val()) {
@@ -227,6 +291,22 @@ $(document).ready(function() {
                     }
                 } else {
                     window.checkedConflicts = true;
+                    $('[name="submit"]').trigger('click');
+                }
+            });
+            return false;
+        } else if(!checkedTicketBookingConflicts && $('#shift_type_dayoff').is(':checked')) {
+            var conflicts = checkeTicketBookingConflicts();
+            conflicts.success(function(response) {
+                if(response != '') {
+                    if(confirm(response)) {
+                        window.checkedTicketBookingConflicts = true;
+                        $('[name="submit"]').trigger('click');
+                    } else {
+                        window.submitForm=false;
+                    }
+                } else {
+                    window.checkedTicketBookingConflicts = true;
                     $('[name="submit"]').trigger('click');
                 }
             });
@@ -308,6 +388,25 @@ $(document).ready(function() {
             url: '../Calendar/calendar_ajax_all.php?fill=check_shift_conflicts',
             method: 'POST',
             data: { shiftid: shiftid, contactid: contactid, startdate: startdate, enddate: enddate, starttime: starttime, endtime: endtime, repeat_type, repeat_days, repeat_interval: repeat_interval }
+        });
+    }
+
+    function checkeTicketBookingConflicts() {
+        var shiftid = $('[name="shiftid"]').val();
+        var contactid = $('[name="shift_contactid"]').val();
+        var startdate = $('[name="shift_startdate"]').val();
+        var enddate = $('[name="shift_enddate"]').val();
+        var repeat_type = $('[name="shift_repeat_type"]').val();
+        var repeat_days = $('[name="shift_repeat_days"]').val();
+        var repeat_interval = $('[name="shift_repeat_interval"]').val();
+        var conflicts = 0;
+        if($('[name="recurring"]').val() == 'yes' && $('[name="edit_type"]').val() == 'once') {
+            enddate = $('[name="shift_startdate"]').val();
+        }
+        return $.ajax({
+            url: '../Calendar/calendar_ajax_all.php?fill=check_ticket_booking_conflicts',
+            method: 'POST',
+            data: { shiftid: shiftid, contactid: contactid, startdate: startdate, enddate: enddate, repeat_type, repeat_days, repeat_interval: repeat_interval }
         });
     }
 });
@@ -497,11 +596,14 @@ function createShiftFor(input) {
 }
 </script>
 
-<?php $lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
+<?php $lock_date = get_staff_schedule_lock_date($dbc); ?>
 
-<h3 class="gap-left"><?= $shift_heading ?></h3>
+<h3 class="gap-left gap-right">
+    <?= $shift_heading ?>
+    <div class="clearfix"></div>
+</h3>
 
-<div class="block-group" style="height: calc(100% - 4.5em); overflow-y: auto;">
+<div style="height: calc(100% - 4.5em); overflow-y: auto;">
     <div id="dialog-confirm" title="Edit Recurring Shift" style="display: none;">
         Would you like to update only this Shift, all recurring Shifts, or following recurring Shifts?
     </div>
@@ -531,116 +633,138 @@ function createShiftFor(input) {
             <input type="hidden" name="old_enddate" value="<?= empty($enddate) || $enddate == '0000-00-00' ? '' : date('Y-m-d', strtotime($enddate)) ?>">
 
             <?php if(!empty($shift_current_date)) { ?>
-            <label for="shift_current_date" class="super-label">Current Date:
-            <input type="text" name="shift_current_date" class="form-control datepicker" value="<?= $shift_current_date ?>" style="pointer-events: none;" readonly>
-            </label>
+                <div class="form-group">
+                    <label for="shift_current_date" class="col-xs-4">Current Date:</label>
+                    <div class="col-xs-8">
+                        <input type="text" name="shift_current_date" class="form-control datepicker" value="<?= $shift_current_date ?>" style="pointer-events: none;" readonly>
+                    </div>
+                </div>
             <?php } ?>
 
             <?php if (strpos($enabled_fields, ',security_level,') !== FALSE || !empty($security_level)) { ?>
-                <label for="security_level" class="super-label">Create Shift For:</label>
-                <div class="row">
-                    <div class="col-xs-6">
-                        <div class="form-group">
-                            <div class="pull-left"><input type="radio" id="create_shift_for" name="create_shift_for" value="staff"<?= empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)" style="position: relative; top: 0.3em;"></div>
-                            <label for="dayoff_type" class="form-label pull-left pad-left pad-top">Staff</label>
-                            <div class="clearfix"></div>
-                        </div>
-                    </div>
-                    <div class="col-xs-6">
-                        <div class="form-group">
-                            <div class="pull-left"><input type="radio" id="create_shift_for" name="create_shift_for" value="security_level"<?= !empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)" style="position: relative; top: 0.3em;"></div>
-                            <label for="dayoff_type" class="form-label pull-left pad-left pad-top">Security Level</label>
-                            <div class="clearfix"></div>
-                        </div>
+                <div class="form-group">
+                    <label for="security_level" class="col-xs-4">Create Shift For:</label>
+                    <div class="col-xs-8">
+                        <label class="form-checkbox"><input type="radio" id="create_shift_for" name="create_shift_for" value="staff"<?= empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)"> Staff</label>
+                        <label class="form-checkbox"><input type="radio" id="create_shift_for" name="create_shift_for" value="security_level"<?= !empty($security_level) ? ' checked' : '' ?> onclick="createShiftFor(this)"> Security Level</label>
+
                     </div>
                 </div>
 
-                <div class="security_level_div" <?= empty($security_level) ? 'style="display:none;"' : '' ?>>
-                    <label for="contactid" class="super-label">Security Level:
-                    <select data-placeholder="Select Security Level" name="shift_security_level" class="chosen-select-deselect">
-                        <option></option>
-                        <?php $on_security = get_security_levels($dbc);
-                        foreach($on_security as $security_label => $security_value) {
-                            echo '<option value="'.$security_value.'"'.($security_value == $security_level ? ' selected' : '').'>'.$security_label.'</option>';
-                        }
-                        ?>
-                    </select></label>
+                <div class="form-group security_level_div" <?= empty($security_level) ? 'style="display:none;"' : '' ?>>
+                    <label for="contactid" class="col-xs-4">Security Level:</label>
+                    <div class="col-xs-8">
+                        <select data-placeholder="Select Security Level" name="shift_security_level" class="chosen-select-deselect">
+                            <option></option>
+                            <?php $on_security = get_security_levels($dbc);
+                            foreach($on_security as $security_label => $security_value) {
+                                echo '<option value="'.$security_value.'"'.($security_value == $security_level ? ' selected' : '').'>'.$security_label.'</option>';
+                            }
+                            ?>
+                        </select>
+
+                    </div>
                 </div>
             <?php } ?>
 
-            <div class="staff_div" <?= !empty($security_level) ? 'style="display:none;"' : '' ?>>
-                <label for="contactid" class="super-label">Staff:
-                <select data-placeholder="Select Staff" name="shift_contactid" class="chosen-select-deselect">
-                    <option></option>
-                    <?php
-                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
-                        foreach ($query as $id) {
-                            echo '<option value="'.$id.'"'.($id == $contactid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
-                        }
-                    ?>
-                </select></label>
+            <div class="staff_div form-group" <?= !empty($security_level) ? 'style="display:none;"' : '' ?>>
+                <label for="contactid" class="col-xs-4">Staff:</label>
+                <div class="col-xs-8">
+                    <select data-placeholder="Select Staff" name="shift_contactid" class="chosen-select-deselect">
+                        <option></option>
+                        <?php
+                            $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
+                            foreach ($query as $id) {
+                                echo '<option value="'.$id.'"'.($id == $contactid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
+                            }
+                        ?>
+                    </select>
+                </div>
             </div>
 
             <?php if (!empty($contact_category)) { ?>
-                <label for="clientid" class="super-label"><?= $contact_category ?>:
-                <select data-palceholder="Select <?= $contact_category ?>" name="shift_clientid" class="chosen-select-deselect">
-                    <option></option>
-                    <?php
-                        $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = '".$contact_category."' AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
-                        foreach ($query as $id) {
-                            echo '<option value="'.$id.'"'.($id == $clientid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
-                        }
-                    ?>
-                </select>
-                </label>
+                <div class="form-group">
+                    <label for="clientid" class="col-xs-4"><?= $contact_category ?>:</label>
+                    <div class="col-xs-8">
+                        <select data-palceholder="Select <?= $contact_category ?>" name="shift_clientid" class="chosen-select-deselect">
+                            <option></option>
+                            <?php
+                                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = '".$contact_category."' AND `deleted` = 0 AND `status` = 1"),MYSQLI_ASSOC));
+                                foreach ($query as $id) {
+                                    echo '<option value="'.$id.'"'.($id == $clientid ? ' selected' : '').'>'.get_contact($dbc, $id).'</option>';
+                                }
+                            ?>
+                        </select>
+                    </div>
+                </div>
             <?php } ?>
+
+            <?php if (strpos($enabled_fields, ',heading,') !== FALSE) { ?>
+                <div class="form-group">
+                    <label class="form-label col-sm-4">Heading:</label>
+                    <div class="col-sm-8">
+                        <input type="text" name="shift_heading" class="form-control" value="<?= $heading ?>">
+                    </div>
+                </div>
+            <?php } ?>
+
             <hr>
 
             <?php if (strpos($enabled_fields, ',dates,') !== FALSE) {
-        		$lock_date = get_config($dbc, 'staff_schedule_lock_date'); ?>
+        		$lock_date = get_staff_schedule_lock_date($dbc); ?>
                 <div class="form-group">
-                    <div class="pull-left" style="width:25px;"><img src="../img/month-overview-blue.png" alt="Date" width="18" /></div>
-                    <label class="pull-left" style="width:50px;">Date:</label>
-                    <div class="pull-left"><input type="text" placeholder="Start Date" name="shift_startdate" data-min-date="<?= $lock_date ?>" class="form-control datepicker" value="<?= empty($startdate) || $startdate == '0000-00-00' ? '' : date('Y-m-d', strtotime($startdate)) ?>" onchange="$('[name=shift_enddate]').val($(this).val());"></div>
-                    <div class="pull-left pad-left pad-right"> - </div>
-                    <div class="pull-left"><input type="text" placeholder="End Date" name="shift_enddate" data-min-date="<?= $lock_date ?>" class="form-control datepicker" value="<?= empty($enddate) || $enddate == '0000-00-00' ? '' : date('Y-m-d', strtotime($enddate)) ?>"></div>
+                    <div class="col-sm-4">
+                        <div class="pull-left" style="width:25px;"><img src="../img/month-overview-blue.png" alt="Date" width="18" /></div>
+                        <label class="pull-left" style="width:50px;">Date:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="pull-left"><input type="text" placeholder="Start Date" name="shift_startdate" data-min-date="<?= $lock_date ?>" class="form-control datepicker" value="<?= empty($startdate) || $startdate == '0000-00-00' ? '' : date('Y-m-d', strtotime($startdate)) ?>" onchange="$('[name=shift_enddate]').val($(this).val());"></div>
+                        <div class="pull-left pad-left pad-right"> - </div>
+                        <div class="pull-left"><input type="text" placeholder="End Date" name="shift_enddate" data-min-date="<?= $lock_date ?>" class="form-control datepicker" value="<?= empty($enddate) || $enddate == '0000-00-00' ? '' : date('Y-m-d', strtotime($enddate)) ?>"></div>
+                    </div>
                 </div>
             <?php } ?>
 
             <?php if (strpos($enabled_fields, ',availability,') !== FALSE) { ?>
-                <label class="form-label pull-left">Availability</label>
-                <label for="availability" class="super-label pull-left pad-left">Availability:
-                <select name="shift_availability" data-placeholder="Select an Availability..." class="chosen-select-deselect form-control">
-                    <option <?= empty($availability) || $availability == 'Available On Scheduled Hours' ? 'selected' : '' ?> value="Available On Scheduled Hours">Available On Scheduled Hours</option>
-                    <option <?= $availability == 'Available Anytime' ? 'selected' : '' ?> value="Available Anytime">Available Anytime</option>
-                    <option <?= $availability == 'Call Before Booking' ? 'selected' : '' ?> value="Call Before Booking">Call Before Booking</option>
-                </select>
-                </label>
-                <div class="clearfix"></div>
-                <hr class="offset-bottom-5">
+                <div class="form-group">
+                    <label class="form-label col-sm-4">Availability:</label>
+                    <div class="col-sm-8">
+                        <select name="shift_availability" data-placeholder="Select an Availability..." class="chosen-select-deselect form-control">
+                            <option <?= empty($availability) || $availability == 'Available On Scheduled Hours' ? 'selected' : '' ?> value="Available On Scheduled Hours">Available On Scheduled Hours</option>
+                            <option <?= $availability == 'Available Anytime' ? 'selected' : '' ?> value="Available Anytime">Available Anytime</option>
+                            <option <?= $availability == 'Call Before Booking' ? 'selected' : '' ?> value="Call Before Booking">Call Before Booking</option>
+                        </select>
+                    </div>
+                    <div class="clearfix"></div>
+                </div>
+                <hr class="offset-bottom-10">
             <?php } ?>
 
             <?php if (strpos($enabled_fields, ',time,') !== FALSE) { ?>
                 <div class="form-group">
-                    <div class="pull-left" style="width:25px;"><img src="../img/icons/ROOK-timer-icon.png" alt="Time" width="20" /></div>
-                    <label class="pull-left" style="width:50px;">Time:</label>
-                    <div class="pull-left"><input type="text" placeholder="Start Time" name="shift_starttime" class="form-control datetimepicker" value="<?= $availability == 'Available Anytime' ? '12:00 AM' : (empty($starttime) ? '' : date('h:i a', strtotime($starttime))) ?>" <?= $availability == 'Available Anytime' ? 'readonly' : '' ?>></div>
-                    <div class="pull-left pad-left pad-right"> - </div>
-                    <div class="pull-left"><input type="text" placeholder="End Time" name="shift_endtime" class="form-control datetimepicker" value="<?= $availability == 'Available Anytime' ? '11:59 PM' : (empty($endtime) ? '' : date('h:i a', strtotime($endtime))) ?>" <?= $availability == 'Available Anytime' ? 'readonly' : '' ?>></div>
+                    <div class="col-sm-4">
+                        <div class="pull-left" style="width:25px;"><img src="../img/icons/ROOK-timer-icon.png" alt="Time" width="20" /></div>
+                        <label class="pull-left" style="width:50px;">Time:</label>
+                    </div>
+                    <div class="col-sm-8">
+                        <div class="pull-left"><input type="text" placeholder="Start Time" name="shift_starttime" class="form-control datetimepicker" value="<?= $availability == 'Available Anytime' ? '12:00 AM' : (empty($starttime) ? '' : date('h:i a', strtotime($starttime))) ?>" <?= $availability == 'Available Anytime' ? 'readonly' : '' ?>></div>
+                        <div class="pull-left pad-left pad-right"> - </div>
+                        <div class="pull-left"><input type="text" placeholder="End Time" name="shift_endtime" class="form-control datetimepicker" value="<?= $availability == 'Available Anytime' ? '11:59 PM' : (empty($endtime) ? '' : date('h:i a', strtotime($endtime))) ?>" <?= $availability == 'Available Anytime' ? 'readonly' : '' ?>></div>
+                    </div>
                     <div class="clearfix"></div>
                     <hr class="offset-bottom-5">
                 </div>
             <?php } ?>
 
-            <div class="row">
+            <div class="form-group">
                 <div class="col-xs-6">
                     <div class="form-group">
-                        <div class="pull-left"><input type="checkbox" id="shift_type_shift" name="shift_type_check" value="shift"<?= empty($dayoff_type) ? ' checked' : '' ?> onclick="shiftTypeChange(this)" style="transform: scale(1.5); position: relative; top: 0.2em;"></div>
+                        <div class="pull-left offset-left-5"><input type="checkbox" id="shift_type_shift" name="shift_type_check" value="shift"<?= empty($dayoff_type) ? ' checked' : '' ?> onclick="shiftTypeChange(this)" style="transform: scale(1.5); position: relative; top: 0.2em;"></div>
                         <label for="dayoff_type" class="form-label pull-left pad-left">Shift</label>
                         <div class="clearfix"></div>
                     </div>
                 </div>
-                
+
                 <?php if (strpos($enabled_fields, ',dayoff_type,') !== FALSE) { ?>
                     <div class="col-xs-6">
                         <div class="form-group">
@@ -666,12 +790,15 @@ function createShiftFor(input) {
 
             <?php if (strpos($enabled_fields, ',repeat_days,') !== FALSE) { ?>
                 <div class="form-group">
-                    <div class="pull-left offset-left-5"><input type="checkbox" name="repeat_check" value="1"<?= !empty($repeat_type) ? ' checked' : '' ?> onclick="enableRepeats(this);" style="transform: scale(1.5); position: relative; top: 0.2em;"></div>
-                    <label class="form-label pull-left pad-left">Repeat</label>
-                    <div class="repeat_div pull-left pad-left" <?= !empty($repeat_type) ? '' : 'style="display: none;"' ?>>
-                        <div class="row">
-                            <div class="col-xs-6">
-                                <label for="repeat_type" class="super-label">Repeats:
+                    <div class="col-xs-4">
+                        <div class="pull-left offset-left-5"><input type="checkbox" name="repeat_check" value="1"<?= !empty($repeat_type) ? ' checked' : '' ?> onclick="enableRepeats(this);" style="transform: scale(1.5); position: relative; top: 0.2em;"></div>
+                        <label class="form-label pull-left pad-left">Repeat:</label>
+                    </div>
+                    <div class="col-xs-8">
+                        <div class="repeat_div pull-left" <?= !empty($repeat_type) ? '' : 'style="display: none;"' ?>>
+                            <div class="row">
+                                <div class="col-xs-6">
+                                    <label for="repeat_type">Repeats:</label>
                                     <select data-placeholder="Select Type" name="shift_repeat_type" class="chosen-select-deselect">
                                         <option <?= $repeat_type == 'daily' ? 'selected' : '' ?> value="daily">Daily</option>
                                         <option <?= $repeat_type == 'weekly' || $repeat_type == '' ? 'selected' : '' ?> value="weekly">Weekly</option>
@@ -680,28 +807,27 @@ function createShiftFor(input) {
                                         <option value="weekly_tt">Every Tuesday and Thursday</option>
                                         <option <?= $repeat_type == 'monthly' ? 'selected' : '' ?> value="monthly">Monthly</option>
                                     </select>
-                                </label>
-                            </div>
-                            <div class="pad-left col-xs-6">
-                                <label for="repeat_interval" class="super-label">Repeat Interval:
+                                </div>
+                                <div class="pad-left col-xs-6">
+                                    <label for="repeat_interval">Repeat Interval:</label>
                                     <select data-placeholder="Select Week Interval" name="shift_repeat_interval" class="chosen-select-deselect">
                                         <?php for ($shift_i = 1; $shift_i <= 30; $shift_i++) {
                                             echo '<option '.($repeat_interval == $shift_i ? 'selected' : '').' value="'.$shift_i.'">'.$shift_i.'</option>';
                                         } ?>
                                     </select>
-                                </label>
+                                </div>
                             </div>
-                        </div>
-                        <div class="clearifx"></div>
-                        <label for="repeat_days" class="super-label repeat_days" <?= $repeat_type == 'weekly' || $repeat_type == '' ? '' : 'style="display: none;"' ?>>Repeat Days:<br />
-                            <?php
-                                $days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
+                            <div class="clearifx"></div>
+                            <label for="repeat_days" class="repeat_days" <?= $repeat_type == 'weekly' || $repeat_type == '' ? '' : 'style="display: none;"' ?>>Repeat Days:<br /><br />
+                                <?php
+                                    $days_of_week = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
 
-                                foreach ($days_of_week as $day_of_week_shift) {
-                                    echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="shift_repeat_days[]" value="'.$day_of_week_shift.'" '.(strpos($repeat_days, ','.$day_of_week_shift.',') !== FALSE ? 'checked' : '').'>'.$day_of_week_shift.'</label>';
-                                }
-                            ?>
-                        </label>
+                                    foreach ($days_of_week as $day_of_week_shift) {
+                                        echo '<label style="padding-right: 0.5em; "><input type="checkbox" name="shift_repeat_days[]" value="'.$day_of_week_shift.'" '.(strpos($repeat_days, ','.$day_of_week_shift.',') !== FALSE ? 'checked' : '').'>'.$day_of_week_shift.'</label>';
+                                    }
+                                ?>
+                            </label>
+                        </div>
                     </div>
                     <div class="clearfix"></div>
                     <hr class="offset-bottom-5">
@@ -710,30 +836,32 @@ function createShiftFor(input) {
 
             <?php if (strpos($enabled_fields, ',hours_type,') !== FALSE) { ?>
                 <div class="form-group">
-                    <label for="hours_type" class="super-label">Shift Type:
+                    <label for="hours_type" class="col-xs-4">Shift Type:</label>
+                    <div class="col-xs-8">
                         <select data-placeholder="Select Type" name="hours_type" class="chosen-select-deselect">
                             <option <?= $hours_type == 'Regular Hrs.' || $hours_type == '' ? 'selected' : '' ?> value="daily">Regular</option>
                             <option <?= $hours_type == 'Extra Hrs.' ? 'selected' : '' ?> value="weekly">Extra</option>
                             <option <?= $hours_type == 'Relief Hrs.' ? 'selected' : '' ?> value="weekly">Relief</option>
                         </select>
-                    </label>
-                    <hr class="offset-bottom-5">
+                    </div>
                 </div>
+                <hr class="offset-bottom-5">
             <?php } ?>
 
             <?php if (strpos($enabled_fields, ',breaks,') !== FALSE) { ?>
                 <div class="form-group">
                     <div id="break_div" <?= (!empty($dayoff_type) ? 'style="display:none;"' : '') ?>>
-                        <div class="pull-left offset-left-5"><input type="checkbox" name="break_check" value="1"<?= !empty($break_starttime) || !empty($break_endtime) ? ' checked' : '' ?> onclick="enableBreaks(this);" style="transform: scale(1.5); position: relative; top: 0.2em;"></div>
-                        <label class="form-label pull-left pad-left">Breaks</label>
-
-                        <div class="break_div pull-left pad-left" style="<?= !empty($break_starttime) || !empty($break_endtime) ? '': 'display: none;' ?>">
+                        <div class="col-xs-4">
+                            <div class="pull-left offset-left-5"><input type="checkbox" name="break_check" value="1"<?= !empty($break_starttime) || !empty($break_endtime) ? ' checked' : '' ?> onclick="enableBreaks(this);" style="transform: scale(1.5); position: relative; top: 0.2em;"></div>
+                            <label class="form-label pull-left pad-left">Breaks:</label>
+                        </div>
+                        <div class="break_div pull-left pad-left col-xs-8" style="<?= !empty($break_starttime) || !empty($break_endtime) ? '': 'display: none;' ?>">
                             <div class="pull-left" style="width:25px;"><img src="../img/icons/ROOK-timer-icon.png" alt="Time" width="20" /></div>
                             <div class="pull-left"><input type="text" placeholder="Start Time" name="shift_break_starttime" class="form-control datetimepicker" value="<?= $break_starttime ?>"></div>
                             <div class="pull-left pad-left pad-right"> - </div>
                             <div class="pull-left"><input type="text" placeholder="End Time" name="shift_break_endtime" class="form-control datetimepicker" value="<?= $break_endtime ?>"></div>
                         </div>
-                        
+
                         <div class="clearfix"></div>
                         <hr class="offset-bottom-5">
                     </div>
@@ -741,14 +869,17 @@ function createShiftFor(input) {
             <?php } ?>
 
             <?php if (strpos($enabled_fields, ',notes,') !== FALSE) { ?>
-                <label for="notes" class="super-label">Description:
-                <textarea name="shift_notes" class="form-control noMceEditor"><?= html_entity_decode($notes) ?></textarea></label>
+                <div class="form-group">
+                    <label for="notes">Description:</label>
+                    <textarea name="shift_notes" class="form-control noMceEditor"><?= html_entity_decode($notes) ?></textarea>
+                </div>
             <?php } ?>
 
             <div class="pull-right" style="padding-top: 1em;">
-                <?php if($recurring == 'yes' && ($startdate >= $lock_date || $startdate == '')) { ?>
+                <a href="?<?= http_build_query($page_query) ?>" class="btn brand-btn mobile-anchor">Cancel</a>
+                <?php if($recurring == 'yes' && ($startdate >= $lock_date || $startdate == '' || empty($lock_date))) { ?>
                     <button type="submit" name="submit" value="calendar_shifts" class="btn brand-btn">Submit</button>
-                <?php } else if($startdate >= $lock_date || $startdate == '') { ?>
+                <?php } else if($startdate >= $lock_date || $startdate == '' || empty($lock_date)) { ?>
                     <button type="submit" name="submit" value="calendar_shifts" class="btn brand-btn">Submit</button>
                 <?php } ?>
                 <?php
@@ -765,7 +896,6 @@ function createShiftFor(input) {
                     unset($page_query['equipmentid']);
                     unset($page_query['add_reminder']);
                 ?>
-                <a href="?<?= http_build_query($page_query) ?>" class="btn brand-btn mobile-anchor">Cancel</a>
                 <?php if(!empty($shiftid) && $startdate >= $lock_date) { ?>
                     <a href="#" onclick="deleteShift(); return false;"><img src="<?= WEBSITE_URL ?>/img/icons/ROOK-trash-icon.png"></a>
                 <?php } ?>

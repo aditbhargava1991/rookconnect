@@ -5239,16 +5239,17 @@ ul.sidebar .active.blue,
 .default-background {
     background-color:#b1d349 !important; }
     
-.dashboard-container,
-.block-item,
-.block-label,
-.block-button,
-.main-screen-white,
-.blue-border,
-.overview-block,
 .summary-block,
+.overview-block,
+.main-screen-white,
+.block-label,
+.block-item,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
 .connectedSortable {
-    border:1px solid #b1d349 !important; }
+    border-color:#b1d349 !important; }
     
 .standard-sidebar-searchbox { background-color:#eef7de !important; }
 

@@ -7,7 +7,7 @@ do {
 			<?php foreach($field_sort_order as $field_sort_field) { ?>
 				<?php if(strpos($value_config,',Residue Type,') !== FALSE && $field_sort_field == 'Residue Type') { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Type:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-7 select-div">
 							<select name="item_id" data-table="ticket_attached" data-id="<?= $residue['id'] ?>" data-id-field="id" data-type="residue" data-type-field="src_table" class="chosen-select-deselect"><option></option>
 								<?php $residue_descriptions = mysqli_query($dbc, "SELECT `description` FROM `ticket_attached` WHERE `deleted`=0 AND `src_table`='residue' GROUP BY `description` ORDER BY `description`");
@@ -22,8 +22,8 @@ do {
 						</div>
 						<div class="col-sm-1">
 							<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $residue['id'] ?>" data-id-field="id" data-type="residue" data-type-field="src_table" value="0">
-							<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-							<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+							<img class="inline-img pull-right" data-history-label="Residue" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+							<img class="inline-img pull-right" data-history-label="Residue" onclick="remMulti(this);" src="../img/remove.png">
 						</div>
 						<div class="clearfix"></div>
 					</div>
@@ -62,7 +62,7 @@ do {
 			<?php foreach($field_sort_order as $field_sort_field) { ?>
 				<?php if(strpos($value_config,',Residue Type,') !== FALSE && $field_sort_field == 'Residue Type') { ?>
 					<div class="form-group">
-						<label class="control-label col-sm-4">Type:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8"><?= $residue['description'] != '' ? $residue['description'] : $residue['name'] ?></div>
 					</div>
 					<?php $pdf_contents[] = ['Type', $residue['description'] != '' ? $residue['description'] : $residue['name']]; ?>

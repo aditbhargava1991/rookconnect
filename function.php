@@ -1,12 +1,25 @@
 <?php // Define all Tile Name Constants
 // @$_SERVER['page_load_info'] .= 'Session Started: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 session_start();
+
+if(!defined('FOLDER_NAME')) {
+    $folder_path = $_SERVER['REQUEST_URI'];
+    $each_tab = explode('/', $folder_path);
+
+    DEFINE('FOLDER_NAME', strtolower($each_tab[1]));
+    DEFINE('FOLDER_URL', $each_tab[1]);
+}
+
 if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 	@session_start(['cookie_lifetime' => 518400]);
 	// Update SESSION Constants no more than once every 600 seconds
 	$inventory_tile_name = explode('#*#',get_config($dbc, 'inventory_tile_name') ?: 'Inventory#*#Inventory');
 	$_SESSION['INVENTORY_TILE'] = $inventory_tile_name[0] ?: 'Inventory';
 	$_SESSION['INVENTORY_NOUN'] = !empty($inventory_tile_name[1]) ? $inventory_tile_name[1] : ($inventory_tile_name[0] == 'Inventory' ? 'Inventory' : $inventory_tile_name[0]) ?: 'Inventory';
+
+	$task_tile_name = explode('#*#',get_config($dbc, 'task_tile_name') ?: 'Task#*#Task');
+	$_SESSION['TASK_TILE'] = $task_tile_name[0] ?: 'Task';
+	$_SESSION['TASK_NOUN'] = !empty($task_tile_name[1]) ? $task_tile_name[1] : ($task_tile_name[0] == 'Task' ? 'Task' : $task_tile_name[0]) ?: 'Task';
 
 	$contacts_tile_name = explode('#*#',get_config($dbc, 'contacts_tile_name') ?: 'Contacts#*#Contact');
 	$_SESSION['CONTACTS_TILE'] = $contacts_tile_name[0] ?: 'Contacts';
@@ -32,9 +45,9 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 
 	$_SESSION['JOBS_TILE'] = get_config($dbc, 'jobs_tile_name') ?: 'Jobs';
 
-	$pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Point of Sale#*#Point of Sale');
+	$pos_advance_tile_name = explode('#*#',get_config($dbc, 'pos_advance_tile_name') ?: 'Point of Sale#*#Invoice');
 	$_SESSION['POS_ADVANCE_TILE'] = $pos_advance_tile_name[0] ?: 'Point of Sale';
-	$_SESSION['POS_ADVANCE_NOUN'] = !empty($pos_advance_tile_name[1]) ? $pos_advance_tile_name[1] : ($pos_advance_tile_name[0] == 'Point of Sale' ? 'Point of Sale' : $pos_advance_tile_name[0]) ?: 'Point of Sale';
+	$_SESSION['POS_ADVANCE_NOUN'] = !empty($pos_advance_tile_name[1]) ? $pos_advance_tile_name[1] : ($pos_advance_tile_name[0] == 'Point of Sale' ? 'Invoice' : $pos_advance_tile_name[0]) ?: 'Invoice';
 
 	$ticket_tile_name = explode('#*#',get_config($dbc, 'ticket_tile_name') ?: 'Tickets#*#Ticket');
 	$_SESSION['TICKET_TILE'] = $ticket_tile_name[0] ?: 'Tickets';
@@ -58,27 +71,6 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 
 	$_SESSION['CONSTANT_UPDATED'] = time();
 	$_SERVER['page_load_info'] .= 'Constants Reloaded: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
-
-    // Match Contacts
-    $today_date = date('Y-m-d');
-    $match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date'"),MYSQLI_ASSOC);
-    $match_contacts = [];
-    $match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
-    $match_exclude = false;
-    foreach($match_exclude_security as $exclude_security) {
-        if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
-            $match_exclude = true;
-        }
-    }
-    if(!empty($match_contacts_query) && !$match_exclude) {
-        $match_contacts[] = $_SESSION['contactid'];
-        foreach($match_contacts_query as $match_contact) {
-            if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
-                $match_contacts = array_merge($match_contacts, explode(',',$match_contact['support_contact']));
-            }
-        }
-    }
-    $_SESSION['MATCH_CONTACTS'] = implode(',',array_unique(array_filter($match_contacts)));
     $staff_email_field = get_config($dbc, 'staff_email_field');
     $staff_email_field = empty($staff_email_field) ? 'email_address' : $staff_email_field;
     $_SESSION['STAFF_EMAIL_FIELD'] = $staff_email_field;
@@ -86,7 +78,10 @@ if($_SESSION['CONSTANT_UPDATED'] + 600 < time()) {
 }
 // Pull from SESSION instead of Database
 DEFINE('INVENTORY_TILE', $_SESSION['INVENTORY_TILE']);
+DEFINE('TASK_TILE', $_SESSION['TASK_TILE']);
+DEFINE('TASK_NOUN', $_SESSION['TASK_NOUN']);
 DEFINE('POS_ADVANCE_TILE', $_SESSION['POS_ADVANCE_TILE']);
+DEFINE('POS_ADVANCE_NOUN', $_SESSION['POS_ADVANCE_NOUN']);
 DEFINE('INVENTORY_NOUN', $_SESSION['INVENTORY_NOUN']);
 DEFINE('CONTACTS_TILE', $_SESSION['CONTACTS_TILE']);
 DEFINE('CONTACTS_NOUN', $_SESSION['CONTACTS_NOUN']);
@@ -116,8 +111,53 @@ DEFINE('COMPANY_SOFTWARE_NAME', $_SESSION['COMPANY_SOFTWARE_NAME']);
 DEFINE('ACTIVE_DAY_BANNER', $_SESSION['ACTIVE_DAY_BANNER']);
 DEFINE('ACTIVE_TICKET_BUTTON', $_SESSION['ACTIVE_TICKET_BUTTON']);
 DEFINE('SHOW_SIGN_IN', $_SESSION['SHOW_SIGN_IN']);
-DEFINE('MATCH_CONTACTS', $_SESSION['MATCH_CONTACTS']);
 DEFINE('STAFF_EMAIL_FIELD', $_SESSION['STAFF_EMAIL_FIELD']);
+switch($_SESSION['user_preferences']['time_format'] > 0 ? $_SESSION['user_preferences']['time_format'] : get_config($dbc, 'system_time_format')) {
+	case 4:
+        DEFINE('TIME_FORMAT', 'H:mm');
+        DEFINE('TIME_FORMAT_SEC', 'H:mm:ss');
+        break;
+	case 3:
+        DEFINE('TIME_FORMAT', 'HH:mm');
+        DEFINE('TIME_FORMAT_SEC', 'HH:mm:ss');
+        break;
+	case 2:
+        DEFINE('TIME_FORMAT', 'h:mm tt');
+        DEFINE('TIME_FORMAT_SEC', 'h:mm:ss tt');
+        break;
+	default:
+        DEFINE('TIME_FORMAT', 'hh:mm tt');
+        DEFINE('TIME_FORMAT_SEC', 'hh:mm:ss tt');
+        break;
+}
+
+// Match Contacts
+$today_date = date('Y-m-d');
+$match_tile_lists = '';
+if(in_array(FOLDER_NAME,['posadvanced','invoice','account receivables','project','ticket'])) {
+    $match_tile_lists = str_replace(['posadvanced','invoice','account receivables','project','ticket'],
+        ['posadvanced','check_out','accounts_receivables','project','ticket'],
+        "OR `tile_list` LIKE '%".FOLDER_NAME."%'");
+}
+$match_contacts_query = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists)"),MYSQLI_ASSOC);
+$match_contacts = [];
+$match_exclude_security = array_filter(explode('#*#', get_config($dbc, 'match_exclude_security')));
+$match_exclude = false;
+foreach($match_exclude_security as $exclude_security) {
+    if(strpos(','.$_SESSION['role'].',',','.$exclude_security.',') !== FALSE) {
+        $match_exclude = true;
+    }
+}
+if(!empty($match_contacts_query) && !$match_exclude) {
+    $match_contacts[] = $_SESSION['contactid'];
+    foreach($match_contacts_query as $match_contact) {
+        if(strtotime($match_contact['end_date']) >= strtotime($today_date) && $match_contact['status'] == 'Active') {
+            $match_contacts = array_merge($match_contacts, explode(',',$match_contact['support_contact']));
+        }
+    }
+}
+DEFINE('MATCH_CONTACTS',implode(',',array_unique(array_filter($match_contacts))));
+// echo '<script>console.log("'.MATCH_CONTACTS.' '."SELECT * FROM `match_contact` WHERE CONCAT(',',`staff_contact`,',') LIKE '%,".$_SESSION['contactid'].",%' AND `deleted` = 0 AND `match_date` <= '$today_date' AND (IFNULL(`tile_list`,'')='' $match_tile_lists) ".FOLDER_NAME.'");</script>';
 $_SERVER['page_load_info'] .= 'Constants Defined: '.number_format(microtime(true) - $_SERVER['REQUEST_TIME_FLOAT'],5)."\n";
 
 // List all function here
@@ -244,9 +284,14 @@ function get_marketing_material_uploads($dbc, $certuploadid, $field_name) {
     return $get_staff[$field_name];
 }
 function get_tasklist($dbc, $type, $board_name, $field_name) {
-    $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM	field_config_communication WHERE board_name='$board_name' AND type='$type'"));
+    $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM field_config_communication WHERE board_name='$board_name' AND type='$type'"));
     return $get_staff[$field_name];
 }
+function get_tasklist_tabledata($dbc, $tasklistid, $field_name) {
+    $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM	tasklist WHERE	tasklistid='$tasklistid'"));
+    return $get_staff[$field_name];
+}
+
 function get_field_config_contacts($dbc, $accordion, $field_name, $tab, $subtab = '') {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `$field_name` FROM	field_config_contacts WHERE (tile_name = '".FOLDER_NAME."' OR (tile_name='contacts' AND '".FOLDER_NAME."'='staff')) AND accordion='$accordion' AND tab='$tab' AND (IFNULL(subtab,'') = '$subtab' OR '$subtab' = '')"));
     return $get_staff[$field_name];
@@ -352,14 +397,24 @@ function set_field_config($dbc, $name, $value) {
 	mysqli_query($dbc, "INSERT INTO `field_config` (`fieldconfigid`) SELECT 0 FROM (SELECT COUNT(*) rows FROM `field_config`) num WHERE num.rows=0");
 	mysqli_query($dbc, "UPDATE `field_config` SET `$name`='$value'");
 }
+function set_field_mandatory_config($dbc, $name, $value) {
+	$name = filter_var($name, FILTER_SANITIZE_STRING);
+	$value = filter_var($value, FILTER_SANITIZE_STRING);
+	mysqli_query($dbc, "INSERT INTO `field_mandatory_config` (`fieldconfigid`) SELECT 0 FROM (SELECT COUNT(*) rows FROM `field_mandatory_config`) num WHERE num.rows=0");
+	mysqli_query($dbc, "UPDATE `field_mandatory_config` SET `$name`='$value'");
+}
 function get_field_config($dbc, $name) {
     return ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `".filter_var($name,FILTER_SANITIZE_STRING)."` FROM `field_config`"))[0].',';
 }
-function set_config($dbc, $name, $value) {
+function get_mandatory_field_config($dbc, $name) {
+    return ','.mysqli_fetch_array(mysqli_query($dbc,"SELECT `".filter_var($name,FILTER_SANITIZE_STRING)."` FROM `field_mandatory_config`"))[0].',';
+}
+
+function set_config($dbc, $name, $value, $mandatory=0) {
 	$name = filter_var($name, FILTER_SANITIZE_STRING);
 	$value = filter_var($value, FILTER_SANITIZE_STRING);
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`) SELECT '$name' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='$name') num WHERE num.rows=0");
-	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value' WHERE `name`='$name'");
+	mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$value',`mandatory`='$mandatory' WHERE `name`='$name'");
 	$_SESSION['CONSTANT_UPDATED'] = 0;
 }
 function get_config($dbc, $name, $multi = false, $separator = ',') {
@@ -388,7 +443,198 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
         $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name'";
         $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
     }
-    
+
+	// Define Defaults for specific fields
+	if(str_replace(',','',$get_config['value']) == '') {
+		if($name == 'timesheet_tabs') {
+			return 'Time Sheets,Pay Period,Holidays,Coordinator Approvals,Manager Approvals,Reporting,Payroll';
+		} else if($name == 'time_tracking_tabs') {
+			return 'tracking,shop_time_sheets';
+		} else if($name == 'staff_field_subtabs') {
+			return 'ID Card,Staff Information,Staff Address,Employee Information,Driver Information,Direct Deposit Information,Software ID,Social Media,Emergency,Health,Schedule,Certificates,HR,Ticket,Project,History';
+		} else if($name == 'payroll_tabs') {
+			return 'compensation,salary,contractor,field_ticket,shop_work_order';
+		} else if($name == 'billing_tabs') {
+			return 'billing,invoices,accounts_receivable';
+		} else if($name == 'project_nav_tabs') {
+			return 'projects,scrum,tickets,daysheet';
+		} else if($name == 'communication_schedule_tabs') {
+			return 'email,phone';
+		} else if($name == 'site_work_orders') {
+			return 'sites,pending,active,schedule,po';
+		} else if($name == 'checklist_tabs') {
+			return 'my_ongoing,my_daily,my_weekly,my_monthly,company_ongoing,company_daily,company_weekly,company_monthly,project_tab,reporting';
+		} else if($name == 'tile_enable_section') {
+			return 'software_settings,profiles,human_resources,sales,inventory_management,collaborative_workflow,estimates,safety,project_management,operations,project_details,project_type,time_tracking,accounting,reporting,medical,point_of_sale,crm,analytics,equipment,digital_forms,common_practice,project_addon,project_tracking,clinic_ace,communication,safety,pos,crm,anlytics';
+		} else if($name == 'client_project_tabs') {
+			return 'pending,active,archived,tickets,daysheet';
+		} else if($name == 'general_flag_colours') {
+			return 'FB0D0D*#*Default Flag Colour';
+		} else if($name == 'ticket_colour_flags') {
+			return 'FF6060';
+		} else if($name == 'expense_tabs') {
+			return 'budget,current_month,business,customers,clients,staff,sales,manager,payables,report';
+		} else if($name == 'rate_card_tabs') {
+			return ',company,customer,';
+		} else if($name == 'expense_provinces') {
+			return 'AB*5*0*0#*#BC*5*7*0#*#MB*8*5*0#*#NB*0*0*15#*#NL*0*0*15#*#NT*5*0*0#*#NS*0*0*15#*#NU*5*0*0#*#ON*0*0*13#*#PE*0*0*15#*#QC*5*9.975*0#*#SK*5*5*0#*#YT*5*0*0';
+		} else if($name == 'equipment_tabs') {
+			return 'Truck,Trailer';
+		} else if($name == 'equipment_main_tabs') {
+			return 'Equipment,Inspection,Work Order,Expenses,Requests,Records,Checklists';
+		} else if($name == 'equipment_remind_subject') {
+			return 'Reminder of a Renewal for Equipment';
+		} else if($name == 'equipment_remind_body') {
+			return htmlentities('Hi,<p>There is an upcoming renewal for some equipment.</p>');
+		} else if($name == 'equipment_service_subject') {
+			return 'Request for Service for Equipment';
+		} else if($name == 'equipment_service_body') {
+			return htmlentities('Hi,<p>During the inspection of the equipment, it was found that service was needed. You will find a PDF with the details attached.</p>');
+		} else if($name == 'equipment_expense_fields') {
+			return 'Description,Country,Province,Date,Receipt,Amount,HST,PST,GST,Total';
+		} else if($name == 'invoice_design') {
+			return 4;
+		} else if($name == 'pos_design') {
+			return 1;
+		} else if($name == 'invoice_tabs') {
+			return 'today,all,ui_report,refunds,cashout';
+		} else if($name == 'invoice_purchase_contact') {
+			return 'Patient';
+		} else if($name == 'invoice_payer_contact') {
+			return 'Insurer';
+		} else if($name == 'invoice_fields') {
+			return 'invoice_type,customer,injury,staff,appt_type,treatment,service_date,pay_mode,services,service_cat,service_head,service_price,inventory,inventory_name,inventory_type,inventory_price,inventory_qty,packages,packages_cat,packages_name,packages_fee,promo,tips,next_appt,survey,followup';
+		} else if($name == 'invoice_payment_types') {
+			return 'Master Card,Visa,Debit Card,Cash,Cheque,Amex,Direct Deposit,Gift Certificate Redeem,Pro-Bono';
+		} else if($name == 'invoice_dashboard') {
+			return 'invoiceid,invoice_date,customer,total_price,payment_type,invoice_pdf,comment,status,send,delivery,invoice_xsl,invoice_xml';
+		} else if($name == 'max_timer') {
+			return 28800;
+		} else if($name == 'appt_day_start') {
+			return '06:00 am';
+		} else if($name == 'appt_day_end') {
+			return '08:00 pm';
+		} else if($name == 'appt_increments') {
+			return 15;
+		} else if($name == 'appt_wait_list') {
+			return 'yes';
+		} else if($name == 'calendar_default') {
+			return 'ticket_wk';
+		} else if($name == 'expense_mode') {
+			return 'inbox';
+		} else if($name == 'estimate_dashboard_length') {
+			return 10;
+		} else if($name == 'project_status') {
+			return "In Development#*#Active Project";
+		} else if($name == 'estimate_status') {
+			return "Opportunities#*#In Negotiations#*#Closed Successfully";
+		} else if($name == 'business_category') {
+			return "Business";
+		} else if($name == 'site_category') {
+			return "Sites";
+		} else if($name == 'project_classify') {
+			return "Types";
+		} else if($name == 'ticket_label') {
+			return "[TICKET_NOUN] #[TICKETID] - [TICKET_HEADING]";
+		} else if($name == 'project_label') {
+			return "#[PROJECTID] [PROJECT_NAME]";
+		} else if($name == 'mileage_fields') {
+			return "staff,startdate,enddate,category,details,contact,double_mileage";
+		} else if($name == 'comp_staff_groups') {
+			return 'ALL';
+		} else if($name == 'ticket_min_hours' || $name == 'timesheet_hour_intervals') {
+			return '0';
+		} else if($name == 'hr_fields') {
+			return 'Sub Category,First Name,Last Name,Birth Date,Employee Number,Address including Postal Code,Topic (Sub Tab),Sub Section Heading,Third Tier Heading,Detail,Document,Link,Videos,Signature box,Comments,Staff,Review Deadline,Status,Configure Email,Form,Permissions by Position';
+		} else if($name == 'volume_units') {
+			return 'm&sup3;';
+		} else if($name == 'quick_action_icons') {
+			return 'edit,flag,reply,attach,alert,email,reminder,time,archive';
+		} else if($name == 'manual_subject_completed') {
+			return 'Manual Read by [USER]';
+		} else if($name == 'manual_body_completed') {
+			return htmlentities('<p>Category: [CATEGORY]<br>Heading: [HEADING]</p>[COMMENT]');
+		} else if($name == 'manual_completed_email') {
+			return mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `value` FROM `general_configuration` WHERE `name` LIKE 'manual_%_email'"))['value'];
+		} else if($name == 'log_note_categories') {
+			return get_config($dbc, 'all_contact_tabs');
+		} else if($name == 'staff_tabs') {
+			return 'suspended,security,positions,reminders';
+		} else if($name == 'inventory_markup') {
+			return 0;
+		} else if($name == 'calendar_ticket_card_fields') {
+			return 'label,project,customer,assigned,preferred,time,available';
+		} else if($name == 'tickets_summary') {
+			return 'Created,Assigned';
+		} else if($name == 'timesheet_include_time') {
+			return 'ticket,project,meeting,email,task,checklist';
+		} else if($name == 'daysheet_ticket_fields') {
+			return 'Project,Time Estimate';
+		} else if($name == 'client_accordion_category') {
+			return 'Clients';
+		} else if($name == 'rate_card_contact') {
+			return 'businessid';
+		} else if($name == 'transport_carrier_category') {
+			return 'Carrier';
+		} else if($name == 'expense_default_staff') {
+			return 'NA';
+		} else if($name == 'inventory_cost') {
+			return 'cost';
+		} else if($name == 'planner_end_day') {
+			return 'show';
+		} else if($name == 'ticket_project_function') {
+			return 'manual';
+		} else if($name == 'inventory_sort') {
+			return 'default';
+		} else if($name == 'po_tabs') {
+			return 'create,pending,receiving,payable,completed,remote,site_po';
+		} else if($name == 'ticket_manifest_fields') {
+			return 'file,po,vendor,line,qty,site';
+		} else if($name == 'report_row_colour_1') {
+			return '#BBBBBB';
+		} else if($name == 'report_row_colour_2') {
+			return '#DDDDDD';
+		} else if($name == 'recent_manifests') {
+			return '25';
+		} else if($name == 'recent_inventory') {
+			return '25';
+		} else if($name == 'company_rate_card_sections') {
+			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
+		} else if($name == 'lead_new_contact_cat') {
+			return 'Sales Leads';
+		} else if($name == 'ticket_archive_status') {
+			return 'Archive#*#Archived';
+		} else if($name == 'estimate_tabs') {
+			return get_config($dbc, 'project_tabs');
+		} else if($name == 'invoice_ticket_append_qty') {
+			return 10;
+		} else if(strpos($name, 'invoice_ticket_append_qty_') === 0) {
+			return get_config($dbc, 'invoice_ticket_append_qty');
+		} else if($name == 'cust_support_tab_list') {
+            $value = ['services','scrum','new','feedback'];
+            foreach(explode(',',get_config($dbc, 'ticket_tabs')) as $ticket_tab) {
+                $value[] = config_safe_str($ticket_tab);
+            }
+            $value[] = 'closed';
+			return implode(',',$value);
+		} else if($name == 'invoice_email_subject') {
+			return 'Attached is your '.POS_ADVANCE_NOUN;
+		} else if($name == 'invoice_email_body') {
+			return '&lt;p&gt;[CUSTOMER]&lt;/p&gt;&lt;p&gt;Attached is your invoice. Thank you for your business!&lt;/p&gt;';
+		}
+	}
+
+	return $get_config['value'];
+}
+function get_mandatory_config($dbc, $name, $multi = false, $separator = ',') {
+    // Defined Overrided Settings
+    if($name == 'show_category_dropdown_equipment') {
+        return 0;
+    }
+
+    $sql = "SELECT `value` FROM `general_configuration` WHERE `name`='$name' AND mandatory=1";
+    $get_config = mysqli_fetch_assoc(mysqli_query($dbc,$sql));
+
 	// Define Defaults for specific fields
 	if(str_replace(',','',$get_config['value']) == '') {
 		if($name == 'timesheet_tabs') {
@@ -545,6 +791,8 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return '25';
 		} else if($name == 'company_rate_card_sections') {
 			return 'tasks,material,services,products,staff,position,contractor,clients,customer,vpl,inventory,equipment,labour,timesheet,driving_log';
+		} else if($name == 'lead_new_contact_cat') {
+			return 'Sales Leads';
 		}
 	}
 
@@ -596,8 +844,11 @@ function get_project_paths($projectid) {
             if($pathid > 0) {
                 $path['path_id'] = $pathid;
                 $path['path_name'] = explode('#*#',$paths['project_path_name'])[$i];
-                
-                // Add default milestones, if they have not yet been added
+                if(empty($path['path_name'])) {
+                    $path['path_name'] = get_field_value('project_path','project_path_milestone','project_path_milestone',$pathid);
+                }
+
+              // Add default milestones, if they have not yet been added
                 $milestones = explode('#*#',get_field_value('milestone','project_path_milestone','project_path_milestone',$pathid));
                 $prior_sort = 0;
                 foreach($milestones as $i => $milestone) {
@@ -608,7 +859,7 @@ function get_project_paths($projectid) {
                         $_SERVER['DBC']->query("INSERT INTO `project_path_custom_milestones` (`projectid`,`milestone`,`label`,`path_type`,`pathid`,`sort`) VALUES ('$projectid','$milestone','$milestone','I','$pathid','$prior_sort')");
                     }
                 }
-                
+
                 // Load the actual list of milestones into the array
                 $path['milestones'] = [];
                 $milestone_list = $_SERVER['DBC']->query("SELECT `milestones`.`id`, `milestones`.`milestone`, `milestones`.`label`  FROM `project_path_custom_milestones` `milestones` WHERE `milestones`.`projectid`='$projectid' AND `milestones`.`pathid`='$pathid' AND `milestones`.`path_type`='I' AND `milestones`.`deleted`=0 ORDER BY `milestones`.`sort`,`milestones`.`id`");
@@ -674,7 +925,7 @@ function set_field_value($value, $field_name, $table_name, $id_field, $id) {
 	}
 
 	// Set the matching value
-	if(!$_SERVER['DBC']->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `$id_field`='$id'")) {
+	if(!$_SERVER['DBC']->query("UPDATE `$table_name` SET `$field_name`='$value' WHERE `$id_field`='$id' AND `$id_field` NOT IN (0,'')")) {
 		return "<!--Unable to update $field_name in $table_name to $value. Please review the request ($id_field: $id).-->";
 	} else {
 		return "<!--Successfully updated $field_name in $table_name to $value.-->";
@@ -698,7 +949,7 @@ function get_field_value($field_name, $table_name, $id_field, $id) {
 	}
 
 	// Get the first matching value, and decrypt it if necessary
-	if(!($values = $_SERVER['DBC']->query("SELECT $field_name FROM `$table_name` WHERE `$id_field`='$id'"))) {
+	if(!($values = $_SERVER['DBC']->query("SELECT $field_name FROM `$table_name` WHERE `$id_field`='$id' AND `$id_field` NOT IN (0,'')"))) {
 		return "<!--Unable to retrieve $field_name from $table_name. Please review the request ($id_field: $id).-->";
 	} else {
 		$values = $values->fetch_assoc();
@@ -758,6 +1009,10 @@ function get_package($dbc, $packageid, $field_name) {
 }
 function get_promotion($dbc, $promotionid, $field_name) {
     $get_promotion =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM promotion WHERE	promotionid='$promotionid'"));
+    return $get_promotion[$field_name];
+}
+function get_sales($dbc, $salesid, $field_name) {
+    $get_promotion =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT $field_name FROM sales WHERE	salesid='$salesid'"));
     return $get_promotion[$field_name];
 }
 function get_custom($dbc, $customid, $field_name) {
@@ -926,6 +1181,17 @@ function get_security_levels($dbc) {
 	}
 	return $on_security;
 }
+
+function get_security_levels_staff($dbc) {
+	$on_security = ['Super Admin'=>'super'];
+	$security_levels = mysqli_query($dbc, "SELECT contactid FROM `contacts` WHERE `category` = 'Staff'");
+	while($level = mysqli_fetch_assoc($security_levels)) {
+		$on_security[get_contact($dbc, $level['contactid'])] = $level['contactid'];
+	}
+
+	return $on_security;
+}
+
 function get_securitylevel($dbc, $level) {
 	$level_row = mysqli_query($dbc, "SELECT * FROM `security_level_names` WHERE `identifier`='$level'");
 	if(mysqli_num_rows($level_row) > 0) {
@@ -1098,6 +1364,58 @@ function get_privileges($dbc, $tile,$level) {
 		}
 		else if($role != '') {
 			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges WHERE	tile='$tile' AND level LIKE '$role' UNION SELECT ''"));
+			$my_priv = '*';
+			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
+				$this_priv = 2;
+                if(strpos($get_pri['privileges'],'*hide*') !== FALSE) {
+                    $my_priv .= 'hide*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_dash*') !== FALSE) {
+                    $my_priv .= 'detailed_dash*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_view*') !== FALSE) {
+                    $my_priv .= 'detailed_view*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_add*') !== FALSE) {
+                    $my_priv .= 'detailed_add*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_edit*') !== FALSE) {
+                    $my_priv .= 'detailed_edit*';
+                }
+                if(strpos($get_pri['privileges'].$return_priv,'*detailed_archive*') !== FALSE) {
+                    $my_priv .= 'detailed_archive*';
+                }
+				if(strpos($get_pri['privileges'].$return_priv,'*view_use_add_edit_delete*') !== FALSE) {
+					$my_priv .= 'view_use_add_edit_delete*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*search*') !== FALSE) {
+					$my_priv .= 'search*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*configure*') !== FALSE) {
+					$my_priv .= 'configure*';
+				}
+				if(strpos($get_pri['privileges'].$return_priv,'*approvals*') !== FALSE) {
+					$my_priv .= 'approvals*';
+				}
+                if(strpos($get_pri['privileges'].$return_priv,'*strictview') !== FALSE) {
+                    $my_priv .= 'strictview*';
+                }
+				$return_priv = $my_priv;
+			}
+		}
+	}
+    return $return_priv;
+}
+
+function get_privileges_staff($dbc, $tile,$level) {
+	$roles = explode(',',$level);
+	$return_priv = '*hide*';
+	foreach($roles as $role) {
+		if(strtolower($role) == 'super') {
+			return '*detailed_dash*detailed_view*detailed_add*detailed_edit*detailed_archive*view_use_add_edit_delete*search*configure*approvals*';
+		}
+		else if($role != '') {
+			$get_pri =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT privileges FROM security_privileges_staff WHERE	tile='$tile' AND staff = $role UNION SELECT ''"));
 			$my_priv = '*';
 			if(strpos($get_pri['privileges'],'*hide*') === FALSE || strpos($get_pri['privileges'],'*detailed_dash*') !== FALSE || strpos($get_pri['privileges'],'*detailed_view*') !== FALSE) {
 				$this_priv = 2;
@@ -1337,6 +1655,26 @@ function tile_config_function($dbc,$field,$mode='user') {
  */
 function subtab_config_function ( $dbc, $tile, $level_url, $subtab ) {
 	$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `status` FROM `subtab_config` WHERE `tile`='$tile' AND `security_level`='$level_url' AND `subtab`='$subtab'" ) );
+
+    $subtabid   = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $subtab );
+	//$subtabid	= str_replace( ' ', '_', $subtab );
+	$status 	= $row[ 'status' ];
+	$date		= explode ( '*#*', $status );
+
+	if ( $status != NULL ) { ?>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_on" value="turn_on" <?= ( strpos ( $status, 'turn_on' ) !== FALSE ) ? ' checked' : ''; ?> onchange="subtabConfig(this)" /></td>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_off" value="turn_off" <?= ( strpos ( $status, 'turn_off' ) !== FALSE ) ? ' checked' : ''; ?> onchange="subtabConfig(this)" /></td><?php
+
+	} else { ?>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_on" value="turn_on" onchange="subtabConfig(this)" /></td>
+		<td align="center"><input type="radio" name="<?= $subtab; ?>" id="<?= $subtabid; ?>_turn_off" value="turn_off" onchange="subtabConfig(this)" /></td><?php
+	} ?>
+
+	<td align="center"><?php echo ( !empty( $date[1] ) ) ? $date[1] : '-'; ?></td><?php
+}
+
+function subtab_staff_config_function ( $dbc, $tile, $level_url, $subtab ) {
+	$row = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `status` FROM `subtab_staff_config` WHERE `tile`='$tile' AND `security_level`='$level_url' AND `subtab`='$subtab'" ) );
 
     $subtabid   = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $subtab );
 	//$subtabid	= str_replace( ' ', '_', $subtab );
@@ -1662,12 +2000,16 @@ function get_tile_names($tile_list) {
 			case 'products':
 				$tiles[] = 'Products';
 				break;
+
 			case 'tasks':
-				$tiles[] = 'Tasks';
+				$tiles[] = TASK_TILE;
 				break;
-			case 'tasks_updated':
+
+			/*
+            case 'tasks_updated':
 				$tiles[] = 'Tasks (Updated)';
 				break;
+                */
 			case 'agenda_meeting':
 				$tiles[] = 'Agendas & Meetings';
 				break;
@@ -1703,6 +2045,9 @@ function get_tile_names($tile_list) {
 				break;
 			case 'newsboard':
 				$tiles[] = 'News Board';
+				break;
+			case 'customer_support':
+				$tiles[] = 'Customer Support';
 				break;
 			case 'ffmsupport':
 				$tiles[] = 'FFM Support';
@@ -1992,12 +2337,14 @@ function get_subtabs($tile_name) {
         case 'products':
             $subtabs = array('Dashboard', 'Add Multiple Products');
             break;
+
         case 'tasks':
             $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
             break;
-        case 'tasks_updated':
+
+        /*case 'tasks_updated':
             $subtabs = array('Summary', 'Private Tasks', 'Shared Tasks', 'Project Tasks', 'Contact Tasks', 'Sales Tasks', 'Reporting');
-            break;
+            break;*/
         case 'agenda_meeting':
             $subtabs = array('Agendas', 'Meetings');
             break;
@@ -2168,28 +2515,23 @@ function get_patientform($dbc, $patientformid, $field_name) {
 
 function get_contact_phone($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT office_phone, cell_phone, home_phone, category FROM	contacts WHERE	contactid='$contactid'"));
-    if($get_staff['category'] == 'Patient') {
         $phone = '';
         if($get_staff['cell_phone'] != '') {
             $phone .= '(M)'.decryptIt($get_staff['cell_phone']);
             $phone .= '<br>';
         }
-        //$phone .= '<br>';
-        //if($get_staff['office_phone'] != '') {
-        //    $phone .= '(O)'.decryptIt($get_staff['office_phone']);
-        //} else {
-        //    $phone .= '(O)-';
-        //}
+
+        if($get_staff['office_phone'] != '') {
+            $phone .= '(O)'.decryptIt($get_staff['office_phone']);
+            $phone .= '<br>';
+        }
 
         if($get_staff['home_phone'] != '') {
             $phone .= '(H)'.decryptIt($get_staff['home_phone']);
         }
         return $phone;
-        //return '(M)'.decryptIt($get_staff['cell_phone']).'<br>(O)'.decryptIt($get_staff['office_phone']).'<br>(H)'.decryptIt($get_staff['home_phone']);
-    } else {
-        return '(M)'.decryptIt($get_staff['cell_phone']).'<br>(O)'.decryptIt($get_staff['office_phone']).'<br>(H)'.decryptIt($get_staff['home_phone']);
-    }
 }
+
 function get_contact_first_phone($dbc, $contactid) {
     $get_staff =	mysqli_fetch_assoc(mysqli_query($dbc,"SELECT office_phone, cell_phone, home_phone, category FROM	contacts WHERE	contactid='$contactid'"));
 	return $get_staff['cell_phone'] != '' ? decryptIt($get_staff['cell_phone']) : ($get_staff['office_phone'] != '' ? decryptIt($get_staff['office_phone']) : decryptIt($get_staff['home_phone']));
@@ -2681,7 +3023,7 @@ function sortByLastName($a) {
 
 /* Convert Decimal Hours to Hours:Minutes */
 function time_decimal2time($decimal_time, $pad = false) {
-	$minutes = ceil($decimal_time * 60);
+	$minutes = round($decimal_time * 60);
 	$hours = ($pad ? sprintf('%02d',floor($minutes / 60)) : floor($minutes / 60));
 	$minutes -= ($hours * 60);
 	return $hours.':'.sprintf('%02d',$minutes);
@@ -2814,6 +3156,45 @@ function resize_image_convert_png($newWidth, $newHeight, $targetFile, $originalF
     $image_save_func($tmp, "$targetFile.$new_image_ext");
     return "$targetFile.$new_image_ext";
 }
+function resize_image_convert_jpg($newWidth, $newHeight, $targetFile, $originalFile) {
+    $info = getimagesize($originalFile);
+    $mime = $info['mime'];
+
+    switch ($mime) {
+        case 'image/jpeg':
+            $image_create_func = 'imagecreatefromjpeg';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
+            break;
+
+        case 'image/png':
+            $image_create_func = 'imagecreatefrompng';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
+            break;
+
+        case 'image/gif':
+            $image_create_func = 'imagecreatefromgif';
+            $image_save_func = 'imagejpeg';
+            $new_image_ext = 'jpg';
+            break;
+
+        default:
+            throw new Exception('Unknown image type.');
+    }
+
+    $img = $image_create_func($originalFile);
+    list($width, $height) = getimagesize($originalFile);
+
+    $tmp = imagecreatetruecolor($newWidth, $newHeight);
+    imagecopyresampled($tmp, $img, 0, 0, 0, 0, $newWidth, $newHeight, $width, $height);
+
+    if (file_exists($targetFile)) {
+        unlink($targetFile);
+    }
+    $image_save_func($tmp, "$targetFile.$new_image_ext");
+    return "$targetFile.$new_image_ext";
+}
 function get_reminder_url($dbc, $reminder, $slider = 0) {
     $check_project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `reminder_type`, `body` FROM `reminders` WHERE `reminderid`='".$reminder['reminderid']."' AND (`reminder_type`='QUICK' OR `reminder_type` LIKE 'PROJECT%')"));
     $reminder_projectid = '';
@@ -2836,6 +3217,9 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
             switch($reminder['src_table']) {
                 case 'tickets':
                     $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$reminder['src_tableid'];
+                    break;
+                case 'ticket_alerts':
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$reminder['src_tableid'].'&from_alert=1';
                     break;
                 case 'checklist_name':
                     $reminder_url = WEBSITE_URL.'/Checklist/checklist.php?iframe_slider=1&view='.$reminder['src_tableid'];
@@ -2892,11 +3276,29 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                 case 'rate_card':
                     $reminder_url = WEBSITE_URL.'/Rate Card/ratecards.php?type=customer&status=add&ratecardid='.$reminder['src_tableid'];
                     break;
+                case 'intake':
+                    $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$reminder['src_tableid']."'"));
+                    if($intake['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?iframe_slider=1&edit='.$intake['projectid'];
+                    } else if($intake['ticketid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Ticket/index.php?calendar_view=true&edit='.$intake['ticketid'];
+                    } else if($intake['salesid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Sales/sale.php?iframe_slider=1&p=details&id='.$intake['salesid'];
+                    } else if($intake['contactid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
+                    break;
+                case 'email_communication':
+                    $reminder_url = WEBSITE_URL.'/Email Communication/view_email.php?email_communicationid='.$reminder['src_tableid'];
+                    break;
             }
         } else {
             switch($reminder['src_table']) {
                 case 'tickets':
                     $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$reminder['src_tableid'];
+                    break;
+                case 'ticket_alerts':
+                    $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$reminder['src_tableid'].'&from_alert=1';
                     break;
                 case 'checklist_name':
                     $reminder_url = WEBSITE_URL.'/Checklist/checklist.php?view='.$reminder['src_tableid'];
@@ -2922,7 +3324,7 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$reminder['src_tableid'];
                     break;
                 case 'task_board':
-                    $reminder_url = WEBSITE_URL.'/Tasks/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
+                    $reminder_url = WEBSITE_URL.'/Tasks_Updated/index.php?category='.$reminder['src_tableid'].'&tab='.get_task_board($dbc, $reminder['src_tableid'], 'board_security');
                     break;
                 case 'calendar':
                     $reminder_url = WEBSITE_URL.'/Calendar/calendars.php';
@@ -2970,6 +3372,26 @@ function get_reminder_url($dbc, $reminder, $slider = 0) {
                     break;
                 case 'holidays_update':
                     $reminder_url = WEBSITE_URL.'/Timesheet/holidays.php';
+                    break;
+                case 'intake':
+                    $intake = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid`='".$reminder['src_tableid']."'"));
+                    if($intake['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$intake['projectid'];
+                    } else if($intake['ticketid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Ticket/index.php?edit='.$intake['ticketid'];
+                    } else if($intake['salesid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$intake['salesid'];
+                    } else if($intake['contactid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/'.ucwords(get_contact($dbc, $intake['contactid'], 'tile_name')).'/contacts_inbox.php?edit='.$reminder['src_tableid'];
+                    }
+                    break;
+                case 'email_communication':
+                    $email_comm = mysqli_fetch_array(mysqli_query($dbc, "SELECT `projectid` FROM `email_communication` WHERE `email_communicationid`='".$reminder['src_tableid']."'"));
+                    if($email_comm['projectid'] > 0) {
+                        $reminder_url = WEBSITE_URL.'/Project/projects.php?edit='.$email_comm['projectid'].'&tab=email';
+                    } else {
+                        $reminder_url = WEBSITE_URL.'/Email Communication/view_email.php?email_communicationid='.$reminder['src_tableid'];
+                    }
                     break;
             }
         }
@@ -3075,7 +3497,7 @@ function get_calendar_today_color($dbc) {
     } else if ($software_config == 'btb'){
         return '5ce8c7';
     } else if ($software_config == 'blackneonred'){
-        return '660000';
+        return 'e83324';
     } else if ($software_config == 'blackneon'){
         return '006565';
     } else if ($software_config == 'blackgold'){
@@ -3083,7 +3505,7 @@ function get_calendar_today_color($dbc) {
     } else if ($software_config == 'blackorange'){
         return 'dc6214';
     } else if ($software_config == 'ffm'){
-        return '198388';
+        return '43D6DD';
     } else if ($software_config == 'garden'){
         return '6e78b0';
     } else if ($software_config == 'green'){
@@ -3093,13 +3515,13 @@ function get_calendar_today_color($dbc) {
     } else if ($software_config == 'purp'){
         return '5f008b';
     } else if ($software_config == 'turq'){
-        return '02b6d0';
+        return '04EBB0';
     } else if ($software_config == 'leo'){
         return 'B37220';
     } else if ($software_config == 'polka'){
         return '000000';
     } else if ($software_config == 'chrome'){
-        return 'dddfe3';
+        return 'a1a1a1';
     } else if ($software_config == 'cosmos'){
         return '2933A9';
     } else if ($software_config == 'flowers'){
@@ -3177,7 +3599,7 @@ function get_delivery_color($dbc, $type) {
     $color = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_delivery_color` WHERE `delivery` = '$type'"))['color'];
     return $color;
 }
-function convert_timestamp_mysql($dbc, $timestamp) {
+function convert_timestamp_mysql($dbc, $timestamp, $local = false) {
     $mysql_time_offset = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT TIMEDIFF(NOW(), UTC_TIMESTAMP) `time_offset`"))['time_offset'];
     $time_arr = explode(':', $mysql_time_offset);
     $mysql_offset_seconds = ($time_arr[0] * 3600) + ($time_arr[1] * 60) + $time_arr[2];
@@ -3186,12 +3608,15 @@ function convert_timestamp_mysql($dbc, $timestamp) {
     $datenow = new DateTime("now", $timezone);
     $offset_seconds = $timezone->getOffset($datenow);
 
-    $offset_diff = $mysql_offset_seconds - $offset_seconds;
+    $offset_diff = $mysql_offset_seconds - ($local ? $_SESSION['time_offset'] : $offset_seconds);
     $new_timestamp = date('Y-m-d H:i:s', strtotime($timestamp) + $offset_diff);
 
     return $new_timestamp;
 }
-function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly) {
+function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at) {
+    if(empty($create_starting_at)) {
+        $create_starting_at = $start_date;
+    }
     $recurring_dates = [];
     $reached_limit = 0;
     if(date('l', strtotime($start_date)) != 'Sunday') {
@@ -3207,7 +3632,7 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
                 } else {
                     $recurring_date = date('Y-m-d', strtotime('next '.$repeat_day, strtotime($cur)));
                 }
-                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date)) {
+                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date) && strtotime($recurring_date) >= strtotime($create_starting_at)) {
                     $recurring_dates[] = $recurring_date;
                     $reached_limit++;
                 }
@@ -3216,20 +3641,22 @@ function get_recurrence_days($limit = 0, $start_date, $end_date, $repeat_type, $
             $year_month = date('Y-m', strtotime($cur));
             foreach($repeat_days as $repeat_day) {
                 $recurring_date = date('Y-m-d', strtotime($repeat_monthly.' '.$repeat_day.' of '.$year_month));
-                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date)) {
+                if(strtotime($recurring_date) >= strtotime($start_date) && strtotime($recurring_date) <= strtotime($end_date) && strtotime($recurring_date) >= strtotime($create_starting_at)) {
                     $recurring_dates[] = $recurring_date;
                     $reached_limit++;
                 }
             }
         } else {
-            $recurring_dates[] = $cur;
-            $reached_limit++;
+            if(strtotime($cur) >= strtotime($create_starting_at)) {
+                $recurring_dates[] = $cur;
+                $reached_limit++;
+            }
         }
     }
     return $recurring_dates;
 }
 
-function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $skip_first = '') {
+function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $skip_first = '', $create_starting_at) {
     //Get all ticket rows from tickets, ticket_attached, ticket_schedule, and ticket_comment
     $ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"));
     $ticket_attacheds = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `ticket_attached` WHERE `ticketid` = '$ticketid' AND `deleted` = 0"),MYSQLI_ASSOC);
@@ -3241,12 +3668,12 @@ function create_recurring_tickets($dbc, $ticketid, $start_date, $end_date, $repe
         $sync_upto = !empty(get_config($dbc, 'ticket_recurrence_sync_upto')) ? get_config($dbc, 'ticket_recurrence_sync_upto') : '2 years';
         $end_date = date('Y-m-d', strtotime(date('Y-m-d').' + '.$sync_upto));
     }
-    $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly);
+    $recurring_dates = get_recurrence_days(0, $start_date, $end_date, $repeat_type, $repeat_interval, $repeat_days, $repeat_monthly, $create_starting_at);
     if($skip_first == 1) {
         array_shift($recurring_dates);
     }
     foreach($recurring_dates as $recurring_date) {
-        $date_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '$ticketid' AND `to_do_date` = '$recurring_date'"));
+        $date_exists = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `main_ticketid` = '$ticketid' AND `to_do_date` = '$recurring_date' AND `deleted` = 0"));
         if(empty($date_exists)) {
             //Insert into tickets with to_do_date/to_do_end_date as the recurring date
             mysqli_query($dbc, "INSERT INTO `tickets` (`main_ticketid`, `to_do_date`, `to_do_end_date`, `is_recurrence`) VALUES ('$ticketid', '$recurring_date', '$recurring_date', 1)");
@@ -3432,4 +3859,533 @@ function capture_before_change($dbc, $table, $find, $where, $wherevalue, $where2
 }
 function capture_after_change($find, $value) {
 	return "$find is set to " . $value . ".<br />";
+}
+function time_time2string($time) {
+    $hours = !empty(floor($time)) ? floor($time).' Hr' : '';
+    $minutes = !empty($time - floor($time)) ? (($time - floor($time)) * 60).' Min' : '';
+    return implode(' ', [$hours,$minutes]);
+}
+function get_staff_schedule_lock_date($dbc) {
+    $override_security = array_filter(explode(',',get_config($dbc, 'staff_schedule_autolock_override_security')));
+    $overrided = false;
+    foreach(array_filter(explode(',',$_SESSION['role'])) as $role) {
+        if(in_array($role, $override_security)) {
+            $overrided = true;
+        }
+    }
+
+    if($overrided) {
+        return '';
+    } else {
+        return get_config($dbc, 'staff_schedule_lock_date');
+    }
+}
+function get_offset_from_zone($zone) {
+    switch($zone) {
+        case 'Africa/Abidjan': return date('I') ? 0 : 0; break;
+        case 'Africa/Accra': return date('I') ? 0 : 0; break;
+        case 'Africa/Addis_Ababa': return date('I') ? 10800 : 10800; break;
+        case 'Africa/Algiers': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Asmara': return date('I') ? 10800 : 10800; break;
+        case 'Africa/Bamako': return date('I') ? 0 : 0; break;
+        case 'Africa/Bangui': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Banjul': return date('I') ? 0 : 0; break;
+        case 'Africa/Bissau': return date('I') ? 0 : 0; break;
+        case 'Africa/Blantyre': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Brazzaville': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Bujumbura': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Cairo': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Casablanca': return date('I') ? 0 : 3600; break;
+        case 'Africa/Ceuta': return date('I') ? 3600 : 7200; break;
+        case 'Africa/Conakry': return date('I') ? 0 : 0; break;
+        case 'Africa/Dakar': return date('I') ? 0 : 0; break;
+        case 'Africa/Dar_es_Salaam': return date('I') ? 10800 : 10800; break;
+        case 'Africa/Djibouti': return date('I') ? 10800 : 10800; break;
+        case 'Africa/Douala': return date('I') ? 3600 : 3600; break;
+        case 'Africa/El_Aaiun': return date('I') ? 0 : 3600; break;
+        case 'Africa/Freetown': return date('I') ? 0 : 0; break;
+        case 'Africa/Gaborone': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Harare': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Johannesburg': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Juba': return date('I') ? 10800 : 10800; break;
+        case 'Africa/Kampala': return date('I') ? 10800 : 10800; break;
+        case 'Africa/Khartoum': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Kigali': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Kinshasa': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Lagos': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Libreville': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Lome': return date('I') ? 0 : 0; break;
+        case 'Africa/Luanda': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Lubumbashi': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Lusaka': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Malabo': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Maputo': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Maseru': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Mbabane': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Mogadishu': return date('I') ? 10800 : 10800; break;
+        case 'Africa/Monrovia': return date('I') ? 0 : 0; break;
+        case 'Africa/Nairobi': return date('I') ? 10800 : 10800; break;
+        case 'Africa/Ndjamena': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Niamey': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Nouakchott': return date('I') ? 0 : 0; break;
+        case 'Africa/Ouagadougou': return date('I') ? 0 : 0; break;
+        case 'Africa/Porto-Novo': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Sao_Tome': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Timbuktu': return date('I') ? 0 : 0; break;
+        case 'Africa/Tripoli': return date('I') ? 7200 : 7200; break;
+        case 'Africa/Tunis': return date('I') ? 3600 : 3600; break;
+        case 'Africa/Windhoek': return date('I') ? 7200 : 7200; break;
+        case 'America/Adak': return date('I') ? -36000 : -32400; break;
+        case 'America/Anchorage': return date('I') ? -32400 : -28800; break;
+        case 'America/Anguilla': return date('I') ? -14400 : -14400; break;
+        case 'America/Antigua': return date('I') ? -14400 : -14400; break;
+        case 'America/Araguaina': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Buenos_Aires': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Catamarca': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/ComodRivadavia': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Cordoba': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Jujuy': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/La_Rioja': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Mendoza': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Rio_Gallegos': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Salta': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/San_Juan': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/San_Luis': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Tucuman': return date('I') ? -10800 : -10800; break;
+        case 'America/Argentina/Ushuaia': return date('I') ? -10800 : -10800; break;
+        case 'America/Aruba': return date('I') ? -14400 : -14400; break;
+        case 'America/Asuncion': return date('I') ? -14400 : -10800; break;
+        case 'America/Atikokan': return date('I') ? -18000 : -18000; break;
+        case 'America/Atka': return date('I') ? -36000 : -32400; break;
+        case 'America/Bahia': return date('I') ? -10800 : -10800; break;
+        case 'America/Bahia_Banderas': return date('I') ? -21600 : -18000; break;
+        case 'America/Barbados': return date('I') ? -14400 : -14400; break;
+        case 'America/Belem': return date('I') ? -10800 : -10800; break;
+        case 'America/Belize': return date('I') ? -21600 : -21600; break;
+        case 'America/Blanc-Sablon': return date('I') ? -14400 : -14400; break;
+        case 'America/Boa_Vista': return date('I') ? -14400 : -14400; break;
+        case 'America/Bogota': return date('I') ? -18000 : -18000; break;
+        case 'America/Boise': return date('I') ? -25200 : -21600; break;
+        case 'America/Buenos_Aires': return date('I') ? -10800 : -10800; break;
+        case 'America/Cambridge_Bay': return date('I') ? -25200 : -21600; break;
+        case 'America/Campo_Grande': return date('I') ? -14400 : -10800; break;
+        case 'America/Cancun': return date('I') ? -18000 : -18000; break;
+        case 'America/Caracas': return date('I') ? -14400 : -14400; break;
+        case 'America/Catamarca': return date('I') ? -10800 : -10800; break;
+        case 'America/Cayenne': return date('I') ? -10800 : -10800; break;
+        case 'America/Cayman': return date('I') ? -18000 : -18000; break;
+        case 'America/Chicago': return date('I') ? -21600 : -18000; break;
+        case 'America/Chihuahua': return date('I') ? -25200 : -21600; break;
+        case 'America/Coral_Harbour': return date('I') ? -18000 : -18000; break;
+        case 'America/Cordoba': return date('I') ? -10800 : -10800; break;
+        case 'America/Costa_Rica': return date('I') ? -21600 : -21600; break;
+        case 'America/Creston': return date('I') ? -25200 : -25200; break;
+        case 'America/Cuiaba': return date('I') ? -14400 : -10800; break;
+        case 'America/Curacao': return date('I') ? -14400 : -14400; break;
+        case 'America/Danmarkshavn': return date('I') ? 0 : 0; break;
+        case 'America/Dawson': return date('I') ? -28800 : -25200; break;
+        case 'America/Dawson_Creek': return date('I') ? -25200 : -25200; break;
+        case 'America/Denver': return date('I') ? -25200 : -21600; break;
+        case 'America/Detroit': return date('I') ? -18000 : -14400; break;
+        case 'America/Dominica': return date('I') ? -14400 : -14400; break;
+        case 'America/Edmonton': return date('I') ? -25200 : -21600; break;
+        case 'America/Eirunepe': return date('I') ? -18000 : -18000; break;
+        case 'America/El_Salvador': return date('I') ? -21600 : -21600; break;
+        case 'America/Ensenada': return date('I') ? -28800 : -25200; break;
+        case 'America/Fort_Nelson': return date('I') ? -25200 : -25200; break;
+        case 'America/Fort_Wayne': return date('I') ? -18000 : -14400; break;
+        case 'America/Fortaleza': return date('I') ? -10800 : -10800; break;
+        case 'America/Glace_Bay': return date('I') ? -14400 : -10800; break;
+        case 'America/Godthab': return date('I') ? -10800 : -7200; break;
+        case 'America/Goose_Bay': return date('I') ? -14400 : -10800; break;
+        case 'America/Grand_Turk': return date('I') ? -14400 : -14400; break;
+        case 'America/Grenada': return date('I') ? -14400 : -14400; break;
+        case 'America/Guadeloupe': return date('I') ? -14400 : -14400; break;
+        case 'America/Guatemala': return date('I') ? -21600 : -21600; break;
+        case 'America/Guayaquil': return date('I') ? -18000 : -18000; break;
+        case 'America/Guyana': return date('I') ? -14400 : -14400; break;
+        case 'America/Halifax': return date('I') ? -14400 : -10800; break;
+        case 'America/Havana': return date('I') ? -18000 : -14400; break;
+        case 'America/Hermosillo': return date('I') ? -25200 : -25200; break;
+        case 'America/Indiana/Indianapolis': return date('I') ? -18000 : -14400; break;
+        case 'America/Indiana/Knox': return date('I') ? -21600 : -18000; break;
+        case 'America/Indiana/Marengo': return date('I') ? -18000 : -14400; break;
+        case 'America/Indiana/Petersburg': return date('I') ? -18000 : -14400; break;
+        case 'America/Indiana/Tell_City': return date('I') ? -21600 : -18000; break;
+        case 'America/Indiana/Vevay': return date('I') ? -18000 : -14400; break;
+        case 'America/Indiana/Vincennes': return date('I') ? -18000 : -14400; break;
+        case 'America/Indiana/Winamac': return date('I') ? -18000 : -14400; break;
+        case 'America/Indianapolis': return date('I') ? -18000 : -14400; break;
+        case 'America/Inuvik': return date('I') ? -25200 : -21600; break;
+        case 'America/Iqaluit': return date('I') ? -18000 : -14400; break;
+        case 'America/Jamaica': return date('I') ? -18000 : -18000; break;
+        case 'America/Jujuy': return date('I') ? -10800 : -10800; break;
+        case 'America/Juneau': return date('I') ? -32400 : -28800; break;
+        case 'America/Kentucky/Louisville': return date('I') ? -18000 : -14400; break;
+        case 'America/Kentucky/Monticello': return date('I') ? -18000 : -14400; break;
+        case 'America/Knox_IN': return date('I') ? -21600 : -18000; break;
+        case 'America/Kralendijk': return date('I') ? -14400 : -14400; break;
+        case 'America/La_Paz': return date('I') ? -14400 : -14400; break;
+        case 'America/Lima': return date('I') ? -18000 : -18000; break;
+        case 'America/Los_Angeles': return date('I') ? -28800 : -25200; break;
+        case 'America/Louisville': return date('I') ? -18000 : -14400; break;
+        case 'America/Lower_Princes': return date('I') ? -14400 : -14400; break;
+        case 'America/Maceio': return date('I') ? -10800 : -10800; break;
+        case 'America/Managua': return date('I') ? -21600 : -21600; break;
+        case 'America/Manaus': return date('I') ? -14400 : -14400; break;
+        case 'America/Marigot': return date('I') ? -14400 : -14400; break;
+        case 'America/Martinique': return date('I') ? -14400 : -14400; break;
+        case 'America/Matamoros': return date('I') ? -21600 : -18000; break;
+        case 'America/Mazatlan': return date('I') ? -25200 : -21600; break;
+        case 'America/Mendoza': return date('I') ? -10800 : -10800; break;
+        case 'America/Menominee': return date('I') ? -21600 : -18000; break;
+        case 'America/Merida': return date('I') ? -21600 : -18000; break;
+        case 'America/Metlakatla': return date('I') ? -32400 : -28800; break;
+        case 'America/Mexico_City': return date('I') ? -21600 : -18000; break;
+        case 'America/Miquelon': return date('I') ? -10800 : -7200; break;
+        case 'America/Moncton': return date('I') ? -14400 : -10800; break;
+        case 'America/Monterrey': return date('I') ? -21600 : -18000; break;
+        case 'America/Montevideo': return date('I') ? -10800 : -10800; break;
+        case 'America/Montreal': return date('I') ? -18000 : -14400; break;
+        case 'America/Montserrat': return date('I') ? -14400 : -14400; break;
+        case 'America/Nassau': return date('I') ? -18000 : -14400; break;
+        case 'America/New_York': return date('I') ? -18000 : -14400; break;
+        case 'America/Nipigon': return date('I') ? -18000 : -14400; break;
+        case 'America/Nome': return date('I') ? -32400 : -28800; break;
+        case 'America/Noronha': return date('I') ? -7200 : -7200; break;
+        case 'America/North_Dakota/Beulah': return date('I') ? -21600 : -18000; break;
+        case 'America/North_Dakota/Center': return date('I') ? -21600 : -18000; break;
+        case 'America/North_Dakota/New_Salem': return date('I') ? -21600 : -18000; break;
+        case 'America/Ojinaga': return date('I') ? -25200 : -21600; break;
+        case 'America/Panama': return date('I') ? -18000 : -18000; break;
+        case 'America/Pangnirtung': return date('I') ? -18000 : -14400; break;
+        case 'America/Paramaribo': return date('I') ? -10800 : -10800; break;
+        case 'America/Phoenix': return date('I') ? -25200 : -25200; break;
+        case 'America/Port_of_Spain': return date('I') ? -14400 : -14400; break;
+        case 'America/Port-au-Prince': return date('I') ? -18000 : -14400; break;
+        case 'America/Porto_Acre': return date('I') ? -18000 : -18000; break;
+        case 'America/Porto_Velho': return date('I') ? -14400 : -14400; break;
+        case 'America/Puerto_Rico': return date('I') ? -14400 : -14400; break;
+        case 'America/Punta_Arenas': return date('I') ? -10800 : -10800; break;
+        case 'America/Rainy_River': return date('I') ? -21600 : -18000; break;
+        case 'America/Rankin_Inlet': return date('I') ? -21600 : -18000; break;
+        case 'America/Recife': return date('I') ? -10800 : -10800; break;
+        case 'America/Regina': return date('I') ? -21600 : -21600; break;
+        case 'America/Resolute': return date('I') ? -21600 : -18000; break;
+        case 'America/Rio_Branco': return date('I') ? -18000 : -18000; break;
+        case 'America/Rosario': return date('I') ? -10800 : -10800; break;
+        case 'America/Santa_Isabel': return date('I') ? -28800 : -25200; break;
+        case 'America/Santarem': return date('I') ? -10800 : -10800; break;
+        case 'America/Santiago': return date('I') ? -14400 : -10800; break;
+        case 'America/Santo_Domingo': return date('I') ? -14400 : -14400; break;
+        case 'America/Sao_Paulo': return date('I') ? -10800 : -7200; break;
+        case 'America/Scoresbysund': return date('I') ? -3600 : 0; break;
+        case 'America/Shiprock': return date('I') ? -25200 : -21600; break;
+        case 'America/Sitka': return date('I') ? -32400 : -28800; break;
+        case 'America/St_Barthelemy': return date('I') ? -14400 : -14400; break;
+        case 'America/St_Johns': return date('I') ? -12600 : -9000; break;
+        case 'America/St_Kitts': return date('I') ? -14400 : -14400; break;
+        case 'America/St_Lucia': return date('I') ? -14400 : -14400; break;
+        case 'America/St_Thomas': return date('I') ? -14400 : -14400; break;
+        case 'America/St_Vincent': return date('I') ? -14400 : -14400; break;
+        case 'America/Swift_Current': return date('I') ? -21600 : -21600; break;
+        case 'America/Tegucigalpa': return date('I') ? -21600 : -21600; break;
+        case 'America/Thule': return date('I') ? -14400 : -10800; break;
+        case 'America/Thunder_Bay': return date('I') ? -18000 : -14400; break;
+        case 'America/Tijuana': return date('I') ? -28800 : -25200; break;
+        case 'America/Toronto': return date('I') ? -18000 : -14400; break;
+        case 'America/Tortola': return date('I') ? -14400 : -14400; break;
+        case 'America/Vancouver': return date('I') ? -28800 : -25200; break;
+        case 'America/Virgin': return date('I') ? -14400 : -14400; break;
+        case 'America/Whitehorse': return date('I') ? -28800 : -25200; break;
+        case 'America/Winnipeg': return date('I') ? -21600 : -18000; break;
+        case 'America/Yakutat': return date('I') ? -32400 : -28800; break;
+        case 'America/Yellowknife': return date('I') ? -25200 : -21600; break;
+        case 'Antarctica/Casey': return date('I') ? 39600 : 39600; break;
+        case 'Antarctica/Davis': return date('I') ? 25200 : 25200; break;
+        case 'Antarctica/DumontDUrville': return date('I') ? 36000 : 36000; break;
+        case 'Antarctica/Macquarie': return date('I') ? 39600 : 39600; break;
+        case 'Antarctica/Mawson': return date('I') ? 18000 : 18000; break;
+        case 'Antarctica/McMurdo': return date('I') ? 43200 : 46800; break;
+        case 'Antarctica/Palmer': return date('I') ? -10800 : -10800; break;
+        case 'Antarctica/Rothera': return date('I') ? -10800 : -10800; break;
+        case 'Antarctica/South_Pole': return date('I') ? 43200 : 46800; break;
+        case 'Antarctica/Syowa': return date('I') ? 10800 : 10800; break;
+        case 'Antarctica/Troll': return date('I') ? 0 : 7200; break;
+        case 'Antarctica/Vostok': return date('I') ? 21600 : 21600; break;
+        case 'Arctic/Longyearbyen': return date('I') ? 3600 : 7200; break;
+        case 'Asia/Aden': return date('I') ? 10800 : 10800; break;
+        case 'Asia/Almaty': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Amman': return date('I') ? 7200 : 10800; break;
+        case 'Asia/Anadyr': return date('I') ? 43200 : 43200; break;
+        case 'Asia/Aqtau': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Aqtobe': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Ashgabat': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Ashkhabad': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Atyrau': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Baghdad': return date('I') ? 10800 : 10800; break;
+        case 'Asia/Bahrain': return date('I') ? 10800 : 10800; break;
+        case 'Asia/Baku': return date('I') ? 14400 : 14400; break;
+        case 'Asia/Bangkok': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Barnaul': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Beirut': return date('I') ? 7200 : 10800; break;
+        case 'Asia/Bishkek': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Brunei': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Calcutta': return date('I') ? 19800 : 19800; break;
+        case 'Asia/Chita': return date('I') ? 32400 : 32400; break;
+        case 'Asia/Choibalsan': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Chongqing': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Chungking': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Colombo': return date('I') ? 19800 : 19800; break;
+        case 'Asia/Dacca': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Damascus': return date('I') ? 7200 : 10800; break;
+        case 'Asia/Dhaka': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Dili': return date('I') ? 32400 : 32400; break;
+        case 'Asia/Dubai': return date('I') ? 14400 : 14400; break;
+        case 'Asia/Dushanbe': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Famagusta': return date('I') ? 7200 : 7200; break;
+        case 'Asia/Gaza': return date('I') ? 7200 : 10800; break;
+        case 'Asia/Harbin': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Hebron': return date('I') ? 7200 : 10800; break;
+        case 'Asia/Ho_Chi_Minh': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Hong_Kong': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Hovd': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Irkutsk': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Istanbul': return date('I') ? 10800 : 10800; break;
+        case 'Asia/Jakarta': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Jayapura': return date('I') ? 32400 : 32400; break;
+        case 'Asia/Jerusalem': return date('I') ? 7200 : 10800; break;
+        case 'Asia/Kabul': return date('I') ? 16200 : 16200; break;
+        case 'Asia/Kamchatka': return date('I') ? 43200 : 43200; break;
+        case 'Asia/Karachi': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Kashgar': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Kathmandu': return date('I') ? 20700 : 20700; break;
+        case 'Asia/Katmandu': return date('I') ? 20700 : 20700; break;
+        case 'Asia/Khandyga': return date('I') ? 32400 : 32400; break;
+        case 'Asia/Kolkata': return date('I') ? 19800 : 19800; break;
+        case 'Asia/Krasnoyarsk': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Kuala_Lumpur': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Kuching': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Kuwait': return date('I') ? 10800 : 10800; break;
+        case 'Asia/Macao': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Macau': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Magadan': return date('I') ? 39600 : 39600; break;
+        case 'Asia/Makassar': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Manila': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Muscat': return date('I') ? 14400 : 14400; break;
+        case 'Asia/Novokuznetsk': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Novosibirsk': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Omsk': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Oral': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Phnom_Penh': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Pontianak': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Pyongyang': return date('I') ? 32400 : 32400; break;
+        case 'Asia/Qatar': return date('I') ? 10800 : 10800; break;
+        case 'Asia/Qyzylorda': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Rangoon': return date('I') ? 23400 : 23400; break;
+        case 'Asia/Riyadh': return date('I') ? 10800 : 10800; break;
+        case 'Asia/Saigon': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Sakhalin': return date('I') ? 39600 : 39600; break;
+        case 'Asia/Samarkand': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Seoul': return date('I') ? 32400 : 32400; break;
+        case 'Asia/Shanghai': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Singapore': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Srednekolymsk': return date('I') ? 39600 : 39600; break;
+        case 'Asia/Taipei': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Tashkent': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Tbilisi': return date('I') ? 14400 : 14400; break;
+        case 'Asia/Tehran': return date('I') ? 12600 : 16200; break;
+        case 'Asia/Tel_Aviv': return date('I') ? 7200 : 10800; break;
+        case 'Asia/Thimbu': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Thimphu': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Tokyo': return date('I') ? 32400 : 32400; break;
+        case 'Asia/Tomsk': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Ujung_Pandang': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Ulaanbaatar': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Ulan_Bator': return date('I') ? 28800 : 28800; break;
+        case 'Asia/Urumqi': return date('I') ? 21600 : 21600; break;
+        case 'Asia/Ust-Nera': return date('I') ? 36000 : 36000; break;
+        case 'Asia/Vientiane': return date('I') ? 25200 : 25200; break;
+        case 'Asia/Vladivostok': return date('I') ? 36000 : 36000; break;
+        case 'Asia/Yakutsk': return date('I') ? 32400 : 32400; break;
+        case 'Asia/Yangon': return date('I') ? 23400 : 23400; break;
+        case 'Asia/Yekaterinburg': return date('I') ? 18000 : 18000; break;
+        case 'Asia/Yerevan': return date('I') ? 14400 : 14400; break;
+        case 'Atlantic/Azores': return date('I') ? -3600 : 0; break;
+        case 'Atlantic/Bermuda': return date('I') ? -14400 : -10800; break;
+        case 'Atlantic/Canary': return date('I') ? 0 : 3600; break;
+        case 'Atlantic/Cape_Verde': return date('I') ? -3600 : -3600; break;
+        case 'Atlantic/Faeroe': return date('I') ? 0 : 3600; break;
+        case 'Atlantic/Faroe': return date('I') ? 0 : 3600; break;
+        case 'Atlantic/Jan_Mayen': return date('I') ? 3600 : 7200; break;
+        case 'Atlantic/Madeira': return date('I') ? 0 : 3600; break;
+        case 'Atlantic/Reykjavik': return date('I') ? 0 : 0; break;
+        case 'Atlantic/South_Georgia': return date('I') ? -7200 : -7200; break;
+        case 'Atlantic/St_Helena': return date('I') ? 0 : 0; break;
+        case 'Atlantic/Stanley': return date('I') ? -10800 : -10800; break;
+        case 'Australia/Adelaide': return date('I') ? 34200 : 37800; break;
+        case 'Australia/Brisbane': return date('I') ? 36000 : 36000; break;
+        case 'Australia/Broken_Hill': return date('I') ? 34200 : 37800; break;
+        case 'Australia/Canberra': return date('I') ? 36000 : 39600; break;
+        case 'Australia/Currie': return date('I') ? 36000 : 39600; break;
+        case 'Australia/Darwin': return date('I') ? 34200 : 34200; break;
+        case 'Australia/Eucla': return date('I') ? 31500 : 31500; break;
+        case 'Australia/Hobart': return date('I') ? 36000 : 39600; break;
+        case 'Australia/Lindeman': return date('I') ? 36000 : 36000; break;
+        case 'Australia/Lord_Howe': return date('I') ? 37800 : 39600; break;
+        case 'Australia/Melbourne': return date('I') ? 36000 : 39600; break;
+        case 'Australia/Perth': return date('I') ? 28800 : 28800; break;
+        case 'Australia/Sydney': return date('I') ? 36000 : 39600; break;
+        case 'Australia/Yancowinna': return date('I') ? 34200 : 37800; break;
+        case 'Etc/GMT': return date('I') ? 0 : 0; break;
+        case 'Etc/GMT+0': return date('I') ? 0 : 0; break;
+        case 'Etc/GMT+1': return date('I') ? -3600 : -3600; break;
+        case 'Etc/GMT+10': return date('I') ? -36000 : -36000; break;
+        case 'Etc/GMT+11': return date('I') ? -39600 : -39600; break;
+        case 'Etc/GMT+12': return date('I') ? -43200 : -43200; break;
+        case 'Etc/GMT+2': return date('I') ? -7200 : -7200; break;
+        case 'Etc/GMT+3': return date('I') ? -10800 : -10800; break;
+        case 'Etc/GMT+4': return date('I') ? -14400 : -14400; break;
+        case 'Etc/GMT+5': return date('I') ? -18000 : -18000; break;
+        case 'Etc/GMT+6': return date('I') ? -21600 : -21600; break;
+        case 'Etc/GMT+7': return date('I') ? -25200 : -25200; break;
+        case 'Etc/GMT+8': return date('I') ? -28800 : -28800; break;
+        case 'Etc/GMT+9': return date('I') ? -32400 : -32400; break;
+        case 'Etc/GMT0': return date('I') ? 0 : 0; break;
+        case 'Etc/GMT-0': return date('I') ? 0 : 0; break;
+        case 'Etc/GMT-1': return date('I') ? 3600 : 3600; break;
+        case 'Etc/GMT-10': return date('I') ? 36000 : 36000; break;
+        case 'Etc/GMT-11': return date('I') ? 39600 : 39600; break;
+        case 'Etc/GMT-12': return date('I') ? 43200 : 43200; break;
+        case 'Etc/GMT-13': return date('I') ? 46800 : 46800; break;
+        case 'Etc/GMT-14': return date('I') ? 50400 : 50400; break;
+        case 'Etc/GMT-2': return date('I') ? 7200 : 7200; break;
+        case 'Etc/GMT-3': return date('I') ? 10800 : 10800; break;
+        case 'Etc/GMT-4': return date('I') ? 14400 : 14400; break;
+        case 'Etc/GMT-5': return date('I') ? 18000 : 18000; break;
+        case 'Etc/GMT-6': return date('I') ? 21600 : 21600; break;
+        case 'Etc/GMT-7': return date('I') ? 25200 : 25200; break;
+        case 'Etc/GMT-8': return date('I') ? 28800 : 28800; break;
+        case 'Etc/GMT-9': return date('I') ? 32400 : 32400; break;
+        case 'Etc/UTC': return date('I') ? 0 : 0; break;
+        case 'Europe/Amsterdam': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Andorra': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Astrakhan': return date('I') ? 14400 : 14400; break;
+        case 'Europe/Athens': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Belfast': return date('I') ? 0 : 3600; break;
+        case 'Europe/Belgrade': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Berlin': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Bratislava': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Brussels': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Bucharest': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Budapest': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Busingen': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Chisinau': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Copenhagen': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Dublin': return date('I') ? 0 : 3600; break;
+        case 'Europe/Gibraltar': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Guernsey': return date('I') ? 0 : 3600; break;
+        case 'Europe/Helsinki': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Isle_of_Man': return date('I') ? 0 : 3600; break;
+        case 'Europe/Istanbul': return date('I') ? 10800 : 10800; break;
+        case 'Europe/Jersey': return date('I') ? 0 : 3600; break;
+        case 'Europe/Kaliningrad': return date('I') ? 7200 : 7200; break;
+        case 'Europe/Kiev': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Kirov': return date('I') ? 10800 : 10800; break;
+        case 'Europe/Lisbon': return date('I') ? 0 : 3600; break;
+        case 'Europe/Ljubljana': return date('I') ? 3600 : 7200; break;
+        case 'Europe/London': return date('I') ? 0 : 3600; break;
+        case 'Europe/Luxembourg': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Madrid': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Malta': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Mariehamn': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Minsk': return date('I') ? 10800 : 10800; break;
+        case 'Europe/Monaco': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Moscow': return date('I') ? 10800 : 10800; break;
+        case 'Europe/Nicosia': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Oslo': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Paris': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Podgorica': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Prague': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Riga': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Rome': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Samara': return date('I') ? 14400 : 14400; break;
+        case 'Europe/San_Marino': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Sarajevo': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Saratov': return date('I') ? 14400 : 14400; break;
+        case 'Europe/Simferopol': return date('I') ? 10800 : 10800; break;
+        case 'Europe/Skopje': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Sofia': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Stockholm': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Tallinn': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Tirane': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Tiraspol': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Ulyanovsk': return date('I') ? 14400 : 14400; break;
+        case 'Europe/Uzhgorod': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Vaduz': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Vatican': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Vienna': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Vilnius': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Volgograd': return date('I') ? 10800 : 10800; break;
+        case 'Europe/Warsaw': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Zagreb': return date('I') ? 3600 : 7200; break;
+        case 'Europe/Zaporozhye': return date('I') ? 7200 : 10800; break;
+        case 'Europe/Zurich': return date('I') ? 3600 : 7200; break;
+        case 'GMT': return date('I') ? 0 : 0; break;
+        case 'Indian/Antananarivo': return date('I') ? 10800 : 10800; break;
+        case 'Indian/Chagos': return date('I') ? 21600 : 21600; break;
+        case 'Indian/Christmas': return date('I') ? 25200 : 25200; break;
+        case 'Indian/Cocos': return date('I') ? 23400 : 23400; break;
+        case 'Indian/Comoro': return date('I') ? 10800 : 10800; break;
+        case 'Indian/Kerguelen': return date('I') ? 18000 : 18000; break;
+        case 'Indian/Mahe': return date('I') ? 14400 : 14400; break;
+        case 'Indian/Maldives': return date('I') ? 18000 : 18000; break;
+        case 'Indian/Mauritius': return date('I') ? 14400 : 14400; break;
+        case 'Indian/Mayotte': return date('I') ? 10800 : 10800; break;
+        case 'Indian/Reunion': return date('I') ? 14400 : 14400; break;
+        case 'Pacific/Apia': return date('I') ? 46800 : 50400; break;
+        case 'Pacific/Auckland': return date('I') ? 43200 : 46800; break;
+        case 'Pacific/Bougainville': return date('I') ? 39600 : 39600; break;
+        case 'Pacific/Chatham': return date('I') ? 45900 : 49500; break;
+        case 'Pacific/Chuuk': return date('I') ? 36000 : 36000; break;
+        case 'Pacific/Easter': return date('I') ? -21600 : -18000; break;
+        case 'Pacific/Efate': return date('I') ? 39600 : 39600; break;
+        case 'Pacific/Enderbury': return date('I') ? 46800 : 46800; break;
+        case 'Pacific/Fakaofo': return date('I') ? 46800 : 46800; break;
+        case 'Pacific/Fiji': return date('I') ? 43200 : 46800; break;
+        case 'Pacific/Funafuti': return date('I') ? 43200 : 43200; break;
+        case 'Pacific/Galapagos': return date('I') ? -21600 : -21600; break;
+        case 'Pacific/Gambier': return date('I') ? -32400 : -32400; break;
+        case 'Pacific/Guadalcanal': return date('I') ? 39600 : 39600; break;
+        case 'Pacific/Guam': return date('I') ? 36000 : 36000; break;
+        case 'Pacific/Honolulu': return date('I') ? -36000 : -36000; break;
+        case 'Pacific/Johnston': return date('I') ? -36000 : -36000; break;
+        case 'Pacific/Kiritimati': return date('I') ? 50400 : 50400; break;
+        case 'Pacific/Kosrae': return date('I') ? 39600 : 39600; break;
+        case 'Pacific/Kwajalein': return date('I') ? 43200 : 43200; break;
+        case 'Pacific/Majuro': return date('I') ? 43200 : 43200; break;
+        case 'Pacific/Marquesas': return date('I') ? -34200 : -34200; break;
+        case 'Pacific/Midway': return date('I') ? -39600 : -39600; break;
+        case 'Pacific/Nauru': return date('I') ? 43200 : 43200; break;
+        case 'Pacific/Niue': return date('I') ? -39600 : -39600; break;
+        case 'Pacific/Norfolk': return date('I') ? 39600 : 39600; break;
+        case 'Pacific/Noumea': return date('I') ? 39600 : 39600; break;
+        case 'Pacific/Pago_Pago': return date('I') ? -39600 : -39600; break;
+        case 'Pacific/Palau': return date('I') ? 32400 : 32400; break;
+        case 'Pacific/Pitcairn': return date('I') ? -28800 : -28800; break;
+        case 'Pacific/Pohnpei': return date('I') ? 39600 : 39600; break;
+        case 'Pacific/Ponape': return date('I') ? 39600 : 39600; break;
+        case 'Pacific/Port_Moresby': return date('I') ? 36000 : 36000; break;
+        case 'Pacific/Rarotonga': return date('I') ? -36000 : -36000; break;
+        case 'Pacific/Saipan': return date('I') ? 36000 : 36000; break;
+        case 'Pacific/Samoa': return date('I') ? -39600 : -39600; break;
+        case 'Pacific/Tahiti': return date('I') ? -36000 : -36000; break;
+        case 'Pacific/Tarawa': return date('I') ? 43200 : 43200; break;
+        case 'Pacific/Tongatapu': return date('I') ? 46800 : 50400; break;
+        case 'Pacific/Truk': return date('I') ? 36000 : 36000; break;
+        case 'Pacific/Wake': return date('I') ? 43200 : 43200; break;
+        case 'Pacific/Wallis': return date('I') ? 43200 : 43200; break;
+        case 'Pacific/Yap': return date('I') ? 36000 : 36000; break;
+        default: return date('I') ? -25200 : -21600; break;
+    }
 }

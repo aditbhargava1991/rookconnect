@@ -44,4 +44,11 @@
 <div style="overflow-x: auto;">
 	<h1 class="gap-left"><a href="inventory.php" class="default-color"><?= INVENTORY_TILE ?></a></h1>
 </div>
+
 <div class="clearfix"></div>
+<div class="notice gap-bottom gap-top popover-examples">
+    <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+    <div class="col-sm-11"><span class="notice-name">NOTE:</span>
+    This tile monitors all physical inventory for resale, displaying the main overview of your inventory. These items are managed by the software with auto Min Bin reminders for when each inventory item reaches a designated level.</div>
+    <div class="clearfix"></div>
+</div>

@@ -307,13 +307,13 @@ $(document).ready(function() {
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Add Equipment Categories:<br /><em>Separate the categories by commas. These will display on the dashboard as tabs to separate the Categories of Equipment.</em></label>
+							<label for="fax_number"	class="col-sm-4	control-label">Add Equipment Tabs:<br /><em>Separate the tabs by commas. These will display on the dashboard as tabs to separate the Tabs of Equipment.</em></label>
 							<div class="col-sm-8">
 								<input name="equipment_tabs" type="text" value="<?php echo get_config($dbc, 'equipment_tabs'); ?>" class="form-control"/>
 							</div>
 						</div>
 						<div class="form-group">
-							<label for="fax_number" class="col-sm-4 control-label">Use Category Drop Down Menu:</label>
+							<label for="fax_number" class="col-sm-4 control-label">Use Tab Drop Down Menu:</label>
 							<div class="col-sm-8">
 							<?php
 							$checked = '';
@@ -358,7 +358,7 @@ $(document).ready(function() {
 							<label for="equipment_remind_admin"	class="col-sm-4	control-label">Recipient Email Address(es):<br /><em>Reminder emails will also be sent to these user(s), if selected.</em></label>
 							<div class="col-sm-8">
 								<select name="equipment_remind_admin[]" data-placeholder="Select Staff" multiple class="chosen-select-deselect">
-                                    <option></option><?php
+                                    <?php
                                     $recipient   = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `recipient` FROM `reminders` WHERE `reminder_type`='Equipment Registration' OR `reminder_type`='Equipment Insurance'" ) );
                                     $staff      = explode ( '<br>', get_multiple_contact($dbc, $recipient['recipient']) );
                                     $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`,`last_name`,`first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `email_address`!='' AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
@@ -427,9 +427,9 @@ $(document).ready(function() {
 				<div id="collapse_mass" class="panel-collapse collapse">
 					<div class="panel-body">
 						<div class="form-group">
-							<label for="mass_update_field" class="col-sm-4 control-label">Category to Update:</label>
+							<label for="mass_update_field" class="col-sm-4 control-label">Tab to Update:</label>
 							<div class="col-sm-8">
-								<select name="mass_update_category" class="chosen-select-deselect" data-placeholder="Select a Category"><option></option>
+								<select name="mass_update_category" class="chosen-select-deselect" data-placeholder="Select a Tab"><option></option>
 									<?php foreach(explode(',',get_config($dbc, 'equipment_tabs')) as $cat) { ?>
 										<option value="<?= $cat ?>"><?= $cat ?></option>
 									<?php } ?>
@@ -573,10 +573,9 @@ $(document).ready(function() {
 		}
 		</script>
 		<div class="form-group">
-			<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Categories:<br /><em>These are the categories for which this Inspection List is currently applying. To change this list, remove categories from the Inspection List accordion.</em></label>
+			<label for="fax_number"	class="col-sm-4	control-label">Current Equipment Tabs:<br /><em>These are the tabs for which this Inspection List is currently applying. To change this list, remove tabs from the Inspection List accordion.</em></label>
 			<div class="col-sm-8">
 				<select data-placeholder="Select a Tab..." id="tab_inspect" name="tab_inspect_current[]" multiple class="chosen-select-deselect form-control" width="380">
-					<option value=""></option>
 					<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 					foreach ($each_tab as $cat_tab) {
 						echo "<option ".(in_array($cat_tab, $inv_type) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -600,7 +599,7 @@ $(document).ready(function() {
 						<div class="form-group">
 							<label for="fax_number"	class="col-sm-4	control-label">Service Alert Staff:<br /><em>Select all staff that should receive an alert when service is requested from the checklist.</em></label>
 							<div class="col-sm-8">
-								<select name="equipment_service_alert[]" data-placeholder="Select Staff..." multiple class="chosen-select-deselect form-control"><option></option>
+								<select name="equipment_service_alert[]" data-placeholder="Select Staff..." multiple class="chosen-select-deselect form-control">
 									<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`>0"),MYSQLI_ASSOC));
 									$selected = explode(',',get_config($dbc, 'equipment_service_alert'));
 									foreach($staff_list as $id) {
@@ -670,10 +669,9 @@ $(document).ready(function() {
 				<div id="collapse_inspect" class="panel-collapse collapse">
 					<div class="panel-body">
 						<div class="form-group">
-							<label for="fax_number"	class="col-sm-4	control-label">Equipment Categories to which this checklist applies:</label>
+							<label for="fax_number"	class="col-sm-4	control-label">Equipment Tabs to which this checklist applies:</label>
 							<div class="col-sm-8">
 								<select data-placeholder="Select a Tab..." name="tab_inspect[]" multiple class="chosen-select-deselect form-control" width="380">
-									<option value=""></option>
 									<?php $each_tab = explode(',', get_config($dbc, 'equipment_tabs'));
 									foreach ($each_tab as $cat_tab) {
 										echo "<option ".(in_array($cat_tab, $inv_type) ? 'selected' : '')." value='". $cat_tab."'>".$cat_tab.'</option>';
@@ -813,7 +811,7 @@ $(document).ready(function() {
 					<div class="panel-body">
 
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Description
-						<input type="checkbox" <?php if (strpos($equipment_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Category
+						<input type="checkbox" <?php if (strpos($equipment_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tab
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Type
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Make".',') !== FALSE) { echo " checked"; } ?> value="Make" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Make
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Model".',') !== FALSE) { echo " checked"; } ?> value="Model" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Model
@@ -823,8 +821,8 @@ $(document).ready(function() {
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Vehicle Size".',') !== FALSE) { echo " checked"; } ?> value="Vehicle Size" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Vehicle Size
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Color".',') !== FALSE) { echo " checked"; } ?> value="Color" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Color
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Trim".',') !== FALSE) { echo " checked"; } ?> value="Trim" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Trim
-						<input type="checkbox" <?php if (strpos($equipment_config, ','."Fuel Type".',') !== FALSE) { echo " checked"; } ?> value="Fuel Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Fuel Type
-						<input type="checkbox" <?php if (strpos($equipment_config, ','."Tire Type".',') !== FALSE) { echo " checked"; } ?> value="Tire Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tire Type
+						<input type="checkbox" <?php if (strpos($equipment_config, ','."Fuel Type".',') !== FALSE) { echo " checked"; } ?> value="Fuel Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Fuel Tab
+						<input type="checkbox" <?php if (strpos($equipment_config, ','."Tire Type".',') !== FALSE) { echo " checked"; } ?> value="Tire Type" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Tire Tab
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Drive Train".',') !== FALSE) { echo " checked"; } ?> value="Drive Train" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Drive Train
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Total Kilometres".',') !== FALSE) { echo " checked"; } ?> value="Total Kilometres" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Total Kilometres
 						<input type="checkbox" <?php if (strpos($equipment_config, ','."Leased".',') !== FALSE) { echo " checked"; } ?> value="Leased" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Leased
@@ -1140,7 +1138,7 @@ $(document).ready(function() {
 				<div id="collapse_1" class="panel-collapse collapse">
 					<div class="panel-body">
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Description".',') !== FALSE) { echo " checked"; } ?> value="Description" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Description
-						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Category
+						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Category".',') !== FALSE) { echo " checked"; } ?> value="Category" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Tab
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Type".',') !== FALSE) { echo " checked"; } ?> value="Type" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Type
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Make".',') !== FALSE) { echo " checked"; } ?> value="Make" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Make
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Model".',') !== FALSE) { echo " checked"; } ?> value="Model" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Model
@@ -1150,8 +1148,8 @@ $(document).ready(function() {
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Vehicle Size".',') !== FALSE) { echo " checked"; } ?> value="Vehicle Size" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Vehicle Size
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Color".',') !== FALSE) { echo " checked"; } ?> value="Color" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Color
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Trim".',') !== FALSE) { echo " checked"; } ?> value="Trim" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Trim
-						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Fuel Type".',') !== FALSE) { echo " checked"; } ?> value="Fuel Type" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Fuel Type
-						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Tire Type".',') !== FALSE) { echo " checked"; } ?> value="Tire Type" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Tire Type
+						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Fuel Type".',') !== FALSE) { echo " checked"; } ?> value="Fuel Type" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Fuel Tab
+						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Tire Type".',') !== FALSE) { echo " checked"; } ?> value="Tire Type" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Tire Tab
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Drive Train".',') !== FALSE) { echo " checked"; } ?> value="Drive Train" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Drive Train
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ','."Total Kilometres".',') !== FALSE) { echo " checked"; } ?> value="Total Kilometres" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Total Kilometres
 						<input type="checkbox" <?php if (strpos($equipment_dashboard_config, ',Leased,') !== FALSE) { echo " checked"; } ?> value="Leased" style="height: 20px; width: 20px;" name="equipment_dashboard[]">&nbsp;&nbsp;Leased
@@ -1567,7 +1565,7 @@ $(document).ready(function() {
 							<input type="checkbox" <?php if (strpos($value_config_equipment, ','."Service Record Cost".',') !== FALSE) { echo " checked"; } ?> value="Service Record Cost" style="height: 20px; width: 20px;" name="service_record[]">&nbsp;&nbsp;Service Record Cost
 						</td>
 						<td>
-							<input type="checkbox" <?php if (strpos($value_config_equipment, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="service_record[]">&nbsp;&nbsp;Service Type
+							<input type="checkbox" <?php if (strpos($value_config_equipment, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="service_record[]">&nbsp;&nbsp;Service Tab
 						</td>
 
 						<td>
@@ -1645,7 +1643,7 @@ $(document).ready(function() {
 							<input type="checkbox" <?php if (strpos($value_config_equipment_dashboard, ','."Service Record Cost".',') !== FALSE) { echo " checked"; } ?> value="Service Record Cost" style="height: 20px; width: 20px;" name="service_record_dashboard[]">&nbsp;&nbsp;Service Record Cost
 						</td>
 						<td>
-							<input type="checkbox" <?php if (strpos($value_config_equipment_dashboard, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Type" style="height: 20px; width: 20px;" name="service_record_dashboard[]">&nbsp;&nbsp;Service Type
+							<input type="checkbox" <?php if (strpos($value_config_equipment_dashboard, ','."Service Type".',') !== FALSE) { echo " checked"; } ?> value="Service Tab" style="height: 20px; width: 20px;" name="service_record_dashboard[]">&nbsp;&nbsp;Service Type
 						</td>
 					</tr>
 

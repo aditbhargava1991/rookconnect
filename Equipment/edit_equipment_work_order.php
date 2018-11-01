@@ -52,7 +52,7 @@ $unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` 
 								<th>WO#</th>
 								<th>Date Created</th>
 								<th>Service</th>
-								<th>Category</th>
+								<th>Tab</th>
 								<th>Make</th>
 								<th>Model</th>
 								<th>Unit #</th>
@@ -71,8 +71,8 @@ $unit_number = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `equipment` 
 								<tr>
 									<td data-title="Work Order #"><?= $row['workorderid'] ?></td>
 									<td data-title="Date Created"><?= $row['date'] ?></td>
-									<td data-title="Service Category &amp; Service Heading"><?= $service['category'].' - '.$service['heading'] ?></td>
-									<td data-title="Category"><?= $equipment['category'] ?></td>
+									<td data-title="Service Tab &amp; Service Heading"><?= $service['category'].' - '.$service['heading'] ?></td>
+									<td data-title="Tab"><?= $equipment['category'] ?></td>
 									<td data-title="Make"><?= $equipment['make'] ?></td>
 									<td data-title="Model"><?= $equipment['model'] ?></td>
 									<td data-title="Unit #"><?= $equipment['unit_no'] ?></td>

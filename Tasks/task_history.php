@@ -1,12 +1,11 @@
 <?php
 include_once('../include.php');
 $taskboardid = $_GET['taskboardid'];
-$label = $_GET['label'];
 echo '<div class="clearfix gap-top gap-left"><b>History For Tasklists for ' . $label . '</b>';
 if($label == 'Tasks') {
   $label = 'To Do';
 }
-$taskboard_query = mysqli_query($dbc, "SELECT `tasklistid` FROM `tasklist` WHERE `task_board`='$taskboardid' and task_milestone_timeline = '$label'");
+$taskboard_query = mysqli_query($dbc, "SELECT `tasklistid` FROM `tasklist` WHERE `task_board`='$taskboardid'");
 while($tasklists = mysqli_fetch_assoc($taskboard_query)) {
   $tasklistid = $tasklists['tasklistid'];
   $documents = mysqli_query($dbc, "SELECT `created_by`, `created_date`, `document` FROM `task_document` WHERE `tasklistid`='$tasklistid' ORDER BY `taskdocid` DESC");

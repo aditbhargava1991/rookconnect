@@ -61,8 +61,8 @@ do { ?>
 			<?php }
 			if($access_all > 0) { ?>
 				<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $chem_detail['id'] ?>" data-id-field="id" data-type="chemical_detail" data-type-field="src_table" value="0">
-				<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-				<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+				<img class="inline-img pull-right" data-history-label="Checmical" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+				<img class="inline-img pull-right" data-history-label="Chemical" onclick="remMulti(this);" src="../img/remove.png">
 				<div class="clearfix"></div>
 			<?php } ?>
 		</div>

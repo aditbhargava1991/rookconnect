@@ -63,6 +63,8 @@ if (isset($_POST['submit'])) {
     $tire_type = filter_var($_POST['tire_type'],FILTER_SANITIZE_STRING);
     $drive_train = filter_var($_POST['drive_train'],FILTER_SANITIZE_STRING);
     $serial_number = filter_var($_POST['serial_number'],FILTER_SANITIZE_STRING);
+    $part_serial_names = filter_var(implode('#*#',$_POST['part_serial_names']),FILTER_SANITIZE_STRING);
+    $part_serials = filter_var(implode('#*#',$_POST['part_serials']),FILTER_SANITIZE_STRING);
     $unit_number = filter_var($_POST['unit_number'],FILTER_SANITIZE_STRING);
     $vin_number = filter_var($_POST['vin_number'],FILTER_SANITIZE_STRING);
     $licence_plate = filter_var($_POST['licence_plate'],FILTER_SANITIZE_STRING);
@@ -158,7 +160,7 @@ if (isset($_POST['submit'])) {
 	}
 
     if(empty($_POST['equipmentid'])) {
-        $query_insert_equipment = "INSERT INTO `equipment` (`equ_description`, `assigned_status`, `category`, `type`, `make`, `model`, `submodel`, `model_year`, `label`, `total_kilometres`, `leased`, `style`, `vehicle_size`, `color`, `trim`, `fuel_type`, `tire_type`, `drive_train`, `serial_number`, `unit_number`, `vin_number`, `licence_plate`, `nickname`, `year_purchased`, `mileage`, `hours_operated`, `cost`, `cnd_cost_per_unit`, `usd_cost_per_unit`, `finance`, `lease`, `insurance`, `insurance_contact`, `insurance_phone`, `hourly_rate`, `daily_rate`, `semi_monthly_rate`, `monthly_rate`, `field_day_cost`, `field_day_billable`, `hr_rate_work`, `hr_rate_travel`, `follow_up_date`, `follow_up_staff`, `next_service_date`, `next_service`, `next_serv_desc`, `service_location`, `last_oil_filter_change_date`, `last_oil_filter_change`, `last_oil_filter_change_hrs`, `next_oil_filter_change_date`, `next_oil_filter_change`, `next_oil_filter_change_hrs`, `last_insp_tune_up_date`, `last_insp_tune_up`, `last_insp_tune_up_hrs`, `next_insp_tune_up_date`, `next_insp_tune_up`, `next_insp_tune_up_hrs`, `tire_condition`, `last_tire_rotation_date`, `last_tire_rotation`, `last_tire_rotation_hrs`, `next_tire_rotation_date`, `next_tire_rotation`, `next_tire_rotation_hrs`, `reg_renewal_date`, `insurance_renewal`, `location`, `location_cookie`, `current_address`, `lsd`, `status`, `volume`, `ownership_status`, `quote_description`, `notes`, `cvip_renewal_date`, `insurance_file`, `registration_file`, `region`, `classification`, `vehicle_access_code`, `cargo`, `lessor`, `group`, `use`, `staffid`) VALUES ('$equ_description', '$assigned_status', '$category', '$type', '$make', '$model', '$submodel', '$model_year', '$label', '$total_kilometres', '$leased', '$style', '$vehicle_size', '$color', '$trim', '$fuel_type', '$tire_type', '$drive_train', '$serial_number', '$unit_number', '$vin_number', '$licence_plate', '$nickname', '$year_purchased', '$mileage', '$hours_operated', '$cost', '$cnd_cost_per_unit', '$usd_cost_per_unit', '$finance', '$lease', '$insurance', '$insurance_contact', '$insurance_phone', '$hourly_rate', '$daily_rate', '$semi_monthly_rate', '$monthly_rate', '$field_day_cost', '$field_day_billable', '$hr_rate_work', '$hr_rate_travel', '$follow_up_date', '$follow_up_staff', '$next_service_date', '$next_service', '$next_serv_desc', '$service_location', '$last_oil_filter_change_date', '$last_oil_filter_change', '$last_oil_filter_change_hrs', '$next_oil_filter_change_date', '$next_oil_filter_change', '$next_oil_filter_change_hrs', '$last_insp_tune_up_date', '$last_insp_tune_up', '$last_insp_tune_up_hrs', '$next_insp_tune_up_date', '$next_insp_tune_up', '$next_insp_tune_up_hrs', '$tire_condition', '$last_tire_rotation_date', '$last_tire_rotation', '$last_tire_rotation_hrs', '$next_tire_rotation_date', '$next_tire_rotation', '$next_tire_rotation_hrs', '$reg_renewal_date', '$insurance_renewal', '$location', '$location_cookie', '$current_address', '$lsd', '$status', '$volume', '$ownership_status', '$quote_description', '$notes', '$cviprenewal', '$insurance_card', '$registration_card', '$region', '$classification', '$vehicle_access_code', '$cargo', '$lessor', '$group', '$use', '$staff')";
+        $query_insert_equipment = "INSERT INTO `equipment` (`equ_description`, `assigned_status`, `category`, `type`, `make`, `model`, `submodel`, `model_year`, `label`, `total_kilometres`, `leased`, `style`, `vehicle_size`, `color`, `trim`, `fuel_type`, `tire_type`, `drive_train`, `serial_number`, `part_serial_names`, `part_serials`, `unit_number`, `vin_number`, `licence_plate`, `nickname`, `year_purchased`, `mileage`, `hours_operated`, `cost`, `cnd_cost_per_unit`, `usd_cost_per_unit`, `finance`, `lease`, `insurance`, `insurance_contact`, `insurance_phone`, `hourly_rate`, `daily_rate`, `semi_monthly_rate`, `monthly_rate`, `field_day_cost`, `field_day_billable`, `hr_rate_work`, `hr_rate_travel`, `follow_up_date`, `follow_up_staff`, `next_service_date`, `next_service`, `next_serv_desc`, `service_location`, `last_oil_filter_change_date`, `last_oil_filter_change`, `last_oil_filter_change_hrs`, `next_oil_filter_change_date`, `next_oil_filter_change`, `next_oil_filter_change_hrs`, `last_insp_tune_up_date`, `last_insp_tune_up`, `last_insp_tune_up_hrs`, `next_insp_tune_up_date`, `next_insp_tune_up`, `next_insp_tune_up_hrs`, `tire_condition`, `last_tire_rotation_date`, `last_tire_rotation`, `last_tire_rotation_hrs`, `next_tire_rotation_date`, `next_tire_rotation`, `next_tire_rotation_hrs`, `reg_renewal_date`, `insurance_renewal`, `location`, `location_cookie`, `current_address`, `lsd`, `status`, `volume`, `ownership_status`, `quote_description`, `notes`, `cvip_renewal_date`, `insurance_file`, `registration_file`, `region`, `classification`, `vehicle_access_code`, `cargo`, `lessor`, `group`, `use`, `staffid`) VALUES ('$equ_description', '$assigned_status', '$category', '$type', '$make', '$model', '$submodel', '$model_year', '$label', '$total_kilometres', '$leased', '$style', '$vehicle_size', '$color', '$trim', '$fuel_type', '$tire_type', '$drive_train', '$serial_number', '$part_serial_names', '$part_serials', '$unit_number', '$vin_number', '$licence_plate', '$nickname', '$year_purchased', '$mileage', '$hours_operated', '$cost', '$cnd_cost_per_unit', '$usd_cost_per_unit', '$finance', '$lease', '$insurance', '$insurance_contact', '$insurance_phone', '$hourly_rate', '$daily_rate', '$semi_monthly_rate', '$monthly_rate', '$field_day_cost', '$field_day_billable', '$hr_rate_work', '$hr_rate_travel', '$follow_up_date', '$follow_up_staff', '$next_service_date', '$next_service', '$next_serv_desc', '$service_location', '$last_oil_filter_change_date', '$last_oil_filter_change', '$last_oil_filter_change_hrs', '$next_oil_filter_change_date', '$next_oil_filter_change', '$next_oil_filter_change_hrs', '$last_insp_tune_up_date', '$last_insp_tune_up', '$last_insp_tune_up_hrs', '$next_insp_tune_up_date', '$next_insp_tune_up', '$next_insp_tune_up_hrs', '$tire_condition', '$last_tire_rotation_date', '$last_tire_rotation', '$last_tire_rotation_hrs', '$next_tire_rotation_date', '$next_tire_rotation', '$next_tire_rotation_hrs', '$reg_renewal_date', '$insurance_renewal', '$location', '$location_cookie', '$current_address', '$lsd', '$status', '$volume', '$ownership_status', '$quote_description', '$notes', '$cviprenewal', '$insurance_card', '$registration_card', '$region', '$classification', '$vehicle_access_code', '$cargo', '$lessor', '$group', '$use', '$staff')";
         $result_insert_equipment = mysqli_query($dbc, $query_insert_equipment);
 		    $equipmentid = mysqli_insert_id($dbc);
         $url = 'Added';
@@ -167,7 +169,7 @@ if (isset($_POST['submit'])) {
         add_update_history($dbc, 'equipment_history', $history, '', $before_change);
     } else {
         $equipmentid = $_POST['equipmentid'];
-        $query_update_equipment = "UPDATE `equipment` SET `equ_description` = '$equ_description', `assigned_status`='$assigned_status', `category` = '$category', `type` = '$type', `make` = '$make', `model` = '$model', `submodel` = '$submodel', `model_year` = '$model_year', `label` = '$label', `total_kilometres` = '$total_kilometres', `leased` = '$leased', `style` = '$style', `vehicle_size` = '$vehicle_size', `color` = '$color', `trim` = '$trim', `fuel_type` = '$fuel_type', `tire_type` = '$tire_type', `drive_train` = '$drive_train', `serial_number` = '$serial_number', `unit_number` = '$unit_number', `vin_number` = '$vin_number', `licence_plate` = '$licence_plate', `nickname` = '$nickname', `year_purchased` = '$year_purchased', `mileage` = '$mileage', `hours_operated` = '$hours_operated', `cost` = '$cost', `cnd_cost_per_unit` = '$cnd_cost_per_unit', `usd_cost_per_unit` = '$usd_cost_per_unit', `finance` = '$finance', `lease` = '$lease', `insurance` = '$insurance', `insurance_contact` = '$insurance_contact', `insurance_phone` = '$insurance_phone', `hourly_rate` = '$hourly_rate', `daily_rate` = '$daily_rate', `semi_monthly_rate` = '$semi_monthly_rate', `monthly_rate` = '$monthly_rate', `field_day_cost` = '$field_day_cost', `field_day_billable` = '$field_day_billable', `hr_rate_work` = '$hr_rate_work', `hr_rate_travel` = '$hr_rate_travel', `follow_up_date` = '$follow_up_date', `follow_up_staff` = '$follow_up_staff', `next_service_date` = '$next_service_date', `next_service` = '$next_service', `next_serv_desc` = '$next_serv_desc', `service_location` = '$service_location', `last_oil_filter_change_date` = '$last_oil_filter_change_date', `last_oil_filter_change` = '$last_oil_filter_change', `last_oil_filter_change_hrs` = '$last_oil_filter_change_hrs', `next_oil_filter_change_date` = '$next_oil_filter_change_date', `next_oil_filter_change` = '$next_oil_filter_change', `next_oil_filter_change_hrs` = '$next_oil_filter_change_hrs', `last_insp_tune_up_date` = '$last_insp_tune_up_date', `last_insp_tune_up` = '$last_insp_tune_up', `last_insp_tune_up_hrs` = '$last_insp_tune_up_hrs', `next_insp_tune_up_date` = '$next_insp_tune_up_date', `next_insp_tune_up` = '$next_insp_tune_up', `next_insp_tune_up_hrs` = '$next_insp_tune_up_hrs', `tire_condition` = '$tire_condition', `last_tire_rotation_date` = '$last_tire_rotation_date', `last_tire_rotation` = '$last_tire_rotation', `last_tire_rotation_hrs` = '$last_tire_rotation_hrs', `next_tire_rotation_date` = '$next_tire_rotation_date', `next_tire_rotation` = '$next_tire_rotation', `next_tire_rotation_hrs` = '$next_tire_rotation_hrs', `reg_renewal_date` = '$reg_renewal_date', `insurance_renewal` = '$insurance_renewal', `location` = '$location', `location_cookie` = '$location_cookie', `current_address` = '$current_address', `lsd` = '$lsd', `status` = '$status', `volume` = '$volume', `ownership_status` = '$ownership_status', `quote_description` = '$quote_description', `notes` = '$notes', `cvip_renewal_date` = '$cviprenewal', `insurance_file`='$insurance_card', `registration_file`='$registration_card', `region`='$region', `classification` = '$classification', `vehicle_access_code` = '$vehicle_access_code', `cargo` = '$cargo', `lessor` = '$lessor', `group` = '$group', `use` = '$use', `staffid` = '$staff' WHERE `equipmentid` = '$equipmentid'";
+        $query_update_equipment = "UPDATE `equipment` SET `equ_description` = '$equ_description', `assigned_status`='$assigned_status', `category` = '$category', `type` = '$type', `make` = '$make', `model` = '$model', `submodel` = '$submodel', `model_year` = '$model_year', `label` = '$label', `total_kilometres` = '$total_kilometres', `leased` = '$leased', `style` = '$style', `vehicle_size` = '$vehicle_size', `color` = '$color', `trim` = '$trim', `fuel_type` = '$fuel_type', `tire_type` = '$tire_type', `drive_train` = '$drive_train', `serial_number` = '$serial_number', `part_serial_names` = '$part_serial_names', `part_serials` = '$part_serials', `unit_number` = '$unit_number', `vin_number` = '$vin_number', `licence_plate` = '$licence_plate', `nickname` = '$nickname', `year_purchased` = '$year_purchased', `mileage` = '$mileage', `hours_operated` = '$hours_operated', `cost` = '$cost', `cnd_cost_per_unit` = '$cnd_cost_per_unit', `usd_cost_per_unit` = '$usd_cost_per_unit', `finance` = '$finance', `lease` = '$lease', `insurance` = '$insurance', `insurance_contact` = '$insurance_contact', `insurance_phone` = '$insurance_phone', `hourly_rate` = '$hourly_rate', `daily_rate` = '$daily_rate', `semi_monthly_rate` = '$semi_monthly_rate', `monthly_rate` = '$monthly_rate', `field_day_cost` = '$field_day_cost', `field_day_billable` = '$field_day_billable', `hr_rate_work` = '$hr_rate_work', `hr_rate_travel` = '$hr_rate_travel', `follow_up_date` = '$follow_up_date', `follow_up_staff` = '$follow_up_staff', `next_service_date` = '$next_service_date', `next_service` = '$next_service', `next_serv_desc` = '$next_serv_desc', `service_location` = '$service_location', `last_oil_filter_change_date` = '$last_oil_filter_change_date', `last_oil_filter_change` = '$last_oil_filter_change', `last_oil_filter_change_hrs` = '$last_oil_filter_change_hrs', `next_oil_filter_change_date` = '$next_oil_filter_change_date', `next_oil_filter_change` = '$next_oil_filter_change', `next_oil_filter_change_hrs` = '$next_oil_filter_change_hrs', `last_insp_tune_up_date` = '$last_insp_tune_up_date', `last_insp_tune_up` = '$last_insp_tune_up', `last_insp_tune_up_hrs` = '$last_insp_tune_up_hrs', `next_insp_tune_up_date` = '$next_insp_tune_up_date', `next_insp_tune_up` = '$next_insp_tune_up', `next_insp_tune_up_hrs` = '$next_insp_tune_up_hrs', `tire_condition` = '$tire_condition', `last_tire_rotation_date` = '$last_tire_rotation_date', `last_tire_rotation` = '$last_tire_rotation', `last_tire_rotation_hrs` = '$last_tire_rotation_hrs', `next_tire_rotation_date` = '$next_tire_rotation_date', `next_tire_rotation` = '$next_tire_rotation', `next_tire_rotation_hrs` = '$next_tire_rotation_hrs', `reg_renewal_date` = '$reg_renewal_date', `insurance_renewal` = '$insurance_renewal', `location` = '$location', `location_cookie` = '$location_cookie', `current_address` = '$current_address', `lsd` = '$lsd', `status` = '$status', `volume` = '$volume', `ownership_status` = '$ownership_status', `quote_description` = '$quote_description', `notes` = '$notes', `cvip_renewal_date` = '$cviprenewal', `insurance_file`='$insurance_card', `registration_file`='$registration_card', `region`='$region', `classification` = '$classification', `vehicle_access_code` = '$vehicle_access_code', `cargo` = '$cargo', `lessor` = '$lessor', `group` = '$group', `use` = '$use', `staffid` = '$staff' WHERE `equipmentid` = '$equipmentid'";
         $result_update_equipment	= mysqli_query($dbc, $query_update_equipment);
         $url = 'Updated';
         $before_change = '';
@@ -246,6 +248,17 @@ if (isset($_POST['submit'])) {
 ?>
 <script type="text/javascript">
 $(document).ready(function () {
+    <?php if($_GET['view'] == 'readonly') { ?>
+        destroyInputs();
+        $('.chosen-select-deselect,input[type=text]').each(function() {
+            $(this).after($(this).find('option:selected').text());
+        }).removeClass('chosen-select-deselect').hide();
+        $('input[type=text]').each(function() {
+            $(this).after($(this).val());
+        }).hide();
+        $('input[type=file]').hide();
+        $('img[src*=ROOK-add-icon],img[src*=remove]').hide();
+    <?php } ?>
 	<?php if(isset($_GET['target_field'])) { ?>
 		$('[name=<?= $_GET['target_field'] ?>]').closest('.panel').find('a[href^=#collapse_]').click();
 		$('[name=<?= $_GET['target_field'] ?>]').focus();
@@ -397,6 +410,8 @@ $fuel_type = '';
 $tire_type = '';
 $drive_train = '';
 $serial_number = '';
+$part_serial_names = '';
+$part_serials = '';
 $unit_number = '';
 $vin_number = '';
 $licence_plate = '';
@@ -495,6 +510,8 @@ if(!empty($_GET['edit']))   {
     $tire_type = $get_equipment['tire_type'];
     $drive_train = $get_equipment['drive_train'];
     $serial_number = $get_equipment['serial_number'];
+    $part_serial_names = $get_equipment['part_serial_names'];
+    $part_serials = $get_equipment['part_serials'];
     $unit_number = $get_equipment['unit_number'];
     $vin_number = $get_equipment['vin_number'];
     $licence_plate = $get_equipment['licence_plate'];
@@ -567,7 +584,7 @@ if(!empty($_GET['edit']))   {
     $use = $get_equipment['use'];
     $staff = $get_equipment['staffid'];
     $equipment_image = $get_equipment['equipment_image'];
-	
+
 	$total_billed = $get_equipment['invoiced_amt'];
 	$total_hours = $get_equipment['invoiced_hours'];
 	$total_expenses = $get_equipment['expense_total'];
@@ -597,15 +614,23 @@ while($row = mysqli_fetch_array($query)) {
 <div class="scale-to-fill has-main-screen" style="overflow: hidden;">
     <div class="main-screen standard-body form-horizontal">
         <div class="standard-body-title">
-            <h3><?= (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?>
-            <?php 
-            $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
+            <h3><?= $_GET['subtab'] == 'overview' ? 'Equipment Overview: Unit #'.$unit_number : (!empty($_GET['edit']) ? 'Edit Equipment: Unit #'.$unit_number : 'Add New Equipment') ?>
+            <?php if(IFRAME_PAGE) { ?>
+                <a href="../blank_loading_page.php" class="pull-right"><img src="../img/icons/cancel.png" class="inline-img"></a>
+            <?php } ?>
+            <?php if(vuaed_visible_function($dbc, 'equipment') && $_GET['view'] == 'readonly') { ?>
+                <a href="index.php?edit=<?= $_GET['edit'] ?>&subtab=edit" <?= IFRAME_PAGE ? 'target="_blank"' : '' ?> class="pull-right"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img no-toggle" title="Edit Equipment"></a>
+            <?php } ?>
+            <?php $quick_actions = explode(',',get_config($dbc, 'equipment_quick_action_icons'));
             if($equipmentid > 0) {
                 echo '<span class="pull-right action-icons  ">';
-                echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_reminders.php?tile=equipment&id='.$equipmentid.'\'); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" style="height: 1.25em; width: auto;" onclick="return false;"></span>' : '';
-                echo in_array('archive', $quick_actions) && vuaed_visible_function($dbc, 'equipment') == 1 ? '<span title="Archive Equipment"><a href="'.WEBSITE_URL.'/delete_restore.php?action=delete&equipmentid='.$equipmentid.'" onclick="return confirm(\'Are you sure?\');"><img src="../img/icons/trash-icon-red.png" style="height: 1.25em; width: auto;" title="Archive Equipment" class="inline-img no-toggle"></a></span>' : '';
+                echo in_array('reminder', $quick_actions) ? '<span title="Schedule Reminder" onclick="overlayIFrameSlider(\''.WEBSITE_URL.'/quick_action_reminders.php?tile=equipment&id='.$equipmentid.'\'); return false;"><img title="Schedule Reminder" src="../img/icons/ROOK-reminder-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                echo in_array('archive', $quick_actions) && vuaed_visible_function($dbc, 'equipment') == 1 ? '<span title="Archive Equipment"><a href="'.WEBSITE_URL.'/delete_restore.php?action=delete&equipmentid='.$equipmentid.'" onclick="return confirm(\'Are you sure?\');"><img src="../img/icons/trash-icon-red.png" title="Archive Equipment" class="inline-img no-toggle"></a></span>' : '';
                 echo '</span>';
-            } ?></h3>
+            } ?>
+            <?php if(IFRAME_PAGE) { ?>
+                <a href="index.php?edit=<?= $_GET['edit'] ?>&subtab=<?= empty($_GET['subtab']) ? 'edit' : $_GET['subtab'] ?>&view=<?= $_GET['view'] ?>" target="_top" class="pull-right"><img src="../img/icons/ROOK-FullScreen-icon.png" class="inline-img no-toggle" title="Open Full Screen"></a>
+            <?php } ?></h3>
         </div>
 
         <div class="standard-body-content" style="padding: 0.5em;">
@@ -613,7 +638,7 @@ while($row = mysqli_fetch_array($query)) {
 
                 <input type="hidden" id="equipmentid"   name="equipmentid" value="<?php echo $equipmentid ?>" />
                 <input type="hidden" id="category"	name="category" value="<?php echo $category ?>" />
-                
+
                 <!-- List fields that are updated on other pages -->
                 <input name="mileage" type="hidden" value="<?= $mileage ?>" />
                 <input name="hours_operated" type="hidden" value="<?= $hours_operated ?>" />
@@ -636,33 +661,81 @@ while($row = mysqli_fetch_array($query)) {
                 <input name="next_tire_rotation" type="hidden" value="<?= $next_tire_rotation ?>" />
                 <input name="next_tire_rotation_hrs" type="hidden" value="<?= $next_tire_rotation_hrs ?>" />
 
-                <?php foreach($accordion_list as $accordion) { ?>
-                    <div id="tab_section_<?= config_safe_str($accordion) ?>" class="tab-section col-sm-12">
-                        <h4><?= $accordion ?></h4>
-                        <?php $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='$category' AND accordion='$accordion'"));
-                        if(empty($get_field_config['equipment'])) {
-                            $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='' AND accordion='$accordion'"));
-                        }
-                        $value_config = ','.$get_field_config['equipment'].',';
+                <?php if($_GET['subtab'] == 'overview') {
+                    $value_config = get_config($dbc, 'equipment_overview_'.config_safe_str($category));
+                    include ('add_equipment_fields.php');
+                } else {
+                    foreach($accordion_list as $accordion) { ?>
+                        <div id="tab_section_<?= config_safe_str($accordion) ?>" class="tab-section col-sm-12">
+                            <h4><?= $accordion ?></h4>
+                            <?php $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='$category' AND accordion='$accordion'"));
+                            if(empty($get_field_config['equipment'])) {
+                                $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT equipment FROM field_config_equipment WHERE tab='' AND accordion='$accordion'"));
+                            }
+                            $value_config = ','.$get_field_config['equipment'].',';
 
-                        include ('add_equipment_fields.php'); ?>
-                        <div class="clearfix"></div><hr>
-                    </div>
-                <?php } ?>
+                            include ('add_equipment_fields.php'); ?>
+                            <div class="clearfix"></div><hr>
+                        </div>
+                    <?php }
+                } ?>
 
-                <div class="form-group">
-                    <div class="col-sm-6">
-                        <p><span class="brand-color"><em>Required Fields *</em></span></p>
-                    </div>
-                    <div class="col-sm-6">
-                        <div class="pull-right">
-                            <a href="?category=<?= $category ?>" class="btn brand-btn">Back</a>
-                            <button type="submit" name="submit" value="Submit" class="btn brand-btn">Submit</button>
+                <?php if($_GET['view'] !== 'readonly') { ?>
+                    <div class="form-group">
+                        <div class="col-sm-6">
+                            <p><span class="brand-color"><em>Required Fields *</em></span></p>
+                        </div>
+                        <div class="col-sm-6">
+                            <div class="pull-right">
+                                <a href="?category=<?= $category ?>" class="btn brand-btn">Back</a>
+                                <button type="submit" name="submit" value="Submit" class="btn brand-btn" onclick="return presave();">Submit</button>
+                            </div>
                         </div>
                     </div>
-                </div>
+                <?php } ?>
 
     		</form>
         </div>
     </div>
 </div>
+<script>
+  function presave() {
+    var flag = 0;
+    var firsttarget = '';
+  	$('.mandatory').each(function() {
+  			var target = this;
+  				if($(target).val() != null && $(target).val().length === 0) {
+            if(flag == 0) {
+              $firsttarget = $(this);
+            }
+
+  					if($(target).is('select')) {
+  						var select2 = $(target).next('.select2');
+  						$(select2).find('.select2-selection').css('background-color', 'red');
+  						$(select2).find('.select2-selection__placeholder').css('color', 'white');
+  					} else {
+  						$(target).css('background-color', 'red');
+  					}
+
+            flag = 1;
+  			}
+        else {
+          if($(target).is('select')) {
+            var select2 = $(target).next('.select2');
+            $(select2).find('.select2-selection').css('background-color', 'white');
+          } else {
+            $(target).css('background-color', 'white');
+          }
+        }
+  	});
+
+    var currenttop = $firsttarget.offset().top;
+    if(flag == 1) {
+        alert("Please fill in the required fields");
+        $('.main-screen .main-screen').scrollTop($('.standard-body-content').scrollTop() + currenttop - $('.standard-body-content').offset().top - 30);
+        return false;
+    }
+
+    return true;
+  }
+</script>

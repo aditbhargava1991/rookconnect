@@ -1,5 +1,6 @@
-<?php
+<?php $guest_access = true;
 include(substr(dirname(__FILE__), 0, -8).'include.php');
+ob_clean();
 error_reporting(0);
 
 $today_date = date('Y-m-d');

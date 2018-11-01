@@ -1,5 +1,5 @@
 <?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Checklists</h3>') ?>
-<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&ticketid=<?= $ticketid ?>&from_url=<?= urlencode(WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid) ?>&reload_ticket_checklists=1', 'auto', false, true); return false;" class="btn brand-btn pull-right">Add Checklist</a>
+<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&ticketid=<?= $ticketid ?>&from_url=<?= urlencode(WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group'])) ?>&reload_ticket_checklists=1', 'auto', false, true); return false;" class="btn brand-btn pull-right">Add Checklist</a>
 <div class="clearfix"></div>
 <?php $attached_checklists = mysqli_query($dbc,"SELECT * FROM `checklist` WHERE (CONCAT(',',`ticketid`,',') LIKE '%,$ticketid,%' OR `ticketid` LIKE '%ALL%') AND `ticketid` != '' AND `ticketid` IS NOT NULL AND `deleted`=0");
 if(mysqli_num_rows($attached_checklists) > 0) {
@@ -24,7 +24,7 @@ if(mysqli_num_rows($attached_checklists) > 0) {
 	echo "<h3>No Checklists Found.";
 } ?>
 <div class="clearfix"></div>
-<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&ticketid=<?= $ticketid ?>&from_url=<?= urlencode(WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid) ?>&reload_ticket_checklists=1', 'auto', false, true); return false;" class="btn brand-btn pull-right">Add Checklist</a>
+<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&ticketid=<?= $ticketid ?>&from_url=<?= urlencode(WEBSITE_URL.'/Ticket/index.php?edit='.$ticketid) ?>&reload_ticket_checklists=1', 'auto', false, true); return false;" data-history-label="New Checklist" class="btn brand-btn pull-right">Add Checklist</a>
 <script>
 function checklistChange(sel) {
 	var stage = sel.value;

@@ -10,7 +10,7 @@ function archiveTeam(a, teamid) {
 	});
 }
 </script>
-<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/teams.php?teamid=NEW'); return false;" class="btn brand-btn pull-right gap-bottom">Add Team</a>
+<a href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Calendar/teams.php?teamid=NEW'); return false;" class="btn brand-btn pull-right gap-bottom">Add Team</a><div class="clearfix"></div>
 <?php
 $teams = get_teams($dbc);
 $team_fields = ',start_date,end_date,';

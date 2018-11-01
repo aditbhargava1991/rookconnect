@@ -141,7 +141,6 @@
                 <tr class="hidden-xs hidden-sm">
                     <th style="width:25em;">Staff Name</th>
                     <th>Security Level</th>
-                    <th>Effective Privileges</th>
                     <?= count($region_list) > 0 ? '<th>Allowed Regions</th>' : '' ?>
                     <?= count($location_list) > 0 ? '<th>Allowed Locations</th>' : '' ?>
                     <?= count($classification_list) > 0 ? '<th>Allowed Classifications</th>' : '' ?>
@@ -166,16 +165,15 @@
 					<td data-title="Staff Name"><?= $name.(!empty($row['user_name']) ? '<br />Username: '.$row['user_name'] : '').($row['category'] != 'Staff' ? '<br /> Category: '.$row['category'] : '') ?></td>
 					<td data-title="Security Level">
 						<select name="role[]" multiple id="<?= $row['contactid'] ?>" data-placeholder="Select a Security Level" class="role chosen-select-deselect form-control">
-							<option value=""></option><?php foreach($on_security as $category => $value) { ?>
+							<?php foreach($on_security as $category => $value) { ?>
 								<option <?= $value == 'super' ? 'disabled' : '' ?> <?= strpos(','.$row['role'].',',",$value,") !== FALSE ? 'selected' : '' ?> value="<?= $value ?>"><?= $category ?></option>
 							<?php } ?>
 						</select>
 					</td>
-					<td data-title="Effective Privileges">View</td>
 					<?php if(count($region_list) > 0) { ?>
 						<td data-title="Allowed Regions">
 							<select name="regions[]" multiple id="<?= $row['contactid'] ?>" data-placeholder="Select Allowed Regions" class="regions chosen-select-deselect form-control">
-								<option value=""></option><?php foreach($region_list as $value) { ?>
+								<?php foreach($region_list as $value) { ?>
 									<option <?= in_array($value, $region_access) ? 'selected' : '' ?> value="<?= $value ?>"><?= $value ?></option>
 								<?php } ?>
 							</select>
@@ -184,7 +182,7 @@
 					<?php if(count($location_list) > 0) { ?>
 						<td data-title="Allowed Locations">
 							<select name="locations[]" multiple id="<?= $row['contactid'] ?>" data-placeholder="Select Allowed Locations" class="locations chosen-select-deselect form-control">
-								<option value=""></option><?php foreach($location_list as $value) { ?>
+								<?php foreach($location_list as $value) { ?>
 									<option <?= in_array($value, $location_access) ? 'selected' : '' ?> value="<?= $value ?>"><?= $value ?></option>
 								<?php } ?>
 							</select>
@@ -193,7 +191,7 @@
 					<?php if(count($classification_list) > 0) { ?>
 						<td data-title="Allowed Classifications">
 							<select name="classifications[]" multiple id="<?= $row['contactid'] ?>" data-placeholder="Select Allowed Classifications" class="classifications chosen-select-deselect form-control">
-								<option value=""></option><?php foreach($classification_list as $value) { ?>
+								<?php foreach($classification_list as $value) { ?>
 									<option <?= in_array($value, $classification_access) ? 'selected' : '' ?> value="<?= $value ?>"><?= $value ?></option>
 								<?php } ?>
 							</select>
@@ -202,7 +200,7 @@
 					<?php if(count($position_list) > 0) { ?>
 						<td data-title="Allowed Positions">
 							<select name="positions[]" multiple id="<?= $row['contactid'] ?>" data-placeholder="Select Allowed Positions" class="positions chosen-select-deselect form-control">
-								<option value=""></option><?php foreach($position_list as $value) { ?>
+								<?php foreach($position_list as $value) { ?>
 									<option <?= in_array($value['position_id'], $allowed_positions) ? 'selected' : '' ?> value="<?= $value['position_id'] ?>"><?= $value['name'] ?></option>
 								<?php } ?>
 							</select>

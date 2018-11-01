@@ -109,14 +109,13 @@ $(document).on('change', 'select[name="payment_due"]', function() { if(this.valu
     <label for="first_name" class="col-sm-4 control-label text-right">Estimate Type<span class="brand-color">*</span>:</label>
     <div class="col-sm-8">
         <select name="estimatetype[]" multiple <?php echo $disable_type; ?> id="estimatetype" data-placeholder="Select a Type..." class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
 			<?php $rate_cats = [];
 			$query = mysqli_query($dbc,"SELECT companyrcid, IFNULL(`rate_categories`,'') rate_categories FROM company_rate_card WHERE `rate_card_name` != '' AND `deleted`=0 GROUP BY rate_categories");
 			while($row = mysqli_fetch_array($query)) {
 				echo "<option data-type='rate_category' ".(in_array($row['rate_categories'], $estimatetype) || in_array(preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($row['rate_categories']))), $estimatetype) ? 'selected' : '')." value='". $row['rate_categories']."'>".$row['rate_categories'].'</option>';
 				$rate_cats[] = $row['rate_categories'];
 			}
-			
+
 			$project_types = explode(',',get_config($dbc,'project_tabs'));
 			foreach($project_types as $type) {
 				if(!in_array($type, $rate_cats)) {

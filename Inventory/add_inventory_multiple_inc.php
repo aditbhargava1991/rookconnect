@@ -107,13 +107,13 @@ if(isset($_GET['type'])) {
 				<div class="col-sm-3 gap-top"><?php
 					$sql = mysqli_query($dbc, 'SELECT * FROM inventory WHERE deleted = 0 GROUP BY category');  ?>
 					<label for="travel_task" class="col-sm-2" style='width:120px;'>
-						<span class="popover-examples list-inline hide-on-mobile" style='display:inline-block;'><a style="margin:5px 0 0 15px;" data-toggle="tooltip" data-placement="top" title="Select which category you would like to export, or select All Categories to export every inventory item that you have."><img src="../img/info.png" width="20"></a></span>
-						Category:
+						<span class="popover-examples list-inline hide-on-mobile" style='display:inline-block;'><a style="margin:5px 0 0 15px;" data-toggle="tooltip" data-placement="top" title="Select which tab you would like to export, or select All Tabs to export every inventory item that you have."><img src="../img/info.png" width="20"></a></span>
+						Tab:
 					</label>
 				</div>
 				<div class="col-sm-9">
 					<select name="category_export" class="chosen-select-deselect form-control" width="380">
-						<option value="3456780123456971230">All Categories</option><?php
+						<option value="3456780123456971230">All Tabs</option><?php
 						while($row = mysqli_fetch_assoc($sql)){
 							echo '<option value="'.$row['category'].'">'.$row['category'].'</option>';
 						} ?>
@@ -165,13 +165,13 @@ if(isset($_GET['type'])) {
 				<div class="col-sm-3 gap-top"><?php
 					$sql = mysqli_query($dbc, 'SELECT * FROM inventory WHERE deleted = 0 GROUP BY category');  ?>
 					<label for="travel_task" class="control-label" style='width:120px;'>
-						<span class="popover-examples list-inline hide-on-mobile" style='display:inline-block;'><a style="margin:5px 0 0 15px;" data-toggle="tooltip" data-placement="top" title="Select which category you would like to export, or select All Categories to export every inventory item that you have."><img src="../img/info.png" width="20"></a></span>
-						Category:
+						<span class="popover-examples list-inline hide-on-mobile" style='display:inline-block;'><a style="margin:5px 0 0 15px;" data-toggle="tooltip" data-placement="top" title="Select which tab you would like to export, or select All Tabs to export every inventory item that you have."><img src="../img/info.png" width="20"></a></span>
+						Tab:
 					</label>
 				</div>
 				<div class="col-sm-9">
 					<select name="category_export" class="chosen-select-deselect form-control" width="380">
-						<option value="3456780123456971230">All Categories</option><?php
+						<option value="3456780123456971230">All Tabs</option><?php
 						while($row = mysqli_fetch_assoc($sql)){
 							echo '<option value="'.$row['category'].'">'.$row['category'].'</option>';
 						} ?>
@@ -276,7 +276,7 @@ if(isset($_GET['type'])) {
 			echo "<table class='table table-bordered table-striped'>";
                 echo "<thead>";
                     echo "<tr class='hidden-xs hidden-sm'>";
-                        echo '<th>Type</th>';
+                        echo '<th>Tab</th>';
                         echo '<th>Description</th>';
                         echo '<th>Date/Time</th>';
                         echo '<th>Author</th>';
@@ -288,7 +288,7 @@ if(isset($_GET['type'])) {
 
 		while($row = mysqli_fetch_array( $result )) {
 			echo "<tr>";
-				echo '<td data-title="Type">' . $row['type'] . '</td>';
+				echo '<td data-title="Tab">' . $row['type'] . '</td>';
 				echo '<td data-title="Description">' . html_entity_decode($row['description']) . '</td>';
 				$time = substr($row['date_time'], strpos($row['date_time'], ' '));
 				$time = date("g:i a", strtotime($time));

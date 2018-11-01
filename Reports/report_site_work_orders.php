@@ -205,9 +205,9 @@ function work_orders($dbc, $status = 'Active', $from_date = '', $until_date = ''
 			$service_list[] = $service['category'].': '.$service['heading'];
 		}
 		$material_list = [];
-		$material_added = $dbc->query("SELECT `item_id`, `description`, `qty` FROM `ticket_attached` WHERE `src_table` IN ('material') AND `deleted`=0 AND `ticketid`='{$work_order['ticketid']}' AND `date_stamp`='{$work_order['date_stamp']}'");
+		$material_added = $dbc->query("SELECT `item_id`, `description`, `checked_out`, `created_by`, `qty` FROM `ticket_attached` WHERE `src_table` IN ('material') AND `deleted`=0 AND `ticketid`='{$work_order['ticketid']}' AND `date_stamp`='{$work_order['date_stamp']}'");
 		while($material = $material_added->fetch_assoc()) {
-			$material_list[] = ($material['item_id'] > 0 ? get_field_value('name','material','materialid',$material['item_id']) : $material['description']).' Qty: '.$crew['qty'];
+			$material_list[] = ($material['item_id'] > 0 ? get_field_value('name','material','materialid',$material['item_id']) : $material['description']).' Qty: '.$material['qty'].' Added: '.$material['checked_out'].($material['created_by'] > 0 ? ' by '.get_contact($dbc, $material['created_by']) : '');
 		}
         $report_data .= '<tr nobr="true">
 			<td data-title="Work Order #:"><a href="../Ticket/index.php?edit='.$work_order['ticketid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\',\'auto\',true,true); return false;">'.get_ticket_label($dbc, $work_order).' on '.$work_order['date_stamp'].'</a></td>
@@ -222,3 +222,17 @@ function work_orders($dbc, $status = 'Active', $from_date = '', $until_date = ''
     return $report_data;
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

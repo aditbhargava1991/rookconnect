@@ -1,4 +1,7 @@
  <?php
+    if(!file_exists('../HR/time_off_request/download')) {
+        mkdir('../HR/time_off_request/download', 0777, true);
+    }
     $today_date = date('Y-m-d');
     $contactid = isset($_POST['contactid']) ? filter_var($_POST['contactid'],FILTER_SANITIZE_STRING) : $_SESSION['contactid'];
 

@@ -26,13 +26,14 @@ $footer_text = html_entity_decode($footer);
 
 DEFINE('TICKET_LOG_HEADER', $header_text);
 DEFINE('TICKET_LOG_HEADER_LOGO', $header_logo);
+DEFINE('TICKET_LOG_HEADER_LOGO_ALIGN', $header_logo_align);
 DEFINE('TICKET_LOG_FOOTER', $footer_text);
 
 class MYPDF extends TCPDF {
     public function Header() {
     	if(!empty(TICKET_LOG_HEADER_LOGO)) {
     		$image_file = '../../Ticket/download/'.TICKET_LOG_HEADER_LOGO;
-            $this->Image($image_file, 10, 5, 0, 20, '', '', 'T', false, 300, 'R', false, false, 0, false, false, false);
+            $this->Image($image_file, 10, 5, 0, 20, '', '', 'T', false, 300, TICKET_LOG_HEADER_LOGO_ALIGN, false, false, 0, false, false, false);
     	}
     	if(!empty(TICKET_LOG_HEADER)) {
 			$this->setFont('helvetica', '', 9);

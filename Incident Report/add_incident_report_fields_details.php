@@ -125,7 +125,6 @@
 	<label for="clientid" class="col-sm-4 control-label">Client(s) Involved<span class="text-red">*</span>:</label>
 	<div class="col-sm-8">
 		<select data-placeholder="Select Clients..." multiple id="clientid" name="<?= $is_userform ?>clientid[]" class="chosen-select-deselect form-control" width="380">
-			<option value=""></option>
 			<?php $client_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name, category FROM contacts WHERE category NOT IN (".STAFF_CATS.") AND `status`>0 AND deleted=0"),MYSQLI_ASSOC));
 			foreach($client_list as $id) {
 				$row = mysqli_fetch_array(mysqli_query($dbc, "SELECT `name`, `first_name`, `last_name` FROM `contacts` WHERE `contactid`='$id'"));
@@ -141,7 +140,6 @@
 	<label for="memberid" class="col-sm-4 control-label">Member(s) Involved<span class="text-red">*</span>:</label>
 	<div class="col-sm-8">
 		<select data-placeholder="Select Members..." multiple id="memberid" name="<?= $is_userform ?>memberid[]" class="chosen-select-deselect form-control" width="380">
-			<option value=""></option>
 			<?php $member_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name, category FROM contacts WHERE category='Members' AND `status`>0 AND deleted=0"),MYSQLI_ASSOC));
 			foreach($member_list as $id) {
 				$row = mysqli_fetch_array(mysqli_query($dbc, "SELECT `name`, `first_name`, `last_name`, `businessid` FROM `contacts` WHERE `contactid`='$id'"));
@@ -157,7 +155,6 @@
 	<label for="clientid" class="col-sm-4 control-label">Equipment<span class="text-red"></span>:</label>
 	<div class="col-sm-8">
 		<select multiple data-placeholder="Select Equipment..." id="clientid" name="<?= $is_userform ?>equipmentid[]" class="chosen-select-deselect form-control" width="380">
-			<option value=""></option>
 			<?php $equip_query = mysqli_query($dbc, "SELECT `equipmentid`,`unit_number`,`make`,`model`,`licence_plate` FROM `equipment` WHERE `deleted`=0");
 			while($equip_row = mysqli_fetch_array($equip_query)) {
 				echo "<option ".(strpos(','.$equipmentid.',', ','.$equip_row['equipmentid'].',') !== FALSE ? 'selected' : '')." value='".$equip_row['equipmentid']."'>".$equip_row['make']." ".$equip_row['model']." Unit #".$equip_row['unit_number']." (Licence Plate ".$equip_row['licence_plate'].")</option>";
@@ -172,7 +169,6 @@
 	<label for="site_name" class="col-sm-4 control-label"><?= (strpos($value_config, ','."Driver_WorkerLabel".',') !== FALSE ? 'Worker/ Operator' : 'Driver') ?><span class="text-red">*</span>:</label>
 	<div class="col-sm-8">
 		<select data-placeholder="Select Staff..." multiple id="contactid" name="<?= $is_userform ?>contactid[]" class="chosen-select-deselect form-control" width="380">
-			<option value=""></option>
 			<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name, category FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0 AND deleted=0"),MYSQLI_ASSOC));
 			foreach($staff_list as $id) {
 				$row = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$id'"));
@@ -187,7 +183,6 @@
 	<label for="site_name" class="col-sm-4 control-label"><?= (strpos($value_config, ','."Staff_InvolvedLabel".',') !== FALSE ? 'Staff Involved' : 'Staff') ?><span class="text-red">*</span>:</label>
 	<div class="col-sm-8">
 		<select data-placeholder="Select Staff..." multiple id="contactid" name="<?= $is_userform ?>contactid[]" class="chosen-select-deselect form-control" width="380">
-			<option value=""></option>
 			<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name, category FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0 AND deleted=0"),MYSQLI_ASSOC));
 			foreach($staff_list as $id) {
 				$row = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$id'"));
@@ -203,7 +198,6 @@
 	<label for="site_name" class="col-sm-4 control-label">Workers Involved:</label>
 	<div class="col-sm-8">
 		<select data-placeholder="Select Workers..." multiple id="workerid" name="<?= $is_userform ?>workerid[]" class="chosen-select-deselect form-control" width="380">
-			<option value=""></option>
 			<?php $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name, first_name, last_name, category FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `status`>0 AND deleted=0"),MYSQLI_ASSOC));
 			foreach($staff_list as $id) {
 				$row = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `contactid`='$id'"));

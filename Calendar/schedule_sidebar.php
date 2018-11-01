@@ -9,16 +9,6 @@ if($multi_class_admin == 1 && strpos(','.ROLE.',', ',admin,') === FALSE && strpo
 	$classification_onclick = '$(this).closest(".panel").find(".block-item").not($(this).find(".block-item")).removeClass("active");';
 }
 
-$equipment_category = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_equip_assign`"))['equipment_category'];
-$equipment_categories = array_filter(explode(',', $equipment_category));
-if(empty($equipment_categories) || count($equipment_categories) > 1) {
-    $equipment_category = 'Equipment';
-}
-$equip_cat_query = '';
-if(count($equipment_categories) > 0) {
-    $equip_cat_query = " AND `equipment`.`category` IN ('".implode("','", $equipment_categories)."')";
-}
-
 if($_GET['view'] == 'monthly') {
 	$calendar_start = $_GET['date'];
 	if($calendar_start == '') {
@@ -44,6 +34,48 @@ if($_GET['view'] == 'monthly') {
 	?>
 	<input type="text" class="search-text form-control" placeholder="Search All">
 	<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
+        <?php if(strpos(','.$dispatch_filters.',', ',Ticket Type,') !== FALSE) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_ticket_type">
+                            <span style="display: inline-block; width: calc(100% - 6em);"><?= TICKET_NOUN ?> Type</span><span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_ticket_type" class="panel-collapse collapse">
+                    <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                        <?php $active_tickettypes = array_filter(explode(',',get_user_settings()['appt_calendar_tickettypes']));
+                        foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                            $ticket_type_value = config_safe_str($ticket_type);
+                            if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) {
+								if($calendar_ticket_color_code_tabs == 1) {
+									$color_styling = $ticket_tabs_color[$ticket_type_value];
+                                    if(empty($color_styling)) {
+                                        $color_box = '<span style="height: 15px; width: 15px; background-color: #fff; border: 1px solid #888; float: right; margin-left: 0.5em;"><svg style="width: 100%; height: 100%; position: relative; top: -2px;"><line x1="0" y1="100%" x2="100%" y2="0"
+                                                    style="stroke:#888;stroke-width:1"/></svg></span>';
+                                    } else {
+                                        $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
+                                    }
+								} else {
+									$color_box = '';
+								}
+                                echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type.$color_box."</div></a>";
+                            }
+                        } ?>
+                    </div>
+                </div>
+            </div>
+            <div class="active_blocks" data-accordion="collapse_ticket_type" style="display: none;">
+                <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                    $ticket_type_value = config_safe_str($ticket_type);
+                    if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) { ?>
+                        <div class="block-item active" data-activevalue="<?= $ticket_type_value ?>"><?= $ticket_type ?></div> 
+                    <?php }
+                } ?>
+            </div>
+        <?php } ?>
 		<?php if(count($contact_regions) > 0 && strpos(",$dispatch_filters,", ",Region,") !== FALSE && !$is_customer) { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -63,7 +95,7 @@ if($_GET['view'] == 'monthly') {
 					if(!empty($region_colours[$region_line])) {
 						$color_styling = $region_colours[$region_line];
 					}
-					$color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right;"></span>';
+					$color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
 					if(in_array($region, $allowed_regions)) {
 						echo "<a href='' onclick='$(this).closest(\".panel\").find(\".block-item\").not($(this).find(\".block-item\")).removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-region='".$region."' data-activevalue='".$region."'>".$region.$color_box."</div></a>";
 					}
@@ -162,76 +194,85 @@ if($_GET['view'] == 'monthly') {
 					<?php } ?>
 				</div>
 			<?php } ?>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_equipment" >
-						<span style="display: inline-block; width: calc(100% - 6em);"><?= $equipment_category ?></span><span class="glyphicon glyphicon-minus"></span>
-					</a>
-				</h4>
-			</div>
 
-			<div id="collapse_equipment" class="panel-collapse collapse in">
-				<div class="panel-body" style="overflow-y: auto; padding: 0;">
-					<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
-                    $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-					$date_query = date('Y-m-d');
-					if(!empty($_GET['date'])) {
-						$date_query = date('Y-m-d', strtotime($_GET['date']));
-					}
-					$date_month_start = date('Y-m-01', strtotime($date_query));
-					$date_month_end = date('Y-m-t', strtotime($date_query));
-                    $customer_query = '';
-                    if($is_customer) {
-                    	$customer_equipments = getCustomerEquipment($dbc, $date_month_start, $date_month_end);
-                    	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
-                    }
-					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".$equip_cat_query." $allowed_equipment_query $customer_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
-                    $region = false;
-                    $region_list = explode(',',get_config($dbc, '%_region', true));
-                    $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
-					foreach($equip_list as $equipment) {
-						$equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `clientid` SEPARATOR ',') as client_list, GROUP_CONCAT(DISTINCT `region` SEPARATOR '*#*') as region_list, GROUP_CONCAT(DISTINCT `location` SEPARATOR '*#*') as location_list, GROUP_CONCAT(DISTINCT `classification` SEPARATOR '*#*') as classification_list FROM `equipment_assignment` WHERE `equipmentid` = '".$equipment['equipmentid']."' AND `deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end')"));
-						$equip_regions = $equipment['region'].'*#*'.$equip_assign['region_list'];
-						$equip_locations = $equipment['location'].'*#*'.$equip_assign['location_list'];
-						$equip_classifications = $equipment['classification'].'*#*'.$equip_assign['classification_list'];
-						
-						$equip_regions = implode('*#*', array_filter(array_unique(explode('*#*', $equip_regions))));
-						$equip_locations = implode('*#*', array_filter(array_unique(explode('*#*', $equip_locations))));
-						$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
-						$clientids = $equip_assign['client_list'];
+			<?php $collapse_in = 'in';
+			foreach($equipment_categories as $equipment_category) { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_equipment_<?= config_safe_str($equipment_category) ?>" >
+								<span style="display: inline-block; width: calc(100% - 6em);"><?= $equipment_category ?></span><span class="glyphicon glyphicon-minus"></span>
+							</a>
+						</h4>
+					</div>
 
-						$classification_label = '';
-						if($equip_display_classification == 1 && !empty($equip_classifications)) {
-							$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
-						}
-                        if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {
-                            $region = $equipment['region'];
-                            $region_colour = '';
-                            if($region == '') {
-                                $region_label = 'No Region';
-                            } else {
-                                $region_label = implode(', ',explode('*#*',$region));
-                                $region_key = array_search($region, $region_list);
-                                if($region_key !== false) {
-                                    $region_colour = 'background-color:'.$region_colours[$region_key].';';
-                                }
-                            }
-                            echo '<div class="block-item small" style="'.$region_colour.'" data-region="'.$region.'">'.$region_label.'</div>';
-                        }
-						// $equip_regions = implode('*#*',array_filter(array_unique([$equipment['region'], $equip_assign['region']])));
-						// $equip_locations = implode('*#*',array_filter(array_unique([$equipment['location'], $equip_assign['location']])));
-						// $equip_classifications = implode('*#*',array_filter(array_unique([$equipment['classification'], $equip_assign['classification']])));
-						echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items_month(this); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) || $is_customer ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-activevalue='".$equipment['equipmentid']."'>".$equipment['label'].$classification_label."</div></a>";
-					} ?>
+					<div id="collapse_equipment_<?= config_safe_str($equipment_category) ?>" class="panel-collapse collapse <?php echo $collapse_in; $collapse_in = ''; ?>">
+						<div class="panel-body" style="overflow-y: auto; padding: 0;">
+							<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
+		                    $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
+							$date_query = date('Y-m-d');
+							if(!empty($_GET['date'])) {
+								$date_query = date('Y-m-d', strtotime($_GET['date']));
+							}
+							$date_month_start = date('Y-m-01', strtotime($date_query));
+							$date_month_end = date('Y-m-t', strtotime($date_query));
+		                    $customer_query = '';
+		                    if($is_customer) {
+		                    	$customer_equipments = getCustomerEquipment($dbc, $date_month_start, $date_month_end);
+		                    	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
+		                    }
+							$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 AND `category` = '$equipment_category' $allowed_equipment_query $customer_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
+		                    $region = false;
+		                    $region_list = explode(',',get_config($dbc, '%_region', true));
+		                    $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
+							foreach($equip_list as $equipment) {
+								$equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT GROUP_CONCAT(DISTINCT `clientid` SEPARATOR ',') as client_list, GROUP_CONCAT(DISTINCT `region` SEPARATOR '*#*') as region_list, GROUP_CONCAT(DISTINCT `location` SEPARATOR '*#*') as location_list, GROUP_CONCAT(DISTINCT `classification` SEPARATOR '*#*') as classification_list FROM `equipment_assignment` WHERE `equipmentid` = '".$equipment['equipmentid']."' AND `deleted` = 0 AND (DATE(`start_date`) BETWEEN '$date_month_start' AND '$date_month_end' OR DATE(`end_date`) BETWEEN '$date_month_start' AND '$date_month_end')"));
+								$equip_regions = $equipment['region'].'*#*'.$equip_assign['region_list'];
+								$equip_locations = $equipment['location'].'*#*'.$equip_assign['location_list'];
+								$equip_classifications = $equipment['classification'].'*#*'.$equip_assign['classification_list'];
+								
+								$equip_regions = implode('*#*', array_filter(array_unique(explode('*#*', $equip_regions))));
+								$equip_locations = implode('*#*', array_filter(array_unique(explode('*#*', $equip_locations))));
+								$equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
+								$clientids = $equip_assign['client_list'];
+
+								$classification_label = '';
+								if($equip_display_classification_ticket == 1) {
+									$equip_classifications = getEquipmentTicketClassification($dbc, $equipment['equipmentid'], $date_month_start, $date_month_end);
+									if(!empty($equip_classifications)) {
+										$classification_label = ' - '.implode(', ', $equip_classifications);
+									}
+								} else if($equip_display_classification == 1 && !empty($equip_classifications)) {
+									$classification_label = ' - '.str_replace('*#*', ', ', $equip_classifications);
+								}
+		                        if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {
+		                            $region = $equipment['region'];
+		                            $region_colour = '';
+		                            if($region == '') {
+		                                $region_label = 'No Region';
+		                            } else {
+		                                $region_label = implode(', ',explode('*#*',$region));
+		                                $region_key = array_search($region, $region_list);
+		                                if($region_key !== false) {
+		                                    $region_colour = 'background-color:'.$region_colours[$region_key].';';
+		                                }
+		                            }
+		                            echo '<div class="block-item small" style="'.$region_colour.'" data-region="'.$region.'">'.$region_label.'</div>';
+		                        }
+								// $equip_regions = implode('*#*',array_filter(array_unique([$equipment['region'], $equip_assign['region']])));
+								// $equip_locations = implode('*#*',array_filter(array_unique([$equipment['location'], $equip_assign['location']])));
+								// $equip_classifications = implode('*#*',array_filter(array_unique([$equipment['classification'], $equip_assign['classification']])));
+								echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(\"\"); retrieve_items_month(this); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) || $is_customer ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-client='".$clientids."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-activevalue='".$equipment['equipmentid']."'>".$equipment['label'].$classification_label."</div></a>";
+							} ?>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
-		<div class="active_blocks_equipment active_blocks" data-accordion="collapse_equipment" style="display: none;">
-			<?php foreach($equip_list as $equipment) { ?>
-				<div class="block-item active" data-activevalue="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
+				<div class="active_blocks_equipment active_blocks" data-accordion="collapse_equipment_<?= config_safe_str($equipment_category) ?>" style="display: none;">
+					<?php foreach($equip_list as $equipment) { ?>
+						<div class="block-item active" data-activevalue="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
+					<?php } ?>
+				</div>
 			<?php } ?>
-		</div>
 		<?php } ?>
 		<?php if($allowed_dispatch_staff > 0 && $_GET['mode'] != 'contractors' && !$is_customer) { ?>
 			<?php if($staff_split_security != 1) { ?>
@@ -460,6 +501,48 @@ if($_GET['view'] == 'monthly') {
 	} ?>
 	<input type="text" class="search-text form-control" placeholder="Search All">
 	<div class="sidebar panel-group block-panels equip_assign_div" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
+        <?php if(strpos(','.$dispatch_filters.',', ',Ticket Type,') !== FALSE) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_ticket_type">
+                            <span style="display: inline-block; width: calc(100% - 6em);"><?= TICKET_NOUN ?> Type</span><span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_ticket_type" class="panel-collapse collapse">
+                    <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                        <?php $active_tickettypes = array_filter(explode(',',get_user_settings()['appt_calendar_tickettypes']));
+                        foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                            $ticket_type_value = config_safe_str($ticket_type);
+                            if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) {
+								if($calendar_ticket_color_code_tabs == 1) {
+									$color_styling = $ticket_tabs_color[$ticket_type_value];
+                                    if(empty($color_styling)) {
+                                        $color_box = '<span style="height: 15px; width: 15px; background-color: #fff; border: 1px solid #888; float: right; margin-left: 0.5em;"><svg style="width: 100%; height: 100%; position: relative; top: -2px;"><line x1="0" y1="100%" x2="100%" y2="0"
+                                                    style="stroke:#888;stroke-width:1"/></svg></span>';
+                                    } else {
+                                        $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
+                                    }
+								} else {
+									$color_box = '';
+								}
+                                echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type.$color_box."</div></a>";
+                            }
+                        } ?>
+                    </div>
+                </div>
+            </div>
+            <div class="active_blocks" data-accordion="collapse_ticket_type" style="display: none;">
+                <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                    $ticket_type_value = config_safe_str($ticket_type);
+                    if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) { ?>
+                        <div class="block-item active" data-activevalue="<?= $ticket_type_value ?>"><?= $ticket_type ?></div> 
+                    <?php }
+                } ?>
+            </div>
+        <?php } ?>
 		<?php if(count($contact_regions) > 0 && strpos(",$dispatch_filters,", ",Region,") !== FALSE && !$is_customer) { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -479,7 +562,7 @@ if($_GET['view'] == 'monthly') {
 					if(!empty($region_colours[$region_line])) {
 						$color_styling = $region_colours[$region_line];
 					}
-					$color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right;"></span>';
+					$color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
 					if(in_array($region, $allowed_regions)) {
 						echo "<a href='' onclick='$(this).closest(\".panel\").find(\".block-item\").not($(this).find(\".block-item\")).removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-region='".$region."' data-activevalue='".$region."'>".$region.$color_box."</div></a>";
 					}
@@ -578,56 +661,59 @@ if($_GET['view'] == 'monthly') {
 					<?php } ?>
 				</div>
 			<?php } ?>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_equipment" >
-						<span style="display: inline-block; width: calc(100% - 6em);"><?= $equipment_category ?></span><span class="glyphicon glyphicon-minus"></span>
-					</a>
-				</h4>
-			</div>
+			<?php $collapse_in = 'in';
+			foreach($equipment_categories as $equipment_category) { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_equipment_<?= config_safe_str($equipment_category) ?>" >
+								<span style="display: inline-block; width: calc(100% - 6em);"><?= $equipment_category ?></span><span class="glyphicon glyphicon-minus"></span>
+							</a>
+						</h4>
+					</div>
 
-			<div id="collapse_equipment" class="panel-collapse collapse in">
-				<div class="panel-body" style="overflow-y: auto; padding: 0;">
-					<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
-                    $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-                    $customer_query = '';
-                    if($is_customer) {
-                    	$customer_equipments = getCustomerEquipment($dbc, $week_start_date_check, $week_end_date_check);
-                    	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
-                    }
-					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".$equip_cat_query." $allowed_equipment_query $customer_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
-					if(empty($equipment_id)) {
-						$equipment_id = $equip_list[0]['equipmentid'];
-					}
-                    $region = false;
-                    $region_list = explode(',',get_config($dbc, '%_region', true));
-                    $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
-					foreach($equip_list as $equipment) {
-                        if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {
-                            $region = $equipment['region'];
-                            $region_colour = '';
-                            if($region == '') {
-                                $region_label = 'No Region';
-                            } else {
-                                $region_label = implode(', ',explode('*#*',$region));
-                                $region_key = array_search($region, $region_list);
-                                if($region_key !== false) {
-                                    $region_colour = 'background-color:'.$region_colours[$region_key].';';
-                                }
-                            }
-                            echo '<div class="block-item small" style="'.$region_colour.'" data-region="'.$region.'">'.$region_label.'</div>';
-                        }
-						echo getEquipmentAssignmentBlock($dbc, $equipment['equipmentid'], $_GET['view'], $calendar_start);
-					} ?>
+					<div id="collapse_equipment_<?= config_safe_str($equipment_category) ?>" class="panel-collapse collapse <?php echo $collapse_in; $collapse_in = ''; ?>">
+						<div class="panel-body" style="overflow-y: auto; padding: 0;">
+							<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
+		                    $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
+		                    $customer_query = '';
+		                    if($is_customer) {
+		                    	$customer_equipments = getCustomerEquipment($dbc, $week_start_date_check, $week_end_date_check);
+		                    	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
+		                    }
+							$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 AND `category` = '$equipment_category' $allowed_equipment_query $customer_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
+							if(empty($equipment_id)) {
+								$equipment_id = $equip_list[0]['equipmentid'];
+							}
+		                    $region = false;
+		                    $region_list = explode(',',get_config($dbc, '%_region', true));
+		                    $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
+							foreach($equip_list as $equipment) {
+		                        if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {
+		                            $region = $equipment['region'];
+		                            $region_colour = '';
+		                            if($region == '') {
+		                                $region_label = 'No Region';
+		                            } else {
+		                                $region_label = implode(', ',explode('*#*',$region));
+		                                $region_key = array_search($region, $region_list);
+		                                if($region_key !== false) {
+		                                    $region_colour = 'background-color:'.$region_colours[$region_key].';';
+		                                }
+		                            }
+		                            echo '<div class="block-item small" style="'.$region_colour.'" data-region="'.$region.'">'.$region_label.'</div>';
+		                        }
+								echo getEquipmentAssignmentBlock($dbc, $equipment['equipmentid'], $_GET['view'], $calendar_start);
+							} ?>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
-		<div class="active_blocks_equipment active_blocks" data-accordion="collapse_equipment" style="display: none;">
-			<?php foreach($equip_list as $equipment) { ?>
-				<div class="block-item active" data-activevalue="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
+				<div class="active_blocks_equipment active_blocks" data-accordion="collapse_equipment_<?= config_safe_str($equipment_category) ?>" style="display: none;">
+					<?php foreach($equip_list as $equipment) { ?>
+						<div class="block-item active" data-activevalue="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
+					<?php } ?>
+				</div>
 			<?php } ?>
-		</div>
 		<?php } ?>
 		<?php if($allowed_dispatch_staff > 0 && $_GET['mode'] != 'contractors' && !$is_customer) { ?>
 			<?php if($staff_split_security != 1) { ?>
@@ -878,6 +964,48 @@ if($_GET['view'] == 'monthly') {
 	} ?>
 	<input type="text" class="search-text form-control" placeholder="Search All">
 	<div class="sidebar panel-group block-panels equip_assign_div" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
+        <?php if(strpos(','.$dispatch_filters.',', ',Ticket Type,') !== FALSE) { ?>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_ticket_type">
+                            <span style="display: inline-block; width: calc(100% - 6em);"><?= TICKET_NOUN ?> Type</span><span class="glyphicon glyphicon-plus"></span>
+                        </a>
+                    </h4>
+                </div>
+
+                <div id="collapse_ticket_type" class="panel-collapse collapse">
+                    <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                        <?php $active_tickettypes = array_filter(explode(',',get_user_settings()['appt_calendar_tickettypes']));
+                        foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                            $ticket_type_value = config_safe_str($ticket_type);
+                            if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) {
+								if($calendar_ticket_color_code_tabs == 1) {
+									$color_styling = $ticket_tabs_color[$ticket_type_value];
+                                    if(empty($color_styling)) {
+                                        $color_box = '<span style="height: 15px; width: 15px; background-color: #fff; border: 1px solid #888; float: right; margin-left: 0.5em;"><svg style="width: 100%; height: 100%; position: relative; top: -2px;"><line x1="0" y1="100%" x2="100%" y2="0"
+                                                    style="stroke:#888;stroke-width:1"/></svg></span>';
+                                    } else {
+                                        $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
+                                    }
+								} else {
+									$color_box = '';
+								}
+                                echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type.$color_box."</div></a>";
+                            }
+                        } ?>
+                    </div>
+                </div>
+            </div>
+            <div class="active_blocks" data-accordion="collapse_ticket_type" style="display: none;">
+                <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                    $ticket_type_value = config_safe_str($ticket_type);
+                    if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) { ?>
+                        <div class="block-item active" data-activevalue="<?= $ticket_type_value ?>"><?= $ticket_type ?></div> 
+                    <?php }
+                } ?>
+            </div>
+        <?php } ?>
 		<?php if(count($contact_regions) > 0 && strpos(",$dispatch_filters,", ",Region,") !== FALSE && !$is_customer) { ?>
 		<div class="panel panel-default">
 			<div class="panel-heading">
@@ -897,7 +1025,7 @@ if($_GET['view'] == 'monthly') {
 					if(!empty($region_colours[$region_line])) {
 						$color_styling = $region_colours[$region_line];
 					}
-					$color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right;"></span>';
+					$color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
 					if(in_array($region, $allowed_regions)) {
 						echo "<a href='' onclick='$(this).closest(\".panel\").find(\".block-item\").not($(this).find(\".block-item\")).removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-region='".$region."' data-activevalue='".$region."'>".$region.$color_box."</div></a>";
 					}
@@ -996,56 +1124,59 @@ if($_GET['view'] == 'monthly') {
 					<?php } ?>
 				</div>
 			<?php } ?>
-		<div class="panel panel-default">
-			<div class="panel-heading">
-				<h4 class="panel-title">
-					<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_equipment" >
-						<span style="display: inline-block; width: calc(100% - 6em);"><?= $equipment_category ?></span><span class="glyphicon glyphicon-minus"></span>
-					</a>
-				</h4>
-			</div>
+			<?php $collapse_in = 'in';
+			foreach($equipment_categories as $equipment_category) { ?>
+				<div class="panel panel-default">
+					<div class="panel-heading">
+						<h4 class="panel-title">
+							<a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_equipment_<?= config_safe_str($equipment_category) ?>" >
+								<span style="display: inline-block; width: calc(100% - 6em);"><?= $equipment_category ?></span><span class="glyphicon glyphicon-minus"></span>
+							</a>
+						</h4>
+					</div>
 
-			<div id="collapse_equipment" class="panel-collapse collapse in">
-				<div class="panel-body" style="overflow-y: auto; padding: 0;">
-					<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
-                    $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
-                    $customer_query = '';
-                    if($is_customer) {
-                    	$customer_equipments = getCustomerEquipment($dbc, $calendar_start, $calendar_start);
-                    	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
-                    }
-					$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(`category`, ' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 ".$equip_cat_query." $allowed_equipment_query $customer_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
-					if(empty($equipment_id)) {
-						$equipment_id = $equip_list[0]['equipmentid'];
-					}
-                    $region = false;
-                    $region_list = explode(',',get_config($dbc, '%_region', true));
-                    $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
-					foreach($equip_list as $equipment) {
-                        if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {
-                            $region = $equipment['region'];
-                            $region_colour = '';
-                            if($region == '') {
-                                $region_label = 'No Region';
-                            } else {
-                                $region_label = implode(', ',explode('*#*',$region));
-                                $region_key = array_search($region, $region_list);
-                                if($region_key !== false) {
-                                    $region_colour = 'background-color:'.$region_colours[$region_key].';';
-                                }
-                            }
-                            echo '<div class="block-item small" style="'.$region_colour.'" data-region="'.$region.'">'.$region_label.'</div>';
-                        }
-						echo getEquipmentAssignmentBlock($dbc, $equipment['equipmentid'], $_GET['view'], $calendar_start);
-					} ?>
+					<div id="collapse_equipment_<?= config_safe_str($equipment_category) ?>" class="panel-collapse collapse <?php echo $collapse_in; $collapse_in = ''; ?>">
+						<div class="panel-body" style="overflow-y: auto; padding: 0;">
+							<?php $equip_options = explode(',',get_config($dbc,'equip_options'));
+		                    $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
+		                    $customer_query = '';
+		                    if($is_customer) {
+		                    	$customer_equipments = getCustomerEquipment($dbc, $calendar_start, $calendar_start);
+		                    	$customer_query .= " AND `equipmentid` IN (".implode(',', $customer_equipments).")";
+		                    }
+							$equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 AND `category` = '$equipment_category' $allowed_equipment_query $customer_query ORDER BY ".(in_array('region_sort',$equip_options) ? "IFNULL(NULLIF(`region`,''),'ZZZ'), " : '')."`label`"),MYSQLI_ASSOC);
+							if(empty($equipment_id)) {
+								$equipment_id = $equip_list[0]['equipmentid'];
+							}
+		                    $region = false;
+		                    $region_list = explode(',',get_config($dbc, '%_region', true));
+		                    $region_colours = explode(',',get_config($dbc, '%_region_colour', true));
+							foreach($equip_list as $equipment) {
+		                        if(in_array('region_sort',$equip_options) && $region != $equipment['region']) {
+		                            $region = $equipment['region'];
+		                            $region_colour = '';
+		                            if($region == '') {
+		                                $region_label = 'No Region';
+		                            } else {
+		                                $region_label = implode(', ',explode('*#*',$region));
+		                                $region_key = array_search($region, $region_list);
+		                                if($region_key !== false) {
+		                                    $region_colour = 'background-color:'.$region_colours[$region_key].';';
+		                                }
+		                            }
+		                            echo '<div class="block-item small" style="'.$region_colour.'" data-region="'.$region.'">'.$region_label.'</div>';
+		                        }
+								echo getEquipmentAssignmentBlock($dbc, $equipment['equipmentid'], $_GET['view'], $calendar_start);
+							} ?>
+						</div>
+					</div>
 				</div>
-			</div>
-		</div>
-		<div class="active_blocks_equipment active_blocks" data-accordion="collapse_equipment" style="display: none;">
-			<?php foreach($equip_list as $equipment) { ?>
-				<div class="block-item active" data-activevalue="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
+				<div class="active_blocks_equipment active_blocks" data-accordion="collapse_equipment_<?= config_safe_str($equipment_category) ?>" style="display: none;">
+					<?php foreach($equip_list as $equipment) { ?>
+						<div class="block-item active" data-activevalue="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
+					<?php } ?>
+				</div>
 			<?php } ?>
-		</div>
 		<?php } ?>
 		<?php if($allowed_dispatch_staff > 0 && $_GET['mode'] != 'contractors' && !$is_customer) { ?>
 			<?php if($staff_split_security != 1) { ?>

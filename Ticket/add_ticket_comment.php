@@ -113,7 +113,6 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 			  <?php $category = ($comment_type == 'member_note' ? $category : "Staff"); ?>
 			  <div class="col-sm-8">
 				<select data-placeholder="Select <?= $category ?>..." name="assign[]" multiple class="chosen-select-deselect form-control">
-				  <option value=""></option>
 					<?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category $comment_category AND CONCAT(IFNULL(`first_name`,''),IFNULL(`last_name`,'')) != '' AND deleted=0 AND `status`>0"));
 					foreach($query as $contact) {
 						echo "<option value='". $contact['contactid']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
@@ -129,7 +128,7 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 				'.TICKET_NOUN.' Heading: [HEADING]<br>
 				Status: [STATUS]<br>
 				Please click the '.TICKET_NOUN.' link below to view all information.<br>
-				<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]">'.TICKET_NOUN.' #[TICKETID]</a><br>'; ?>
+				<a target="_blank" href="'.WEBSITE_URL.'/Ticket/index.php?edit=[TICKETID]'.(empty($_GET['tile_name']) ? '' : '&tile_name='.$_GET['tile_name']).(empty($_GET['tile_group']) ? '' : '&tile_group='.$_GET['tile_group']).'">'.TICKET_NOUN.' #[TICKETID]</a><br>'; ?>
 		<script>
 		<?php if(strpos($value_config, ',Notes Email Default On,') !== FALSE && $_GET['contact_note'] != 1 && $comment_type == 'note') { ?>
 			$(document).ready(function() {
@@ -154,7 +153,6 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 					<label class="col-sm-4 control-label">Alert:</label>
 					<div class="col-sm-8">
 						<select name="assign_role[]" multiple class="chosen-select-deselect form-control">
-							<option></option>
 							<?php $ticket_notes_alert_role = get_config($dbc, 'ticket_notes_alert_role');
 							$on_security = get_security_levels($dbc);
 							foreach($on_security as $category => $value) {
@@ -190,7 +188,7 @@ if($access_any > 0 || $_GET['force_allow'] == 1) {
 					<textarea name="body" class="form-control"><?php echo $body; ?></textarea>
 				</div>
 			</div>
-			<button class="btn brand-btn pull-right" name="submit" value="email">Send Email</button>
+			<button class="btn brand-btn pull-right" name="submit" data-history-label="Send Note as Email" value="email">Send Email</button>
 		</div>
 		<a class="btn brand-btn pull-left" href="../blank_loading_page.php">Cancel</a>
 		<button class="btn brand-btn pull-right" name="submit" value="add">Add Note</button>

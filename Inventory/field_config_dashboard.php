@@ -101,11 +101,11 @@ $get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`or
                 <div class="panel-body">
 
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Description".',') !== false) { echo " checked"; } ?> value="Description" name="inventory_dashboard[]">&nbsp;&nbsp;Description
-                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Category".',') !== false) { echo " checked"; } ?> value="Category" name="inventory_dashboard[]">&nbsp;&nbsp;Category
-                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Subcategory".',') !== false) { echo " checked"; } ?> value="Subcategory" name="inventory_dashboard[]">&nbsp;&nbsp;Subcategory
+                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Category".',') !== false) { echo " checked"; } ?> value="Category" name="inventory_dashboard[]">&nbsp;&nbsp;Tab
+                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Subcategory".',') !== false) { echo " checked"; } ?> value="Subcategory" name="inventory_dashboard[]">&nbsp;&nbsp;Subtab
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Name".',') !== false) { echo " checked"; } ?> value="Name" name="inventory_dashboard[]">&nbsp;&nbsp;Name
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Product Name".',') !== false) { echo " checked"; } ?> value="Product Name" name="inventory_dashboard[]">&nbsp;&nbsp;Product Name
-                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Type".',') !== false) { echo " checked"; } ?> value="Type" name="inventory_dashboard[]">&nbsp;&nbsp;Type
+                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Type".',') !== false) { echo " checked"; } ?> value="Type" name="inventory_dashboard[]">&nbsp;&nbsp;Tab
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Color".',') !== false) { echo " checked"; } ?> value="Color" name="inventory_dashboard[]">&nbsp;&nbsp;Color
 
                 </div>
@@ -231,7 +231,6 @@ $get_field_order = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT GROUP_CONCAT(`or
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Commission Price".',') !== false) { echo " checked"; } ?> value="Commission Price" name="inventory_dashboard[]">&nbsp;&nbsp;Commission Price
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."MSRP".',') !== false) { echo " checked"; } ?> value="MSRP" name="inventory_dashboard[]">&nbsp;&nbsp;MSRP
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Unit Price".',') !== false) { echo " checked"; } ?> value="Unit Price" name="inventory_dashboard[]">&nbsp;&nbsp;Unit Price
-                    <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Unit Cost".',') !== false) { echo " checked"; } ?> value="Unit Cost" name="inventory_dashboard[]">&nbsp;&nbsp;Unit Cost
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Purchase Order Price".',') !== false) { echo " checked"; } ?> value="Purchase Order Price" name="inventory_dashboard[]">&nbsp;&nbsp;Purchase Order Price
                     <input type="checkbox" <?php if (strpos($inventory_dashboard_config, ','."Sales Order Price".',') !== false) { echo " checked"; } ?> value="Sales Order Price" name="inventory_dashboard[]">&nbsp;&nbsp;<?= SALES_ORDER_NOUN ?> Price
                     <input type="checkbox" <?php if (strpos($value_config, ','."Drum Unit Cost".',') !== false) { echo " checked"; } ?> value="Drum Unit Cost" name="inventory_dashboard[]">&nbsp;&nbsp;Drum Unit Cost

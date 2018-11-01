@@ -94,8 +94,7 @@ function send_csv(a) {
         if(config_visible_function_custom($dbc)) {
             echo '<a href="field_config.php?from_url=time_card_approvals_manager.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a><br><br>';
         }
-        ?>
-        <img class="no-toggle statusIcon pull-right no-margin inline-img small" title="" src="" data-original-title=""></h1>
+        ?></h1>
 
         <form id="form1" name="form1" method="GET" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
 			<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
@@ -163,7 +162,6 @@ function send_csv(a) {
                 </div>
                   <div class="col-lg-4 col-md-3 col-sm-8 col-xs-8">
                       <select data-placeholder="Select Staff Members" multiple name="search_staff[]" class="chosen-select-deselect form-control" style="width: 20%;float: left;margin-right: 10px;" width="380">
-                      <option value=""></option>
                       <option value="ALL_STAFF">Select All Staff</option>
                       <?php
                         $query = mysqli_query($dbc,"SELECT `supervisor`, `position`, `staff_list`, `security_level_list` FROM `field_config_supervisor` WHERE `supervisor`='".$_SESSION['contactid']."' OR (SELECT CONCAT(',',`staff_list`,',') FROM `field_config_supervisor` WHERE `supervisor`='".$_SESSION['contactid']."' AND `position` = 'Manager') LIKE CONCAT('%,',`supervisor`,',%')");
@@ -255,8 +253,7 @@ function send_csv(a) {
 						</div>
 	                <?php } ?>
                 </div>
-</form>
-        <br><br><br>
+        </form>
 
 			<?php if(get_config($dbc, 'timesheet_approval_import_export') == '1') { ?>
              <form id="form_csv" name="form_csv" action="time_cards_csv.php?import_csv=1&back_url=<?= urlencode($_SERVER['REQUEST_URI']) ?>" method="POST" enctype="multipart/form-data" class="form-horizontal" role="form">
@@ -277,6 +274,22 @@ function send_csv(a) {
 				$value_config = array_merge($value_config,['reg_hrs','extra_hrs','relief_hrs','sleep_hrs','sick_hrs','sick_used','stat_hrs','stat_used','vaca_hrs','vaca_used']);
 			} ?>
 
+            <?php
+            $highlight = get_config($dbc, 'timesheet_highlight');
+            $mg_highlight = get_config($dbc, 'timesheet_manager');
+
+            $timesheet_legend = '<b>Color Code:</b><br>';
+                $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: red;"></div>Overlapping Time Conflict</label><br />';
+                $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: '.$mg_highlight.';"></div>Edit by Manager</label><br />';
+                $timesheet_legend .= '<label><div class="ticket-status-color" style="background-color: '.$highlight.';"></div>Edit by User</label><br />';
+            ?>
+
+            <div class="block-button offset-right-10 dispatch-legend-block pull-right" style="position: relative;">
+                <div class="block-button dispatch-status-legend" style="display: none; width: 20em; position: absolute; top: 50%; right: 50%;"><?= $timesheet_legend ?></div>
+                <img src="../img/legend-icon.png" class="dispatch-legend-img">
+            </div>
+            <div class="clearfix"></div>
+
 			<?php if(in_array('approve_all', $value_config)) { ?>
 	            <div class="pull-right">
 	            	<label><input type="checkbox" name="approve_all_staff" onclick="approveAll(this, 'ALL');"> Select All Approve Checkboxes</label>
@@ -291,8 +304,9 @@ function send_csv(a) {
             $tb_field = $value['config_field'];
             if($search_staff_list != '') {
 				foreach(array_filter(array_unique($search_staff_list), function($id) { return $id != 'ALL_STAFF'; }) as $search_staff) {
+                    echo '<div class="status_group">';
 					if(count($search_staff_list) > 1) {
-						echo "<h2>".get_contact($dbc, $search_staff)."</h2>";
+						echo "<h2>".get_contact($dbc, $search_staff)."<img src='../img/empty.png' class='statusIcon inline-img no-toggle no-margin'></h2>";
 					}
 					$filter = ' AND (staff = "'.$search_staff.'")';
 					if($search_site != '') {
@@ -522,6 +536,7 @@ function send_csv(a) {
 							echo '<button type="submit" value="rate_timesheet" name="submit" class="btn brand-btn mobile-block pull-right">Update Hours</button>';
 						endif;
 					endif;
+                    echo '</div>';
 				}
             } else {
 				echo "<h3>Please select a staff member.</h3>";

@@ -84,13 +84,28 @@ function deleteStyle(img) {
 		<div class="panel-heading">
 			<h4 class="panel-title">
 				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_fields">
-					<?= ESTIMATE_TILE ?> Fields<span class="glyphicon glyphicon-plus"></span>
+					Fields for <?= PROJECT_NOUN ?> and One Time <?= ESTIMATE_TILE ?><span class="glyphicon glyphicon-plus"></span>
 				</a>
 			</h4>
 		</div>
 
 		<div id="collapse_fields" class="panel-collapse collapse">
 			<div class="panel-body" data-file="field_config_fields.php">
+				Loading...
+			</div>
+		</div>
+	</div>
+	<div class="panel panel-default">
+		<div class="panel-heading">
+			<h4 class="panel-title">
+				<a data-toggle="collapse" data-parent="#settings_accordions" href="#collapse_ticket_fields">
+					Fields for <?= TICKET_NOUN ?> <?= ESTIMATE_TILE ?><span class="glyphicon glyphicon-plus"></span>
+				</a>
+			</h4>
+		</div>
+
+		<div id="collapse_fields" class="panel-collapse collapse">
+			<div class="panel-body" data-file="field_config_ticket_fields.php">
 				Loading...
 			</div>
 		</div>
@@ -118,7 +133,8 @@ function deleteStyle(img) {
 		<a href="?settings=types"><li class="<?= $_GET['settings'] == 'types' ? 'active blue' : '' ?>"><?= rtrim(ESTIMATE_TILE, 's') ?> Types</li></a>
 		<a href="?settings=groups"><li class="<?= $_GET['settings'] == 'groups' ? 'active blue' : '' ?>">Staff Collaboration Groups</li></a>
 		<a href="?settings=dashboard"><li class="<?= $_GET['settings'] == 'dashboard' ? 'active blue' : '' ?>">Dashboard Settings</li></a>
-		<a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>"><?= rtrim(ESTIMATE_TILE, 's') ?> Fields</li></a>
+		<a href="?settings=fields"><li class="<?= $_GET['settings'] == 'fields' ? 'active blue' : '' ?>">Fields for <?= PROJECT_NOUN ?> and One Time <?= ESTIMATE_TILE ?></li></a>
+		<a href="?settings=ticket_fields"><li class="<?= $_GET['settings'] == 'ticket_fields' ? 'active blue' : '' ?>">Fields for <?= TICKET_NOUN ?> <?= ESTIMATE_TILE ?></li></a>
 		<a href="?settings=reporting"><li class="<?= $_GET['settings'] == 'reporting' ? 'active blue' : '' ?>">Reporting</li></a>
 		<a href="?settings=pdf_options"><li class="<?= $_GET['settings'] == 'pdf_options' ? 'active blue' : '' ?>">PDF Options</li></a>
 		<li><a class="<?= $_GET['settings'] == 'pdf' ? '' : 'collapsed' ?> cursor-hand" data-toggle="collapse" data-target="#collapse_estimate_designs"><?= ESTIMATE_TILE ?> Designs<span class="arrow"></span></a>
@@ -174,6 +190,9 @@ function deleteStyle(img) {
 		case 'pdf':
 			include('field_config_pdf.php');
 			break;
+		case 'ticket_fields':
+            include('field_config_ticket_fields.php');
+            break;
 		case 'status':
 		default:
 			include('field_config_status.php');

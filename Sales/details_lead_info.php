@@ -1,4 +1,5 @@
 <!-- Lead Information -->
+<?php include_once('../Sales/config.php'); ?>
 <script type="text/javascript">
 $(document).ready(function() {
     $("#task_businessid").change(function() {
@@ -12,7 +13,7 @@ $(document).ready(function() {
 					var arr = response.split('**#**');
 					$('#sales_contact').html(arr[0]);
 					$("#sales_contact").trigger("change.select2");
-					
+
 					if(arr[4] != 'No' && arr[3] != 'No') {
 						$(".estimate").html("<a href=\"#\" onclick=\"window.open('<?= WEBSITE_URL; ?>/Estimate/add_estimate.php?estimateid="+arr[3]+"', \'newwindow\', \'width=900, height=900\'); return false;\">Click to View Estimate</a>");
 
@@ -55,7 +56,7 @@ $(document).ready(function() {
 
 <div class="accordion-block-details padded" id="leadinfo">
     <div class="accordion-block-details-heading"><h4>Lead Information</h4></div>
-    
+
     <?php if (strpos($value_config, ',Lead Information Lead Value,') !== false) { ?>
         <div class="row set-row-height">
             <div class="col-xs-12 col-sm-4 gap-md-left-15">Lead Value:</div>
@@ -63,13 +64,13 @@ $(document).ready(function() {
             <div class="clearfix"></div>
         </div>
     <?php } ?>
-    
+
     <div class="row set-row-height">
         <div class="col-xs-12 col-sm-4 gap-md-left-15">Estimated Close Date:</div>
         <div class="col-xs-12 col-sm-5"><input data-table="sales" name="estimated_close_date" value="<?= $estimated_close_date; ?>" type="text" class="datepicker form-control" /></div>
         <div class="clearfix"></div>
     </div>
-    
+
     <!-- Lead Source -->
     <?php $lead_source_tabs = array_filter(explode(',',get_config($dbc, 'sales_lead_source')));
     $lead_source = explode('#*#', $lead_source);
@@ -124,7 +125,7 @@ $(document).ready(function() {
             </div><!-- .row -->
         <?php }
     } ?>
-    
+
     <?php if(strpos($value_config, ','."Lead Source Business".',') !== FALSE) {
         foreach($lead_sources['Business'] as $lead_source) { ?>
             <div class="row lead_source_business">
@@ -139,7 +140,7 @@ $(document).ready(function() {
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-1">
-                    <img class="inline-img cursor-hand pull-left no-toggle" title="View this contact's profile" src="../img/person.PNG" onclick="view_profile(this,'Contacts/contacts_inbox.php?fields=all_fields&edit=');">
+                    <img class="inline-img cursor-hand pull-left no-toggle" title="View this contact's profile" src="../img/person.PNG" onclick="load_profile(this,'Contacts/contacts_inbox.php?fields=all_fields&edit=');">
                     <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
                     <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
                 </div>
@@ -147,7 +148,7 @@ $(document).ready(function() {
             </div><!-- .row -->
         <?php }
     } ?>
-    
+
     <?php if(strpos($value_config, ','."Lead Source Contact".',') !== FALSE) {
         foreach($lead_sources['Contact'] as $lead_source) { ?>
             <div class="row lead_source_contact">
@@ -164,7 +165,7 @@ $(document).ready(function() {
                     </select>
                 </div>
                 <div class="col-xs-12 col-sm-1">
-                    <img class="inline-img cursor-hand pull-left no-toggle" title="View this contact's profile" src="../img/person.PNG" onclick="view_profile(this,'Contacts/contacts_inbox.php?fields=all_fields&edit=');">
+                    <img class="inline-img cursor-hand pull-left no-toggle" title="View this contact's profile" src="../img/person.PNG" onclick="load_profile(this,'Contacts/contacts_inbox.php?fields=all_fields&edit=');">
                     <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
                     <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
                 </div>
@@ -172,7 +173,7 @@ $(document).ready(function() {
             </div><!-- .row -->
         <?php }
     } ?>
-    
+
     <?php if(strpos($value_config, ','."Lead Source Other".',') !== FALSE) {
         foreach($lead_sources['Other'] as $lead_source) { ?>
             <div class="row lead_source_other">
@@ -188,6 +189,6 @@ $(document).ready(function() {
             </div><!-- .row -->
         <?php }
     } ?>
-    
+
     <div class="clearfix"></div>
 </div>

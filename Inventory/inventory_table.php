@@ -118,10 +118,10 @@ if($num_rows > 0) {
 			echo '<th>Description</th>';
 		}
 		if (strpos($value_config, ','."Category".',') !== FALSE) {
-			echo '<th>Category</th>';
+			echo '<th>Tab</th>';
 		}
 		if (strpos($value_config, ','."Subcategory".',') !== FALSE) {
-			echo '<th>Subcategory</th>';
+			echo '<th>Subtab</th>';
 		}
 		if (strpos($value_config, ','."Name".',') !== FALSE) {
 			echo '<th><span class="popover-examples" style="margin:0 2px 0 0;"><a data-toggle="tooltip" data-placement="top" title="The set name of the inventory item."><img src="' . WEBSITE_URL . '/img/info-w.png" width="18"></a></span> Name</th>';
@@ -130,36 +130,11 @@ if($num_rows > 0) {
 			echo '<th>Product Name</th>';
 		}
 		if (strpos($value_config, ','."Type".',') !== FALSE) {
-			echo '<th>Type</th>';
+			echo '<th>Tab</th>';
 		}
 		if (strpos($value_config, ','."Color".',') !== FALSE) {
 			echo '<th>Color</th>';
 		}
-
-		/* Remove Kristi's (SEA) access to Product Costs */
-		if ( $rookconnect == 'sea' && isset ( $_SESSION['user_name'] ) && $_SESSION['user_name'] == 'kristi' ) {
-			// Show nothing
-		} else {
-			if (strpos($value_config, ','."Cost".',') !== FALSE) {
-				echo '<th>Cost</th>';
-			}
-			if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
-				echo '<th>CDN Cost Per Unit</th>';
-			}
-			if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
-				echo '<th>USD Cost Per Unit</th>';
-			}
-			if (strpos($value_config, ','."Average Cost".',') !== FALSE) {
-				echo '<th>Average Cost</th>';
-			}
-			if (strpos($value_config, ','."Purchase Cost".',') !== FALSE) {
-				echo '<th>Purchase Cost</th>';
-			}
-			if (strpos($value_config, ','."USD Invoice".',') !== FALSE) {
-				echo '<th>USD Invoice</th>';
-			}
-		}
-
 		if (strpos($value_config, ','."COGS".',') !== FALSE) {
 			echo '<th>COGS GL Code</th>';
 		}
@@ -276,10 +251,53 @@ if($num_rows > 0) {
 		if (strpos($value_config, ','."MSRP".',') !== FALSE) {
 			echo '<th>MSRP</th>';
 		}
-
 		if (strpos($value_config, ','."Unit Price".',') !== FALSE) {
 			echo '<th>Unit Price</th>';
 		}
+		
+		if ( $rookconnect == 'sea' ) {
+			// On SEA software only allow George to see the cost
+			if ( isset ( $_SESSION['user_name'] ) && $_SESSION['user_name'] == 'georgev' ) {
+				if (strpos($value_config, ','."Cost".',') !== FALSE) {
+					echo '<th>Cost</th>';
+				}
+				if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
+					echo '<th>CDN Cost Per Unit</th>';
+				}
+				if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
+					echo '<th>USD Cost Per Unit</th>';
+				}
+				if (strpos($value_config, ','."Average Cost".',') !== FALSE) {
+					echo '<th>Average Cost</th>';
+				}
+				if (strpos($value_config, ','."Purchase Cost".',') !== FALSE) {
+					echo '<th>Purchase Cost</th>';
+				}
+				if (strpos($value_config, ','."USD Invoice".',') !== FALSE) {
+					echo '<th>USD Invoice</th>';
+				}
+			}
+		} else {
+			if (strpos($value_config, ','."Cost".',') !== FALSE) {
+				echo '<th>Cost</th>';
+			}
+			if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
+				echo '<th>CDN Cost Per Unit</th>';
+			}
+			if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
+				echo '<th>USD Cost Per Unit</th>';
+			}
+			if (strpos($value_config, ','."Average Cost".',') !== FALSE) {
+				echo '<th>Average Cost</th>';
+			}
+			if (strpos($value_config, ','."Purchase Cost".',') !== FALSE) {
+				echo '<th>Purchase Cost</th>';
+			}
+			if (strpos($value_config, ','."USD Invoice".',') !== FALSE) {
+				echo '<th>USD Invoice</th>';
+			}
+		}
+
 		if (strpos($value_config, ','."Unit Cost".',') !== FALSE) {
 			echo '<th>Unit Cost</th>';
 		}
@@ -501,10 +519,10 @@ if($num_rows > 0) {
 			echo '<td data-title="Desc.">' . $row['part_no'] . '</td>';
 		}
 		if (strpos($value_config, ','."Category".',') !== FALSE) {
-			echo '<td data-title="Category">' . $row['category'] . '</td>';
+			echo '<td data-title="Tab">' . $row['category'] . '</td>';
 		}
 		if (strpos($value_config, ','."Subcategory".',') !== FALSE) {
-			echo '<td data-title="Sub Category">' . $row['sub_category'] . '</td>';
+			echo '<td data-title="Sub Tab">' . $row['sub_category'] . '</td>';
 		}
 		if (strpos($value_config, ','."Name".',') !== FALSE) {
 			echo '<td data-title="Name">' . $row['name'] . '</td>';
@@ -513,36 +531,11 @@ if($num_rows > 0) {
 			echo '<td data-title="Prod. Name">' . $row['product_name'] . '</td>';
 		}
 		if (strpos($value_config, ','."Type".',') !== FALSE) {
-			echo '<td data-title="Type">' . $row['type'] . '</td>';
+			echo '<td data-title="Tab">' . $row['type'] . '</td>';
 		}
 		if (strpos($value_config, ','."Color".',') !== FALSE) {
 			echo '<td data-title="Color">' . $row['color'] . '</td>';
 		}
-
-		/* Remove Kristi's (SEA) access to Product Costs */
-		if ( $rookconnect == 'sea' && isset ( $_SESSION['user_name'] ) && $_SESSION['user_name'] == 'kristi' ) {
-			// Show nothing
-		} else {
-			if (strpos($value_config, ','."Cost".',') !== FALSE) {
-				echo '<td data-title="Cost">' . $row['cost'] . '</td>';
-			}
-			if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
-			   echo '<td data-title="CAD/Unit">' . $row['cdn_cpu'] . '</td>';
-			}
-			if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
-				echo '<td data-title="USD/Unit">' . $row['usd_cpu'] . '</td>';
-			}
-			if (strpos($value_config, ','."Average Cost".',') !== FALSE) {
-				echo '<td data-title="Avg. Cost">' . ($row['average_cost'] > 0 ? $row['average_cost'] : ($row['cost'] > 0 ? $row['cost'] : ($row['unit_cost'] > 0 ? $row['unit_cost'] : $row['purchase_cost']))) . '</td>';
-			}
-			if (strpos($value_config, ','."Purchase Cost".',') !== FALSE) {
-				echo '<td data-title="Purchase Cost">' . $row['purchase_cost'] . '</td>';
-			}
-			if (strpos($value_config, ','."USD Invoice".',') !== FALSE) {
-				echo '<td data-title="USD Invoice">' . $row['usd_invoice'] . '</td>';
-			}
-		}
-
 		if (strpos($value_config, ','."COGS".',') !== FALSE) {
 			echo '<td data-title="COGS">' . $row['cogs_total'] . '</td>';
 		}
@@ -700,6 +693,50 @@ if($num_rows > 0) {
 		if (strpos($value_config, ','."Unit Price".',') !== FALSE) {
 			echo '<td data-title="Unit Price">' . $row['unit_price'] . '</td>';
 		}
+
+		if ( $rookconnect == 'sea' ) {
+			// On SEA software only allow George to see the cost
+			if ( isset ( $_SESSION['user_name'] ) && $_SESSION['user_name'] == 'georgev' ) {
+				if (strpos($value_config, ','."Cost".',') !== FALSE) {
+					echo '<td data-title="Cost">' . $row['cost'] . '</td>';
+				}
+				if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
+				   echo '<td data-title="CAD/Unit">' . $row['cdn_cpu'] . '</td>';
+				}
+				if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
+					echo '<td data-title="USD/Unit">' . $row['usd_cpu'] . '</td>';
+				}
+				if (strpos($value_config, ','."Average Cost".',') !== FALSE) {
+					echo '<td data-title="Avg. Cost">' . ($row['average_cost'] > 0 ? $row['average_cost'] : ($row['cost'] > 0 ? $row['cost'] : ($row['unit_cost'] > 0 ? $row['unit_cost'] : $row['purchase_cost']))) . '</td>';
+				}
+				if (strpos($value_config, ','."Purchase Cost".',') !== FALSE) {
+					echo '<td data-title="Purchase Cost">' . $row['purchase_cost'] . '</td>';
+				}
+				if (strpos($value_config, ','."USD Invoice".',') !== FALSE) {
+					echo '<td data-title="USD Invoice">' . $row['usd_invoice'] . '</td>';
+				}
+			}
+		} else {
+			if (strpos($value_config, ','."Cost".',') !== FALSE) {
+				echo '<td data-title="Cost">' . $row['cost'] . '</td>';
+			}
+			if (strpos($value_config, ','."CDN Cost Per Unit".',') !== FALSE) {
+			   echo '<td data-title="CAD/Unit">' . $row['cdn_cpu'] . '</td>';
+			}
+			if (strpos($value_config, ','."USD Cost Per Unit".',') !== FALSE) {
+				echo '<td data-title="USD/Unit">' . $row['usd_cpu'] . '</td>';
+			}
+			if (strpos($value_config, ','."Average Cost".',') !== FALSE) {
+				echo '<td data-title="Avg. Cost">' . ($row['average_cost'] > 0 ? $row['average_cost'] : ($row['cost'] > 0 ? $row['cost'] : ($row['unit_cost'] > 0 ? $row['unit_cost'] : $row['purchase_cost']))) . '</td>';
+			}
+			if (strpos($value_config, ','."Purchase Cost".',') !== FALSE) {
+				echo '<td data-title="Purchase Cost">' . $row['purchase_cost'] . '</td>';
+			}
+			if (strpos($value_config, ','."USD Invoice".',') !== FALSE) {
+				echo '<td data-title="USD Invoice">' . $row['usd_invoice'] . '</td>';
+			}
+		}
+		
 		if (strpos($value_config, ','."Unit Cost".',') !== FALSE) {
 			echo '<td data-title="Unit Cost">' . $row['unit_cost'] . '</td>';
 		}

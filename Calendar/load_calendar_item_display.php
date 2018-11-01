@@ -22,7 +22,7 @@ if($today_date == $current_day && !$is_mobile_view) {
 	$background_highlight_today = '; background: #'.$theme_active_color.';';
 }
 
-if($_GET['type'] == 'ticket') {
+if($_GET['type'] == 'ticket' || $_GET['type'] == 'uni') {
 	if($_GET['block_type'] == 'team') {
 		$contact_region = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `region` FROM `teams` WHERE `teamid` = '$contact_id'"))['region'];
 	} else {
@@ -159,7 +159,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
             $estimateid = $calendar_col[$calendar_row][1]['estimateid'];
             $estimate_name = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `estimate_name` FROM `estimate` WHERE `estimateid`='$estimateid'"));
             echo '<a href="'.WEBSITE_URL.'/Estimate/estimates.php?view='.$estimateid.'" onclick="overlayIFrameSlider('.WEBSITE_URL.'/Estimate/estimates.php?view='.$estimateid.'); return false;">Follow-Up: '. $estimate_name['estimate_name'] .'</a>';
-        } else if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) && $_GET['mode'] != 'shift') {
+        } else if(($_GET['type'] == 'uni' || $_GET['type'] == 'my') && empty($_GET['shiftid']) && $_GET['mode'] != 'shift' && $_GET['block_type'] != 'team') {
 			$ticket_styling = '';
 			$calendar_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `calendar_color` FROM `contacts` WHERE `contactid` = '".$contact_id."'"))['calendar_color'];
 			if (!empty($calendar_color)) {
@@ -195,7 +195,8 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					}
 					if(date('Y-m-d', strtotime($appt['end_appoint_date'])) != date('Y-m-d', strtotime($appt['appoint_date']))) {
 						$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
-						$staff_shift = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `contactid` = '".$contact_id."' AND `startdate` <= '".date('Y-m-d', strtotime($current_day))."' AND `enddate` >= '".date('Y-m-d', strtotime($current_day))."' AND CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL)"));
+						$day_of_week = date('l', $current_day);
+						$staff_shift = checkShiftIntervals($dbc, $contact_id, $day_of_week, $current_day)[0];
 						if (date('Y-m-d', strtotime($appt['end_appoint_date'])) == $current_day && !empty($appt['end_appoint_date'])) { 
 							$current_end_time = date('h:i a', strtotime($appt['end_appoint_date']));
 						} else if (!empty($staff_shift['endtime'])) {
@@ -222,7 +223,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					unset($appt_page_query['unbooked']);
 					unset($appt_page_query['equipment_assignmentid']);
 					unset($appt_page_query['teamid']);
-					$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/booking.php?".http_build_query($appt_page_query)."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-appt='".$appt['bookingid']."' ";
+					$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/booking.php?".http_build_query($appt_page_query)."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-appt='".$appt['bookingid']."' data-clientid='".$appt['patientid']."' ";
 					$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%; $ticket_styling'>";
 					$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
 					$row_html .= "<b>".$current_start_time." - ".$current_end_time."</b><br />";
@@ -242,17 +243,23 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$heading = $ticket['heading'].$ticket['location_description'];
 					$estimated_time = substr($ticket['max_time'], 0, 5);
 					$status = $ticket['status'];
-					$status_class = $status;
-					$rows = 1;
 					if($calendar_checkmark_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$checkmark_ticket = 'calendar-checkmark-ticket';
 					} else {
 						$checkmark_ticket = '';
 					}
-					if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+					$status_class = $status;
+					$rows = 1;
+					$ticket_styling = '';
+					$calendar_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `calendar_color` FROM `contacts` WHERE `contactid` = '".$contact_id."'"))['calendar_color'];
+					if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+						$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+					} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 					} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
-						$ticket_styling = 'background-color:'.$calendar_incomplete_color[$status].';';
+						$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';
+					} else if (!empty($calendar_color)) {
+						$ticket_styling = ' background-color:'.$calendar_color.';';
 					}
 					if ($status == 'Internal QA') {
 						if (!empty($ticket['internal_qa_start_time'])) {
@@ -308,7 +315,8 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					}
 					if ($calendar_col[$calendar_row][2] == 'all_day_ticket') {
 						$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
-						$staff_shift = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `contactid` = '".$contact_id."' AND `startdate` <= '".date('Y-m-d', strtotime($current_day))."' AND `enddate` >= '".date('Y-m-d', strtotime($current_day))."' AND CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL)"));
+						$day_of_week = date('l', $current_day);
+						$staff_shift = checkShiftIntervals($dbc, $contact_id, $day_of_week, $current_day)[0];
 						if ($ticket['to_do_end_date'] == $current_day && !empty($ticket['to_do_end_time'])) { 
 							$current_end_time = date('h:i a', strtotime($ticket['to_do_end_time']));
 						} else if (!empty($staff_shift['endtime'])) {
@@ -323,6 +331,13 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					}
 					if ($duration < $day_period * 60) {
 						$duration = $day_period * 60;
+					}
+					$date_color = 'block/green.png';
+					if($new_today_date < date('Y-m-d',strtotime("-2 days"))) {
+						$date_color = 'block/red.png';
+					}
+					if($new_today_date == date('Y-m-d',strtotime("-1 days")) || $new_today_date == date('Y-m-d',strtotime("-2 days"))) {
+						$date_color = 'block/orange.png';
 					}
 					$status_icon = get_ticket_status_icon($dbc, $ticket['status']);
 				    if(!empty($status_icon)) {
@@ -345,13 +360,16 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				    if($ticket['is_recurrence'] == 1) {
 				    	$recurring_icon = "<img src='".WEBSITE_URL."/img/icons/recurring.png' style='width: 1.2em; margin: 0.1em;' class='pull-right' title='Recurring ".TICKET_NOUN."'>";
 				    }
-					$row_html .= ($ticket_view_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change ' : '').$calendar_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' ";
+					$row_html .= ($ticket_view_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change ' : '').$calendar_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 					$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$ticket_styling.$icon_background."'>";
 					$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>".$icon_img;
+					$row_html .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" style="width:1em;" border="0" alt=""> ';
 					if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
 						$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 					}
-					$row_html .= $recurring_icon."<b>".($ticket['scheduled_lock'] > 0 ? '<img class="inline-img" title="Time has been Locked" src="../img/icons/lock.png">' : '').TICKET_NOUN." #".$ticket['ticketid']." : ".get_contact($dbc,$ticket['businessid'],'name')." : ".$heading." (".$estimated_time.")".'<br />'.$current_start_time." - ".$current_end_time.'<br />'."Status: ".$status."</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
+					$row_html .= $recurring_icon;
+			        $row_html .= calendarTicketLabel($dbc, $ticket, $max_time, $current_start_time, $current_end_time);
+					$row_html .= "</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' title='Drag'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
 				}
 			} else if($calendar_col[$calendar_row][0] == 'shift') {
 				$rows = 1;
@@ -519,10 +537,12 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				        $icon_img = '';
 				    	$icon_background = '';
 				    }
-				    $cur_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='combined_block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."'";
+				    $cur_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='combined_block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 				    $cur_html .= "style='border-bottom: 1px solid rgb(221,221,221);";
 					$delivery_color = get_delivery_color($dbc, $ticket['delivery_type']);
-					if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+					if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+						$cur_html .= ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+					} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 						$cur_html .= 'background-color:'.$calendar_completed_color[$status].';';
 					} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 						$cur_html .= 'background-color:'.$calendar_incomplete_color[$status].';';
@@ -626,10 +646,12 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			        $icon_img = '';
 			    	$icon_background = '';
 			    }
-				$row_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."' ";
+				$row_html .= ($ticket_view_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/index.php?calendar_view=true&edit=".$ticket['ticketid']."&stop=".$ticket['stop_id']."\"); return false;'>" : "")."<div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-region='".$region."' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-assignstaff='".$assign_staff."' data-teamid='".$teamid."' data-status='".$ticket['status']."' data-equipassign='".$equipment_assignmentid."' data-blocktype='".$block_type."' data-tickettable='".$ticket_table."' data-ticketscheduleid='".$ticket['ticket_scheduleid']."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 				$row_html .= "style='";
 				$delivery_color = get_delivery_color($dbc, $ticket['delivery_type']);
-				if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+				if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+					$row_html .= ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+				} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 					$row_html .= 'background-color:'.$calendar_completed_color[$status].';';
 				} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 					$row_html .= 'background-color:'.$calendar_incomplete_color[$status].';';
@@ -745,16 +767,28 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 
 					$echo_url = "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."\"); return false;'>";
 
-					$row_html .= ($edit_access == 1 ? $echo_url : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$shift['shiftid']."' data-recurring='$recurring' data-currentdate='$current_day' ";
+					$row_html .= ((empty($lock_date) || $shift['startdate'] >= $lock_date) && $edit_access == 1 ? $echo_url : "")."<div class='used-block ".($shift['startdate'] < $lock_date && !empty($lock_date) ? 'no_change' : '')."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$shift['shiftid']."' data-recurring='$recurring' data-currentdate='$current_day' ";
 					$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$shift_styling."'>";
 					$row_html .= "<span class='shift' style='display: block; float: left; width: calc(100% - 2em);'>".$warning_icon;
+					if(!empty($shift['heading'])) {
+						$row_html .= "<b>".$shift['heading']."</b>".'<br />';
+					}
 					$row_html .= "<b>".date('g:i a', strtotime($shift['starttime']))." - ".date('g:i a', strtotime($shift['endtime']))."</b>".'<br />';
 					if($_GET['mode'] == 'client') {
-						$row_html .= '<b>'.get_contact($dbc, $shift['contactid']).'</b>';
+						$row_html .= '<b>'.get_contact($dbc, $shift['contactid']).'</b><br />';
 					} else if(!empty($shift['clientid'])) {
-						$row_html .= '<b>'.get_contact($dbc, $shift['clientid']).'</b>';
+						$row_html .= '<b>'.get_contact($dbc, $shift['clientid']).'</b><br />';
 					}
-					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
+					if(!empty($shift['notes'])) {
+						$row_html .= '<b>Notes: '.html_entity_decode($shift['notes']).'</b ><br />';
+					}
+					$row_html .= "</span>";
+					if($shift['startdate'] < $lock_date && !empty($lock_date)) {
+						$row_html .= "<div class='drag-handle full-height' title='Date is passed the Lock Date.'><img class='black-color pull-right inline-img' src='".WEBSITE_URL."/img/icons/lock.png'></div>";
+					} else {
+						$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div>";
+					}
+					$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
 					unset($page_query['shiftid']);
 				}
 				
@@ -768,12 +802,22 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 
 					$echo_url = "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/shifts.php?".http_build_query($page_query)."\"); return false;'>";
 
-					$row_html .= ($edit_access == 1 ? $echo_url : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$dayoff['shiftid']."' data-recurring='$recurring' data-currentdate='$calendar_row' ";
+					$row_html .= ((empty($lock_date) || $dayoff['startdate'] >= $lock_date) && $edit_access == 1 ? $echo_url : "")."<div class='used-block ".($dayoff['startdate'] < $lock_date && !empty($lock_date) ? 'no_change' : '')."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-shift='".$dayoff['shiftid']."' data-recurring='$recurring' data-currentdate='$calendar_row' ";
 					$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%; background-color: #aaa;'>";
 					$row_html .= "<span class='dayoff' style='display: block; float: left; width: calc(100% - 2em);'>";
+					if(!empty($dayoff['heading'])) {
+						$row_html .= "<b>".$shift['heading']."</b>".'<br />';
+					}
 					$row_html .= "<b>".date('g:i a', strtotime($dayoff['starttime']))." - ".date('g:i a', strtotime($dayoff['endtime']))."</b>".'<br />';
 					$row_html .= $dayoff['dayoff_type'];
-					$row_html .= "</span><div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div></div>".($edit_access == 1 ? "</a>" : "");
+					$row_html .= "</span>";
+
+					if($dayoff['startdate'] < $lock_date && !empty($lock_date)) {
+						$row_html .= "<div class='drag-handle full-height' title='Date is passed the Lock Date.'><img class='black-color pull-right inline-img' src='".WEBSITE_URL."/img/icons/lock.png'></div>";
+					} else {
+						$row_html .= "<div class='drag-handle full-height' title='Drag Me!'><img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='filter: brightness(200%); float: right; width: 2em;' title='Drag'></div>";
+					}
+					$row_html .= "</div>".($edit_access == 1 ? "</a>" : "");
 					unset($page_query['shiftid']);
 				}
 			}
@@ -811,16 +855,17 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$checkmark_ticket = '';
 				}
 				$status_class = $status;
-				$rows = 1;
-				$ticket_styling = '';
 				$calendar_color = mysqli_fetch_array(mysqli_query($dbc, "SELECT `calendar_color` FROM `contacts` WHERE `contactid` = '".$contact_id."'"))['calendar_color'];
-				if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+				if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+					$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+				} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 					$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 				} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 					$ticket_styling = ' background-color:'.$calendar_incomplete_color[$status].';';
 				} else if (!empty($calendar_color)) {
 					$ticket_styling = ' background-color:'.$calendar_color.';';
 				}
+				$rows = 1;
 				if ($status == 'Internal QA') {
 					if (!empty($ticket['internal_qa_start_time'])) {
 						$current_start_time = date('h:i a', strtotime($ticket['internal_qa_start_time']));
@@ -875,7 +920,8 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				}
 				if ($calendar_col[$calendar_row][2] == 'all_day_ticket') {
 					$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
-					$staff_shift = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `contactid` = '".$contact_id."' AND `startdate` <= '".date('Y-m-d', strtotime($current_day))."' AND `enddate` >= '".date('Y-m-d', strtotime($current_day))."' AND CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL)"));
+					$day_of_week = date('l', $current_day);
+					$staff_shift = checkShiftIntervals($dbc, $contact_id, $day_of_week, $current_day)[0];
 					if ($ticket['to_do_end_date'] == $current_day && !empty($ticket['to_do_end_time'])) { 
 						$current_end_time = date('h:i a', strtotime($ticket['to_do_end_time']));
 					} else if (!empty($staff_shift['endtime'])) {
@@ -919,7 +965,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			    if($ticket['is_recurrence'] == 1) {
 			    	$recurring_icon = "<img src='".WEBSITE_URL."/img/icons/recurring.png' style='width: 1.2em; margin: 0.1em;' class='pull-right' title='Recurring ".TICKET_NOUN."'>";
 			    }
-				$row_html .= ($ticket_view_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change' : '')."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."'' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' ";
+				$row_html .= ($ticket_view_access == 1 ? "<a href='".WEBSITE_URL."/Ticket/index.php?edit=".$ticket['ticketid']."' onclick='overlayIFrameSlider(this.href+\"&calendar_view=true\"); return false;'>" : "")."<div class='used-block ".($locked_optimize ? 'no_change' : '')."' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."'' data-clientid='".$ticket['clientid']."' data-businessid='".$businessid."' data-contactid='".$contactid."' data-internal_qa_contactid='".$internal_qa_contactid."' data-deliverable_contactid='".$deliverable_contactid."' data-status='".$status."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 				$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$ticket_styling.$icon_background."'>";
 				$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>".$icon_img;
 				$row_html .= '<img src="'.WEBSITE_URL.'/img/'.$date_color.'" style="width:1em;" border="0" alt=""> ';
@@ -927,7 +973,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 					$row_html .= '<div class="ticket-status-color" style="background-color: '.$ticket_status_color[$status].';"></div>';
 				}
 				$row_html .= $recurring_icon;
-        $row_html .= calendarTicketLabel($dbc, $ticket, $max_time, $current_start_time, $current_end_time);
+		        $row_html .= calendarTicketLabel($dbc, $ticket, $max_time, $current_start_time, $current_end_time);
 				$row_html .= "</b></span><div class='drag-handle full-height' title='Drag Me!'><img class='black-color pull-right inline-img drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' title='Drag'></div></div>".($ticket_view_access == 1 ? "</a>" : "");
 			}
 		} else if ($calendar_col[$calendar_row][0] == 'workorder') {
@@ -966,7 +1012,9 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 			} else {
 				$checkmark_ticket = '';
 			}
-			if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
+			if($calendar_ticket_color_code_tabs == 1 && !empty($ticket_tabs_color[$ticket['ticket_type']])) {
+				$ticket_styling = ' background-color:'.$ticket_tabs_color[$ticket['ticket_type']].';';
+			} else if($calendar_highlight_tickets == 1 && in_array($status, $calendar_checkmark_status)) {
 				$ticket_styling = ' background-color:'.$calendar_completed_color[$status].';';
 			} else if($calendar_highlight_incomplete_tickets == 1 && in_array($status, $calendar_incomplete_status)) {
 				$ticket_styling = 'background-color:'.$calendar_incomplete_color[$status].';';
@@ -998,7 +1046,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 		        $icon_img = '';
 		    	$icon_background = '';
 		    }
-			$row_html .= "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/preview_ticket.php?action=view&ticketid=".$ticket['ticketid']."\"); return false'><div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks = '$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-timestamp='".date('Y-m-d H:i:s')."' ";
+			$row_html .= "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Ticket/preview_ticket.php?action=view&ticketid=".$ticket['ticketid']."\"); return false'><div class='used-block ".$checkmark_ticket."' data-contact='$contact_id' data-blocks = '$rows' data-row='$calendar_row' data-duration='$duration' data-ticket='".$ticket['ticketid']."' data-timestamp='".date('Y-m-d H:i:s')."' data-tickettype='".$ticket['ticket_type']."' ";
 			$row_html .= "style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;".$ticket_styling.$icon_background."'>";
 			$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>".$icon_img;
 			if($ticket_status_color_code == 1 && !empty($ticket_status_color[$status])) {
@@ -1070,7 +1118,8 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				}
 				if(date('Y-m-d', strtotime($appt['end_appoint_date'])) != date('Y-m-d', strtotime($appt['appoint_date']))) {
 					$current_start_time = date('h:i a', strtotime($day_start) + ($calendar_row * $day_period * 60));
-					$staff_shift = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `contactid` = '".$contact_id."' AND `startdate` <= '".date('Y-m-d', strtotime($current_day))."' AND `enddate` >= '".date('Y-m-d', strtotime($current_day))."' AND CONCAT(',', `repeat_days`, ',') LIKE '%,".$day_of_week.",%' AND `deleted` = 0 AND (`dayoff_type` = '' OR `dayoff_type` IS NULL)"));
+					$day_of_week = date('l', $current_day);
+					$staff_shift = checkShiftIntervals($dbc, $contact_id, $day_of_week, $current_day)[0];
 					if (date('Y-m-d', strtotime($appt['end_appoint_date'])) == $current_day && !empty($appt['end_appoint_date'])) { 
 						$current_end_time = date('h:i a', strtotime($appt['end_appoint_date']));
 					} else if (!empty($staff_shift['endtime'])) {
@@ -1097,7 +1146,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 				unset($appt_page_query['unbooked']);
 				unset($appt_page_query['equipment_assignmentid']);
 				unset($appt_page_query['teamid']);
-				$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/booking.php?".http_build_query($appt_page_query)."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-appt='".$appt['bookingid']."' ";
+				$row_html .= ($edit_access == 1 ? "<a href='' onclick='overlayIFrameSlider(\"".WEBSITE_URL."/Calendar/booking.php?".http_build_query($appt_page_query)."\"); return false;'>" : "")."<div class='used-block' data-contact='$contact_id' data-blocks='$rows' data-row='$calendar_row' data-appt='".$appt['bookingid']."' data-clientid='".$appt['patientid']."' ";
 				$row_html .= "data-duration='$duration' style='height: calc(".$rows." * (1em + 15px) - 1px); overflow-y: hidden; top: 0; left: 0; margin: 0; padding: 0.2em; position: absolute; width: 100%;'>";
 				$row_html .= "<span class='$status_class' style='display: block; float: left; width: calc(100% - 2em);'>";
 				$row_html .= "<b>".$current_start_time." - ".$current_end_time."</b>".'<br />';
@@ -1113,7 +1162,7 @@ foreach($calendar_table[0][0] as $calendar_row => $calendar_cell) {
 	}
 	$row_html .= "</td>";
 
-	$column['rows'][] = ['time'=>$calendar_row,'html'=>$row_html];
+	$column['rows'][$calendar_row] = ['time'=>$calendar_row,'html'=>$row_html];
 }
 
 if(!$is_mobile_view) {

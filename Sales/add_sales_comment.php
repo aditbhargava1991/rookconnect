@@ -66,7 +66,6 @@ if(isset($_POST['submit'])) {
       <?php $category = ($comment_type == 'member_note' ? $category : "Staff"); ?>
       <div class="col-sm-8">
         <select data-placeholder="Select <?= $category ?>..." name="assign[]" multiple class="chosen-select-deselect form-control">
-          <option value=""></option>
             <?php $query = sort_contacts_query(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category $comment_category AND CONCAT(IFNULL(`first_name`,''),IFNULL(`last_name`,'')) != '' AND deleted=0 AND `status`>0"));
             foreach($query as $contact) {
                 echo "<option value='". $contact['contactid']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';

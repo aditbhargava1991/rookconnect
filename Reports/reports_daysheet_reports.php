@@ -1,7 +1,7 @@
 <?php
 /*
  * Day Sheet Report
- * Any updates here should be updated on /Profile/daysheet_timesheets.php 
+ * Any updates here should be updated on /Profile/daysheet_timesheets.php
  */
 include ('../include.php');
 checkAuthorised('report');
@@ -69,7 +69,7 @@ if (isset($_POST['printpdf'])) {
     $start_date = date('Y-m-d', strtotime($starttimepdf));
     $end_date = date('Y-m-d', strtotime($endtimepdf));
     $html = '';
-    
+
     if (strpos($staffidpdf, ',') !== false) {
         $format = 'multi_staff';
     } elseif ( (strpos($staffidpdf, ',') === false) && $staffidpdf != '') {
@@ -77,7 +77,7 @@ if (isset($_POST['printpdf'])) {
     } else {
         $format = 'date_only';
     }
-    
+
     if( $format == 'single_staff' ) {
         $pdf->AddPage('L', 'LETTER');
         $pdf->SetFont('helvetica', '', 9);
@@ -85,7 +85,7 @@ if (isset($_POST['printpdf'])) {
         $html .= '<br><br>' . report_receivables($dbc, $start_date, $end_date, $staffidpdf, $format, $search_ticket, $extraticketpdf, $search_expenses, $search_notes, 'padding:3px; border:1px solid black;', 'background-color:lightgrey; color:black;', 'background-color:lightgrey; color:black;');
 
         $pdf->writeHTML($html, true, false, true, false, '');
-    
+
     } elseif ( $format == 'multi_staff' || $format == 'date_only' ) {
         for($date = $start_date; $date <= $end_date; $date = date('Y-m-d', strtotime($date. ' + 1 days')))
         {
@@ -95,15 +95,15 @@ if (isset($_POST['printpdf'])) {
             $pdf->writeHTML($html, true, false, true, false, '');
         }
     }
-    
+
     $pdf->AddPage('L', 'LETTER');
     $pdf->SetFont('helvetica', '', 9);
     $html = '<br /><br />'. report_summary($dbc, $start_date, $end_date, $staffidpdf, $format, 'padding:3px; border:1px solid black;', 'background-color:lightgrey; color:black;', 'background-color:lightgrey; color:black;');
     $pdf->writeHTML($html, true, false, true, false, '');
-    
+
     $today_date = date('Y-m-d');
 	$pdf->Output('Download/daysheet_report_'.$today_date.'.pdf', 'F');
-    
+
     track_download($dbc, 'reports_daysheet_reports', 0, WEBSITE_URL.'/Reports/Download/daysheet_report_'.$today_date.'.pdf', 'Daysheet Report');
 
     ?>
@@ -240,7 +240,7 @@ function handleClick(sel) {
             <?php
                 $start_date = date('Y-m-d', strtotime($starttime));
                 $end_date = date('Y-m-d', strtotime($endtime));
-                
+
                 if (strpos($staffid, ',') !== false) {
                     $format = 'multi_staff';
                 } elseif ( (strpos($staffid, ',') === false) && $staffid != '') {
@@ -248,7 +248,7 @@ function handleClick(sel) {
                 } else {
                     $format = 'date_only';
                 }
-                
+
                 if( $format == 'single_staff' ) {
                     echo report_receivables($dbc, $start_date, $end_date, $staffid, $format, '', '', '');
                     echo "<br>";
@@ -259,7 +259,7 @@ function handleClick(sel) {
 						echo "<br>";
 					}
 				}
-                
+
 				echo report_summary($dbc, $start_date, $end_date, $staffid, $format, '', '', '');
             ?>
 
@@ -282,24 +282,24 @@ function report_summary($dbc, $starttime, $endtime, $staff, $format, $table_styl
         $query_mod_tasks = "";
         $query_mod_checklists = "";
     }
-    
+
     $total_summary = array();
     $report_data_summary = '<h3>Summary</h3><table border="1px" class="table table-bordered" style="'.$table_style.'" width="100%"><tr style="'.$table_row_style.'"><th width="74%">Business</th><th width="26%">Total Time</th></tr>';
-    
-    $summary = sort_contacts_query(mysqli_query($dbc, "SELECT `businessid` `contactid`, IFNULL(NULLIF(`name`,''),'".encryptIt('ZZZZZZZZZZZZ')."') `name`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_spent`))) `time_spent` FROM (SELECT `tickets`.`businessid`, `contacts`.`name`, SEC_TO_TIME(SUM(TIME_TO_SEC(`timers`.`time`))) `time_spent` FROM `tickets` LEFT JOIN (SELECT `ticketid`,`created_by`,`created_date`,`time_length` `time`, 'Manual' `type` FROM `ticket_time_list` WHERE `time_type`='Manual Time' AND `ticket_time_list`.`deleted`=0 UNION SELECT `ticketid`,`created_by`,`created_date`,`timer` `time`, 'Tracked' `type` FROM `ticket_timer` WHERE `ticket_timer`.`deleted` = 0) `timers` ON `tickets`.`ticketid`=`timers`.`ticketid` LEFT JOIN `contacts` ON (`contacts`.`contactid`=`tickets`.`businessid`) WHERE $query_mod_tickets (`timers`.`created_date` BETWEEN '$starttime 00:00:00' AND '$endtime 23:59:59') GROUP BY  `tickets`.`businessid`
+
+    $summary = sort_contacts_query(mysqli_query($dbc, "SELECT `businessid` `contactid`, IFNULL(NULLIF(`name`,''),'".encryptIt('ZZZZZZZZZZZZ')."') `name`, SEC_TO_TIME(SUM(TIME_TO_SEC(`time_spent`))) `time_spent` FROM (SELECT `tickets`.`businessid`, `contacts`.`name`, SEC_TO_TIME(SUM(TIME_TO_SEC(`timers`.`time`))) `time_spent` FROM `tickets` LEFT JOIN (SELECT `ticketid`,`item_id`,`date_stamp`,SEC_TO_TIME(`hours_tracked` * 3600)` `time`, 'Staff Time' `type` FROM `ticket_attached` WHERE `src_table` IN ('Staff_Tasks','Staff') AND `ticket_attached`.`deleted`=0 UNION SELECT `ticketid`,`created_by`,`created_date`,`time_length` `time`, 'Manual' `type` FROM `ticket_time_list` WHERE `time_type`='Manual Time' AND `ticket_time_list`.`deleted`=0 UNION SELECT `ticketid`,`created_by`,`created_date`,`timer` `time`, 'Tracked' `type` FROM `ticket_timer` WHERE `ticket_timer`.`deleted` = 0) `timers` ON `tickets`.`ticketid`=`timers`.`ticketid` LEFT JOIN `contacts` ON (`contacts`.`contactid`=`tickets`.`businessid`) WHERE $query_mod_tickets (`timers`.`created_date` BETWEEN '$starttime 00:00:00' AND '$endtime 23:59:59') GROUP BY  `tickets`.`businessid`
     UNION ALL
     SELECT `tasklist`.`businessid`, `contacts`.`name`, IFNULL(SEC_TO_TIME(SUM(TIME_TO_SEC(`tasklist_time`.`work_time`))),`tasklist`.`work_time`) `time_spent` FROM `tasklist` LEFT JOIN `tasklist_time` ON `tasklist`.`tasklistid`=`tasklist_time`.`tasklistid` LEFT JOIN `contacts` ON (`tasklist`.`businessid` IS NOT NULL AND `tasklist`.`businessid`=`contacts`.`contactid`) WHERE $query_mod_tasks ( IFNULL(`tasklist_time`.`timer_date`,`tasklist`.`task_tododate`) BETWEEN '$starttime' AND '$endtime') AND `tasklist`.`tasklistid` > 0 GROUP BY `tasklist`.`businessid`
     UNION ALL
     SELECT `checklist`.`businessid`, `contacts`.`name`, `checklist_name_time`.`work_time` `time_spent` FROM `checklist_name_time` LEFT JOIN `checklist_name` ON (`checklist_name`.`checklistnameid`=`checklist_name_time`.`checklist_id`) LEFT JOIN `checklist` ON (`checklist`.`checklistid`=`checklist_name`.`checklistid`) LEFT JOIN `contacts` ON (`contacts`.`contactid`=`checklist`.`businessid`) WHERE $query_mod_checklists (`timer_date` BETWEEN '$starttime' AND '$endtime') GROUP BY `checklist`.`businessid`) `time` GROUP BY IFNULL(`businessid`,0)"));
-    
+
     foreach($summary as $row_summary) {
         $total_summary[] = $row_summary['time_spent'];
         $report_data_summary .= '<tr><td>'. ( $row_summary['name'] === 'ZZZZZZZZZZZZ' ? 'Uncategorized' : $row_summary['name'] ) .'</td><td>'. $row_summary['time_spent'] .'</td></tr>';
     }
-    
+
     $report_data_summary .= '<tr><td><b>Total</b></td><td><b>'. AddPlayTime($total_summary) .'</b></td></tr>';
     $report_data_summary .= '</table><br />';
-    
+
     return $report_data_summary;
 }
 
@@ -310,7 +310,7 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $format, $ticket
 	}
       $report_data = '';
     $date_staff = '';
-    
+
     if ($format == 'multi_staff') {
         $query = array_filter(array_unique(explode(',',$staff)));
         $report_data .= '<h3>'.$starttime.'</h3>';
@@ -335,11 +335,11 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $format, $ticket
     <th width="7%">Total Time</th>
     <th width="5%">Sign Off</th>
     </tr>';
-    
+
     $final_total_timer = [];
     $final_total_entered = [];
     $final_total_time = [];
-	
+
     for($date = $starttime; $date <= $endtime; $date = date('Y-m-d', strtotime($date. ' + 1 days')))
 	{
 		foreach($query as $contactid) {
@@ -358,7 +358,7 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $format, $ticket
 			$staff_total_spent = [];
 			$staff_total_all = [];
 
-			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `ticket_time_list`.`deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `ticket_timer`.`deleted`=0) `time_list`")->fetch_assoc()['time'];
+			$total_tracked_time = $dbc->query("SELECT SEC_TO_TIME(SUM(TIME_TO_SEC(`time`))) `time` FROM (SELECT SEC_TO_TIME(`hours_tracked` * 3600) `time` FROM `ticket_attached` WHERE `src_table` IN ('Staff_Tasks','Staff') AND `item_id`='$cid' AND `date_stamp` LIKE '$date%' AND `deleted`=0 UNION SELECT `time_length` `time` FROM `ticket_time_list` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `ticket_time_list`.`deleted`=0 AND `time_type`='Manual Time' UNION SELECT `timer` `time` FROM `ticket_timer` WHERE `created_by`='$cid' AND `created_date` LIKE '$date%' AND `ticket_timer`.`deleted`=0) `time_list`")->fetch_assoc()['time'];
 
 			if(in_array('daysheet_tickets',$report_fields)) {
             //Tickets
@@ -396,7 +396,7 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $format, $ticket
         while($task = mysqli_fetch_array($tasks)) {
                   $report_data .= '<tr nobr="true">';
                       $report_data .= '<td>'. ( $date_staff=='date' ? $date : get_staff($dbc,$row['contactid']) ) .'</td>';
-                      $report_data .= '<td>Tasks</td>';
+                      $report_data .= '<td>'.TASK_TILE.'</td>';
                       $report_data .= '<td>'. $task['heading'] .'</td>';
                       $report_data .= '<td>'. $task['timer_total'] .'</td>';
                       $report_data .= '<td>'. $task['manual_time'] .'</td>';
@@ -439,7 +439,7 @@ function report_receivables($dbc, $starttime, $endtime, $staff, $format, $ticket
             $report_data .= '<tr><td colspan="3"><b>Total</b></td><td><b>'.AddPlayTime($final_total_timer).'</b></td><td><b>'.AddPlayTime($final_total_entered).'</b></td><td><b>'.AddPlayTime($final_total_time).'</b></td><td></td></tr>';
         }
     }
-    
+
     if($date_staff=='date') {
         // Search by staff
         $report_data .= '<tr><td colspan="3"><b>Total</b></td><td><b>'.AddPlayTime($final_total_timer).'</b></td><td><b>'.AddPlayTime($final_total_entered).'</b></td><td><b>'.AddPlayTime($final_total_time).'</b></td><td></td></tr>';
@@ -491,3 +491,17 @@ function AddPlayTime($times) {
     return sprintf('%02d:%02d:%02d', $hours, $minutes, $seconds);
 }
 ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

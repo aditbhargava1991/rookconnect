@@ -1,5 +1,9 @@
 <?php error_reporting(0);
-include_once('../include.php'); ?>
+include_once('../include.php');
+$task_statuses = explode(',',get_config($dbc, 'task_status'));
+$status_complete = $task_statuses[count($task_statuses) - 1];
+$status_incomplete = $task_statuses[0];
+?>
 <script>
 
 function mark_done(sel) {
@@ -10,12 +14,13 @@ function mark_done(sel) {
     } else {
         status = '<?= $status_incomplete ?>';
     }
-
     $.ajax({
         type: "GET",
-        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status=Done',
+        url: "../Tasks_Updated/task_ajax_all.php?fill=mark_done&taskid="+task_id+'&status='+status,
         dataType: "html",
-        success: function(response){}
+        success: function(response){
+            window.location.reload();
+        }
     });
 }
 
@@ -23,8 +28,8 @@ function resizeProjectPath() {
 	$('.double-scroller div').width($('.dashboard-container').get(0).scrollWidth);
 	$('.double-scroller').off('scroll',doubleScroll).scroll(doubleScroll);
 	$('.dashboard-container').off('scroll',setDoubleScroll).scroll(setDoubleScroll);
-	if($(window).width() > 767 && $('ul.dashboard-list').length > 0 && $(window).innerHeight() - $($('ul.dashboard-list').first()).offset().top - 68 - ($('.dashboard-container').innerHeight() - $('.dashboard-container').prop('clientHeight')) > 250) {
-		$('ul.dashboard-list').outerHeight($(window).innerHeight() - $($('ul.dashboard-list').first()).offset().top - 68 - ($('.dashboard-container').innerHeight() - $('.dashboard-container').prop('clientHeight')));
+	if($(window).width() > 767 && $('ul.dashboard-list').length > 0 && ($('.default_screen,.standard-dashboard-body').outerHeight() + $('.default_screen,.standard-dashboard-body').offset().top) - ($($('ul.dashboard-list').first()).offset().top + ($('.dashboard-container').outerHeight() - $('.dashboard-container').prop('clientHeight'))) - 2 > 250) {
+		$('ul.dashboard-list').outerHeight(($('.default_screen,.standard-dashboard-body').outerHeight() + $('.default_screen,.standard-dashboard-body').offset().top) - ($($('ul.dashboard-list').first()).offset().top + ($('.dashboard-container').outerHeight() - $('.dashboard-container').prop('clientHeight'))) - 2);
 	} else {
 		var height = 0;
 		$('ul.dashboard-list').each(function() {
@@ -38,16 +43,16 @@ function doubleScroll() {
 }
 function setDoubleScroll() {
 	$('.double-scroller').scrollLeft(this.scrollLeft);
-	if(this.scrollLeft < 25) {
-		$('.left_jump').hide();
-	} else {
-		$('.left_jump').show();
-	}
-	if(this.scrollLeft > this.scrollWidth - this.clientWidth - 25) {
-		$('.right_jump').hide();
-	} else {
-		$('.right_jump').show();
-	}
+	// if(this.scrollLeft < 25) {
+		// $('.left_jump').hide();
+	// } else {
+		// $('.left_jump').show();
+	// }
+	// if(this.scrollLeft > this.scrollWidth - this.clientWidth - 25) {
+		// $('.right_jump').hide();
+	// } else {
+		// $('.right_jump').show();
+	// }
 }
 var keep_scrolling = '';
 function setActions() {
@@ -128,40 +133,9 @@ function setActions() {
 	});
 	$('.manual-flag-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').show();
-		item.find('[name=flag_cancel]').off('click').click(function() {
-			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
-			return false;
-		});
-		item.find('[name=flag_off]').off('click').click(function() {
-			item.find('[name=colour]').val('FFFFFF');
-			item.find('[name=label]').val('');
-			item.find('[name=flag_start]').val('');
-			item.find('[name=flag_end]').val('');
-			item.find('[name=flag_it]').click();
-			return false;
-		});
-		item.find('[name=flag_it]').off('click').click(function() {
-			$.ajax({
-				url: '../Project/projects_ajax.php?action=project_actions',
-				method: 'POST',
-				data: {
-					field: 'flag_manual',
-					colour: item.find('[name=colour]').val(),
-					label: item.find('[name=label]').val(),
-					start: item.find('[name=flag_start]').val(),
-					end: item.find('[name=flag_end]').val(),
-					table: item.data('table'),
-					id: item.data('id'),
-					id_field: item.data('id-field')
-				}
-			});
-			item.find('.flag_field_labels,[name=label],[name=colour],[name=flag_it],[name=flag_cancel],[name=flag_off],[name=flag_start],[name=flag_end]').hide();
-			item.data('colour',item.find('[name=colour]').val());
-			item.css('background-color','#'+item.find('[name=colour]').val());
-			item.find('.flag-label').text(item.find('[name=label]').val());
-			return false;
-		});
+		$('.flag_target').removeClass('flag_target');
+		$(item).addClass('flag_target');
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile='+item.data('table')+'&id='+item.data('id'), 'auto', false, true);
 	});
 	$('.assign-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -239,47 +213,7 @@ function setActions() {
 	});
 	$('.reminder-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
-		item.find('[name=reminder]').change(function() {
-			var reminder = $(this).val();
-			var select = item.find('.select_users');
-			select.find('.cancel_button').off('click').click(function() {
-				select.find('select option:selected').removeAttr('selected');
-				select.find('select').trigger('change.select2');
-				select.hide();
-				return false;
-			});
-			select.find('.submit_button').off('click').click(function() {
-				if(select.find('select').val() != '' && confirm('Are you sure you want to schedule reminders for the selected user(s)?')) {
-					var users = [];
-					select.find('select option:selected').each(function() {
-						users.push(this.value);
-						$(this).removeAttr('selected');
-					});
-					$.ajax({
-						method: 'POST',
-						url: '../Project/projects_ajax.php?action=project_actions',
-						data: {
-							id: item.data('id'),
-							id_field: item.data('id-field'),
-							table: item.data('table'),
-							field: 'reminder',
-							value: reminder,
-							users: users,
-							ref_id: item.data('id'),
-							ref_id_field: item.data('id-field')
-						},
-						success: function(result) {
-							select.hide();
-							select.find('select').trigger('change.select2');
-							//item.find('h4').append(result);
-                            item.find('.action_notifications').prepend('<hr style="border-color:#ddd; margin:10px 0;" />'+response);
-						}
-					});
-				}
-				return false;
-			});
-			select.show();
-		}).focus();
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile='+item.data('table')+'&id='+item.data('id'), 'auto', false, true);
 	});
 	$('.alert-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
@@ -327,7 +261,7 @@ function setActions() {
 	$('.email-icon').off('click').click(function() {
 		var item = $(this).closest('.dashboard-item');
 		var id = $(item).data('id');
-		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&id='+id,'auto',false,true);
+		overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_email.php?tile=projects&from_task=task&id='+id,'auto',false,true);
 	});
 	$('.new_task').off('keyup').keyup(function(e) {
 		if(e.which == 13) {
@@ -371,6 +305,17 @@ function setActions() {
 	$('.info-block-header [name=sort').off('change').change(function() {
 		$.post('../Project/projects_ajax.php?action=milestone_edit', { id: $(this).closest('.info-block-header').find('[name=milestone_name]').data('id'), field: 'sort', value: this.value });
 	});
+
+    $('.dashboard-list.item_list').each(function() {
+        var count = $(this).find('li.dashboard-item').length;
+        var add_block = $(this).find('li.dashboard-item.add_block');
+        if ( count > 1 ) {
+            $(add_block).hide();
+        }
+    });
+    $('.milestone_options').off('click').click(function() {
+        $(this).closest('.dashboard-list').find('.dashboard-list .add_block').toggle();
+    });
 
     /* Timer */
     $('.start-timer-btn').on('click', function() {
@@ -447,7 +392,7 @@ function send_task_alert(task) {
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, true);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_alert.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 function send_task_reminder(task) {
@@ -455,7 +400,7 @@ function send_task_reminder(task) {
        if(task_id.toString().substring(0,5) == 'BOARD') {
                task_id = task_id.substring(5);
        }
-       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, true);
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=tasks&id='+task_id, 'auto', false, false);
 }
 
 function track_time(task) {
@@ -463,7 +408,29 @@ function track_time(task) {
    if(task_id.toString().substring(0,5) == 'BOARD') {
            task_id = task_id.substring(5);
    }
-   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, true);
+   overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_timer.php?tile=tasks&id='+task_id, 'auto', false, false);
+}
+
+//Add Intake
+function addIntakeForm(btn) {
+	$('.dialog_addintake').dialog({
+		resizable: true,
+		height: "auto",
+		width: ($(window).width() <= 600 ? $(window).width() : 600),
+		modal: true,
+		buttons: {
+			'Add': function() {
+				var formid = $('[name="add_intakeform"]').val();
+				var salesid = '<?= $_GET['id'] ?>';
+				var sales_milestone = $(btn).data('milestone');
+				window.location.href = '<?= WEBSITE_URL ?>/Intake/add_form.php?formid='+formid+'&salesid='+salesid+'&sales_milestone='+sales_milestone;
+				$(this).dialog('close');
+			},
+	        Cancel: function() {
+	        	$(this).dialog('close');
+	        }
+	    }
+	});
 }
 </script>
 <?php $quick_actions = explode(',',get_config($dbc, 'quick_action_icons'));
@@ -472,14 +439,15 @@ $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
 $ticket_security = get_security($dbc, 'ticket');
 $ticket_field_config = array_filter(explode(',',mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `tickets_dashboard` FROM field_config"))['tickets_dashboard']));
+
 if(isset($_POST['clear']) || isset($_POST['clear_x']) || isset($_POST['clear_y'])) {
 	$editid = $_GET['edit'];
-        $date_of_archival = date('Y-m-d');
-	$select_query = "select count(*) as clear_count from tasklist where projectid=$editid and status='".$status_complete."'";
+    $date_of_archival = date('Y-m-d');
+	$select_query = "SELECT count(*) as clear_count FROM tasklist WHERE projectid=`$editid` AND status='Done' AND deleted = 0";
 	$count_query = mysqli_fetch_assoc(mysqli_query($dbc, $select_query));
-	$query = "update tasklist set deleted=1, `date_of_archival` = '$date_of_archival' where projectid=$editid and status='".$status_complete."'";
+	$query = "UPDATE tasklist SET deleted=1, `date_of_archival` = '$date_of_archival' WHERE projectid=`$editid` AND status='Done' AND deleted = 0";
 	$update_clear_completed = mysqli_query($dbc, $query);
-	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed.")</script>';
+	echo '<script>alert("Archived '. $count_query['clear_count'] .' Tasks, which were completed."); window.location.reload();</script>';
 }
 
 if(!isset($projectid)) {
@@ -557,12 +525,12 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		$('select.path_select_onchange').change(function() {
 			window.location.replace('?edit=<?= $_GET['edit'] ?>&tab=path&pathid='+this.value);
 		});
-		$('.left_jump').off('click').click(function() {
-			$('.dashboard-container').scrollLeft($('div.dashboard-list').filter(function() { return $(this).position().left < 0 }).last().get(0).offsetLeft - 10);
-		});
-		$('.right_jump').off('click').click(function() {
-			$('.dashboard-container').scrollLeft($('div.dashboard-list').filter(function() { return $(this).position().left > 15 }).first().get(0).offsetLeft - 10);
-		});
+		// $('.left_jump').off('click').click(function() {
+			// $('.dashboard-container').scrollLeft($('div.dashboard-list').filter(function() { return $(this).position().left < 0 }).last().get(0).offsetLeft - 10);
+		// });
+		// $('.right_jump').off('click').click(function() {
+			// $('.dashboard-container').scrollLeft($('div.dashboard-list').filter(function() { return $(this).position().left > 15 }).first().get(0).offsetLeft - 10);
+		// });
 	});
 	function initDragging() {
 		// Dragging Milestones
@@ -635,6 +603,7 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 					id_field: 'tasklistid',
 					table: 'tasklist',
 					field: 'heading',
+                    task_path: '<?= $_GET["pathid"] ?>',
 					value: text
 				},
 				success: function(response) {
@@ -768,26 +737,29 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		</div>
 	</div>
 	<div class="standard-body-title">
-		<form action="" method="post"><h3 class="pad-horizontal action-icons"><span class="pull-left"><?= $label.(!empty($path_name_edit) ? '<img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next(\'span\').show().find(\'input\').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName('.($path_type == 'E' ? "'external_path_name'" : "'project_path_name'").', this.value, '.$path_i.', '.$projectid.'); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="'.$path_name_edit.'" class="form-control"></span>' : '') ?></span>
+		<form action="" method="post"><h3 class="pad-horizontal"><span class="pull-left"><?= $label.(!empty($path_name_edit) ? '<img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next(\'span\').show().find(\'input\').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName('.($path_type == 'E' ? "'external_path_name'" : "'project_path_name'").', this.value, '.$path_i.', '.$projectid.'); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="'.$path_name_edit.'" class="form-control"></span>' : '') ?></span>
 		<?php if($security['edit'] > 0 && $_GET['pathid'] != 'MS') { ?>
-			<input type="image" src="../img/clear-checklist.png" name="clear" title="Clear Completed Tasks" class="no-toggle inline-img black-color pull-left small" alt="Submit"/>
 			<?php if(in_array($_GET['tab'],['path','path_external_path'])) { ?>
+				<img class="inline-img pull-right no-toggle black-color small" src="../img/icons/ROOK-add-icon.png" title="Add / Remove Path" onclick="overlayIFrameSlider('../Project/edit_project_path_select.php?projectid=<?= $projectid ?>','75%',true)">
 				<div class="col-sm-4 pull-right path_select smaller" style="display:none;"><select class="chosen-select-deselect path_select_onchange" data-placeholder="Select <?= PROJECT_NOUN ?> Path">
 					<option></option>
 					<?php if(in_array('Scrum Board',$tab_config)) { ?><option <?= $_GET['tab'] == 'scrum_board' ? 'selected' : '' ?> value="SB">Scrum Board</option><?php } ?>
-					<?php $paths = mysqli_query($dbc, "SELECT `project_path`, `project_path_milestone` FROM `project_path_milestone` WHERE `project_path` != '' AND `project_path_milestone` IN (".$project['project_path'].") ORDER BY `project_path`");
-					while($path = mysqli_fetch_array($paths)) { ?>
-						<option <?= $path['project_path_milestone'] == $pathid && $_GET['tab'] == 'path' ? 'selected' : '' ?> value="I|<?= $path['project_path_milestone'] ?>"><?= $path['project_path'] ?></option>
-					<?php }
-					$external_paths = mysqli_query($dbc, "SELECT `project_path`, `project_path_milestone` FROM `project_path_milestone` WHERE `project_path` != '' AND `project_path_milestone` IN (".$project['external_path'].") ORDER BY `project_path`");
-					while($path = mysqli_fetch_array($external_paths)) { ?>
-						<option <?= $path['project_path_milestone'] == $pathid && $_GET['tab'] == 'path_external_path' ? 'selected' : '' ?> value="E|<?= $path['project_path_milestone'] ?>">External: <?= $path['project_path'] ?></option>
-					<?php } ?>
+					<?php foreach(explode(',',$project['project_path']) as $i => $project_path_id) {
+                        if($project_path_id > 0) { ?>
+                            <option <?= $project_path_id == $pathid && $_GET['tab'] == 'path' ? 'selected' : '' ?> value="I|<?= $project_path_id ?>"><?= empty(explode('#*#',$project['project_path_name'])[$i]) ? get_field_value('project_path','project_path_milestone','project_path_milestone',$project_path_id) : explode('#*#',$project['project_path_name'])[$i] ?></option>
+                        <?php }
+                    }
+                    foreach(explode(',',$project['external_path']) as $i => $project_path_id) {
+                        if($project_path_id > 0) { ?>
+                            <option <?= $project_path_id == $pathid && $_GET['tab'] == 'path_external_path' ? 'selected' : '' ?> value="E|<?= $project_path_id ?>">External: <?= empty(explode('#*#',$project['project_path_name'])[$i]) ? get_field_value('project_path','project_path_milestone','project_path_milestone',$project_path_id) : explode('#*#',$project['project_path_name'])[$i] ?></option>
+                        <?php }
+                    } ?>
 				</select></div>
 				<img class="inline-img pull-right no-toggle black-color small" src="../img/project-path.png" title="Select the <?= PROJECT_NOUN ?> Path" onclick="$('.path_select').show(); $(this).hide();">
-				<img class="inline-img pull-right no-toggle black-color small" src="../img/icons/ROOK-add-icon.png" title="Add / Remove Path" onclick="overlayIFrameSlider('../Project/edit_project_path_select.php?projectid=<?= $projectid ?>','75%',true)">
 			<?php } ?>
+			<input type="image" src="../img/clear-checklist.png" onclick="clearCompletedProjectTask(this);" name="clear1" title="Clear Completed Tasks" value="<?php echo $projectid; ?>" class="no-toggle inline-img black-color pull-right small" alt="Submit"/>
 		<?php } ?>
+        <div class="clearfix"></div>
 		</h3></form>
 	</div>
 	<div class="clearfix"></div>
@@ -795,15 +767,28 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		<div class="double-scroller"><div></div></div>
 	<?php } ?>
 	<div class="has-dashboard form-horizontal dashboard-container" style="<?= $pathid == 'MS' ? 'overflow-y:hidden;' : '' ?>">
-		<?php if(in_array($_GET['tab'],['path','path_external_path']) && $pathid != 'MS') { ?>
+		<?php /*if(in_array($_GET['tab'],['path','path_external_path']) && $pathid != 'MS') { ?>
 			<img class="black-color clockwise inline-img stick-left text-lg left_jump" src="../img/icons/dropdown-arrow.png" style="display:none;">
 			<img class="black-color counterclockwise inline-img stick-right text-lg right_jump" src="../img/icons/dropdown-arrow.png">
-		<?php } ?>
+		<?php }*/ ?>
 		<?php $ticket_status_list = explode(',',get_config($dbc, 'ticket_status'));
 		if((substr($_GET['tab'],0,18) != 'path_external_path') && empty($_GET['category'])) {
-			$unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(milestone_timeline, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '') UNION
+
+
+		/*$unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(milestone_timeline, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '') UNION
 				SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(project_milestone, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(task_tododate,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '') UNION
+			$unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(milestone_timeline, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '') UNION
 				SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND (`project_milestone` = '' OR IFNULL(project_milestone,'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid'))";
+                */
+
+$unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(milestone_timeline, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '') UNION
+				SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND archived_date IS NULL AND (task_tododate < CURRENT_DATE() OR IFNULL(task_tododate,'0000-00-00') = '0000-00-00') UNION
+				SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND (`project_milestone` = '' OR IFNULL(project_milestone,'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid'))";
+
+            /*
+			$unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(milestone_timeline, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '') UNION
+				SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND (`project_milestone` = '' OR IFNULL(project_milestone,'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid'))";
+                */
 				if(mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM ($unassigned_sql) count"))[0] > 0) {
 				$unassigned_milestone_sql = "SELECT 0 `id`, 'Unassigned' `milestone`, 'Unassigned' `label`, 0 `sort` UNION ";
 			}
@@ -841,9 +826,9 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 			if($_GET['tab'] == 'path' || $_GET['tab'] == 'path_external_path' || $_GET['tab'] == $tab_id) {
 				$timeline = $timelines[$i];
 				if($milestone == 'Unassigned') {
+                    $timeline = '';
 					$sql = $unassigned_sql;
 					$count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM (SELECT COUNT(*) `tickets` FROM tickets WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(milestone_timeline, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(to_do_date,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '')) `tickets` LEFT JOIN
-						(SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND `status` != 'Archive' AND (`status` = '' OR IFNULL(REPLACE(REPLACE(REPLACE(REPLACE(REPLACE(project_milestone, '&gt;','>'), '&lt;','<'), '&nbsp;',' '), '&amp;','&'), '&quot;','\"'),'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid') OR IFNULL(task_tododate,'0000-00-00') = '0000-00-00' OR REPLACE(IFNULL(contactid,''),',','') = '')) `tasks` ON 1=1 LEFT JOIN
 						(SELECT COUNT(*) `intake` FROM intake WHERE projectid='$projectid' AND `projectid` > 0 AND `deleted`=0 AND (`project_milestone` = '' OR IFNULL(project_milestone,'') NOT IN (SELECT `milestone` FROM `project_path_custom_milestones` WHERE `deleted`=0 AND `projectid`='$projectid'))) `intake` ON 1=1"));
 				} else if(substr($_GET['tab'],0,18) == 'path_external_path') {
 					$html_milestone = htmlentities($milestone);
@@ -853,12 +838,13 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 					$html_milestone = htmlentities($milestone);
                     if (strpos($_SERVER['REQUEST_URI'],'/Tasks_Updated/') !== false) {
 
-                        $sql = "SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND `status` != '".$status_complete."' AND project_milestone IN ('$milestone','$html_milestone')";
+                        $sql = "SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone') ORDER BY tasklistid DESC";
 
-                        $count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone')"));
+                        $count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone')"));
                         //echo $count['tasks'];
 
                     } else {
+                        /*
                         $sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone') UNION
                             SELECT 'Work Order', `workorderid` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone') UNION
                             SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND `status` != '".$status_complete."' AND project_milestone IN ('$milestone','$html_milestone') UNION
@@ -868,31 +854,43 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
                             (SELECT COUNT(*) `workorders` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone')) workorders ON 1=1 LEFT JOIN
                             (SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone')) tasks ON 1=1 LEFT JOIN
                             (SELECT COUNT(*) `intake` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN('$milestone','$html_milestone')) intake ON 1=1 LEFT JOIN
-                            (SELECT COUNT(*) `checklists` FROM `checklist` WHERE `projectid`='$projectid' AND `deleted` = 0 AND `projectid` > 0 AND `project_milestone` IN ('$milestone','$html_milestone') checklist ON 1=1"));
+                            (SELECT COUNT(*) `checklists` FROM `checklist` WHERE `projectid`='$projectid' AND `deleted` = 0 AND `projectid` > 0 AND `project_milestone` IN ('$milestone','$html_milestone')) checklist ON 1=1"));
+                            */
+
+                        $sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone') UNION
+                            SELECT 'Work Order', `workorderid` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone') UNION
+                            SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone') UNION
+                            SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone') UNION
+                            SELECT 'Checklist', `checklistid` FROM `checklist` WHERE `projectid` = '$projectid' AND `projectid` > 0 AND `deleted` = 0 AND `project_milestone` IN ('$milestone','$html_milestone')";
+                        $count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM (SELECT COUNT(*) `tickets` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone')) tickets LEFT JOIN
+                            (SELECT COUNT(*) `workorders` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone')) workorders ON 1=1 LEFT JOIN
+                            (SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone')) tasks ON 1=1 LEFT JOIN
+                            (SELECT COUNT(*) `intake` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN('$milestone','$html_milestone')) intake ON 1=1 LEFT JOIN
+                            (SELECT COUNT(*) `checklists` FROM `checklist` WHERE `projectid`='$projectid' AND `deleted` = 0 AND `projectid` > 0 AND `project_milestone` IN ('$milestone','$html_milestone')) checklist ON 1=1"));
+
                     }
 				}
 				$milestone_items = mysqli_query($dbc, $sql); ?>
 				<div class="<?= ($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' ? 'dashboard-list' : '' ?> item_list" style="margin-bottom: -10px;">
-					<div class="info-block-header"><h4><?= in_array($_GET['tab'],['path','path_external_path']) && $pathid != 'MS' ? '<a target="_parent" href="?edit='.$projectid.'&tab='.$tab_id.'&pathid='.$_GET['pathid'].'">'.$milestone_row['label'].'</a>' : '<span>'.$milestone_row['label'].'</span>' ?>
-						<?= $milestone != 'Unassigned' && $security['edit'] > 0 && $pathid != 'MS' ? '<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '' ?>
-						<?= $milestone != 'Unassigned' && in_array($_GET['tab'],['path','path_external_path']) && $security['edit'] > 0 && $pathid != 'MS' ? '<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right no-toggle" src="../img/icons/drag_handle.png" title="Drag">
-							<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
+					<div class="info-block-header"><h4><div class="pull-left"><?= in_array($_GET['tab'],['path','path_external_path']) && $pathid != 'MS' ? '<a target="_parent" href="?edit='.$projectid.'&tab='.$tab_id.'&pathid='.$_GET['pathid'].'">'.$milestone_row['label'].'</a>' : '<span>'.$milestone_row['label'].'</span>' ?>
+						<?= $milestone != 'Unassigned' && $security['edit'] > 0 && $pathid != 'MS' ? '<img class="small no-gap-top milestone_name cursor-hand inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '' ?></div>
+						<?= $milestone != 'Unassigned' && in_array($_GET['tab'],['path','path_external_path']) && $security['edit'] > 0 && $pathid != 'MS' ? '<div class="pull-right"><img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right no-toggle" src="../img/icons/drag_handle.png" title="Drag">
 							<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
-							<input type="hidden" name="sort" value="'.$milestone_row['sort'].'">' : '' ?></h4>
+							<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
+							<input type="hidden" name="sort" value="'.$milestone_row['sort'].'"></div>' : '' ?></h4>
 						<input type="text" name="milestone_name" data-milestone="<?= $milestone ?>" data-id="<?= $milestone_row['id'] ?>" value="<?= $milestone_row['label'] ?>" style="display:none;" class="form-control">
-					<a target="_parent" href="?edit=<?= $projectid ?>&tab=<?= $tab_id ?>" <?= $pathid == 'MS' ? 'onclick="return false;"' : '' ?>><div class="small"><?= ($count['tickets'] > 0 ? substr(TICKET_NOUN,0,1).': '.$count['tickets'] : ' ').($count['tasks'] > 0 ? ' TASK: '.$count['tasks'] : ' ').($count['workorders'] > 0 ? ' WO: '.$count['workorders'] : ' ').($count['items'] > 0 ? ' C: '.$count['items'] : ' ').($count['intake'] > 0 ? ' INTAKE: '.$count['intake'] : ' ').($count['checklist'] > 0 ? ' CHECKLIST: '.$count['checklist'] : ' ') ?><span class="pull-right"><?= $timeline != '' ? $timeline : '&nbsp;' ?></span></div><div class="clearfix"></div></a></div>
-					<ul class="<?= ($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' ? 'dashboard-list' : 'connectedChecklist no-margin full-width' ?>" data-milestone="<?= $milestone ?>">
-
-						<?php while($item = mysqli_fetch_array($milestone_items)) {
-							include('scrum_card_load.php');
-						} ?>
+					<div class="clearfix"></div>
+                    <div class="pull-left"><a target="_parent" href="?edit=<?= $projectid ?>&tab=<?= $tab_id ?>&pathid=<?= $_GET['pathid'] ?>" <?= $pathid == 'MS' ? 'onclick="return false;"' : '' ?>><div class="small"><?= ($count['tickets'] > 0 ? substr(TICKET_NOUN,0,1).': '.$count['tickets'] : ' ').($count['tasks'] > 0 ? ' TASKS: '.$count['tasks'] : ' ').($count['workorders'] > 0 ? ' WO: '.$count['workorders'] : ' ').($count['items'] > 0 ? ' C: '.$count['items'] : ' ').($count['intake'] > 0 ? ' INTAKE: '.$count['intake'] : ' ').($count['checklist'] > 0 ? ' CHECKLIST: '.$count['checklist'] : ' ') ?><span class="pull-right"><?= $timeline != '' ? $timeline : '&nbsp;' ?></span></div><div class="clearfix"></div></a></div>
+                    <div class="pull-right"><img class="small milestone_options cursor-hand no-gap-top inline-img pull-right no-toggle" src="../img/icons/ROOK-3dot-icon.png" title="Show/Hide Options"></div></div>
+					<div class="clearfix"></div>
+                    <ul class="<?= ($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' ? 'dashboard-list' : 'connectedChecklist no-margin full-width' ?>" data-milestone="<?= $milestone ?>">
 
 						<?php if($milestone != 'Unassigned' && $security['edit'] > 0) { ?>
 							<li class="dashboard-item add_block">
 								<?php if($tab_id != 'path' && $_GET['tab'] != 'path_external_path') { ?>
-									<?php if(in_array('Intake',$tab_config)) { ?><a target="_parent" href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone ?>" class="btn brand-btn pull-right">New Intake</a><?php } ?>
-									<?php if(in_array('Tickets',$tab_config)) { ?><a target="_parent" href="../Ticket/index.php?&edit=0&projectid=<?= $projectid ?>&milestone_timeline=<?= urlencode($milestone) ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,false,'auto'); return false;" class="btn brand-btn pull-right">New <?= TICKET_NOUN ?></a><?php } ?>
-
+									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><input type="text" placeholder="Quick Add Task" name="task" onblur="addTask(this);" class="new_task form-control"><br /><?php } ?>
+									<?php if(in_array('Intake',$tab_config)) { ?><a target="_parent" href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone ?>" class="btn brand-btn pull-right">Intake +</a><?php } ?>
+									<?php if(in_array('Tickets',$tab_config)) { ?><a target="_parent" href="../Ticket/index.php?&edit=0&projectid=<?= $projectid ?>&milestone_timeline=<?= urlencode($milestone) ?>&from=<?= urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']) ?>" onclick="overlayIFrameSlider(this.href+'&calendar_view=true','auto',true,false,'auto'); return false;" class="btn brand-btn pull-right"><?= TICKET_NOUN ?> +</a><?php } ?>
 
 									<?php
                                     $add_milestone = str_replace("&","FFMEND",$milestone);
@@ -901,24 +899,28 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 
                                     if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?>
 
+									<!-- <a href="" onclick="addIntakeForm(this); return false;" data-milestone="<?= $milestone_row['milestone'] ?>" class="btn brand-btn pull-right">Intake +</a> -->
                                     <?php
                                     $slider_layout = !empty(get_config($dbc, 'tasks_slider_layout')) ? get_config($dbc, 'tasks_slider_layout') : 'accordion';
 
                                     if($slider_layout == 'accordion') {
                                     ?>
-                                    <a href="../Tasks_Updated/add_task.php?tab=path&projectid=<?= $projectid ?>&project_milestone=<?= $add_milestone?>&task_path=<?=$path_name_edit?>&task_milestone_timeline=<?=$add_milestone?>" onclick="overlayIFrameSlider(this.href,'50%',true); return false;" class="btn brand-btn pull-right">Add Task</a>
+                                    <a href="../Tasks_Updated/add_task.php?tab=path&projectid=<?= $projectid ?>&project_milestone=<?= $add_milestone?>&task_path=<?=$path_name_edit?>&task_milestone_timeline=<?=$add_milestone?>" onclick="overlayIFrameSlider(this.href,'50%',true); return false;" class="btn brand-btn pull-right">Task +</a>
                                     <?php } else { ?>
-                                    <a href="../Tasks_Updated/add_task_full_view.php?tab=path&projectid=<?= $projectid ?>&project_milestone=<?= $add_milestone?>&task_path=<?=$path_name_edit?>&task_milestone_timeline=<?=$add_milestone?>" class="btn brand-btn pull-right">Add Task</a>
+                                    <a href="../Tasks_Updated/add_task_full_view.php?tab=path&projectid=<?= $projectid ?>&project_milestone=<?= $add_milestone?>&task_path=<?=$path_name_edit?>&task_milestone_timeline=<?=$add_milestone?>" class="btn brand-btn pull-right">Task +</a>
                                     <?php } ?>
 
                                     <?php } ?>
 
-									<?php if(in_array('Checklists In Path',$tab_config)) { ?><a target="_parent" href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&projectid=<?= $projectid ?>&project_milestone=<?= urlencode($milestone) ?>'); return false;" class="btn brand-btn pull-right">New Checklist</a><?php } ?>
-									<?php if(in_array('Tasks',$tab_config) || in_array('Checklists',$tab_config)) { ?><input type="text" placeholder="Quick Add Task" name="task" onblur="addTask(this);" class="new_task form-control"><?php } ?>
+									<?php if(in_array('Checklists In Path',$tab_config)) { ?><a target="_parent" href="" onclick="overlayIFrameSlider('<?= WEBSITE_URL ?>/Checklist/edit_checklist.php?edit=NEW&projectid=<?= $projectid ?>&project_milestone=<?= urlencode($milestone) ?>'); return false;" class="btn brand-btn pull-right">Checklist +</a><?php } ?>
 								<?php } ?>
 								<div class="clearfix"></div>
 							</li>
 						<?php } ?>
+
+						<?php while($item = mysqli_fetch_array($milestone_items)) {
+							include('scrum_card_load.php');
+						} ?>
 
 						<?php if($_GET['tab'] != 'path' && $_GET['tab'] != 'path_external_path') {
 							include('next_buttons.php');
@@ -929,4 +931,19 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		} ?>
 	</div>
 	<div class="clearfix"></div>
+
+	<div class="dialog_addintake" title="Select an Intake Form" style="display: none;">
+		<div class="form-group">
+			<label class="col-sm-4 control-label">Intake Form:</label>
+			<div class="col-sm-8">
+				<select name="add_intakeform" class="chosen-select-deselect form-control">
+					<option></option>
+					<?php $form_types = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `intake_forms` WHERE `deleted` = 0"),MYSQLI_ASSOC);
+					foreach ($form_types as $form_type) {
+						echo '<option value="'.$form_type['intakeformid'].'">'.$form_type['form_name'].'</option>';
+					} ?>
+				</select>
+			</div>
+		</div>
+	</div>
 <?php } ?>

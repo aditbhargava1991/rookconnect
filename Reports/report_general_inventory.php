@@ -218,7 +218,9 @@ function report_inventory($dbc, $starttime, $endtime, $table_style, $table_row_s
     $total_contact = mysqli_query($dbc,"SELECT SUM(quantity) AS total_quantity, SUM(sell_price) AS total_sell, inventoryid FROM report_inventory WHERE (DATE(today_date) >= '".$starttime."' AND DATE(today_date) <= '".$endtime."') GROUP BY inventoryid");
 
 	$cost_field = get_config($dbc,'inventory_cost');
+    $odd_even=0;
     while($row_report = mysqli_fetch_array($total_contact)) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
         $inventoryid = $row_report['inventoryid'];
         $total_cost = (get_all_from_inventory($dbc, $inventoryid, $cost_field)*$row_report['total_quantity']);
         $total_sell = $row_report['total_sell'];
@@ -229,7 +231,7 @@ function report_inventory($dbc, $starttime, $endtime, $table_style, $table_row_s
         } else {
             $back = 'style="background-color: green;"';
         }
-        $report_data .= '<tr nobr="true">';
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">';
         $report_data .= '<td>'.get_all_from_inventory($dbc, $inventoryid, 'code').'</td>';
         $report_data .= '<td>'.get_all_from_inventory($dbc, $inventoryid, 'name').'</td>';
         $report_data .= '<td>'.$row_report['total_quantity'].'</td>';
@@ -238,6 +240,7 @@ function report_inventory($dbc, $starttime, $endtime, $table_style, $table_row_s
         $report_data .= '<td>'.$total_sell.'</td>';
         $report_data .= '<td '.$back.'>'.$profit_loss.'</td>';
         $report_data .= '</tr>';
+        $odd_even++;
     }
 
     $report_data .= '</table>';

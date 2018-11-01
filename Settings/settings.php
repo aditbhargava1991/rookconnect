@@ -306,6 +306,20 @@ checkAuthorised('software_config');
 					</div>
 				</div>
 			</div>
+			<div class="panel panel-default">
+				<div class="panel-heading mobile_load">
+					<h4 class="panel-title">
+						<a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_dash_notifications">
+							Desktop Notifications <span class="glyphicon glyphicon-plus"></span>
+						</a>
+					</h4>
+				</div>
+				<div id="collapse_dash_notifications" class="panel-collapse collapse">
+					<div class="panel-body" data-url="desktop_notifications.php">
+						Loading...
+					</div>
+				</div>
+			</div>
 
 		</div>
 
@@ -328,6 +342,9 @@ checkAuthorised('software_config');
 			<?php //if(check_subtab_persmission($dbc, 'software_config', ROLE, 'notes')) { ?><!--<li <?= ($tab == 'notes' ? 'class="active" ' : ''); ?>><a href='settings.php?tab=notes'>Notes</a></li> --><?php //} ?>
 			<?php if(check_subtab_persmission($dbc, 'software_config', ROLE, 'ticket_slider')) { ?><li <?= ($tab == 'ticket_slider' ? 'class="active" ' : ''); ?>><a href='settings.php?tab=ticket_slider'><?= TICKET_NOUN ?> Slider</a></li><?php } ?>
 			<li <?= ($tab == 'notifications' ? 'class="active" ' : '') ?>><a href='settings.php?tab=notifications'>Notifications</a></li>
+			<?php if(ROLE == 'Manager'){ ?><li <?= ($tab == 'desktop_notifications' ? 'class="active" ' : '') ?>><a href='settings.php?tab=desktop_notifications'>Desktop Notifications</a></li><?php } ?>
+			<?php $enb = get_config($dbc, 'desktop_notification_enabled'); ?>
+			<?php if(ROLE != 'Manager'){ ?><li <?= ($tab == 'desktop_notifications_user' && $enb == '1' ? 'class="active" ' : '') ?>><a href='settings.php?tab=desktop_notifications_user'>Desktop Notifications</a></li><?php } ?>
 		</div>
 		
 		<div class="scale-to-fill has-main-screen hide-titles-mob" style="margin-bottom:-20px;">
@@ -351,6 +368,8 @@ checkAuthorised('software_config');
 						case 'notes': echo 'Notes'; break;
 						case 'ticket_slider': echo TICKET_NOUN.' Slider View'; break;
 						case 'notifications': echo 'Notifications'; break;
+						case 'desktop_notifications': echo 'Desktop Notifications'; break;
+						case 'desktop_notifications_user': echo 'Desktop Notifications'; break;
 					} ?></h3>
 				</div>
 
@@ -373,6 +392,8 @@ checkAuthorised('software_config');
 						case 'notes': include('notes.php'); break;
 						case 'ticket_slider': include('ticket_slider.php'); break;
 						case 'notifications': include('notifications.php'); break;
+						case 'desktop_notifications': include('desktop_notifications.php'); break;
+						case 'desktop_notifications_user': include('desktop_notifications_user.php'); break;
 					} ?>
 				</div>
 			</div>

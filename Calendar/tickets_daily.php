@@ -1,4 +1,6 @@
 <script src="appointments.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=<?= DIRECTIONS_KEY ?>"></script>
+<script src="map_sorting.js"></script>
 <script>
 var page_mode = '<?= $_GET['mode'] ?>';
 $(document).ready(function() {
@@ -32,6 +34,8 @@ function toggle_columns(type = '', reload_teams = 0) {
 	// Hide deselected columns
 	var visible_staff = [];
     var regions = [];
+    var equipment = [];
+    var ticket_types = [];
     var clients = [];
 	var teams = [];
 	var all_contacts = [];
@@ -40,6 +44,11 @@ function toggle_columns(type = '', reload_teams = 0) {
     $('#collapse_region').find('.block-item.active').each(function() {
         var region = $(this).data('region');
         regions.push(region);
+    });
+    // Filter Ticket Types
+    $('#collapse_ticket_type').find('.block-item.active').each(function() {
+        var ticket_type = $(this).data('tickettype');
+        ticket_types.push(ticket_type);
     });
     // Hide clients that are not in selected regions
     $('[id^=collapse_clients]').find('.block-item').each(function() {
@@ -67,10 +76,10 @@ function toggle_columns(type = '', reload_teams = 0) {
         }
     });
     // Filter selected teams
-	$('#collapse_teams').find('.block-item.active').each(function() {
-		var contactids = $(this).data('contactids').toString().split(',');
-		var teamid = $(this).data('teamid');
-		teams.push(parseInt(teamid));
+    $('#collapse_teams').find('.block-item.active').each(function() {
+        var contactids = $(this).data('contactids').toString().split(',');
+        var teamid = $(this).data('teamid');
+        teams.push(parseInt(teamid));
 
         if($('.calendar_view table th[data-contact='+teamid+'][data-blocktype=team]').length == 0 || reload_teams) {
             clear_all_data();
@@ -79,19 +88,46 @@ function toggle_columns(type = '', reload_teams = 0) {
             $('.calendar_view table th[data-contact='+teamid+'][data-blocktype=team]').show();
             $('.calendar_view table td[data-contact='+teamid+'][data-blocktype=team]').show();
         }
-		contactids.forEach(function (contact_id) {
-			if(contact_id > 0) {
-				if(all_contacts.indexOf(parseInt(contact_id)) == -1) {
-					all_contacts.push(parseInt(contact_id));
+        contactids.forEach(function (contact_id) {
+            if(contact_id > 0) {
+                if(all_contacts.indexOf(parseInt(contact_id)) == -1) {
+                    all_contacts.push(parseInt(contact_id));
                     var staff_block = $('[id^=collapse_staff]').find('.block-item[data-staff='+contact_id+']');
                     if(!$(staff_block).hasClass('active') && $(staff_block).length > 0 && ($('.calendar_view table th[data-contact='+teamid+'][data-blocktype=team]').length == 0 || reload_teams == 1)) {
                         staff_anchor = $(staff_block).closest('a');
                         retrieve_items(staff_anchor, '', true);
                     }
-				}
-			}
-		});
-	});
+                }
+            }
+        });
+    });
+    // Filter selected equipment
+    $('[id^=collapse_equipment]').find('.block-item').each(function() {
+        var region_pass = true;
+        var equipmentid = $(this).data('equipment');
+        var equipment_region = $(this).data('region');
+        if(equipment_region != undefined) {
+            equipment_region = equipment_region.split('*#*');
+        }
+        if(regions.length > 0) {
+            region_pass = false;
+            equipment_region.forEach(function(this_region) {
+                if(regions.indexOf(this_region) > -1) {
+                    region_pass = true;
+                }
+            });
+        }
+        if (!region_pass) {
+            $(this).hide();
+            $(this).removeClass('active');
+        } else {
+            $(this).show();
+        }
+    });
+    $('[id^=collapse_equipment]').find('.block-item.active').each(function() {
+        var equipmentid = $(this).data('equipment');
+        equipment.push(equipmentid);
+    });
     // Hide staff that are not in selected regions
     $('[id^=collapse_staff]').find('.block-item').each(function() {
         var staff_id = $(this).data('staff');
@@ -120,7 +156,8 @@ function toggle_columns(type = '', reload_teams = 0) {
     $('div.used-block').each(function() {
         var ticket_businessid = $(this).data('businessid');
         var ticket_clientid = $(this).data('clientid');
-        if (clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) && clients.length > 0) {
+        var ticket_type = $(this).data('tickettype');
+        if ((clients.indexOf(parseInt(ticket_clientid)) == -1 && clients.indexOf(parseInt(ticket_businessid)) == -1 && clients.length > 0) || (ticket_types.indexOf(ticket_type) == -1 && ticket_types.length > 0)) {
             $(this).hide();
         } else {
             $(this).show();
@@ -132,9 +169,12 @@ function toggle_columns(type = '', reload_teams = 0) {
             $('.calendar_view table td, .calendar_view table th').filter(function() { return $(this).data('contact') == contact_id; }).show();
         });
     <?php } else { ?>
-    	all_contacts.forEach(function (contact_id) {
-    		$('.calendar_view table td, .calendar_view table th').filter(function() { return $(this).data('contact') == contact_id; }).show();
-    	});
+        all_contacts.forEach(function (contact_id) {
+            $('.calendar_view table td, .calendar_view table th').filter(function() { return $(this).data('contact') == contact_id && $(this).data('blocktype') != 'equipment'; }).show();
+        });
+        equipment.forEach(function (equipmentid) {
+            $('.calendar_view table td, .calendar_view table th').filter(function() { return $(this).data('contact') == equipmentid && $(this).data('blocktype') == 'equipment'; }).show();
+        });
     <?php } ?>
 
 	// Specify the column width, if it's past min-width it will use that so this can just go down to 1%
@@ -145,7 +185,7 @@ function toggle_columns(type = '', reload_teams = 0) {
 	$.ajax({
 		url: 'calendar_ajax_all.php?fill=selected_staff&offline='+offline_mode,
 		method: 'POST',
-		data: { staff: visible_staff, teams: teams, regions: regions, clients: clients },
+		data: { staff: visible_staff, teams: teams, regions: regions, clients: clients, tickettype_list: ticket_types <?= $use_equipment == 1 ? ', equipment: equipment' : '' ?> },
 		success: function(response) {
 		}
 	});
@@ -170,7 +210,49 @@ $calendar_type = get_config($dbc, 'ticket_wait_list');
 	<div class="collapsible pull-left">
 		<input type="text" class="search-text form-control" placeholder="Search All">
 		<div class="sidebar panel-group block-panels" id="category_accordions" style="margin: 1.5em 0 0.5em; overflow: auto; padding-bottom: 0;">
-            <?php if(count($contact_regions) > 0) { ?>
+            <?php if(in_array('Ticket Type', $sidebar_filters)) { ?>
+                <div class="panel panel-default">
+                    <div class="panel-heading">
+                        <h4 class="panel-title">
+                            <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_ticket_type">
+                                <span style="display: inline-block; width: calc(100% - 6em);"><?= TICKET_NOUN ?> Type</span><span class="glyphicon glyphicon-plus"></span>
+                            </a>
+                        </h4>
+                    </div>
+
+                    <div id="collapse_ticket_type" class="panel-collapse collapse">
+                        <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                            <?php $active_tickettypes = array_filter(explode(',',get_user_settings()['appt_calendar_tickettypes']));
+                            foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                                $ticket_type_value = config_safe_str($ticket_type);
+                                if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) {
+                                    if($calendar_ticket_color_code_tabs == 1) {
+                                        $color_styling = $ticket_tabs_color[$ticket_type_value];
+                                        if(empty($color_styling)) {
+                                            $color_box = '<span style="height: 15px; width: 15px; background-color: #fff; border: 1px solid #888; float: right; margin-left: 0.5em;"><svg style="width: 100%; height: 100%; position: relative; top: -2px;"><line x1="0" y1="100%" x2="100%" y2="0"
+                                                        style="stroke:#888;stroke-width:1"/></svg></span>';
+                                        } else {
+                                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
+                                        }
+                                    } else {
+                                        $color_box = '';
+                                    }
+                                    echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($ticket_type_value,$active_tickettypes) ? 'active' : '')."' data-activevalue='".$ticket_type_value."' data-tickettype='".$ticket_type_value."'>".$ticket_type.$color_box."</div></a>";
+                                }
+                            } ?>
+                        </div>
+                    </div>
+                </div>
+                <div class="active_blocks" data-accordion="collapse_ticket_type" style="display: none;">
+                    <?php foreach(array_filter(explode(',',get_config($dbc, 'ticket_tabs'))) as $ticket_type) {
+                        $ticket_type_value = config_safe_str($ticket_type);
+                        if(in_array($ticket_type_value,$allowed_ticket_types) || empty($allowed_ticket_types)) { ?>
+                            <div class="block-item active" data-activevalue="<?= $ticket_type_value ?>"><?= $ticket_type ?></div> 
+                        <?php }
+                    } ?>
+                </div>
+            <?php } ?>
+            <?php if(count($contact_regions) > 0 && in_array('Region', $sidebar_filters)) { ?>
                 <div class="panel panel-default">
                     <div class="panel-heading">
                         <h4 class="panel-title">
@@ -189,7 +271,7 @@ $calendar_type = get_config($dbc, 'ticket_wait_list');
                             if(!empty($region_colours[$region_line])) {
                                 $color_styling = $region_colours[$region_line];
                             }
-                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right;"></span>';
+                            $color_box = '<span style="height: 15px; width: 15px; background-color: '.$color_styling.'; border: 1px solid black; float: right; margin-left: 0.5em;"></span>';
                             echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); return false;'><div class='block-item ".(in_array($region,$active_regions) ? 'active' : '')."' data-activevalue='".$region."' data-region='".$region."'>".$region.$color_box."</div></a>";
                         } ?>
                         </div>
@@ -234,8 +316,45 @@ $calendar_type = get_config($dbc, 'ticket_wait_list');
                     </div>
                 <?php }
             } ?>
-            <?php if($_GET['mode'] != 'client') { ?>
-                <?php if($staff_split_security != 1) { ?>
+            <?php if($_GET['mode'] != 'client') {
+                $collapse_in = 'in';
+                if($use_equipment == 1) {
+                    foreach($equipment_categories as $equipment_category) { ?>
+                        <div class="panel panel-default">
+                            <div class="panel-heading">
+                                <h4 class="panel-title">
+                                    <a data-toggle="collapse" data-parent="#category_accordions" href="#collapse_equipment_<?= config_safe_str($equipment_category) ?>" >
+                                        <span style="display: inline-block; width: calc(100% - 6em);"><?= $equipment_category ?></span><span class="glyphicon glyphicon-minus"></span>
+                                    </a>
+                                </h4>
+                            </div>
+
+                            <div id="collapse_equipment_<?= config_safe_str($equipment_category) ?>" class="panel-collapse collapse <?php echo $collapse_in; $collapse_in = ''; ?>">
+                                <div class="panel-body" style="overflow-y: auto; padding: 0;">
+                                    <?php $active_equipment = array_filter(explode(',',get_user_settings()['appt_calendar_equipment']));
+                                    $equip_list = mysqli_fetch_all(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `deleted`=0 AND `category` = '$equipment_category' $allowed_equipment_query $customer_query ORDER BY `label`"),MYSQLI_ASSOC);
+                                    foreach($equip_list as $equipment) {
+                                        $equip_regions = $equipment['region'];
+                                        $equip_locations = $equipment['location'];
+                                        $equip_classifications = $equipment['classification'];
+                                        
+                                        $equip_regions = implode('*#*', array_filter(array_unique(explode('*#*', $equip_regions))));
+                                        $equip_locations = implode('*#*', array_filter(array_unique(explode('*#*', $equip_locations))));
+                                        $equip_classifications = implode('*#*', array_filter(array_unique(explode('*#*', $equip_classifications))));
+
+                                        echo "<a href='' onclick='$(this).find(\".block-item\").toggleClass(\"active\"); retrieve_items(this); toggle_columns(\"\"); return false;'><div class='block-item ".(in_array($equipment['equipmentid'],$active_equipment) ? 'active' : '')."' data-equipment='".$equipment['equipmentid']."' data-region='".$equip_regions."' data-classification='".$equip_classifications."' data-location='".$equip_locations."' data-activevalue='".$equipment['equipmentid']."' data-blocktype='equipment' data-retrieve-contact='equipment'>".$equipment['label']."</div></a>";
+                                    } ?>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="active_blocks_equipment active_blocks" data-accordion="collapse_equipment_<?= config_safe_str($equipment_category) ?>" style="display: none;">
+                            <?php foreach($equip_list as $equipment) { ?>
+                                <div class="block-item active" data-activevalue="<?= $equipment['equipmentid'] ?>"><?= $equipment['label'] ?></div> 
+                            <?php } ?>
+                        </div>
+                    <?php }
+                }
+                if($staff_split_security != 1) { ?>
         			<div class="panel panel-default">
         				<div class="panel-heading">
         					<h4 class="panel-title">
@@ -245,19 +364,19 @@ $calendar_type = get_config($dbc, 'ticket_wait_list');
         					</h4>
         				</div>
 
-        				<div id="collapse_staff" class="panel-collapse collapse in <?= get_config($dbc, 'ticket_teams') !== '' ? 'team_assign_div' : '' ?>">
+        				<div id="collapse_staff" class="panel-collapse collapse <?php echo $collapse_in; $collapse_in = ''; ?> <?= get_config($dbc, 'ticket_teams') !== '' || $use_equipment == 1 ? 'team_assign_div' : '' ?>">
         					<div class="panel-body panel-body-height" style="overflow-y: auto; padding: 0;">
         						<?php $category_list = mysqli_query($dbc, "SELECT `category_contact` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND `deleted`=0 AND `status`=1 AND IFNULL(`category_contact`,'') != '' AND IFNULL(`calendar_enabled`,1)=1".$region_query.$allowed_roles_query." GROUP BY `category_contact` ORDER BY `category_contact`");
         						while($display_option = mysqli_fetch_array($category_list)) {
         							echo "<a href='' data-category='".$display_option['category_contact']."' onclick='check_staff_category(this); return false;'><div class='block-item'>".$display_option['category_contact']."</div></a>";
         						}
         						$active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
-        						if(count($active_staff) == 0) {
+        						if(count($active_staff) == 0 && empty($active_equipment)) {
         							$active_staff[] = $_SESSION['contactid'];
         						}
         						$staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1".$region_query.$allowed_roles_query),MYSQLI_ASSOC));
         						foreach($staff_list as $staff_id) {
-        							echo "<a href='' onclick='$(\"#collapse_teams .block-item\").removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); retrieve_items(this); return false;'><div class='block-item ".(in_array($staff_id,$active_staff) ? 'active' : '')." ".(get_config($dbc, 'ticket_teams') !== '' ? 'team_assign_draggable' : '')."' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-activevalue='".$staff_id."'>".(get_config($dbc, 'ticket_teams') !== '' ? "<img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>" : '' );
+        							echo "<a href='' onclick='$(\"#collapse_teams .block-item\").removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); retrieve_items(this); return false;'><div class='block-item ".(in_array($staff_id,$active_staff) ? 'active' : '')." ".(get_config($dbc, 'ticket_teams') !== '' || $use_equipment == 1 ? 'team_assign_draggable' : '')."' data-staff='$staff_id' data-category='".get_contact($dbc, $staff_id, 'category_contact')."' data-region='".get_contact($dbc, $staff_id, 'region')."' data-activevalue='".$staff_id."'>".(get_config($dbc, 'ticket_teams') !== '' || $use_equipment == 1 ? "<img class='drag-handle no-toggle' src='".WEBSITE_URL."/img/icons/drag_handle.png' style='float: right; width: 2em;' title='Drag'>" : '' );
         							profile_id($dbc, $staff_id);
         							echo get_contact($dbc, $staff_id)."<ul class='client_freq' style='font-size: x-small; display: none;'></ul></div></a>";
         						} ?>
@@ -270,7 +389,6 @@ $calendar_type = get_config($dbc, 'ticket_wait_list');
                         <?php } ?>
                     </div>
                 <?php } else {
-                    $collapse_in = 'in';
                     foreach(get_security_levels($dbc) as $security_label => $security_level) {
                         if(empty($allowed_roles) || in_array($security_level, $allowed_roles)) { ?>
                             <div class="panel panel-default">
@@ -289,7 +407,7 @@ $calendar_type = get_config($dbc, 'ticket_wait_list');
                                             echo "<a href='' data-category='".$display_option['category_contact']."' onclick='check_staff_category(this); return false;'><div class='block-item'>".$display_option['category_contact']."</div></a>";
                                         }
                                         $active_staff = array_filter(explode(',',get_user_settings()['appt_calendar_staff']));
-                                        if(count($active_staff) == 0) {
+                                        if(count($active_staff) == 0 && empty($active_equipment)) {
                                             $active_staff[] = $_SESSION['contactid'];
                                         }
                                         $staff_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status`=1 AND `show_hide_user`=1 AND IFNULL(`calendar_enabled`,1)=1 AND CONCAT(',',`role`,',') LIKE '%,$security_level,%'".$region_query.$allowed_roles_query),MYSQLI_ASSOC));

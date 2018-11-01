@@ -78,6 +78,16 @@
 	<div class="col-sm-8">
 		<input type="text" name="birth_date" value="<?= $contact['birth_date'] ?>" data-field="birth_date" data-table="contacts" class="datepicker form-control">
 	</div>
+<?php } else if($field_option == 'Days Per Week') { ?>
+	<label class="col-sm-4 control-label"># of Days Per Week:</label>
+	<div class="col-sm-8">
+		<input type="number" name="days_per_week" value="<?= $contact['days_per_week'] ?>" data-field="days_per_week" data-table="contacts" class="form-control">
+	</div>
+<?php } else if($field_option == 'Hours Per Week') { ?>
+	<label class="col-sm-4 control-label"># of Hours Per Week:</label>
+	<div class="col-sm-8">
+		<input type="number" name="hours_per_week" value="<?= $contact['hours_per_week'] ?>" data-field="hours_per_week" data-table="contacts" class="form-control">
+	</div>
 <?php } else if($field_option == 'Company Benefit Start Date') { ?>
 	<label class="col-sm-4 control-label">Company Benefit Start Date:</label>
 	<div class="col-sm-8">

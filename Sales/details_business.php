@@ -1,5 +1,6 @@
 <?php include_once('../include.php');
-if(empty($salesid)) {
+include_once('../Sales/config.php');
+if(empty($salesid) || empty($lead)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
     if($salesid > 0) {
         $businessid = $dbc->query("SELECT `businessid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc()['businessid'];
@@ -11,30 +12,39 @@ $(document).ready(function() {
     init_page();
 });
 var reload_business = function() {
-	$.get('details_business.php?id=<?= $salesid ?>', function(response) {
+	$.get('details_business.php?id='+$('[name=salesid]').val(), function(response) {
+        $('#business-tab-label').show();
 		$('[id^=business]').parents('div').first().html(response);
 	});
 }
 </script>
 <div class="accordion-block-details padded" id="business">
     <div class="row set-row-height">
-        <div class="col-xs-12 col-sm-4 gap-md-left-15">Business:</div>
+        <div class="col-xs-12 col-sm-4 gap-md-left-15"><?= BUSINESS_CAT ?>:</div>
         <div class="col-xs-12 col-sm-5">
-            <select data-placeholder="Select a Business..." data-table="sales" name="businessid" id="task_businessid" class="chosen-select-deselect form-control1">
+            <select data-placeholder="Select <?= BUSINESS_CAT ?>..." data-table="sales" name="businessid" id="task_businessid" class="chosen-select-deselect form-control1">
                 <option value=""></option><?php
-                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `name`, `contactid` FROM `contacts` WHERE (category IN ('Business','Sales Lead') AND deleted=0 AND `status`>0 AND IFNULL(`name`,'') != '') OR `contactid`='$businessid'"), MYSQLI_ASSOC));
-                echo '<option value="New Business">New Business</option>';
+                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `name`, `contactid` FROM `contacts` WHERE (category IN ('".BUSINESS_CAT."','Sales Lead','Sales Leads') AND deleted=0 AND `status`>0 AND IFNULL(`name`,'') != '') OR `contactid`='$businessid'"), MYSQLI_ASSOC));
+                echo '<option value="New '.BUSINESS_CAT.'">New '.BUSINESS_CAT.'</option>';
                 foreach($query as $id) {
                     echo '<option '. ($businessid==$id ? 'selected' : '') .' value="'. $id .'">'. get_client($dbc, $id) .'</option>';
                 } ?>
             </select>
         </div>
 		<div class="col-xs-12 col-sm-1">
-            <a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $businessid ?>" class="no-toggle" title="<?= get_contact($dbc, $businessid, 'name_company') ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#task_businessid').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a>
+            <a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $businessid ?>" class="no-toggle" title="<?= get_contact($dbc, $businessid, 'name_company') ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#task_businessid').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/person.PNG" class="inline-img"></a>
         </div>
         <div class="clearfix"></div>
     </div>
-    <div class="accordion-block-details-heading"><h4><?= get_contact($dbc, $businessid, 'name_company') ?></h4></div>
+    <div class="accordion-block-details-heading">
+        <?php if(get_contact($dbc, $businessid, 'name_company')!=''){
+            ?>
+            <script type="text/javascript">
+                $('#business-tab-label').html("<?php echo get_contact($dbc, $businessid, 'name_company') ?>");
+            </script>
+        <?php } ?>
+        <h4><?= get_contact($dbc, $businessid, 'name_company') ?></h4>
+    </div>
     
     <div class="row">
         <div class="col-xs-12 col-sm-11 gap-md-left-15">

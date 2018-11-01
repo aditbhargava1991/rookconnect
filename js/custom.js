@@ -177,6 +177,7 @@ $(document).ready(function() {
 						success: function(response) {
 							div.css('width', response);
 							div.toggleClass('collapsed');
+                            $(window).resize();
 						}
 					});
 				}
@@ -185,6 +186,7 @@ $(document).ready(function() {
 					div.css('width', '0');
 					div.toggleClass('collapsed');
 				}
+                $(window).resize();
 			}
 		});
 	}
@@ -332,7 +334,9 @@ function initIconColors() {
                 src.match('/project-path.png') ||
                 src.match('/id-card.png') ||
                 src.match('/job.png') ||
-                src.match('/icons/recurring.png') ) {
+                src.match('/icons/recurring.png') ||
+                src.match('/icons/range.png') ||
+                src.match('/icons/tagging.png') ) {
 	            if ( !self.hasClass('white-color') && !self.hasClass('black-color') ) {
 	                self.addClass('theme-color-icon');
 	            }
@@ -506,7 +510,19 @@ function initInputs(container) {
 		}
 	}
 
-    $( container + ' ' + ".datepicker[data-min-date]" ).each(function() {
+    $( container + ' ' + ".datepicker[data-min-date][data-max-date]" ).each(function() {
+		var min_date = $(this).data('min-date');
+		var max_date = $(this).data('max-date');
+		$(this).datepicker({
+			changeMonth: true,
+			changeYear: true,
+			yearRange: '1920:2025',
+			dateFormat: 'yy-mm-dd',
+			minDate: min_date,
+			maxDate: max_date
+		});
+	});
+    $( container + ' ' + ".datepicker[data-min-date]" ).not("[data-max-date]").each(function() {
 		var min_date = $(this).data('min-date');
 		$(this).datepicker({
 			changeMonth: true,
@@ -516,7 +532,17 @@ function initInputs(container) {
 			minDate: min_date
 		});
 	});
-    $( container + ' ' + ".datepicker").not("[data-min-date]" ).each(function() {
+    $( container + ' ' + ".datepicker[data-max-date]" ).not("[data-min-date]").each(function() {
+		var max_date = $(this).data('max-date');
+		$(this).datepicker({
+			changeMonth: true,
+			changeYear: true,
+			yearRange: '1920:2025',
+			dateFormat: 'yy-mm-dd',
+			maxDate: max_date
+		});
+	});
+    $( container + ' ' + ".datepicker").not("[data-min-date],[data-max-date]" ).each(function() {
 		$(this).datepicker({
 			changeMonth: true,
 			changeYear: true,
@@ -784,6 +810,7 @@ function initInputs(container) {
 						success: function(response) {
 							div.css('width', response);
 							div.toggleClass('collapsed');
+                            $(window).resize();
 						}
 					});
 				}
@@ -792,6 +819,7 @@ function initInputs(container) {
 					div.css('width', '0');
 					div.toggleClass('collapsed');
 				}
+                $(window).resize();
 			}
 		});
 	}
@@ -931,13 +959,12 @@ function overlayIFrameDiv(url, no_reload) {
 	});
 }
 
-function overlayIFrameSlider(url, width, no_confirm, no_reload, height, change_close) {
+function overlayIFrameSlider(url, width, no_confirm, no_reload, height, change_close, force_open = '') {
 	var target = '';
 	if(window.event != undefined) {
 		target = window.event.target;
 	}
-
-	if(!$(target).hasClass('no-slider')) {
+	if(!$(target).hasClass('no-slider') || force_open == 'true') {
 		var iframe = $('.iframe_overlay');
 		if(window.top != window) {
 			var baseIframe = $(window.top.document).find('.iframe_overlay');
@@ -1120,7 +1147,7 @@ function addTimes(timeA, timeB) {
 			timeA[0] = timeA[0] * 1 - 12;
 		}
 	}
-	return timeA.join(':')+' '+AMtimeA[1];
+	return timeA.join(':')+(AMtimeA[1] != undefined ? ' '+AMtimeA[1] : '');
 }
 function getQueryStringArray(url) {
 	var query_string_arr = {};

@@ -152,4 +152,11 @@ else if($fill == 'notifications') {
 		echo $query_update = "UPDATE `field_config_email_alerts` SET `enabled` = '$enabled', `frequency` = '$frequency', `alert_hour` = '$alert_hour', `alert_days` = '$alert_days', `alerts` = '$alerts' WHERE ".$query_filter;
 		mysqli_query($dbc, $query_update);
 	}
+}else if($fill == 'desktop_notifications') {
+    $enabled = filter_var($_POST['enabled'],FILTER_SANITIZE_STRING);
+    mysqli_query($dbc, "UPDATE `general_configuration` SET `value`='$enabled' WHERE `name`='desktop_notification_enabled'");
+}else if($fill == 'desktop_notifications_user') {
+    $enabled = filter_var($_POST['enabled'],FILTER_SANITIZE_STRING);
+    $contactid = filter_var($_POST['contactid'],FILTER_SANITIZE_STRING);
+    mysqli_query($dbc, "UPDATE `contacts` SET `desktop_notification`='$enabled' WHERE `contactid`='$contactid'");
 }

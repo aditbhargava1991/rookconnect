@@ -592,9 +592,9 @@ $db_config = explode(',',$db_config); ?>
 	<?php } ?>
 	<?php if(count($ticket_types) > 1) { ?>
 		<div class="form-group">
-			<label class="col-sm-4">Import as <?= TICKET_NOUN ?> Type:<br><i>(NOTE: All <?= TICKET_TILE ?> in this import will be imported as this <?= TICKET_NOUN ?> Type if a <?= TICKET_NOUN ?> Type is selected.)</i></label>
+			<label class="col-sm-4">Import as <?= TICKET_NOUN ?> Tab:<br><i>(NOTE: All <?= TICKET_TILE ?> in this import will be imported as this <?= TICKET_NOUN ?> Type if a <?= TICKET_NOUN ?> Type is selected.)</i></label>
 			<div class="col-sm-8">
-				<select name="ticket_type" data-placeholder="Select <?= TICKET_NOUN ?> Type" class="chosen-select-deselect form-control">
+				<select name="ticket_type" data-placeholder="Select <?= TICKET_NOUN ?> Tab" class="chosen-select-deselect form-control">
 					<option></option>
 				  	<?php $query = mysqli_query($dbc,"SELECT projectid, projecttype, project_name, businessid, clientid, status FROM project WHERE deleted=0 order by project_name");
 					foreach($ticket_types as $type => $type_name) {

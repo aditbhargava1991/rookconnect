@@ -4,7 +4,6 @@
 			<label for="first_name" class="col-sm-4 control-label text-right"><?= BUSINESS_CAT ?><span class="brand-color">*</span>:</label>
 			<div class="col-sm-8">
 				<select name="businessid[]" multiple <?php echo $disable_business; ?> id="businessid" data-placeholder="Select an Option..." class="chosen-select-deselect form-control" width="380">
-					<option value=''></option>
 					<option value='New Business'>New Business</option>
 					<?php
 					$query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, name FROM contacts WHERE category='".BUSINESS_CAT."' AND deleted=0"),MYSQLI_ASSOC));
@@ -106,7 +105,6 @@
 			<label for="first_name" class="col-sm-4 control-label text-right"><?= $contact_label ?><span class="brand-color">*</span>:</label>
 			<div class="col-sm-8">
 				<select name="businesscontactid[]" multiple <?php echo $disable_client; ?> id="estimateclientid" data-placeholder="Select a <?= $contact_label ?>..." class="chosen-select-deselect form-control" width="380">
-					<option value=''></option>
 					<option value='New <?= $contact_label ?>'>New <?= $contact_label ?></option>
 					<?php
 					$cat = '';
@@ -220,10 +218,19 @@
 	<label for="first_name" class="col-sm-4 control-label text-right">Staff Members:</label>
 	<div class="col-sm-8">
 		<select name="companycontactid[]" multiple <?php echo $disable_client; ?> data-placeholder="Select an Option..." class="chosen-select-deselect form-control" width="380">
-			<option value=''></option>
 			<?php $query1 = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND deleted=0 AND `status`=1"),MYSQLI_ASSOC));
 			foreach($query1 as $id) {
-				echo "<option ".(strpos(','.$companycontactid.',', ','.$id.',') !== FALSE ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).'</option>';
+                $get_timer = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `timer` FROM `agenda_meeting_timer` WHERE `agendameetingid` = '$agendameetingid' AND created_by = '$id'"));
+                $timer = '';
+                $e_time = explode(':',$get_timer['timer']);
+                echo $e_time[0];
+                if($e_time[0] > 0) {
+                    $timer .= $e_time[0].' hour ';
+                }
+                if($e_time[1] > 0) {
+                    $timer .= $e_time[1].' minutes';
+                }
+                echo "<option ".(strpos(','.$companycontactid.',', ','.$id.',') !== FALSE ? 'selected' : '').' value="'.$id.'">'.get_contact($dbc, $id).' - '.$timer.'</option>';
 			} ?>
 		</select>
 	</div>

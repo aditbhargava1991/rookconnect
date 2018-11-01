@@ -84,7 +84,7 @@
 			<?php } ?>
 			<?php if(strpos($db_summary,'Project') !== FALSE) { ?>
 				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Project".',') !== false) { echo " checked"; } ?> value="Project" style="height: 20px; width: 20px;" name="tickets_summary[]">
-					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display the number of <?= TICKET_TILE ?> by <?= PROJECT_NOUN ?> Type."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_TILE ?> By <?= PROJECT_NOUN ?> Type</label>
+					<span class="popover-examples"><a data-toggle="tooltip" data-original-title="Display the number of <?= TICKET_TILE ?> by <?= PROJECT_NOUN ?> Tab."><img src="<?= WEBSITE_URL ?>/img/info.png" class="inline-img small"></a></span><?= TICKET_TILE ?> By <?= PROJECT_NOUN ?> Type</label>
 			<?php } ?>
 			<?php if(strpos($db_summary,'Project ID') !== FALSE) { ?>
 				<label class="form-checkbox"><input type="checkbox" <?php if (strpos($access, ','."Project".',') !== false) { echo " checked"; } ?> value="Project" style="height: 20px; width: 20px;" name="tickets_summary[]">

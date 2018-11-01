@@ -57,7 +57,6 @@
 		  <label for="site_name" class="col-sm-4 control-label">Assign To:</label>
 		  <div class="col-sm-8">
 			<select data-placeholder="Select a Staff Member..." multiple id="contactid[]" name="contactid[]" data-table="workorder" data-id="<?= $workorderid ?>" data-id-field="workorderid" class="chosen-select-deselect form-control" width="380">
-			  <option value=""></option>
 			  <?php
                 echo "<option value='Assign to All'>Assign to All</option>";
 			  ?>

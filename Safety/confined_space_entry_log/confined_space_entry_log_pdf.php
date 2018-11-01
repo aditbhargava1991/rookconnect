@@ -12,8 +12,11 @@ function confined_space_entry_log_pdf($dbc,$safetyid, $fieldlevelriskid) {
     DEFINE('PDF_LOGO', $get_pdf_logo['pdf_logo']);
 	DEFINE('PDF_HEADER', html_entity_decode($get_field_config['pdf_header']));
     DEFINE('PDF_FOOTER', html_entity_decode($get_field_config['pdf_footer']));
-    $result_update_employee = mysqli_query($dbc, "UPDATE `safety_confined_space_entry_log` SET `status` = 'Done' WHERE fieldlevelriskid='$fieldlevelriskid'");
 
+    $before_change = capture_before_change($dbc, 'safety_confined_space_entry_log', 'status', 'fieldlevelriskid', $fieldlevelriskid);
+    $result_update_employee = mysqli_query($dbc, "UPDATE `safety_confined_space_entry_log` SET `status` = 'Done' WHERE fieldlevelriskid='$fieldlevelriskid'");
+    $history = capture_after_change('status', 'Done');
+		add_update_history($dbc, 'safety_history', $history, '', $before_change);
     //$result_update_employee = mysqli_query($dbc, "UPDATE `safety_staff` SET `done` = 1 WHERE safetyid='$safetyid' AND staffid='$form_by' AND DATE(today_date) = CURDATE()");
 
     $today_date = $get_weekly['today_date'];

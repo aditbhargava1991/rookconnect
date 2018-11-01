@@ -717,7 +717,6 @@ if($_GET['tab'] != 'scrum_board') {
 						<?= $milestone != 'Unassigned' ? '<img class="small no-gap-top milestone_name cursor-hand inline-img pull-left" src="../img/icons/ROOK-edit-icon.png">' : '' ?>
 						<?= $milestone != 'Unassigned' && in_array($_GET['tab'],['path','path_external_path']) ? '<img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right" src="../img/icons/drag_handle.png">
 							<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
-							<img class="small cursor-hand no-gap-top inline-img pull-right" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks/task_history.php?label=<?=$label?>&taskboardid=<?=$taskboardid?>');" src="../img/time-machine.png">
 							<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
 							<input type="hidden" name="sort" value="'.$milestone_row['sort'].'">' : '' ?></h4>
 						<input type="text" name="milestone_name" data-milestone="<?= $milestone ?>" data-id="<?= $milestone_row['id'] ?>" value="<?= $milestone_row['label'] ?>" style="display:none;" class="form-control">
@@ -800,7 +799,7 @@ if($_GET['tab'] != 'scrum_board') {
 										<option <?= $external_milestone == $item_external ? 'selected' : '' ?> value="<?= $external_milestone ?>"><?= $external_milestone ?></option>
 									<?php } ?></select></div>
 								<div class="select_users" style="display:none;">
-									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect"><option></option>
+									<select data-placeholder="Select Staff" multiple class="chosen-select-deselect">
 									<?php foreach($staff_list as $staff) { ?>
 										<option value="<?= $staff['contactid'] ?>"><?= $staff['first_name'].' '.$staff['last_name'] ?></option>
 									<?php } ?>

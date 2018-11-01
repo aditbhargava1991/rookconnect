@@ -1,4 +1,5 @@
 <!-- Marketing Material -->
+<?php include_once('../Sales/config.php'); ?>
 <script type="text/javascript">
 var add_new_m = 1;
 $(document).ready(function() {
@@ -114,18 +115,18 @@ function approvebutton(sel) {
             
             <div class="col-sm-1 pad-5" id="pdfshow_<?= $id_loop; ?>"><?php
                 while($row = mysqli_fetch_array($query)) {
-                    echo '<a href="'. WEBSITE_URL .'/Documents/download/'. $row['document_link'] .'" title="'.$row['document_link'].'" target="_blank" class="no-toggle"><img class="inline-img" src="../img/icons/eyeball.png"></a>';
+                    echo '<a href="'. WEBSITE_URL .'/Documents/download/'. $row['document_link'] .'" title="'.$row['document_link'].'" target="_blank" class="no-toggle"><img class="inline-img" src="../img/person.PNG"></a>';
                 } ?>
             </div>
             
             <div class="col-sm-12 col-md-1">
                 <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
                 <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
+                <img class="cursor-hand inline-img pull-right" src="../img/icons/ROOK-email-icon.png" onclick="email_doc(this);">
             </div>
             
-            <div class="clearfix"></div>
-        </div><?php
-    } ?>
-    <div class="clearfix"></div>
+        </div>
+        <div class="clearfix"></div>
+    <?php } ?>
     
 </div><!-- .accordion-block-details -->

@@ -38,7 +38,7 @@ if(isset($_GET['ticketid']) && empty($ticketid)) {
 			$value_config = ','.implode(',',array_intersect(explode(',',$value_config), explode(',',$value_config_all))).',';
 		}
 	}
-	
+
 	if($get_ticket['to_do_date'] > date('Y-m-d') && strpos($value_config,',Ticket Edit Cutoff,') !== FALSE && $config_visible_function($dbc, 'ticket') < 1) {
 		$access_all = false;
 	} else if($get_ticket['status'] == 'Archive') {
@@ -78,11 +78,58 @@ if(isset($_GET['ticketid']) && empty($ticketid)) {
 	$renamed_accordion = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_accordion_names` WHERE `ticket_type` = '".(empty($get_ticket['ticket_type']) ? 'tickets' : 'tickets_'.$get_ticket['ticket_type'])."' AND `accordion` = '".$sort_field."'"))['accordion_name'];
 	ob_clean();
 }
-$dbc->query("UPDATE `ticket_schedule` SET `deleted`=1 WHERE `ticketid`='$ticketid' AND IFNULL(`location_name`,'')='' AND IFNULL(`client_name`,'')='' AND IFNULL(`address`,'')='' AND IFNULL(`city`,'')='' AND IFNULL(`province`,'')='' AND IFNULL(`postal_code`,'')='' AND IFNULL(`country`,'')='' AND IFNULL(`map_link`,'')='' AND IFNULL(`coordinates`,'')='' AND IFNULL(`est_time`,'')='' AND IFNULL(`details`,'')='' AND IFNULL(`email`,'')='' AND IFNULL(`carrier`,'')='' AND IFNULL(`vendor`,'')='' AND IFNULL(`lading_number`,'')='' AND IFNULL(`volume`,'')='' AND IFNULL(`eta`,'')='' AND IFNULL(`notes`,'')=''"); ?>
+$delivery_restrictions = '';
+foreach(array_filter(explode(',', ROLE)) as $contact_role) {
+	$restriction_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_delivery_restrictions` WHERE CONCAT(',',`security_level`,',') LIKE '%,$contact_role,%' AND `ticket_type` = '$ticket_type'"));
+	if(!empty($restriction_config)) {
+		if($restriction_config['to_do_date_min'] != '') {
+			$delivery_restrictions['to_do_date_min'] = date('Y-m-d', strtotime(date('Y-m-d').($restriction_config['to_do_date_min'] >= 0 ? '+' : '').$restriction_config['to_do_date_min'].' Days'));
+		}
+		if($restriction_config['to_do_date_max'] != '') {
+			$delivery_restrictions['to_do_date_max'] = date('Y-m-d', strtotime(date('Y-m-d').($restriction_config['to_do_date_max'] >= 0 ? '+' : '').$restriction_config['to_do_date_max'].' Days'));
+		}
+		if($restriction_config['to_do_start_time_min'] != '') {
+			$delivery_restrictions['to_do_start_time_min'] = date('H:i', strtotime(date('H:i').($restriction_config['to_do_start_time_min'] >= 0 ? '+' : '').$restriction_config['to_do_start_time_min'].' Hours'));
+		}
+		if($restriction_config['to_do_start_time_max'] != '') {
+			$delivery_restrictions['to_do_start_time_max'] = date('H:i', strtotime(date('H:i').($restriction_config['to_do_start_time_max'] >= 0 ? '+' : '').$restriction_config['to_do_start_time_max'].' Hours'));
+		}
+		break;
+	}
+}
+$dbc->query("UPDATE `ticket_schedule` SET `deleted`=1 WHERE `ticketid`='$ticketid' AND IFNULL(`type`,'')='' AND IFNULL(`location_name`,'')='' AND IFNULL(`client_name`,'')='' AND IFNULL(`serviceid`,'')='' AND IFNULL(`address`,'')='' AND IFNULL(`city`,'')='' AND IFNULL(`province`,'')='' AND IFNULL(`postal_code`,'')='' AND IFNULL(`country`,'')='' AND IFNULL(`map_link`,'')='' AND IFNULL(`coordinates`,'')='' AND IFNULL(`est_time`,'')='' AND IFNULL(`details`,'')='' AND IFNULL(`email`,'')='' AND IFNULL(`carrier`,'')='' AND IFNULL(`vendor`,'')='' AND IFNULL(`lading_number`,'')='' AND IFNULL(`volume`,'')='' AND IFNULL(`eta`,'')='' AND IFNULL(`notes`,'')=''"); ?>
+<script type="text/javascript">
+$(document).ready(function() {
+	if(ticketid > 0) {
+		$('.scheduled_stop select[name="type"][data-table="ticket_schedule"]').each(function() {
+			setHoursOfOperation(this);
+		});
+	}
+});
+</script>
 <?php $default_services = '';
 if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
-	$default_services = $dbc->query("SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$businessid'")->fetch_assoc()['serviceid']; ?>
+	$default_services = $dbc->query("SELECT * FROM `services_service_templates` WHERE `deleted`=0 AND `contactid`='$businessid' AND '$businessid' > 0")->fetch_assoc()['serviceid']; ?>
 	<input type="hidden" name="default_services" value="<?= $default_services ?>">
+<?php }
+
+//New tickets should not show deleted Services but old tickets with deleted Services should
+$query_services = '';
+if(strpos($value_config, ',Service Rate Card,') !== FALSE) {
+	$services = explode('**',mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `services` FROM `rate_card` WHERE `clientid` IN ('$rate_contact', '$businessid') AND `clientid` != '' AND `deleted`=0 AND DATE(NOW()) BETWEEN `start_date` AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'9999-12-31') ORDER BY `clientid`='$rate_contact' DESC"))['services']);
+	$service_list = [];
+	$service_price = [];
+	foreach($services as $service) {
+		$service = explode('#',$service);
+		if($service[0] > 0) {
+			$service_list[] = $service[0];
+			$service_price[] = $service[1];
+		}
+	}
+	$query_services = "`serviceid` IN (".implode(',',$service_list).") AND "; ?>
+    <script>
+    reload_services = true;
+    </script>
 <?php } ?>
 <?= (!empty($renamed_accordion) ? '<h3>'.$renamed_accordion.'</h3>' : '<h3>Delivery Details</h3>') ?>
 <?php if($access_all > 0) {
@@ -94,13 +141,13 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 			<?php if(strpos($value_config,',Assigned Equipment Inline,') !== FALSE) { ?>
 				<div class="multi-block-assign form-group">
 					<div class="hide-titles-mob">
-						<label class="text-center col-sm-3">Category</label>
+						<label class="text-center col-sm-3">Tab</label>
 						<label class="text-center col-sm-3">Make</label>
 						<label class="text-center col-sm-3">Model</label>
 						<label class="text-center col-sm-3">Unit #</label>
 					</div>
 					<div class="col-sm-3">
-						<label class="control-label show-on-mob">Category:</label>
+						<label class="control-label show-on-mob">Tab:</label>
 						<select name="assign_eq_category" class="chosen-select-deselect"><option></option>
 							<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 							while($category = mysqli_fetch_assoc($groups)) { ?>
@@ -140,7 +187,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				<h4>Assigned Equipment</h4>
 				<div class="multi-block-assign">
 					<div class="form-group">
-						<label class="control-label col-sm-4">Category:</label>
+						<label class="control-label col-sm-4">Tab:</label>
 						<div class="col-sm-8">
 							<select name="assign_eq_category" class="chosen-select-deselect"><option></option>
 								<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -189,7 +236,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 		<?php if($field_sort_field == 'Delivery Stops') { ?>
 			<?php if(strpos($value_config, ',Delivery Stops') !== FALSE) { ?>
 				<div class="delivery_stop_group">
-					<h4><?= TICKET_NOUN ?> Stop<img class="inline-img pull-left small black-color" onclick="add_stop();" src="../img/icons/ROOK-add-icon.png"><div class="clearfix"></div></h4>
+					<h4><?= TICKET_NOUN ?> Stop<img class="inline-img pull-left small black-color" onclick="add_stop();" data-history-label="Delivery Stop" src="../img/icons/ROOK-add-icon.png"><div class="clearfix"></div></h4>
 					<div class="form-group">
 						<label class="col-sm-4 control-label">Location Name:</label>
 						<div class="col-sm-8">
@@ -275,7 +322,22 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 					<?php } ?>
 				</div>
 			<?php } else { ?>
-				<?php $ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `deleted`=0 AND `type` != 'origin' AND `type` != 'destination' $stop_id ORDER BY `sort`");
+				<?php $ticket_stops = mysqli_query($dbc, "SELECT * FROM `ticket_schedule` WHERE `ticketid`='$ticketid' AND `ticketid` > 0 AND `deleted`=0 AND IFNULL(`type`,'') NOT IN ('origin','destination') $stop_id ORDER BY `sort`");
+                if($ticket_stops->num_rows == 0) {
+                    $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs'.($ticket_type == '' ? '' : '_'.$ticket_type));
+                    if(empty($delivery_default_tabs) && !empty($ticket_type)) {
+                        $delivery_default_tabs = get_config($dbc, 'delivery_default_tabs');
+                    }
+                    if(!empty($delivery_default_tabs)) {
+                        $delivery_default_tabs = explode(',',$delivery_default_tabs);
+                        $delivery_default_sql = [];
+                        foreach($delivery_default_tabs as $delivery_default_tab) {
+                            $delivery_default_sql[] = "SELECT '$delivery_default_tab' `type`";
+                        }
+                        $ticket_stops = mysqli_query($dbc, implode(' UNION ',$delivery_default_sql));
+                        echo "<!--".implode(' UNION ',$delivery_default_sql)."-->";
+                    }
+                }
 				if($_GET['new_ticket_calendar'] == 'true' && empty($_GET['edit'])) {
 					$stop['equipmentid'] = $_GET['equipmentid'];
 					$stop['to_do_date'] = $_GET['current_date'];
@@ -304,10 +366,21 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				do {
 					$stop_i++;
 					if($stop['id'] == $_GET['stop'] || !($_GET['stop'] > 0)) { ?>
-						<div class="scheduled_stop">
+						<div id="tab_section_ticket_delivery_<?= $stop['id'] ?>" class="tab-section scheduled_stop">
+                            <?php if (strpos($value_config, ','."Delivery Pickup Estimate".',') === FALSE) { ?>
+                                <input type="hidden" name="est_time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= time_decimal2time($stop['est_time'],true) ?>">
+                            <?php } ?>
 							<?php if(strpos($value_config, ',Delivery Pickup') !== FALSE && $get_ticket['main_ticketid'] == 0) { ?>
-								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png"></h4>
+								<h4>Scheduled Stop <span class="block_count"><?= ++$stop_count ?> of <?= $ticket_stops->num_rows > 0 ? $ticket_stops->num_rows : 1 ?></span><img class="inline-img small pull-right stop_sort" src="../img/icons/drag_handle.png">
+                                    <?php if(!($_GET['action_mode'] == 1)) { ?>
+                                        <div class="col-sm-2 pull-right">
+                                            <img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);">
+                                            <img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();">
+                                        </div>
+                                    <?php } ?>
+                                </h4>
 								<input type="hidden" name="sort" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['sort'] ?>">
+                                <input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
 							<?php } ?>
 							<?php $equipment_list = mysqli_query($dbc, "SELECT * FROM `equipment` WHERE `equipmentid` = '{$stop['equipmentid']}'");
 							$equipment = mysqli_fetch_assoc($equipment_list);
@@ -315,7 +388,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 							<?php foreach ($field_sort_order as $field_sort_field) { ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') === FALSE && $field_sort_field == 'Delivery Pickup Equipment Category') { ?>
 									<div class="form-group">
-										<label class="control-label col-sm-4">Equipment Category:</label>
+										<label class="control-label col-sm-4">Equipment Tab:</label>
 										<div class="col-sm-8">
 											<select name="stop_eq_category" class="chosen-select-deselect"><option></option>
 												<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
@@ -367,7 +440,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 								<?php } else if (strpos($value_config, ','."Delivery Pickup Equipment".',') !== FALSE && strpos($value_config, ','."Assigned Equipment Inline".',') !== FALSE && $field_sort_field == 'Delivery Pickup Equipment') { ?>
 									<div class="form-group">
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
-											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Category</label>
+											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Tab</label>
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Make".',') !== FALSE) { ?>
 											<label class="hide-titles-mob text-center col-sm-<?= floor(12 / $equip_col_count) ?>">Equipment Make</label>
@@ -380,7 +453,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<?php } ?>
 										<?php if (strpos($value_config, ','."Delivery Pickup Equipment Category".',') !== FALSE) { ?>
 											<div class="col-sm-<?= floor(12 / $equip_col_count) ?>">
-												<label class="control-label show-on-mob">Category:</label>
+												<label class="control-label show-on-mob">Tab:</label>
 												<select name="stop_eq_category" class="chosen-select-deselect"><option></option>
 													<?php $groups = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 GROUP BY `category` ORDER BY `category`");
 													while($category = mysqli_fetch_assoc($groups)) { ?>
@@ -495,6 +568,11 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											<input type="text" name="postal_code" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['postal_code'] ?>">
 										</div>
 									</div>
+                                    <?php if (strpos($value_config, ','."Delivery Pickup Address Google".',') === FALSE) { ?>
+                                        <input type="hidden" name="map_link" data-auto-fill="<?= strpos($value_config,',Delivery Pickup Populate Google Link,') !== FALSE ? 'auto' : '' ?>" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['map_link'] ?>">
+                                    <?php } ?>
+								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Address Google".',') !== FALSE && $field_sort_field == 'Delivery Pickup Address Google') { ?>
 									<div class="form-group">
 										<label class="col-sm-4 control-label"><span class="popover-examples list-inline">
 												<a data-toggle="tooltip" data-placement="top" title="" data-original-title="The address must match Google maps format or the link will not populate properly."><img src="../img/info.png" width="20"></a>
@@ -511,10 +589,10 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="form-group">
 										<label class="col-sm-4 control-label">Lat/Lng:</label>
 										<div class="col-sm-4">
-											<input type="text" name="coordinates" placeholder="Latitude Coordinates" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" data-concat="#*#" value="<?= explode('#*#',$stop['coordinates'])[0] ?>">
+											<input type="text" name="coordinates" placeholder="Latitude Coordinates" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" data-concat="#*#" value="<?= explode('#*#',$stop['coordinates'])[0] ?>" data-manual="<?= $stop['coord_auto'] ?>" data-manual-field="coord_auto">
 										</div>
 										<div class="col-sm-4">
-											<input type="text" name="coordinates" placeholder="Longitude Coordinates" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" data-concat="#*#" value="<?= explode('#*#',$stop['coordinates'])[1] ?>">
+											<input type="text" name="coordinates" placeholder="Longitude Coordinates" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" data-concat="#*#" value="<?= explode('#*#',$stop['coordinates'])[1] ?>" data-manual="<?= $stop['coord_auto'] ?>" data-manual-field="coord_auto">
 										</div>
 									</div>
 								<?php } ?>
@@ -533,7 +611,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 												<label class="form-checkbox"><input type="checkbox" name="check_send_email" onclick="ticket_delivery_email(this);"> Send an email to this address</label>
 											</div>
 										</div>
-										
+
 										<script>
 										function ticket_delivery_email(checked) {
 											var div = $(checked).closest('.scheduled_stop');
@@ -546,9 +624,11 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											}
 											if(checked.checked) {
 												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.replace('[[ETA]]',eta));
+                                                div.find('.email_body').val(str.replace('[[ETA]]',eta));
 												div.find('.email_div').show();
 											} else {
 												tinyMCE.editors[div.find('.email_body').attr('id')].setContent(str.substring(0,str.search('will occur '))+'will occur [[ETA]]'+str.search('. Please be ready'));
+                                                div.find('.email_body').val(str.substring(0,str.search('will occur '))+'will occur [[ETA]]'+str.search('. Please be ready'));
 												div.find('.email_div').hide();
 											}
 										}
@@ -585,18 +665,35 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Phone2".',') !== FALSE && $field_sort_field == 'Delivery Pickup Phone2') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Additional Phone:</label>
+										<div class="col-sm-8">
+											<input type="tel" name="vendor" class="form-control" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['vendor'] ?>">
+										</div>
+									</div>
+								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
 									<div class="form-group">
-										<label class="col-sm-4 control-label">Delivery Type:</label>
+										<label class="col-sm-4 control-label">Delivery Tab:</label>
 										<div class="col-sm-8">
 											<?php if(count($delivery_types) > 0) { ?>
-												<select name="type" class="chosen-select-deselect" data-placeholder="Select Type" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['type'] ?>"><option></option>
+												<select name="type" class="chosen-select-deselect" data-placeholder="Select Type" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['type'] ?>" data-default-value="<?= get_config($dbc, 'delivery_type_default') ?>" data-hours-of-operation="<?= strpos($value_config, ','."Delivery Warehouse Hours of Operation".',') !== FALSE ? 1 : 0 ?>"><option></option>
 													<?php foreach($delivery_types as $type_name) { ?>
-														<option <?= $type_name == $stop['type'] ? 'selected' : '' ?> value="<?= $type_name ?>"><?= $type_name ?></option>
+														<option <?= $type_name == $stop['type'] || (empty($stop['type']) && !($stop['id'] > 0) && get_config($dbc, 'delivery_type_default') == $type_name) ? 'selected' : '' ?> value="<?= $type_name ?>"><?= $type_name ?></option>
 													<?php }
 													if($delivery_type_contacts != '') {
-														foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name`, `address`, `city`, `postal_code` FROM `contacts` WHERE `category`='$delivery_type_contacts' AND `deleted`=0 AND `status` > 0")) as $contact) { ?>
-															<option <?= $contact['full_name'] == $stop['type'] ? 'selected' : '' ?> data-warehouse="yes" <?= strpos($value_config,',Delivery Pickup Populate Warehouse Address,') !== FALSE ? 'data-address="'.$contact['address'].'" data-city="'.$contact['city'].'" data-postal="'.$contact['postal_code'].'"' : '' ?> data-set-time="<?= get_config($dbc, 'ticket_warehouse_start_time') ?>" value="<?= $contact['full_name'] ?>"><?= $contact['full_name'] ?></option>
+														$delivery_restrict_contacts = get_config($dbc, 'delivery_restrict_contacts');
+														if(!empty($ticket_type)) {
+															$delivery_restrict_contacts .= ','.get_config($dbc, 'delivery_restrict_contacts_'.$ticket_type);
+														}
+														$delivery_restrict_contacts = array_filter(array_unique(explode(',', $delivery_restrict_contacts)));
+														$delivery_query = '';
+														if(!empty($delivery_restrict_contacts)) {
+															$delivery_query = " AND `contactid` IN (".implode(',', $delivery_restrict_contacts).")";
+														}
+														foreach(sort_contacts_query($dbc->query("SELECT `contactid`, `name`, `first_name`, `last_name`, `address`, `city`, `postal_code` FROM `contacts` WHERE `category`='$delivery_type_contacts' AND `deleted`=0 AND `status` > 0".$delivery_query)) as $contact) { ?>
+															<option <?= $contact['full_name'] == $stop['type'] ? 'selected' : '' ?> data-warehouse="yes" <?= strpos($value_config,',Delivery Pickup Populate Warehouse Address,') !== FALSE ? 'data-address="'.$contact['address'].'" data-city="'.$contact['city'].'" data-postal="'.$contact['postal_code'].'"' : '' ?> data-warehouseid="<?= $contact['contactid'] ?>" data-set-time="<?= get_config($dbc, 'ticket_warehouse_start_time') ?>" value="<?= $contact['full_name'] ?>"><?= $contact['full_name'] ?></option>
 															<?php if($contact['full_name'] == $stop['type'] && $stop['type'] != 'warehouse') {
 																$stop['type'] = 'warehouse';
 															}
@@ -626,19 +723,27 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Service List".',') !== FALSE && $field_sort_field == 'Delivery Pickup Service List') { ?>
-									<div class="form-group">
-										<label class="col-sm-4 control-label">Services:</label>
-										<div class="col-sm-8">
-											<select name="serviceid[]" multiple data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><option />
-												<?php if(empty($service_list)) {
-													$service_list = $dbc->query("SELECT * FROM `services` LEFT JOIN `rate_card` ON CONCAT('**',`rate_card`.`services`,'#') LIKE CONCAT('%**',`services`.`serviceid`,'#%') WHERE `rate_card`.`clientid`='$businessid' AND `rate_card`.`deleted`=0 AND `services`.`deleted`=0")->fetch_all(MYSQLI_ASSOC);
-												}
-												foreach($service_list as $service) { ?>
-													<option <?= in_array($service['serviceid'],explode(',',$stop['serviceid'])) ? 'selected' : '' ?> value="<?= $service['serviceid'] ?>"><?= $service['category'].' '.$service['service_type'].' '.$service['heading'] ?></option>
-												<?php } ?>
-											</select>
-										</div>
-									</div>
+                                    <?php if(empty($delivery_service_list)) {
+                                        $delivery_service_list = $dbc->query("SELECT `services`.* FROM `services` LEFT JOIN `rate_card` ON CONCAT('**',`rate_card`.`services`,'#') LIKE CONCAT('%**',`services`.`serviceid`,'#%') WHERE `rate_card`.`clientid`='$businessid' AND `rate_card`.`deleted`=0 AND `services`.`deleted`=0")->fetch_all(MYSQLI_ASSOC);
+                                    } ?>
+                                    <?php foreach(explode(',',$stop['serviceid']) as $stop_service) { ?>
+                                        <div class="multi-block no_id_reset">
+                                            <div class="form-group">
+                                                <label class="col-sm-4 control-label">Services:</label>
+                                                <div class="col-sm-7">
+                                                    <select name="serviceid" data-placeholder="Select Services" class="form-control chosen-select-deselect" data-concat="," data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id"><option />
+                                                        <?php foreach($delivery_service_list as $service) { ?>
+                                                            <option <?= $service['serviceid'] == $stop_service ? 'selected' : '' ?> value="<?= $service['serviceid'] ?>"><?= implode(': ',array_filter([$service['category'],$service['service_type'],$service['heading']])) ?></option>
+                                                        <?php } ?>
+                                                    </select>
+                                                </div>
+                                                <div class="col-sm-1">
+                                                    <img class="cursor-hand inline-img pull-right" onclick="remMulti(this);" data-remove="1" src="../img/remove.png">
+                                                    <img class="cursor-hand inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+                                                </div>
+                                            </div>
+                                        </div>
+                                    <?php } ?>
 								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup ETA".',') !== FALSE && $field_sort_field == 'Delivery Pickup ETA') { ?>
 									<div class="form-group">
@@ -659,13 +764,21 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if (strpos($value_config, ','."Delivery Pickup Estimate".',') !== FALSE && $field_sort_field == 'Delivery Pickup Estimate') { ?>
+									<div class="form-group">
+										<label class="col-sm-4 control-label">Estimated Time:</label>
+										<div class="col-sm-8">
+											<input type="text" name="est_time" class="form-control timepicker" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= time_decimal2time($stop['est_time'],true) ?>">
+										</div>
+									</div>
+								<?php } ?>
 								<?php if (strpos($value_config, ','."Delivery Pickup Date".',') !== FALSE && $field_sort_field == 'Delivery Pickup Date') { ?>
 									<div class="form-group">
 										<label class="col-sm-4 control-label"><span class="popover-examples list-inline">
 												<a data-toggle="tooltip" data-placement="top" title="" data-original-title="This is the Scheduled Date for the Delivery. This Date is what that the Calendar looks for."><img src="../img/info.png" width="20"></a>
 											</span>&nbsp;Scheduled Date:</label>
 										<div class="col-sm-8">
-											<input type="text" name="to_do_date" class="form-control datepicker" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['to_do_date'] ?>">
+											<input type="text" name="to_do_date" class="form-control datepicker" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" <?= !empty($delivery_restrictions['to_do_date_min']) ? 'data-min-date="'.$delivery_restrictions['to_do_date_min'].'"' : '' ?> <?= !empty($delivery_restrictions['to_do_date_max']) ? 'data-max-date="'.$delivery_restrictions['to_do_date_max'].'"' : '' ?> value="<?= $stop['to_do_date'] ?>" <?= !empty(str_replace('0000-00-00','',$stop['to_do_date'])) && !empty($delivery_restrictions['to_do_date_min']) && strtotime($stop['to_do_date']) < strtotime($delivery_restrictions['to_do_date_min']) ? 'disabled' : '' ?>>
 										</div>
 									</div>
 									<div class="form-group">
@@ -673,10 +786,10 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 											<span class="popover-examples list-inline">
 												<a data-toggle="tooltip" data-placement="top" title="" data-original-title="This is the Scheduled Time for the Delivery. This Time is what the Calendar looks for."><img src="../img/info.png" width="20"></a>
 											</span>&nbsp;Scheduled Time:<?= ($stop['scheduled_lock'] > 0 ? ' <img class="inline-img" src="../img/icons/lock.png">' : '') ?></label>
-										<div class="col-sm-8">
-											<?php $ticket_delivery_time_mintime = get_config($dbc, 'ticket_delivery_time_mintime');
-											$ticket_delivery_time_maxtime = get_config($dbc, 'ticket_delivery_time_maxtime'); ?>
-											<input type="text" name="to_do_start_time" data-window="<?= $delivery_timeframe_default ?>" class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '-30' ?>" data-manual="1" data-manual-field="scheduled_lock" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" <?= !empty($ticket_delivery_time_mintime) ? 'data-datetimepicker-mintime="'.$ticket_delivery_time_mintime.'"' : '' ?> <?= !empty($ticket_delivery_time_maxtime) ? 'data-datetimepicker-maxtime="'.$ticket_delivery_time_maxtime.'"' : '' ?> value="<?= $stop['to_do_start_time'] ?>">
+										<div class="col-sm-8 stop_scheduled_time">
+											<?php $ticket_delivery_time_mintime = (!empty($delivery_restrictions['to_do_start_time_min']) && ($stop['to_do_date'] == $delivery_restrictions['to_do_date_min'] || empty($delivery_restrictions['to_do_date_min'])) ? $delivery_restrictions['to_do_start_time_min'] : get_config($dbc, 'ticket_delivery_time_mintime'));
+											$ticket_delivery_time_maxtime = (!empty($delivery_restrictions['to_do_start_time_max']) && ($stop['to_do_date'] == $delivery_restrictions['to_do_date_max'] || empty($delivery_restrictions['to_do_date_max'])) ? $delivery_restrictions['to_do_start_time_max'] : get_config($dbc, 'ticket_delivery_time_maxtime')); ?>
+											<input type="text" name="to_do_start_time" data-window="<?= $delivery_timeframe_default ?>" class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '-30' ?>" data-manual="1" data-manual-field="scheduled_lock" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" <?= !empty($ticket_delivery_time_mintime) ? 'data-datetimepicker-mintime="'.$ticket_delivery_time_mintime.'" data-default-datetimepicker-mintime="'.$ticket_delivery_time_mintime.'"' : '' ?> <?= !empty($ticket_delivery_time_maxtime) ? 'data-datetimepicker-maxtime="'.$ticket_delivery_time_maxtime.'" data-default-datetimepicker-maxtime="'.$ticket_delivery_time_maxtime.'"' : '' ?> value="<?= $stop['to_do_start_time'] ?>" <?= !empty(str_replace('0000-00-00','',$stop['to_do_date'])) && !empty($delivery_restrictions['to_do_date_min']) && strtotime($stop['to_do_date']) < strtotime($delivery_restrictions['to_do_date_min']) ? 'disabled data-disabled="true"' : '' ?>>
 										</div>
 									</div>
 								<?php } ?>
@@ -713,10 +826,10 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 												<a data-toggle="tooltip" data-placement="top" title="" data-original-title="This is the Time Frame of the Delivery, which includes the Available Start Time up to the Available End Time"><img src="../img/info.png" width="20"></a>
 											</span>&nbsp;Delivery Time Frame:</label>
 										<div class="col-sm-4">
-											<input type="text" name="start_available" class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Availability Start Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['start_available'] != '' ? date('g:i a',strtotime($stop['start_available'])) : '' ?>">
+											<input type="text" name="start_available" readonly class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Availability Start Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['start_available'] != '' ? date('g:i a',strtotime($stop['start_available'])) : '' ?>">
 										</div>
 										<div class="col-sm-4">
-											<input type="text" name="end_available" class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Availability End Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['end_available'] != '' ? date('g:i a',strtotime($stop['end_available'])) : '' ?>">
+											<input type="text" name="end_available" readonly class="form-control datetimepicker<?= $calendar_window > 0 ? '-'.$calendar_window : '' ?>" placeholder="Availability End Time" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="<?= $stop['end_available'] != '' ? date('g:i a',strtotime($stop['end_available'])) : '' ?>">
 										</div>
 									</div>
 								<?php } ?>
@@ -785,15 +898,15 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										</div>
 									</div>
 								<?php } ?>
+								<?php if(strpos($value_config, ','."Delivery Completed Check".',') !== FALSE && $field_sort_field == 'Delivery Completed Check') { ?>
+                                    <div class="form-group">
+                                        <label class="col-sm-4 control-label">Completed Stop:</label>
+                                        <div class="col-sm-6">
+                                            <label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?>>Completed</label>
+                                        </div>
+                                    </div>
+								<?php } ?>
 							<?php } ?>
-							<div class="form-group">
-								<label class="col-sm-4 control-label">Completed Stop:</label>
-								<div class="col-sm-6">
-									<label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?>>Completed</label>
-								</div>
-								<input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
-								<div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop(this);"></div>
-							</div>
 						</div>
 						<hr>
 					<?php } else {
@@ -803,7 +916,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 				<?php if (strpos($value_config, ','."Delivery Pickup Dropoff Map".',') !== FALSE && $get_ticket['main_ticketid'] == 0) { ?>
 				<div class="form-group">
 					<label class="col-sm-4 control-label">Pickup to Delivery Directions:</label>
-					<div class="col-sm-8 route_map_div">
+					<div class="col-sm-12 route_map_div">
 						<?php $_GET['map_action'] = 'pickup_delivery';
 						include('add_ticket_maps.php');
 						unset($_GET['map_action']); ?>
@@ -821,7 +934,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 			$equipment = mysqli_fetch_assoc($equipment_list); ?>
 			<div class="multi-block-assign">
 				<div class="form-group">
-					<label class="control-label col-sm-4">Category:</label>
+					<label class="control-label col-sm-4">Tab:</label>
 					<div class="col-sm-8">
 						<?= $equipment['category'] ?>
 					</div>
@@ -924,6 +1037,8 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<?= $stop['postal_code'] ?>
 									</div>
 								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Address Google".',') !== FALSE && $field_sort_field == 'Delivery Pickup Address Google') { ?>
 								<div class="form-group">
 									<label class="col-sm-4 control-label">Google Maps Link:</label>
 									<div class="col-sm-8">
@@ -957,7 +1072,7 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 										<label class="form-checkbox"><input type="checkbox" name="check_send_email" onclick="ticket_delivery_email(this);"> Send an email to this address</label>
 									</div>
 								</div>
-								
+
 								<script>
 								function ticket_delivery_email(checked) {
 									var div = $(checked).closest('.scheduled_stop');
@@ -1001,9 +1116,17 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<div class="clearfix"></div>
 								</div>
 							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Phone2".',') !== FALSE && $field_sort_field == 'Delivery Pickup Phone2') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Additional Phone:</label>
+									<div class="col-sm-8">
+										<?= $stop['vendor'] ?>
+									</div>
+								</div>
+							<?php } ?>
 							<?php if (strpos($value_config, ','."Delivery Pickup Type".',') !== FALSE && $field_sort_field == 'Delivery Pickup Type') { ?>
 								<div class="form-group">
-									<label class="col-sm-4 control-label">Delivery Type:</label>
+									<label class="col-sm-4 control-label">Delivery Tab:</label>
 									<div class="col-sm-8">
 										<?= $stop['type'] ?>
 									</div>
@@ -1038,6 +1161,14 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									<label class="col-sm-4 control-label"><?= get_contact($dbc, $get_ticket['businessid'], 'name_company') ?> Estimated Time:</label>
 									<div class="col-sm-8">
 										<?= $stop['cust_est'] ?>
+									</div>
+								</div>
+							<?php } ?>
+							<?php if (strpos($value_config, ','."Delivery Pickup Estimate".',') !== FALSE && $field_sort_field == 'Delivery Pickup Estimate') { ?>
+								<div class="form-group">
+									<label class="col-sm-4 control-label">Estimated Time:</label>
+									<div class="col-sm-8">
+										<?= time_decimal2time($stop['est_time'],true) ?>
 									</div>
 								</div>
 							<?php } ?>
@@ -1131,15 +1262,18 @@ if(strpos($value_config,',Delivery Pickup Default Services,') !== FALSE) {
 									</div>
 								</div>
 							<?php } ?>
+                            <?php if(strpos($value_config, ','."Delivery Completed Check".',') !== FALSE && $field_sort_field == 'Delivery Completed Check') { ?>
+                                <div class="form-group">
+                                    <label class="col-sm-4 control-label">Completed Stop:</label>
+                                    <div class="col-sm-6">
+                                        <label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?>>Completed</label>
+                                    </div>
+                                    <input type="hidden" name="deleted" value="0" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id">
+                                    <div class="col-sm-2"><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" data-history-label="Delivery Stop" onclick="addScheduledStop();"><img class="inline-img small pull-right" src="../img/remove.png" data-history-label="Delivery Stop" onclick="remScheduledStop(this);"></div>
+                                </div>
+                            <?php } ?>
 						<?php } ?>
 						<?php } ?>
-						<div class="form-group">
-							<label class="col-sm-4 control-label">Completed Stop:</label>
-							<div class="col-sm-6">
-								<label class="form-checkbox"><input type="checkbox" name="complete" data-table="ticket_schedule" data-id="<?= $stop['id'] ?>" data-id-field="id" value="1" <?= $stop['complete'] == 1 ? 'checked' : '' ?> <?= $strict_view > 0 ? 'readonly disabled' : '' ?>>Completed</label>
-							</div>
-							<div class="col-sm-2"><?php if(!($strict_view > 0)) { ?><img class="inline-img small black-color pull-right" src="../img/icons/ROOK-add-icon.png" onclick="addScheduledStop();"><?php } ?><!--<img class="inline-img small pull-right" src="../img/remove.png" onclick="remScheduledStop();">--></div>
-						</div>
 						<hr>
 					<?php } ?>
 				<?php } while($stop = mysqli_fetch_assoc($ticket_stops)); ?>

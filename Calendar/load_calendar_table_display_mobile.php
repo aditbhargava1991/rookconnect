@@ -18,7 +18,7 @@ a.shift {
 	z-index: -1;
 }
 td {
-	z-index: 1;
+	z-index: 0;
 	<?= $td_height ?>
 }
 td:empty {
@@ -40,12 +40,13 @@ $(document).ready(function() {
 });
 function resizeBlocks() {
 	$('.used-block').each(function() {
+		$(this).closest('td').css('z-index', 1);
 		var rows = $(this).data('blocks');
 		var parent = $(this).closest('td');
 		var header = 0;
-		if (parent.prev().is('thead:visible')) {
-			header = $(this).closest('table').find('thead tr').first()[0].clientHeight;
-		}
+		// if (parent.prev().is('thead:visible')) {
+		// 	header = $(this).closest('table').find('thead tr').first()[0].clientHeight;
+		// }
 		$(this).css('top', header);
 		$(this).css('left', '0');
 		$(this).css('margin', '0');
@@ -89,7 +90,7 @@ function resizeBlocks() {
 					}
 					echo ($contact_id > 0 ? 'border-left: 1px solid rgb(221, 221, 221); min-width: 15em; width: 50%;' : 'max-width: 7em; min-width: 7em; width: 7em;').$hide_time."padding:0;'><div class='resizer' style='min-width:100%; max-width:100%; padding:0.5em;'>";
 					echo ($current_day == 0 ? $calendar_col['title'] : ($_GET['view'] == 'daily' ? $calendar_col[$calendar_row] : date('l, F d', strtotime($current_day)).'<br>'.$calendar_col[$calendar_row]))."</div></th>";
-				} else if ($contact_id > 0 && ($calendar_row == 'shifts' || $calendar_row === 'warnings' || $calendar_row === 'reminders' || $calendar_row === 'notes' || $calendar_row === 'ticket_summary' || $calendar_row === 'title')) {
+				} else if ($contact_id > 0 && ($calendar_row === 'shifts' || $calendar_row === 'warnings' || $calendar_row === 'reminders' || $calendar_row === 'notes' || $calendar_row === 'ticket_summary' || $calendar_row === 'title')) {
 					echo $calendar_col[$calendar_row];
 				} else if ($contact_id > 0) {
 					echo $calendar_col['rows'][$calendar_row]['html'];

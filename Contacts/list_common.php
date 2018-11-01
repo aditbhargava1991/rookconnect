@@ -40,11 +40,11 @@ if($_GET['search_contacts'] != '') {
 else if(isset($_POST['search_'. $category.'_submit']) && $_POST['search_'. $category] != '') {
 	$search_contacts = $_POST['search_'. $category];
 	$id_list = search_contacts_table($dbc, $search_contacts, " AND `tile_name`='".$folder_name."' AND (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff')))");
-	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status` FROM contacts WHERE `contactid` IN ($id_list)";
+	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status`, `flag_colour`, `flag_label`, `flag_start`, `flag_end` FROM contacts WHERE `contactid` IN ($id_list)";
 	$query = "SELECT count(`contactid`) as numrows FROM contacts WHERE `contactid` IN ($id_list)";
 }
 else {
-	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status` FROM contacts WHERE (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff'))) AND `tile_name`='".$folder_name."'";
+	$query_check_credentials = "SELECT `contactid`, `businessid`, `category`, `name`, `first_name`, `last_name`, `site_name`, `display_name`, `site_name`, `display_name`, `description`, `office_phone`, `cell_phone`, `home_phone`, `email_address`, `website`, `address`, `mailing_address`, `business_address`, `ship_to_address`, `google_maps_address`, `ship_google_link`, `is_favourite`, `preferred_pronoun`, `birth_date`, `linkedin`, `facebook`, `twitter`, `google_plus`, `instagram`, `pinterest`, `youtube`, `blog`, `status`, `flag_colour`, `flag_label`, `flag_start`, `flag_end` FROM contacts WHERE (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff'))) AND `tile_name`='".$folder_name."'";
 	$query = "SELECT count(`contactid`) as numrows FROM contacts WHERE (category LIKE '$category' OR ('$category'='Uncategorized' AND `category` NOT IN ('".implode("','",$lists)."','Staff'))) AND `tile_name`='".$folder_name."'";
 }
 
@@ -184,8 +184,12 @@ if(ucwords($category) == 'Vendors') {
 			<a href="?list=<?= $_GET['list'] ?>&status=archive" class="btn brand-btn <?= $status == 'archive' ? 'active_tab' : '' ?>">Archived</a>
 			-->
             <!-- <input type="submit" value="Filter" class="btn brand-btn" name="search_<?php //echo $category; ?>_submit"> -->
-			<button type="submit" value="<?= $category ?>" class="btn brand-btn" name="export_contacts">Export CSV</button>
-			<input type="hidden" name="export_option" value="Contact Information">
+			
+			<?php if($_GET['list'] != 'summary') { ?>
+				<a href="?edit=new&category=<?= $category ?>" class="btn brand-btn pull-right">New <?= $category ?></a>
+				<button type="submit" value="<?= $category ?>" class="image-btn no-toggle" name="export_contacts" title="Export CSV"><img src="../img/icons/csv.png" width="30" /></button>
+				<input type="hidden" name="export_option" value="Contact Information">
+			<?php } ?>
 		</span>
 	</form>
 </div>
@@ -236,6 +240,17 @@ if ( !empty($note) ) { ?>
 }
 .dashboard-icon { margin-right:8px; width:18px; }
 </style>
+
+<script type="text/javascript">
+
+function flag_item_manual(task) {
+       contactid = $(task).parents('span').data('task');
+
+       overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=contacts&id='+contactid, 'auto', false, false);
+}
+
+</script>
+
 <div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
 <div class="standard-dashboard-body-content">
 <?php if($_GET['list'] != 'summary') { ?>
@@ -252,15 +267,20 @@ if ( !empty($note) ) { ?>
 			$field_display = explode(",",$get_field_config['contacts_dashboard']);
 			?>
 			<?php foreach($contact_sort as $id): ?>
-				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))]; ?>
+				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))];
+                ?>
 				<div class="dashboard-item set-relative">
+                        <?php if($row['flag_label'] != '') { ?>
+                        <span class="block-label flag-label-block" style="font-weight: bold; background-color: <?php echo '#'.$row['flag_colour']; ?>">Flagged: <?= $row['flag_label'] ?></span>
+                        <?php } ?>
+
                         <?php if(!empty($_GET['search_contacts']) || !empty($_POST['search_'.$category])) { ?>
 						<div class="col-sm-6">
 							<?php echo '<b>'.$row['category'].'</b>'; ?>
 						</div>
                         <?php } ?>
 					<div class="col-sm-6">
-						<img src="../img/person.PNG" class="inline-img dashboard-icon"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
+						<img src="../img/person.PNG" class="inline-img dashboard-icon"><?= '<a href=\'?category='.$row['category'].'&edit='.$row['contactid'].'\'>'.($row['category'] == 'Business' ? decryptIt($row['name']) : ($row['category'] == 'Sites' ? ($row['display_name'] != '' ? $row['display_name'] : $row['site_name']) : ($row['name'] != '' ? decryptIt($row['name']).': ' : '').decryptIt($row['first_name']) . ' ' . decryptIt($row['last_name']))).'</a>' ?>
 					</div>
 					<?php if(in_array('Business', $field_display) && $row['businessid'] > 0): ?>
 						<div class="col-sm-6">
@@ -345,12 +365,23 @@ if ( !empty($note) ) { ?>
 						<img src="../img/setting.PNG" class="inline-img">
 						<?php if($edit_access > 0) {
 							echo '<a href="" onclick="statusChange(this); return false;" data-status="'.$row['status'].'" data-contactid="'.$row['contactid'].'">'.($row['status'] == 0 ? 'Activate' : 'Deactivate').'</a> | ';
-							echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">Edit</a> | ';
+							echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'">Edit</a> | ';
 							echo '<a href="" onclick="deleteContact(this); return false;" data-contactid="'.$row['contactid'].'">Archive</a>';
 						} else {
 							echo '<a href="?category='.$row['category'].'&edit='.$row['contactid'].'">View</a>';
 						} ?>
 					</div>
+                    <div class="clearfix"></div>
+                    <?php
+                    echo '<span class="action-icons gap-top" style="width: 40%;" data-task="'.$row['contactid'].'">';
+                    $quick_actions = explode(',',get_config($dbc, 'contact_quick_action_icons'));
+
+                    echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+
+                    echo '</span>';
+
+                    ?>
+
 					<div class="clearfix"></div>
                     <div class="set-favourite">
 						<?php if(strpos($row['is_favourite'],",".$_SESSION['contactid'].",") === FALSE): ?>
@@ -386,11 +417,24 @@ if(strpos($contacts_summary_config,'Per Category') !== false) {
         echo '<div class="col-sm-6">';
             echo '<div class="overview-block">';
                 echo '<h4>'.$list_name.'</h4>';
-                $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1"));
-                echo 'Active : '.$active_count['count'];
-                echo '<br>';
-                $inactive_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=0"));
-                echo 'Inactive : '.$inactive_count['count'];
+                $active_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=1"))['count'];
+                $inactive_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(`contactid`) `count` FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category`='$list_name' AND `status`=0"))['count'];
+                $all_count = $active_count + $inactive_count;
+                $active_percent = $all_count == 0 ? '00' : number_format((($active_count / $all_count) * 100), 0);
+
+                $theme_color = get_calendar_today_color($dbc);
+                ?>
+                <div class="row">
+                    <div class="col-xs-6">
+                        <div class="radial_chart radial-chart" data-percent="<?= $active_percent ?>" data-duration="500" data-color="#bdc3c7,#<?= $theme_color ?>"></div>
+                    </div>
+                    <div class="col-xs-6 radial-chart-desc">
+                        <span>
+                            Active: <?= $active_count ?><br />
+                            Inactive: <?= $inactive_count ?>
+                        </span>
+                    </div>
+                </div><?php
             echo '</div>';
         echo '</div>';
     }
@@ -473,16 +517,16 @@ $get_current_url = "$_SERVER[REQUEST_URI]";
 if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
     echo '<h3 class="double-gap-left">'.CONTACTS_TILE.' Per Archived Data</h3>';
 	$query = mysqli_query($dbc,"SELECT contactid, `name`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=1 AND `tile_name`='".FOLDER_NAME."'");
-	while($row = mysqli_fetch_array($query)) {
-        if($row['name'] != '' || $row['first_name'] != '') {
 		echo '<div class="col-sm-6">';
             echo '<div class="overview-block">';
-                echo decryptIt($row['name']).decryptIt($row['first_name']).' '.decryptIt($row['last_name']);
-                echo ' : <a href=\'../delete_restore.php?action=restore&from='.$get_current_url.'&contactid='.$row['contactid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a>';
+                while($row = mysqli_fetch_array($query)) {
+                    if($row['name'] != '' || $row['first_name'] != '') {
+                            echo decryptIt($row['name']).decryptIt($row['first_name']).' '.decryptIt($row['last_name']);
+                            echo ' : <a href=\'../delete_restore.php?action=restore&from='.$get_current_url.'&contactid='.$row['contactid'].'\' onclick="return confirm(\'Are you sure?\')">Restore</a><br>';
+                    }
+                }
             echo '</div>';
         echo '</div>';
-        }
-	}
     echo '<div class="clearfix"></div>';
 }
 /*

@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+include_once('../Sales/config.php');
 if(empty($salesid)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 } ?>
@@ -36,7 +37,7 @@ var reload_ref_docs = function() {
             $result = mysqli_query($dbc, "SELECT * FROM `sales_document` WHERE `salesid`='{$salesid}' AND (`document_type`='Reference Documents' OR IFNULL(`document_type`,'')='') AND `deleted`=0 AND `salesid` > 0 ORDER BY `salesdocid` DESC");
             if ( $result->num_rows > 0 ) {
                 echo '
-                    <table>
+                    <table class="table table-bordered">
                         <tr class="hidden-xs hidden-sm">
                             <th>Document/Link</th>
                             <th>Date</th>
@@ -58,6 +59,7 @@ var reload_ref_docs = function() {
                             <input type="hidden" data-table="sales_document" data-id="'.$row['salesdocid'].'" name="deleted">
                             <img class="cursor-hand inline-img pull-right" src="../img/remove.png" onclick="rem_doc(this);">
                             <img class="cursor-hand inline-img pull-right" src="../img/icons/ROOK-add-icon.png" onclick="add_doc(this);">
+                            <img class="cursor-hand inline-img pull-right" src="../img/icons/ROOK-email-icon.png" onclick="email_doc(this);">
                         </td>';
                     echo '</tr>';
                 }

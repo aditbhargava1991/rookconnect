@@ -1,4 +1,4 @@
-<?php 
+<?php
 error_reporting(0);
 ?>
 <script type="text/javascript" src="https://code.jquery.com/jquery-1.7.1.min.js"></script>
@@ -14,7 +14,7 @@ $(document).ready(function() {
 		var reminder = $("#reminder").val();
 		var start_date = $("#start_date").val();
 		var end_date = $("#finish_date").val();
-		
+
         if (goal_set_for == '' || goal_heading == '' || goal_setter == '' || goal_timeline == '' || goal == '' || reminder == '' || start_date == '' || end_date == '') {
             alert("Please make sure you have filled in all of the required fields.");
             return false;
@@ -23,9 +23,9 @@ $(document).ready(function() {
 });
 </script>
 <script type='text/javascript'>
-$(document).ready(function() {	
-	
-	$("#business").change(function() {	
+$(document).ready(function() {
+
+	$("#business").change(function() {
 	if($("#business option:selected").text() == 'New Business') {
 			$( "#new_business" ).show();
 	} else {
@@ -77,7 +77,7 @@ $(document).ready(function() {
 
 var add_new_p_misc = 1;
 //$('#deleteproductsmisc_0').hide();
-function addAction(objective) 
+function addAction(objective)
 {
 	var typeId = objective.id;
 	var arr = typeId.split('_');
@@ -89,7 +89,7 @@ function addAction(objective)
 	clone_misc.find('#action_0_0').attr('id', 'action_'+arr[3]+'_'+add_new_p_misc);
 	//clone_misc.find('#action_'+arr[3]).attr('id', 'action_'+add_new_p_misc);
 	var count = 0;
-	
+
 	while($('#actions_'+arr[3]+'_'+count).length)
 	{
 		count++;
@@ -160,13 +160,13 @@ if (isset($_POST['add_gao'])) {
 	elseif($_POST['add_gao'] == 'Submit') {
 		$status = 1;
 	}
-	
+
 	$created_date = date('Y-m-d');
     //$created_by = $_SESSION['contactid'];
 
 	$goal_heading = filter_var($_POST['goal_heading'],FILTER_SANITIZE_STRING);
     $goal_setter = $_POST['goal_setter'];
-	
+
 	if(is_array($_POST['goal_set_for'])) {
 		$goal_set_for = implode(',', $_POST['goal_set_for']);
 	}
@@ -178,51 +178,51 @@ if (isset($_POST['add_gao'])) {
 			$goal_set_for = $_POST['goal_set_for'];
 		}
 	}
-	
+
     $goal_timeline = $_POST['goal_timeline'];
     $start_date = filter_var($_POST['start_date'],FILTER_SANITIZE_STRING);
     $end_date = filter_var($_POST['end_date'],FILTER_SANITIZE_STRING);
 	$reminder = filter_var($_POST['reminder'],FILTER_SANITIZE_STRING);
 	$goal = filter_var($_POST['goal'],FILTER_SANITIZE_STRING);
-	//$encryptData = 
+	//$encryptData =
     //$wholeData = ;
 
     if(empty($_POST['goalid'])) {
 		$type = $_GET['type'];
-        $query_insert_vendor = "INSERT INTO `goals` (`goal_heading`, `goal_setter`, `goal_set_for`, `goal_timeline`, `start_date`, 
-		`end_date`, `reminder`, `goal`, `type`) VALUES 
+        $query_insert_vendor = "INSERT INTO `goals` (`goal_heading`, `goal_setter`, `goal_set_for`, `goal_timeline`, `start_date`,
+		`end_date`, `reminder`, `goal`, `type`) VALUES
 		('$goal_heading', '$goal_setter', '$goal_set_for', '$goal_timeline', '$start_date', '$end_date','$reminder', '$goal','$type')";
 		$result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $goalid = mysqli_insert_id($dbc);
         $url = 'Added';
     } else {
         $goalid = $_POST['goalid'];
-        $query_update_vendor = "UPDATE `goals` SET `goal_heading` = '$goal_heading', `goal_setter` = '$goal_setter', `goal_set_for` = '$goal_set_for', 
+        $query_update_vendor = "UPDATE `goals` SET `goal_heading` = '$goal_heading', `goal_setter` = '$goal_setter', `goal_set_for` = '$goal_set_for',
 		`goal_timeline` = '$goal_timeline', `start_date` = '$start_date', `end_date` = '$end_date', `reminder` = '$reminder', `goal` = '$goal' WHERE `goalid` = '$goalid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
         $url = 'Updated';
     }
-	
+
 	$count = 0;
 	mysqli_query($dbc, "delete from goal_objectives where goalid = $goalid");
 	$objectives = $_POST['objectives'];
 	$objectives = array_filter($objectives);
 	$totalCount = count($objectives);
-	
+
 	for($i = 0; $i < $totalCount; $i++) {
 		if(isset($objectives[$i])) {
 			$actions = array();
 			$var = "actions_$i";
 			if(is_array($_POST[$var]))
 				$actions = $_POST[$var];
-			
+
 			$actions = array_filter($actions);
 			$mergedAction = array();
 			foreach($actions as $action) {
 				$mergedAction[] = $action;
 			}
-			
-			
+
+
 			$objective = $objectives[$i];
 			$mergedActions = rtrim(implode(',', $mergedAction), ',');
 			$query_insert_obj = "INSERT INTO `goal_objectives` (`goalid`,`objectives`,`actions`) VALUES ('$goalid','$objective','$mergedActions')";
@@ -230,7 +230,7 @@ if (isset($_POST['add_gao'])) {
 		}
 		$count++;
 	}
-	
+
 	$count = 500;
 	$totalCount = $count + $totalCount;
 	for($i = 500; $i < $totalCount; $i++) {
@@ -239,14 +239,14 @@ if (isset($_POST['add_gao'])) {
 			$var = "actions_$i";
 			if(is_array($_POST[$var]))
 				$actions = $_POST[$var];
-			
+
 			$actions = array_filter($actions);
 			$mergedAction = array();
 			foreach($actions as $action) {
 				$mergedAction[] = $action;
 			}
-			
-			
+
+
 			$objective = $objectives[$i];
 			$mergedActions = rtrim(implode(',', $mergedAction), ',');
 			$query_insert_obj = "INSERT INTO `goal_objectives` (`goalid`,`objectives`,`actions`) VALUES ('$goalid','$objective','$mergedActions')";
@@ -254,9 +254,9 @@ if (isset($_POST['add_gao'])) {
 		}
 		$count++;
 	}
-	
-	
-    //Notes	
+
+
+    //Notes
     echo '<script type="text/javascript"> window.location.replace("gao.php?maintype='.$type.'"); </script>';
 
  //   mysqli_close($dbc);//Close the DB Connection
@@ -309,7 +309,7 @@ if (isset($_POST['add_gao'])) {
 					<?php if($_GET['note'])
 							$class = 'collapse';
 					?>
-					
+
 					<div id="collapse_info" class="panel-collapse <?php echo $class; ?>">
 						<div class="panel-body">
 
@@ -337,10 +337,9 @@ if (isset($_POST['add_gao'])) {
 							<div class="form-group">
 								<label for="goal_set_for" class="col-sm-4 control-label">Goal Set For:<span class="brand-color">*</span></label>
 								<div class="col-sm-8">
-								  
+
 									  <?php if($_GET['type'] == 'department'): ?>
 										<select data-placeholder="Select a Staff" multiple name="goal_set_for[]" class="chosen-select-deselect form-control">
-										  <option value=""></option>
 										  <?php
 											$query = mysqli_query($dbc,"SELECT DISTINCT(c.name), c.contactid FROM contacts c");
 											while($row = mysqli_fetch_array($query)) {
@@ -361,7 +360,7 @@ if (isset($_POST['add_gao'])) {
 										  ?>
 										</select>
 									  <?php endif; ?>
-									
+
 								</div>
 							</div>
 							<?php $businessid = ''; ?>
@@ -383,12 +382,12 @@ if (isset($_POST['add_gao'])) {
 									  ?>
 									</select>
 								</div>
-							</div>	
+							</div>
 						</div>
 					</div>
 				</div>
 
-			 
+
 
 				<div class="panel panel-default">
 					<div class="panel-heading">
@@ -422,7 +421,7 @@ if (isset($_POST['add_gao'])) {
 						 </div>
 					</div>
 				</div>
-				
+
 				<div class="panel panel-default">
 					<div class="panel-heading">
 						<h4 class="panel-title">
@@ -431,13 +430,13 @@ if (isset($_POST['add_gao'])) {
 							</a>
 						</h4>
 					</div>
-					
-					
+
+
 
 					<div id="collapse_cost" class="panel-collapse collapse <?php echo $note_add_view; ?>">
 						<div class="panel-body">
 							<div class="form-group">
-								
+
 								<label for="goal" class="col-sm-2 control-label">
 								<span class="popover-examples list-inline" style="margin-left:20px;"><a data-toggle="tooltip" Title='Goals are general guidelines that explain what you want to achieve.' data-placement="top" title=""><img src="<?php echo WEBSITE_URL; ?>/img/info.png" width="20"></a></span>The Goal:<span class="brand-color">*</span></label>
 								<div class="col-sm-8">
@@ -450,13 +449,13 @@ if (isset($_POST['add_gao'])) {
 							</div>
 
 							<?php $id_loop = 500; ?>
-							<?php 
+							<?php
 								$select_query = "select * from goal_objectives where goalid = $goalid";
 								$select_result = mysqli_query($dbc, $select_query);
 							?>
 							<?php while ($row = mysqli_fetch_array($select_result)) { ?>
 								<?php if($row['objectives'] != '' || $row['actions'] != '') { ?>
-									<?php 
+									<?php
 									$tempactionse = array();
 									$tempactionse = explode(',', $row['actions']); ?>
 									<div class="form-group clearfix all_products" id="<?php echo 'productsmisc_'.$id_loop; ?>" >
@@ -492,7 +491,7 @@ if (isset($_POST['add_gao'])) {
 									</div>
 								<?php } ?>
 							<?php $id_loop++; } ?>
-							
+
 							<div class="additional_p_misc clearfix">
 								<div class="clearfix"></div>
 								<div class="form-group all_products" id="productsmisc_0">
@@ -507,10 +506,10 @@ if (isset($_POST['add_gao'])) {
 										<button id="add_row_action_0" onclick="return addAction(this)" class="btn brand-btn pull-left">Add More Actions</button>
 										<a href="#" onclick="deleteEstimate(this,'productsmisc_','additional_action_'); return false;" id="deleteproductsmisc_0" class="btn brand-btn">Delete</a>
 									</div>
-									<div id='additional_action_0' class="clearfix"></div>	
+									<div id='additional_action_0' class="clearfix"></div>
 								</div>
-								
-								
+
+
 							</div>
 							<div class='additional_action clearfix' style="display:none">
 								<div id="action_0">
@@ -522,18 +521,18 @@ if (isset($_POST['add_gao'])) {
 										<div class="col-sm-1" >
 											<a href="#" onclick="deleteActions(this,'action_'); return false;" id="deleteproductsmisc_0" class="btn brand-btn">Delete</a>
 										</div>
-									</div>	
-									
+									</div>
+
 								</div>
 							</div>
-							
+
 							<div id="add_here_new_p_misc"></div>
-							
+
 							<div class="form-group triple-gapped clearfix">
 								<div class="col-sm-offset-10">
 									<button id="add_row_p_misc" class="btn brand-btn pull-left">Add More Objectives</button>
 								</div>
-							</div>			
+							</div>
 						</div>
 					</div>
 				</div>
@@ -551,7 +550,7 @@ if (isset($_POST['add_gao'])) {
 				<div class="col-sm-6">
 					<button type="submit" name="add_gao" value="Submit" class="btn brand-btn btn-lg pull-right">Submit</button>
 				</div>
-				
+
 			</div>
 
 		</form>

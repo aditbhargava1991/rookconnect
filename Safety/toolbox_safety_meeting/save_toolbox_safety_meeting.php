@@ -53,6 +53,10 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+        $before_change = '';
+        $history = "Safety upload entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
         $query_update_employee = "UPDATE `safety_toolbox_safety_meeting` SET `location` = '$location', `project_number` = '$project_number', `supervisor` = '$supervisor', `item_discussed` = '$item_discussed', `contactid` = '$contactid' WHERE fieldlevelriskid='$fieldlevelriskid'";
@@ -80,6 +84,10 @@
                 }
             }
         }
+
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE	fieldlevelriskid='$fieldlevelriskid' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {

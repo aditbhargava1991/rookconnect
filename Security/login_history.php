@@ -32,7 +32,7 @@ error_reporting(0);
 			<p>
 			<?php $history = mysqli_query($dbc, "SELECT `user_name`, `login_at`, `login_ip`, `success` FROM `login_history` WHERE '$id' IN (`contactid`,'ALL') AND `login_at` BETWEEN '$start_date' AND '$end_date 23:59:59' ORDER BY `login_at` DESC");
 			while($row = mysqli_fetch_array($history)) {
-				echo $row['user_name']." ".($row['success'] ? 'successfully logged in' : 'unsuccessfuly attempted to log in')." at ".$row['login_at'].($row['login_ip'] != '' ? " (from IP address ".$row['login_ip'].")" : '').".<br />\n";
+				echo $row['user_name']." ".($row['success'] ? 'successfully logged in' : 'unsuccessfuly attempted to log in')." at ".convert_timestamp_mysql($dbc, $row['login_at'], true).($row['login_ip'] != '' ? " (from IP address ".$row['login_ip'].")" : '').".<br />\n";
 			} ?>
 			</p>
 		</div>

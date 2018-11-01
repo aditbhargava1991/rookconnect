@@ -3,6 +3,8 @@
 Delete and Restore FFM
 */
 include ('include.php');
+include ('database_connection_htg.php');
+
 error_reporting(0);
 ?>
 
@@ -832,7 +834,8 @@ $date_of_archival = date('Y-m-d');
         echo archive_content($dbc, 'intake', 'intakeid', $_GET['intakeid'], 'Intake/intake.php');
     }
 	if(!empty($_GET['guideid'])) {
-        include ('How To Guide/db_conn_htg.php');
+        //include ('How To Guide/db_conn_htg.php');
+        include ('database_connection_htg.php');
         $guideid = trim($_GET['guideid']);
         $page = trim($_GET['page']);
         $query_update = "UPDATE `how_to_guide` SET `deleted`='$deleted', `date_of_archival` = '$date_of_archival' WHERE `guideid`='$guideid'";

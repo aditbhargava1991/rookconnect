@@ -37,9 +37,9 @@
 				}
 			?>
         </div>
-		
+
 		<div class="clearfix triple-gap-bottom"></div>
-        
+
         <div class="tab-container">
             <div class="tab pull-left"><a href="guides_dashboard.php" class="btn active_tab text-uppercase">Software Guides</a></div><?php
             if ( $rookconnect=='rook' || $rookconnect=='localhost' ) { ?>
@@ -47,7 +47,7 @@
             } ?>
             <div class="clearfix"></div>
         </div><?php
-        
+
         if ( config_visible_function ( $dbc, 'how_to_guide' ) == 1 ) { ?>
             <div class="tab-container"><?php
                 if(isset($_GET['maintype'])) {
@@ -71,7 +71,7 @@
 				}
 
 				$offset = ($pageNum - 1) * $rowsPerPage;
-				
+
 				if ( isset ( $_GET['page'] ) ) {
 					$query_general = "SELECT * FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile` LIMIT $offset, $rowsPerPage";
 					$query_pagination = "SELECT COUNT(`guideid`) AS numrows FROM `how_to_guide` WHERE `deleted`=0 ORDER BY `tile`";
@@ -82,14 +82,14 @@
 
 				$results_general	= mysqli_query ( $dbc_htg, $query_general );
 				$num_rows_general	= mysqli_num_rows ( $results_general );
-				
+
 				if ( $num_rows_general > 0 ) {
 
 					// Add Pagination
 					if ( isset ( $query_pagination ) ) {
 						echo display_pagination($dbc_htg, $query_pagination, $pageNum, $rowsPerPage);
 					}
-					
+
 					$get_field_config = mysqli_fetch_assoc ( mysqli_query ( $dbc, "SELECT `how_to_guide_dashboard` FROM `field_config`" ) );
 					$value_config = ',' . $get_field_config['how_to_guide_dashboard'] . ',';
 
@@ -114,7 +114,7 @@
 								echo '<th width="10%">Function</th>';
 							}
 						echo "</tr>";
-					
+
 						while ( $row = mysqli_fetch_assoc ( $results_general ) ) {
 							echo "<tr>";
 								if ( strpos ( $value_config, ',Tile,' ) !== FALSE ) {
@@ -131,7 +131,7 @@
 								}
 								if ( strpos ( $value_config, ',Image,' ) !== FALSE ) {
 									if ( !empty ( $row['image'] ) ) {
-										echo '<td data-title="Image"><a href="download/' . $row['image'] . '" target="view">View</a></td>';
+										echo '<td data-title="Image"><a href="'.$row['image_full_path'].'" target="view">View</a></td>';
 									} else {
 										echo '<td data-title="Image" align="center">-</td>';
 									}
@@ -150,7 +150,7 @@
 							echo "</tr>";
 						} //while
 					echo '</table>';
-					
+
 					if ( config_visible_function ( $dbc, 'how_to_guide' ) == 1 ) {
 						if(isset($_GET['maintype'])) {
 							echo '<a href="'.WEBSITE_URL.'/How To Guide/add_edit_guide.php?maintype='.$_GET['maintype'].'" class="btn brand-btn mobile-block pull-right">Add Software Guide</a>';
@@ -159,18 +159,18 @@
 							echo '<a href="add_edit_guide.php" class="btn brand-btn mobile-block pull-right">Add Software Guide</a>';
 						}
 					}
-					
+
 					// Add Pagination
 					if ( isset ( $query_pagination ) ) {
 						echo display_pagination($dbc_htg, $query_pagination, $pageNum, $rowsPerPage);
 					}
-				
+
 				} else {
 					echo "<h2>No Records Found.</h2>";
 				}
 			?>
         </div><!-- .no-more-tables -->
-		
+
     </div><!-- .row -->
 </div><!-- .container -->
 

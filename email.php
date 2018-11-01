@@ -21,7 +21,7 @@ function send_email($from, $to, $cc, $bcc, $subject, $body, $attachment = '') {
 	// Setup the sending address and reply address
 	$sender = [];
 	if(EMAIL_SERVER != 'smtp.gmail.com') {
-		$sender = EMAIL_UESR;
+		$sender = EMAIL_USER;
 		if($from == '') {
 			$replyTo = EMAIL_ADDRESS;
 		} else if(is_array($from)) {
@@ -80,7 +80,9 @@ function send_email($from, $to, $cc, $bcc, $subject, $body, $attachment = '') {
 	// Add attachments
     Swift_Preferences::getInstance()->setCacheType('null');
 	foreach(array_filter(explode('*#FFM#*', $attachment)) as $attach) {
-		$message->attach(Swift_Attachment::fromPath($attach), "application/octet-stream");
+        if(file_exists($attach) && $attach != '') {
+            $message->attach(Swift_Attachment::fromPath($attach), "application/octet-stream");
+        }
 	}
 
 	// Send the message

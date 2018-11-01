@@ -1,4 +1,4 @@
-<?php 
+<?php
 $confirmation_email_body = html_entity_decode(get_config($dbc, 'confirmation_email_body'));
 $confirmation_email_subject = get_config($dbc, 'confirmation_email_subject');
 ?>
@@ -65,7 +65,6 @@ function send_notification() {
 				<label class="col-sm-4 control-label">Staff:</label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Staff..." name="noti_staff[]" multiple class="chosen-select-deselect form-control">
-						<option></option>
 						<?php $staffs_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
 						foreach ($staffs_list as $noti_staffid) {
 							echo '<option value="'.$noti_staffid.'">'.get_contact($dbc, $noti_staffid).'</option>';
@@ -95,7 +94,6 @@ function send_notification() {
 				<label class="col-sm-4 control-label">Contacts:</label>
 				<div class="col-sm-8">
 					<select data-placeholder="Select Contacts..." name="noti_contacts[]" multiple class="chosen-select-deselect form-control">
-						<option></option>
 						<?php $contacts_list = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` NOT IN (".STAFF_CATS.") AND `deleted` = 0 AND `status` > 0 AND `show_hide_user` = 1"),MYSQLI_ASSOC));
 						foreach ($contacts_list as $noti_contactid) {
 							echo '<option '.(strpos(','.$get_ticket['clientid'].',',','.$noti_contactid.',') !== FALSE ? 'selected' : '').' value="'.$noti_contactid.'" data-businessid="'.get_contact($dbc, $noti_contactid, 'businessid').'">'.get_contact($dbc, $noti_contactid).'</option>';
@@ -178,6 +176,6 @@ function send_notification() {
 
 	</div>
 
-	<button class="btn brand-btn pull-right notify_button" onclick="send_notification(); return false;">Send Notification</button>
+	<button class="btn brand-btn pull-right notify_button" data-history-label="Add Notification" onclick="send_notification(); return false;">Send Notification</button>
 	<div class="clearfix"></div>
 <?php } ?>

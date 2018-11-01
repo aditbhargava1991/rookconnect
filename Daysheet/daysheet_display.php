@@ -32,7 +32,7 @@ switch($current_tab) {
 	<div class="pull-left tab">
 		<span class="popover-examples no-gap-pad"><a data-toggle="tooltip" data-placement="top" title="Click here to see the list of Tasks for the current day."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
 		<?php if ( check_subtab_persmission($dbc, 'daysheet', ROLE, 'ticket') === TRUE ) { ?>
-			<a href="<?php echo $link; ?>day_tab=tasks"><button type="button" class="btn brand-btn mobile-block <?php echo ($current_tab == 'tasks' ? 'active_tab' : ''); ?> mobile-100">My Tasks</button></a>
+			<a href="<?php echo $link; ?>day_tab=tasks"><button type="button" class="btn brand-btn mobile-block <?php echo ($current_tab == 'tasks' ? 'active_tab' : ''); ?> mobile-100">My <?= TASK_TILE ?></button></a>
 		<?php } ?>
 	</div>
 	<div class="pull-left tab">

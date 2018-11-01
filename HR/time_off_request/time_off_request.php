@@ -30,6 +30,39 @@ if(!empty($_GET['formid'])) {
 $get_field_config = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM `hr` WHERE tab LIKE '$tab' AND form='$form'"));$form_config = ','.$get_field_config['fields'].',';
 ?>
 
+<script type="text/javascript">
+$(document).ready(function() {
+    window.checkedTicketBookingConflicts = false;
+    $('button[name="submit"],button[name="time_off_request"]').on('click', function() {
+    	var button = $(this);
+    	if(!checkedTicketBookingConflicts) {
+    		var contactid = '<?= $contactid ?>';
+    		var startdate = $('[name="fields_2"]').val();
+    		var enddate = $('[name="fields_3"]').val();
+    		$.ajax({
+    			url: '../Calendar/calendar_ajax_all.php?fill=check_ticket_booking_conflicts',
+    			method: 'POST',
+    			data: { contactid: contactid, startdate: startdate, enddate: enddate },
+    			success: function(response) {
+    				if(response != '') {
+    					if(confirm(response)) {
+						    window.checkedTicketBookingConflicts = true;
+	                        $(button).trigger('click');
+    					}
+    				} else {
+					    window.checkedTicketBookingConflicts = true;
+                        $(button).trigger('click');
+    				}
+    			}
+    		});
+    		return false;
+    	} else {
+    		return true;
+    	}
+    });
+});
+</script>
+
 <?php if (strpos($form_config, ','."fields1".',') !== FALSE) { ?>
 	<h3>Type of Absence</h3>
 	<div class="form-group">

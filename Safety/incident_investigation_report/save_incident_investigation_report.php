@@ -96,6 +96,10 @@
             $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`, `done`) VALUES ('$safetyid', '$fieldlevelriskid', '$assign_staff', 0)";
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
+
+        $before_change = '';
+        $history = "Safety attendance entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
         $query_update_employee = "UPDATE `safety_incident_investigation_report` SET `contactid` = '$contactid', `today_time` = '$today_time', `address` = '$address', `fields` = '$fields', `fields_value` = '$fields_value', `person_in_charge` = '$person_in_charge', `reporter` = '$reporter', `reported_to` = '$reported_to', `date_reported` = '$date_reported', `description_of_incident` = '$description_of_incident', `direct_cause_of_incident` = '$direct_cause_of_incident', `contributing_factor` = '$contributing_factor', `over_the_cause` = '$over_the_cause', `imm_act_req` = '$imm_act_req', `ltm_act_req` = '$ltm_act_req', `immidiate_correcctive_act_req` = '$immidiate_correcctive_act_req', `immi_date_comp` = '$immi_date_comp', `long_trm_act_assign` = '$long_trm_act_assign', `long_term_date` = '$long_term_date', `dia_scene` = '$dia_scene', `incident` = '$incident', `desc` = '$desc', `desc1` = '$desc1', `accident` = '$accident', `all_task` = CONCAT(all_task,'$all_task') WHERE fieldlevelriskid='$fieldlevelriskid'";
@@ -123,6 +127,10 @@
                 }
             }
         }
+
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE	fieldlevelriskid='$fieldlevelriskid' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {

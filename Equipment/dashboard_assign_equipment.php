@@ -45,8 +45,8 @@ if (get_config($dbc, 'show_category_dropdown_equipment') == '1') { ?>
     <div class="gap-left tab-container col-sm-10">
         <div class="row">
 			<label class="control-label col-sm-2">
-                <span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Filter equipment by Category."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
-                Category:
+                <span class="popover-examples" style="margin:0;"><a data-toggle="tooltip" data-placement="top" title="Filter equipment by Tab."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span>
+                Tab:
             </label>
 			<div class="col-sm-4">
 				<select name="search_category" class="chosen-select-deselect form-control mobile-100-pull-right category_actual">

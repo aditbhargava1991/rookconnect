@@ -41,8 +41,13 @@ if($from == 'field_jobs_wt') {
     $value = $_GET['value'];
 
     if($action == 'actiondate') {
+				$before_change = capture_before_change($dbc, 'field_work_ticket', 'date_sent', 'workticketid', $workticketid);
+
         $query_update_es = "UPDATE `field_work_ticket` SET `date_sent` = '$value' WHERE `workticketid` = '$workticketid'";
         $result_update_es = mysqli_query($dbc, $query_update_es);
+
+				$history = capture_after_change('date_sent', $value);
+				add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
     }
 }
 if($from == 'job') {
@@ -122,5 +127,8 @@ if($from == 'field_job_fs') {
 }
 if($_GET['action'] == 'hand_deliver' && $_GET['workticketid'] > 0) {
 	mysqli_query($dbc, "UPDATE `field_work_ticket` SET date_sent = CONCAT_WS('<br>',date_sent, '".date('Y-m-d')."|hand') WHERE `workticketid` = '".$_GET['workticketid']."'");
+	$before_change = '';
+  $history = "field_work_ticket entry has been updated for fsid -> ".$_GET['workticketid']." <br />";
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 }
 ?>

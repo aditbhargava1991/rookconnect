@@ -91,7 +91,7 @@ $(document).ready(function() {
                             $note = 'Through this section, full services records and tracking can be done on all equipment. These records are ideal for reporting, sales, year end and tracking the profit and losses on all equipment.';
                             break;
                         case 'equipment_checklist':
-                            $note = 'A checklist is defined for either an equipment category, a type of equipment, or a specific piece of equipment. Once you have selected a piece of equipment, any checklists that match the piece of equipment will be displayed.';
+                            $note = 'A checklist is defined for either an equipment tab, a type of equipment, or a specific piece of equipment. Once you have selected a piece of equipment, any checklists that match the piece of equipment will be displayed.';
                             break;
                         default:
                             $note = 'Tracking and maintaining equipment is an essential element for every business. Through this section you\'ll be able to Add/Edit/Archive equipment you wish to use throughout projects or capture essential data on.';
@@ -109,7 +109,8 @@ $(document).ready(function() {
 			</div>
 
 			<div class="clearfix"></div>
-			<?php if(isset($_GET['edit_inspection'])) {
+            <?php $overview = get_config($dbc, 'show_equipment_overview');
+			if(isset($_GET['edit_inspection'])) {
 				include('edit_inspection.php');
 			} else if(isset($_GET['edit_assigned_equipment'])) {
 				include('edit_assigned_equipment.php');
@@ -136,7 +137,11 @@ $(document).ready(function() {
 				} else if($_GET['subtab'] == 'equip_assign') {
 					include('edit_equipment_assignment.php');
 				} else {
-					include('edit_equipment.php');
+                    if($overview > 0 && $_GET['subtab'] != 'edit' && $_GET['edit'] > 0) {
+                        $_GET['view'] = 'readonly';
+                        $_GET['subtab'] = 'overview';
+                    }
+                    include('edit_equipment.php');
 				}
 			} else if(isset($_GET['settings']) && $security['config'] > 0) {
 				include('field_config.php');

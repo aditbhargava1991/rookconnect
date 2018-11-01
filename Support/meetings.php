@@ -1,3 +1,4 @@
+<?php include_once('config.php'); ?>
 <div class="notice double-gap-bottom popover-examples">
 	<img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" style="width:3em;">
 	<div style="float:right; width:calc(100% - 4em);"><span class="notice-name">Note:</span>

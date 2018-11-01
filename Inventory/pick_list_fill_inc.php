@@ -96,7 +96,7 @@ if($_GET['id'] > 0) {
 			<div class="hide-titles-mob">
 				<div class="col-sm-10">
 					<?php if(in_array('category',$pick_list_filters)) { ?>
-						<div class="col-sm-<?= $filter_cols ?>"><?= INVENTORY_NOUN ?> Category</div>
+						<div class="col-sm-<?= $filter_cols ?>"><?= INVENTORY_NOUN ?> Tab</div>
 					<?php } ?>
 					<?php if(in_array('ticket_po',$pick_list_filters)) { ?>
 						<div class="col-sm-<?= $filter_cols ?>">Purchase Order #</div>
@@ -128,7 +128,7 @@ if($_GET['id'] > 0) {
 					<div class="col-sm-10">
 						<?php if(in_array('category',$pick_list_filters)) { ?>
 							<div class="col-sm-<?= $filter_cols ?>">
-								<span class="show-on-mob"><?= INVENTORY_NOUN ?> Category: </span>
+								<span class="show-on-mob"><?= INVENTORY_NOUN ?> Tab: </span>
 								<?= $item['category'] ?>
 							</div>
 						<?php } ?>

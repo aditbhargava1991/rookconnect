@@ -268,14 +268,18 @@ function report_output($dbc, $starttime, $endtime, $task_group_search, $task_sea
             <th>Date</th>
             <th>Task</th>
             <th>'.TICKET_NOUN.'</th>
+            <!--<th>Materials on '.TICKET_NOUN.'</th>-->
         </tr>';
         while($row = mysqli_fetch_assoc($result)) {
+            // $material_list = [];
+            // $materials = $dbc->query("SELECT * FROM `ticket_attached` WHERE `ticketid`='".$row['ticketid']."' AND `deleted`=0 AND `src_table`='material' AND `date_stamp`='".$row['created_date']."'");
             foreach(explode(',',$row['task_available']) as $ticket_task) {
                 if(in_array($ticket_task, $available_tasks) || empty($available_tasks)) {
                     $report_data .= '<tr>
                         <td data-title="Date">'.date('Y-m-d', strtotime($row['created_date'])).'</td>
                         <td data-title="Task">'.$ticket_task.'</td>
-                        <td data-title="'.TICKET_NOUN.'">'.($report_type != 'print' ? '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$row['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&calendar_view=true\'); return false;">' : '').get_ticket_label($dbc, $row).($report_type != 'print' ? '</a>' : '').'</td>
+                        <td data-title="'.TICKET_NOUN.'">'.($report_type != 'print' ? '<a href="'.WEBSITE_URL.'/Ticket/index.php?edit='.$row['ticketid'].'" onclick="overlayIFrameSlider(this.href+\'&date='.$ow['created_date'].'&calendar_view=true\'); return false;">' : '').get_ticket_label($dbc, $row).($report_type != 'print' ? '</a>' : '').'</td>
+                        <!--<td data-title="Materials on '.TICKET_NOUN.'"></td>-->
                     </tr>';
                 }
             }
@@ -286,3 +290,17 @@ function report_output($dbc, $starttime, $endtime, $task_group_search, $task_sea
 	}
     return $report_data;
 } ?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

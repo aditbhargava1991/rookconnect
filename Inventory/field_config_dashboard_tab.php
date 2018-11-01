@@ -30,7 +30,7 @@ if (isset($_POST['submit'])) {
         </div>
         <div class="col-sm-12">
 			<h3>Summary Options</h3>
-			<label class="form-checkbox"><input type="checkbox" <?= strpos(','.$set_check_value.',', ",summary category,") !== false ? 'checked' : '' ?> value="summary category" name="dashboard_tab_cx[]" style="height: 20px; width: 20px;" >&nbsp;&nbsp;Summary of Categories</label>
+			<label class="form-checkbox"><input type="checkbox" <?= strpos(','.$set_check_value.',', ",summary category,") !== false ? 'checked' : '' ?> value="summary category" name="dashboard_tab_cx[]" style="height: 20px; width: 20px;" >&nbsp;&nbsp;Summary of Tabs</label>
         </div>
     </div>
 </div>

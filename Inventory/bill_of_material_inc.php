@@ -209,7 +209,7 @@ function prodselectName(sel) {
 	</div>
 	  <div class="form-group clearfix">
         <?php if (strpos($value_config, ','."Category".',') !== FALSE) { ?>
-            <label class="col-sm-3 text-center">Category</label>
+            <label class="col-sm-3 text-center">Tab</label>
         <?php } ?>
         <?php if (strpos($value_config, ','."Name".',') !== FALSE) { ?>
             <label class="col-sm-3 text-center">Name</label>
@@ -252,7 +252,7 @@ function prodselectName(sel) {
 
         <?php if (strpos($value_config, ','."Category".',') !== FALSE) { ?>
         <div class="col-sm-3 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?>">
-            <select data-placeholder="Choose a Category..."  id="category_0" name="prodcategory[]" class="chosen-select-deselect form-control prodcategory">
+            <select data-placeholder="Choose a Tab..."  id="category_0" name="prodcategory[]" class="chosen-select-deselect form-control prodcategory">
                 <option value=""></option>
                 <?php
                 $query = mysqli_query($dbc,"SELECT DISTINCT(category) FROM inventory WHERE deleted=0 order by category");
@@ -402,7 +402,7 @@ function prodselectName(sel) {
         <div class="form-group clearfix" width="100%">
             <?php if (strpos($value_config, ','."Category".',') !== FALSE) { ?>
             <div class="col-sm-3">
-                <select data-placeholder="Choose a Category..." name="new_category" class="chosen-select-deselect form-control">
+                <select data-placeholder="Choose a Tab..." name="new_category" class="chosen-select-deselect form-control">
                     <option value=""></option>
                     <?php
                     $query = mysqli_query($dbc,"SELECT DISTINCT(category) FROM inventory WHERE deleted=0 order by category");

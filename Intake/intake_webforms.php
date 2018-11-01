@@ -23,12 +23,20 @@ checkAuthorised('intake'); ?>
 		$cat_query = " AND `category` = '".$_GET['web_type']."'";
 	}
 
+	$date_query = '';
+	if(!empty($_POST['search_start_date'])) {
+		$date_query .= " AND `received_date` >= '".$_POST['search_start_date']."'";
+	}
+	if(!empty($_POST['search_end_date'])) {
+		$date_query .= " AND `received_date` <= '".$_POST['search_end_date']."'";
+	}
+
 	if ( $search_term == '' ) {
-		$query_check_credentials = "SELECT * FROM `intake` WHERE `assigned_date` = '0000-00-00' AND `deleted` = 0 AND `intakeformid` = 0 $cat_query LIMIT $offset, $rowsPerPage";
-		$query = "SELECT COUNT(*) AS numrows FROM `intake` WHERE `assigned_date` = '0000-00-00' AND `deleted` = 0 AND `intakeformid` = 0 $cat_query";
+		$query_check_credentials = "SELECT * FROM `intake` WHERE `assigned_date` = '0000-00-00' AND `deleted` = 0 AND `intakeformid` = 0 $cat_query $date_query ORDER BY `received_date` DESC LIMIT $offset, $rowsPerPage";
+		$query = "SELECT COUNT(*) AS numrows FROM `intake` WHERE `assigned_date` = '0000-00-00' AND `deleted` = 0 AND `intakeformid` = 0 $cat_query $date_query ORDER BY `received_date` DESC";
 	} else {
-		$query_check_credentials = "SELECT * FROM `intake` WHERE (`name` LIKE '%{$search_term}%' OR `email` LIKE '%{$search_term}%' OR `phone` LIKE '%{$search_term}%') AND `assigned_date` = '0000-00-00' AND `deleted` = 0 AND `intakeformid` = 0 $cat_query ORDER BY `intakeid` DESC LIMIT $offset, $rowsPerPage";
-		$query = "SELECT COUNT(*) AS numrows FROM `intake` WHERE (`name` LIKE '%{$search_term}%' OR `email` LIKE '%{$search_term}%' OR `phone` LIKE '%{$search_term}%') AND `assigned_date` = '0000-00-00' AND `deleted` = 0 AND `intakeformid` = 0 $cat_query ORDER BY `intakeid` DESC";
+		$query_check_credentials = "SELECT * FROM `intake` WHERE (`name` LIKE '%{$search_term}%' OR `email` LIKE '%{$search_term}%' OR `phone` LIKE '%{$search_term}%') AND `assigned_date` = '0000-00-00' AND `deleted` = 0 AND `intakeformid` = 0 $cat_query $date_query ORDER BY `received_date` DESC LIMIT $offset, $rowsPerPage";
+		$query = "SELECT COUNT(*) AS numrows FROM `intake` WHERE (`name` LIKE '%{$search_term}%' OR `email` LIKE '%{$search_term}%' OR `phone` LIKE '%{$search_term}%') AND `assigned_date` = '0000-00-00' AND `deleted` = 0 AND `intakeformid` = 0 $cat_query $date_query ORDER BY `received_date` DESC";
 	}
 
 	$result		= mysqli_query($dbc, $query_check_credentials);

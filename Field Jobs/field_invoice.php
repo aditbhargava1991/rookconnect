@@ -17,8 +17,16 @@ if(str_replace(',','',$dashboard_config) == '') {
 if((!empty($_GET['invoiceid'])) && ($_GET['status'] == 'Paid')) {
 	$invoiceid = $_GET['invoiceid'];
 	$date_paid = date('Y-m-d');
+	$before_change = capture_before_change($dbc, 'field_invoice', 'status', 'invoiceid', $invoiceid);
+	$before_change .= capture_before_change($dbc, 'field_invoice', 'date_paid', 'invoiceid', $invoiceid);
+
 	$query_update_site = "UPDATE `field_invoice` SET `status` = 'Paid', `date_paid` = '$date_paid' WHERE `invoiceid` = '$invoiceid'";
 	$result_update_site	= mysqli_query($dbc, $query_update_site);
+
+	$history = capture_after_change('status', 'Paid');
+	$history .= capture_after_change('date_paid', $date_paid);
+	add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 	echo '<script type="text/javascript"> window.location.replace("field_invoice.php?paytype=Unpaid"); </script>';
 }
 

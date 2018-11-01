@@ -32,6 +32,9 @@ if(!empty($_POST['type'])) {
                         }
 
                         $id_card_fields = explode(',',get_config($dbc, config_safe_str($current_type).'_id_card_fields'));
+                        if(in_array($current_type,['Sales Lead','Sales Leads'])) {
+                            $id_card_fields[] = 'Sales Lead';
+                        }
                         ?>
                     </select>
                 </div>
@@ -41,6 +44,7 @@ if(!empty($_POST['type'])) {
                 <div class="col-sm-8">
                     <div class="block-group">
                         <label class="form-checkbox"><input type="checkbox" <?= in_array('Ticket Service Total Hours', $id_card_fields) ? 'checked' : '' ?> name="contacts_id_card[]" value="Ticket Service Total Hours" onchange="save_options();"><?= TICKET_NOUN ?> Service Total Hours</label>
+                        <label class="form-checkbox"><input type="checkbox" <?= in_array('Sales Lead', $id_card_fields) ? 'checked' : '' ?> name="contacts_id_card[]" value="Sales Lead" onchange="save_options();"><?= SALES_NOUN ?></label>
                         <label class="form-checkbox"><input type="checkbox" <?= in_array('POS Invoices', $id_card_fields) ? 'checked' : '' ?> name="contacts_id_card[]" value="POS Invoices" onchange="save_options();">Total Invoices</label>
                         <label class="form-checkbox"><input type="checkbox" <?= in_array('POS Paid', $id_card_fields) ? 'checked' : '' ?> name="contacts_id_card[]" value="POS Paid" onchange="save_options();">Total Paid to Date</label>
                         <label class="form-checkbox"><input type="checkbox" <?= in_array('POS A/R', $id_card_fields) ? 'checked' : '' ?> name="contacts_id_card[]" value="POS A/R" onchange="save_options();">Total A/R</label>

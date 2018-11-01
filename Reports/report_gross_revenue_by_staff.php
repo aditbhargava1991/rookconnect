@@ -178,7 +178,9 @@ function report_goals($dbc, $starttime, $endtime, $table_style, $table_row_style
     $total_treat = 0;
     $total_billable = 0;
     $total_af = 0;
+    $odd_even=0;
     foreach($result as $therapistsid) {
+        $bg_class = $odd_even % 2 == 0 ? '' : 'background-color:#e6e6e6;';
 		$row = mysqli_fetch_array(mysqli_query($dbc, "SELECT contactid, first_name, last_name, scheduled_hours FROM contacts WHERE contactid='$therapistsid'"));
 
         //Assessment Count
@@ -199,7 +201,7 @@ function report_goals($dbc, $starttime, $endtime, $table_style, $table_row_style
         $admn_fee = count_adminfee($dbc,$starttime, $endtime, $therapistsid);
         //Admin Fee
 
-        $report_data .= '<tr nobr="true">
+        $report_data .= '<tr nobr="true" style="'.$bg_class.'">
         <td>'.decryptIt($row['first_name']).' '.decryptIt($row['last_name']).'</td>
         <td>'.$total_ass['total_assessment'].'</td>
         <td>'.$total_injury['total_treatment'].'</td>
@@ -211,6 +213,7 @@ function report_goals($dbc, $starttime, $endtime, $table_style, $table_row_style
         $total_treat += $total_injury['total_treatment'];
         $total_billable += $billable;
         $total_af += $admn_fee;
+        $odd_even++;
     }
 
     $report_data .= '<tr nobr="true"><td><b>Average/Total</b></td><td><b>'.$total_assess.'</b></td><td><b>'.$total_treat.'</b></td><td><b>$'.number_format($total_billable,2).'</b></td><td><b>$'.number_format($total_af,2).'</b></td>';
@@ -262,7 +265,7 @@ function count_revenue($dbc,$starttime, $endtime, $therapistsid) {
     return $total_base_service;*/
 
 
-    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE therapistsid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') GROUP BY serviceid, fee, admin_fee");
+    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE contactid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') AND `item_type`='services' GROUP BY item_id, fee, admin_fee");
 
     $total_base_service = 0;
 
@@ -315,7 +318,7 @@ function count_adminfee($dbc,$starttime, $endtime, $therapistsid) {
 
     */
 
-    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE therapistsid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') GROUP BY serviceid, fee, admin_fee");
+    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE contactid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') AND `item_type`='services' GROUP BY item_id, fee, admin_fee");
 
     $final_af = 0;
 
@@ -377,7 +380,7 @@ function count_comp($dbc,$starttime, $endtime, $therapistsid) {
     $get_contact = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT base_pay FROM compensation WHERE contactid='$therapistsid' AND '$starttime' BETWEEN start_date AND end_date"));
     $base_pay = explode('*#*',$get_contact['base_pay']);
 
-    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE therapistsid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') GROUP BY serviceid, fee, admin_fee");
+    $report_validation = mysqli_query($dbc,"SELECT *, count(*) AS count FROM invoice_compensation WHERE contactid='$therapistsid' AND (service_date >= '$starttime' AND service_date <= '$endtime') AND `item_type`='services' GROUP BY item_id, fee, admin_fee");
 
     $total_base_service = 0;
 

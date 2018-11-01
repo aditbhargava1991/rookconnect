@@ -5,15 +5,21 @@ $reviewid = $_GET['reviewid'];
 $from_url = '../HR/index.php?performance_review=list';
 ?>
 <script type="text/javascript">
+$(document).ready(function() {
+    $('.control-label').removeClass('control-label');
+});
 $(document).on('change', 'select[name="pr_form"]', function() { changeForm(this); });
 function changeForm(sel) {
 	window.location.href = '?performance_review=add&form_id='+sel.value;
 }
 </script>
 <?php if($user_form_layout != 'Sidebar') { ?>
-<div class='scale-to-fill has-main-screen'>
+<div class='scale-to-fill has-main-screen background-white'>
 	<div class='main-screen form-horizontal'>
-		<div class="block-group">
+        <div class="standard-body-title">
+            <h3>Performance Review</h3>
+        </div>
+		<div class="standard-body-content col-sm-12">
 <?php } ?>
 			<?php if(empty($form_id)) { ?>
 				<div class="form-group">

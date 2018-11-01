@@ -11,11 +11,18 @@ if (isset($_POST['add_tab'])) {
     $board_security = filter_var($_POST['board_security'],FILTER_SANITIZE_STRING);
     $board_security = ($board_security=='Shared') ? 'Company' : $board_security;
 
-    if($board_security == 'Private') {
+    if($board_security == 'Private' || $board_security == 'Client') {
         $company_staff_sharing = ','.$_SESSION['contactid'].',';
     } else {
-	    $company_staff_sharing = ','.$_SESSION['contactid'].','.implode(',',$_POST['company_staff_sharing']).',';
-
+	    $company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
+        if (strpos($company_staff_sharing, 'All') !== false) {
+                $staff_sharing = '';
+                $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT DISTINCT(`contactid`), `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
+                foreach($staff_list as $staff_id) {
+                    $staff_sharing .= $staff_id['contactid'].',';
+                }
+            $company_staff_sharing = ','.$staff_sharing;
+        }
         //$company_staff_sharing = ','.implode(',',$_POST['company_staff_sharing']).',';
     }
     /* if ( empty($company_staff_sharing) ) {
@@ -51,7 +58,7 @@ if (isset($_POST['add_tab'])) {
         }
     } else {
         if($board_name != '') {
-            if(empty($_POST['taskboardid'])) {
+            if(empty($_POST['taskboardid']) || $_POST['taskboardid'] ==0) {
                 $query_insert_config = "INSERT INTO `task_board` (`board_name`, `board_security`, `company_staff_sharing`, `businessid`, `contactid`, `task_path`, `milestone_timeline`, `software_url`) VALUES ('$board_name', '$board_security', '$company_staff_sharing', '$businessid', '$contactid', '$task_path', '$milestone_timeline', '$software_url')";
                 $result_insert_config = mysqli_query($dbc, $query_insert_config);
             } else {
@@ -119,7 +126,7 @@ $(document).ready(function() {
         $( "#contactid_show" ).hide();
         $( "#company_staff_sharing" ).hide();
         $('.task-board-name').show();
-    } else if(taskboard == 'Company') {
+    } else if(taskboard == 'Shared') {
         $( "#company_staff_sharing" ).show();
         $( "#businessid_show" ).hide();
         $( "#contactid_show" ).hide();
@@ -147,7 +154,7 @@ $(document).ready(function() {
             $('#businessid_show').show();
             $('#contactid_show').show();
             $('.task-board-name').hide();
-        } else if ( $('#board_security option:selected').val()=='Company' ) {
+        } else if ( $('#board_security option:selected').val()=='Shared' ) {
             $('#company_staff_sharing').show();
             $('#businessid_show').hide();
             $('#contactid_show').hide();
@@ -203,6 +210,28 @@ function changeLevel(sel) {
     $(".all_path").hide();
     $("#path_"+security_level).show();
 }
+
+function addStaffTb(sel) {
+	var taskboardid = $(sel).data('taskboardid');
+    //var block = $('div.add_staff').last();
+	var block = $('div#taskboardid_'+taskboardid).last();
+    destroyInputs('.add_staff');
+    clone = block.clone();
+    clone.find('.form-control').val('');
+    block.after(clone);
+    initInputs('.add_staff');
+}
+
+function removeStaffTb(button) {
+    if($('div.add_staff').length <= 1) {
+        addStaffTb();
+    }
+	var taskboardid = $(button).data('taskboardid');
+
+    $(button).closest('div#taskboardid_'+taskboardid).remove();
+    $('div.add_staff').first().find('[name="company_staff_sharing[]"]').change();
+}
+
 </script>
 
 <div class="container">
@@ -229,6 +258,9 @@ function changeLevel(sel) {
 
                 $board_name = $get_board['board_name'];
                 $board_security = $get_board['board_security'];
+                if($board_security == 'Company') {
+                    $board_security = 'Shared';
+                }
                 $company_staff_sharing = $get_board['company_staff_sharing'];
                 $businessid = $get_board['businessid'];
                 $contactid = $get_board['contactid'];
@@ -242,14 +274,14 @@ function changeLevel(sel) {
             <div class="pull-right"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="inline-img" /></a></div>
             <div class="clearfix"></div>
 
-            <h3>Add Task Board</h3>
+            <h3>Add <?= TASK_NOUN ?> Board</h3>
             <div class="form-group">
-                <label for="fax_number"	class="col-sm-4	control-label">Task Board Type:</label>
+                <label for="fax_number"	class="col-sm-4	control-label"><?= TASK_NOUN ?> Board Type:</label>
                 <div class="col-sm-8">
-                    <select name="board_security" id="board_security" data-placeholder="Choose a Task Board Type..." class="chosen-select-deselect form-control" width="380">
+                    <select name="board_security" id="board_security" data-placeholder="Choose a <?= TASK_NOUN ?> Board Type..." class="chosen-select-deselect form-control" width="380">
                         <option></option><?php
                         $all_board_types = mysqli_fetch_array(mysqli_query($dbc, "SELECT task_dashboard_tile FROM task_dashboard"));
-                        foreach(explode(',', 'Private,'.$all_board_types['task_dashboard_tile']) as $board_type) {
+                        foreach(explode(',', $all_board_types['task_dashboard_tile']) as $board_type) {
                             $board_type = str_replace('Sales Tasks', '', $board_type);
                             $board_type = str_replace('Project Tasks', '', $board_type);
                             $board_type = str_replace(' Tasks', '', $board_type);
@@ -261,7 +293,7 @@ function changeLevel(sel) {
                                 $board_name = $board_type;
                             }
                             if ( $board_type!='Community' && $board_type!='Business' && $board_type!='Reporting' ) { ?>
-                                <option <?= trim($get_board['board_security'])==trim($board_type) ? 'selected' : '' ?> value="<?= $board_type ?>"><?= $board_name ?></option><?php
+                                <option <?= trim($board_security)==trim($board_type) ? 'selected' : '' ?> value="<?= $board_type ?>"><?= $board_name ?></option><?php
                             }
                         } ?>
                     </select>
@@ -271,8 +303,39 @@ function changeLevel(sel) {
             <div class="form-group" id="company_staff_sharing" style="display:none;">
                 <label for="fax_number"	class="col-sm-4	control-label">Share With Staff:</label>
                 <div class="col-sm-8">
+
+                <?php
+                foreach(explode(',',trim($company_staff_sharing,',')) as $task_contactid) {
+                   //echo "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND contactid NOT IN ('$company_staff_sharing') AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."";
+                    ?>
+                    <div id="taskboardid_<?= $taskboardid ?>" class="add_staff">
+                        <div class="clearfix"></div>
+                        <div class="col-xs-9 no-pad-left">
+
+                            <select data-placeholder="Select a Staff" name="company_staff_sharing[]" data-table="tasklist" data-field="contactid" class="chosen-select-deselect form-control" id="staff_<?= $taskboardid ?>">
+                                <option value=""></option>
+                                    <option selected value="<?= $_SESSION['contactid']; ?>"><?= decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']); ?></option>
+                                    <option value="All">Share with All</option>
+
+                                    <?php
+                                $staff_list = sort_contacts_query(mysqli_query($dbc, "SELECT DISTINCT(`contactid`), `first_name`, `last_name` FROM `contacts` WHERE `deleted`=0 AND `status` > 0 AND contactid NOT IN ('$company_staff_sharing') AND `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY.""));
+                                foreach($staff_list as $staff_id) {
+                                    $selected = ($task_contactid == $staff_id['contactid']) ? 'selected="selected"' : '' ?>
+                                    <option <?= $selected ?> value="<?= $staff_id['contactid']; ?>"><?= $staff_id['first_name'].' '.$staff_id['last_name']; ?></option><?php
+                                } ?>
+                            </select>
+                        </div>
+                        <div class="col-xs-3">
+                            <img class="inline-img pull-right cursor-hand" data-taskboardid="<?= $taskboardid ?>" onclick="removeStaffTb(this);" src="../img/remove.png" />
+                            <img class="inline-img pull-right cursor-hand" data-taskboardid="<?= $taskboardid ?>" onclick="addStaffTb(this);" src="../img/icons/ROOK-add-icon.png" />
+                        </div>
+                    </div><?php
+                } ?>
+
+
+
+                <!--
                     <select multiple name="company_staff_sharing[]" data-placeholder="Choose Staff..." class="chosen-select-deselect form-control" width="380">
-                      <option value=""></option>
                       <?php
                         $query1 = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." order by first_name");
                         while($row1 = mysqli_fetch_array($query1)) {
@@ -281,11 +344,14 @@ function changeLevel(sel) {
                         <?php }
                       ?>
                     </select>
+
+                    -->
+
                 </div>
             </div>
 
             <div class="form-group task-board-name">
-                <label for="fax_number"	class="col-sm-4	control-label">Task Board Name:</label>
+                <label for="fax_number"	class="col-sm-4	control-label"><?= TASK_NOUN ?> Board Name:</label>
                 <div class="col-sm-8">
                   <input name="board_name" value="<?= $get_board['board_name'] ?>" type="text" class="form-control"/>
                 </div>
@@ -296,7 +362,7 @@ function changeLevel(sel) {
                 <div class="col-sm-8">
                     <select data-placeholder="Choose a Business..." name="businessid" id="businessid" class="chosen-select-deselect form-control1" width="380">
                         <option></option><?php
-                        $query = mysqli_query($dbc,"SELECT name, contactid FROM contacts WHERE name != '' AND deleted=0 ORDER BY name");
+                        $query = mysqli_query($dbc,"SELECT name, contactid FROM contacts WHERE name != '' AND deleted=0 AND category='Business' ORDER BY name");
                         while($row = mysqli_fetch_array($query)) {
                             if ($get_board['businessid'] == $row['contactid']) {
                                 $selected = 'selected="selected"';
@@ -312,8 +378,10 @@ function changeLevel(sel) {
             <div class="form-group" id="contactid_show" style="display: none;">
                 <label for="first_name" class="col-sm-4 control-label text-right">Contact:</label>
                 <div class="col-sm-8">
-                    <select data-placeholder="Choose a Client..." multiple id="contactid" name="contactid[]" class="chosen-select-deselect form-control1" width="380">
-                        <option></option><?php
+
+                    <select data-placeholder="Choose a Contact..." multiple id="contactid" name="contactid[]" class="chosen-select-deselect form-control1" width="380">
+                        <?php
+
                         $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE businessid = '$businessid' order by first_name");
                         while($row = mysqli_fetch_array($query)) {
                             if ($get_board['contactid'] == $row['contactid']) {

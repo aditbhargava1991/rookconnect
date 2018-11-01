@@ -32,7 +32,7 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 				</div>
 					<div class="col-sm-1 select-div" style="<?= $origin['carrier'] > 0 || $origin['carrier'] == '' ? '' : 'display:none;' ?>">
 						<a href="" onclick="overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+$(this).closest('.form-group').find('select').val(), '75%', true, true);return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-						<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+						<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?>" src="../img/icons/ROOK-add-icon.png"></a>
 					</div>
 				<div class="col-sm-8 manual-div" style="<?= $origin['carrier'] > 0 || $origin['carrier'] == '' ? 'display:none;' : '' ?>">
 					<input type="text" name="carrier" class="form-control" data-one-time="true" <?= $origin_save ?> value="<?= $origin['carrier'] > 0 ? '' : $origin['carrier'] ?>">
@@ -44,12 +44,12 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 	<?php } ?>
 	<?php if (strpos($value_config, ','."Transport Type".',') !== FALSE && $field_sort_field == 'Transport Type') { ?>
 		<div class="form-group">
-			<label class="col-sm-4 control-label">Shipment Type:</label>
+			<label class="col-sm-4 control-label">Shipment Tab:</label>
 			<div class="col-sm-8">
 				<?php if($origin_save == 'readonly') {
 					echo $origin['details'];
 				} else { ?><?php if(count($transport_types) > 0) { ?>
-					<select name="details" data-placeholder="Types of shipments (e.g. local cartage)..." class="chosen-select-deselect" <?= $origin_save ?>><option></option>
+					<select name="details" data-placeholder="Tabs of shipments (e.g. local cartage)..." class="chosen-select-deselect" <?= $origin_save ?>><option></option>
 						<?php foreach(explode(',',get_config($dbc, 'transport_types')) as $transport_type_name) { ?>
 							<option <?= $origin['details'] == $transport_type_name ? 'selected' : '' ?> value="<?= $transport_type_name ?>"><?= $transport_type_name ?></option>
 						<?php }
@@ -58,7 +58,7 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 						<?php } ?>
 					</select>
 				<?php } else { ?>
-						<input type="text" name="details" class="form-control" <?= $origin_save ?> value="<?= $origin['details'] ?>" placeholder="Types of shipments (e.g. local cartage)...">
+						<input type="text" name="details" class="form-control" <?= $origin_save ?> value="<?= $origin['details'] ?>" placeholder="Tabs of shipments (e.g. local cartage)...">
 					<?php } ?>
 				<?php } ?>
 			</div>
@@ -163,7 +163,7 @@ $carriers = sort_contacts_query($dbc->query("SELECT `first_name`, `last_name`, `
 				</div>
 				<div class="col-sm-1 select-div" style="<?= $origin['warehouse_location'] > 0 || $origin['warehouse_location'] == '' ? '' : 'display:none;' ?>">
 					<a href="" onclick="if($(this).closest('.form-group').find('select').val() > 0) { overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+$(this).closest('.form-group').find('select').val(), '75%', true, true) };return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="Warehouse Location" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			<?php } ?>
 		</div>

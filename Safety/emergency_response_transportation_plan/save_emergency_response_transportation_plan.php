@@ -73,6 +73,10 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+        $before_change = '';
+        $history = "Safety upload entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
 

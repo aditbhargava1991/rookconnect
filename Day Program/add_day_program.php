@@ -218,7 +218,6 @@ checkAuthorised('day_program');
                         <label for="fax_number"	class="col-sm-4	control-label">Planned Activity:</label>
                         <div class="col-sm-8">
                             <select data-placeholder="Choose a Category..." multiple name="planned_activity[]" class="chosen-select-deselect form-control" width="380">
-                              <option value=""></option>
                               <option <?php if (strpos($planned_activity, "Brush") !== FALSE) { echo " selected"; } ?> value="Brush">Brush</option>
                               <option <?php if (strpos($planned_activity, "Dinner") !== FALSE) { echo " selected"; } ?> value="Dinner">Dinner</option>
                               <option <?php if (strpos($planned_activity, "Get Dressed") !== FALSE) { echo " selected"; } ?> value="Get Dressed">Get Dressed</option>
@@ -255,7 +254,6 @@ checkAuthorised('day_program');
                         <label for="fax_number"	class="col-sm-4	control-label">Completed Activity:</label>
                         <div class="col-sm-8">
                             <select data-placeholder="Choose a Category..." multiple name="completed_activity[]" class="chosen-select-deselect form-control" width="380">
-                              <option value=""></option>
                               <option <?php if (strpos($completed_activity, "Brush") !== FALSE) { echo " selected"; } ?> value="Brush">Brush</option>
                               <option <?php if (strpos($completed_activity, "Get Dressed") !== FALSE) { echo " selected"; } ?> value="Get Dressed">Get Dressed</option>
                               <option <?php if (strpos($completed_activity, "Lunch") !== FALSE) { echo " selected"; } ?> value="Lunch">Lunch</option>
@@ -334,7 +332,7 @@ checkAuthorised('day_program');
 			<div class="clearfix"></div>
         </div>
 
-        
+
 
     </form>
 
@@ -378,7 +376,6 @@ function contact_call($dbc, $select_id, $select_name, $contact_value,$multiple, 
               <?php if($contact_value != '') {
 
                 $query = mysqli_query($dbc,"SELECT contactid, name, first_name, last_name FROM contacts WHERE category = '$from_contact' order by first_name");
-                echo '<option value=""></option>';
                 while($row = mysqli_fetch_array($query)) {
                     if(decryptIt($row['name']) != '') { ?>
                         <option <?php if (strpos($contact_value, $row['contactid']) !== FALSE) {

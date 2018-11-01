@@ -20,7 +20,7 @@ if($_GET['view'] == 'monthly') {
         $calendar_dates[] = $curr;
     }
 } else if($_GET['view'] == 'weekly') {
-    $weekly_start = get_config($dbc, 'ticket_weekly_start');
+    $weekly_start = get_config($dbc, $_GET['type'].'_weekly_start');
     if($weekly_start == 'Sunday') {
         $weekly_start = 1;
     } else {
@@ -45,6 +45,8 @@ foreach($calendar_dates as $calendar_date) {
 $active_teams = array_filter(explode(',',get_user_settings()['appt_calendar_teams']));
 if($_GET['reload_sidebar'] == 1 && $_GET['teamid'] > 0) {
     $active_teams = [$_GET['teamid']];
+} else if($_GET['mode'] == 'ticket_summary' || $_GET['mode'] == 'staff_summary') {
+    $active_teams = [];
 }
 foreach($teams as $row) {
     $team_contactids = [];
@@ -57,6 +59,6 @@ foreach($teams as $row) {
             }
         }
         $team_contactids = implode(',', $team_contactids);
-        echo "<a href='' onclick='$(\"[id^=collapse_staff] .block-item\").removeClass(\"active\"); $(\"#collapse_teams .block-item[data-teamid!=".$row['teamid']."]\").removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); resize_calendar_view".($_GET['view'] == 'monthly' || $_GET['mode'] == 'staff_summary' || $_GET['mode'] == 'ticket_summary' ? '_monthly' : '')."(); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."'><span style=''>$team_name</span></div></a>";
+        echo "<a href='' onclick='$(\"[id^=collapse_staff] .block-item\").removeClass(\"active\"); $(\"[id^=collapse_equipment] .block-item\").removeClass(\"active\"); $(\"#collapse_teams .block-item[data-teamid!=".$row['teamid']."]\").removeClass(\"active\"); $(this).find(\".block-item\").toggleClass(\"active\"); toggle_columns(); resize_calendar_view".($_GET['view'] == 'monthly' || $_GET['mode'] == 'staff_summary' || $_GET['mode'] == 'ticket_summary' ? '_monthly' : '')."(); return false;'><div class='block-item ".(in_array($row['teamid'],$active_teams) ? 'active' : '')."' data-teamid='".$row['teamid']."' data-contactids='".$team_contactids."'><span style=''>$team_name</span></div></a>";
     }
 } ?>

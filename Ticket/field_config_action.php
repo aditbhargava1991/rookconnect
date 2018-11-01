@@ -96,7 +96,6 @@ function saveFields() {
 		field_name: '<?= empty($tab) ? 'ticket_action_fields' : 'ticket_action_fields_'.$tab ?>'
 	}).success(function() {
 	});
-	sortAccordions();
 }
 function sortFieldsCustom(div) {
 	var blocks = [];

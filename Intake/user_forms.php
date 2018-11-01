@@ -12,7 +12,9 @@ if(!empty($_POST['complete_form'])) {
     $user_id = (empty($_SESSION['contactid']) ? 0 : $_SESSION['contactid']);
     $result = mysqli_query($dbc, "SELECT * FROM `user_form_assign` WHERE `form_id`='$form_id' AND '$assign_id' IN (`assign_id`,'') AND `completed_date` IS NULL");
 
-    $intakeid = $_POST['intakeid'];
+    // Create a separate revision for each change to the form
+    // $intakeid = $_POST['intakeid'];
+    $intakeid = 0;
     if(!empty($intakeid)) {
         $pdf_id = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `intake` WHERE `intakeid` = '$intakeid'"))['pdf_id'];
     } else {
@@ -216,7 +218,7 @@ if(!empty($_POST['complete_form'])) {
         <h1 style="margin-top: 0; padding-top: 0;"><a href="intake.php?tab=softwareforms">Intake</a></h1>
     <?php } else { ?>
         <h1><?= $intake_form['form_name'] ?></h1>
-        <?php if(!empty($_SESSION['contactid'])) { ?>
+        <?php if(!empty($_SESSION['contactid']) && !IFRAME_PAGE) { ?>
             <div class="gap-top double-gap-bottom"><a href="intake.php?tab=softwareforms" class="btn config-btn">Back to Dashboard</a></div>
         <?php } ?>
     <?php } ?>

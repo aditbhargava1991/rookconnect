@@ -23,14 +23,29 @@ $(document).ready(function() {
 		$('.main-screen').css('padding-bottom',0);
 		if($('.main-screen .main-screen').is(':visible')) {
 			var available_height = window.innerHeight - $('footer:visible').outerHeight() - $('.sidebar:visible').offset().top;
+            var note_height = '';
+            var note_height_project = '';
+            if ( $('.standard-dashboard-body-title .notice').is(':visible') ) {
+                note_height = -10;
+                note_height_project = 15;
+            } else {
+                note_height = 25;
+                note_height_project = 50;
+            }
 			if(available_height > 200) {
-				$('.main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
+				$('.main-screen .main-screen, .has-main-screen .main-screen').outerHeight(available_height).css('overflow-y','auto');
 				$('.sidebar').outerHeight(available_height).css('overflow-y','auto');
 				$('.search-results').outerHeight(available_height).css('overflow-y','auto');
-                $('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
+                //$('.main-screen .standard-dashboard-body-content').outerHeight(available_height - $('.standard-dashboard-body-title').height());
+                $('#scrum_tickets').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title:visible').outerHeight() - $('.standard-body-title:visible').outerHeight() - $('.dashboard_heading').outerHeight() - $('footer:visible').outerHeight() + note_height);
+                $('.has-dashboard.dashboard-container.ui-sortable').outerHeight($('.has-main-screen .main-screen').outerHeight() - $('.standard-dashboard-body-title:visible').outerHeight() - $('.standard-body-title').outerHeight() - $('footer:visible').outerHeight() + note_height_project);
+                $('.scrollable_unit').outerHeight($('#scrum_tickets').outerHeight() - $('.info-block-header').outerHeight() - 25);
+                $('.has-dashboard.dashboard-container.ui-sortable').css({'padding-bottom':'0', 'padding-top':'8px'});
+                $('.has-dashboard .dashboard-list').css({'margin-bottom':'-10px', 'overflow-y':'hidden'});
+                $('.has-dashboard .dashboard-list ul.dashboard-list').css('overflow-y','scroll');
 			}
-            var sidebar_height = $('.tile-sidebar').outerHeight(true);
-            $('.has-main-screen .main-screen').css('min-height', sidebar_height);
+            //var sidebar_height = $('.tile-sidebar').outerHeight(true);
+            //$('.has-main-screen .main-screen').css('min-height', sidebar_height);
 		}
 	}).resize();
 
@@ -63,7 +78,7 @@ $(document).ready(function() {
             });
         }
     });
-    
+
     $('.tile-sidebar .highest-level .top-a').click(function() {
         $(this).each(function() {
             if ( $(this).data('parent') == '#desktop_accordions' ) {
@@ -125,8 +140,14 @@ function popUpClosed() {
 		<div class="main-screen">
 			<div class="tile-header">
                 <div class="pull-right settings-block">
+                    <?php
+                    $taskboardid = 0;
+                    if(!empty($_GET['category']) && $_GET['category'] != 'All') {
+                        $taskboardid = $_GET['category'];
+                    }
+                    ?>
                     <div class="pull-right gap-left"><a href="field_config_project_manage.php?category=how_to"><img src="<?= WEBSITE_URL ?>/img/icons/settings-4.png" class="settings-classic wiggle-me" width="30" /></a></div>
-                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task Board</button></a></div>
+                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_taskboard.php?security=<?=$url_tab?>&taskboardid=<?=$taskboardid?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add <?= TASK_NOUN ?> Board</button></a></div>
                     <!-- <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php?category=<?=$_GET['category']?>&tab=<?=$_GET['tab']?>', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div> -->
 
                     <?php
@@ -134,22 +155,59 @@ function popUpClosed() {
 
                     if($slider_layout == 'accordion') {
                     ?>
-                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div>
+                    <div class="pull-right gap-left"><a href="" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/add_task.php', '50%', false, false, $('.iframe_overlay').closest('.container').outerHeight() + 20); return false;"><button class="btn brand-btn hide-titles-mob">Add <?= TASK_NOUN ?></button></a></div>
                     <?php } else { ?>
-                    <div class="pull-right gap-left"><a href="../Tasks_Updated/add_task_full_view.php"><button class="btn brand-btn hide-titles-mob">Add Task</button></a></div>
+                    <div class="pull-right gap-left"><a href="../Tasks_Updated/add_task_full_view.php"><button class="btn brand-btn hide-titles-mob">Add <?= TASK_NOUN ?></button></a></div>
                     <?php } ?>
 
                     <img class="no-toggle statusIcon pull-right no-margin inline-img" title="" src="" />
                 </div>
-                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary">Tasks</a></h1></div>
+                <?php
+                $note = '';
+                $heading = $_GET['tab'];
+                if($heading == 'Private') {
+                    $heading = 'Private Tasks';
+                    $note = "These are Task Boards specific to the user logged in. No Private Task Boards are visible to any other software user unless shared. If a Private Task Board is shared, it's no longer Private and moves to the Shared Task Board tab for future use.";
+                }
+                if($heading == 'Company') {
+                    $heading = 'Shared Tasks';
+                    $note = "Shared Task Boards are meant for collaboration. All shared parties profile icons are visible in the header for the Board. Shared Boards are only visible to the individuals they're shared with.";
+                }
+                if($heading == 'path') {
+                    $heading = 'Project Tasks';
+                    $note = 'Project Task Boards are connected to the Project Paths assigned in the Projects tile. Every Project Path that has Tasks assigned within them display under the Project Task Board sub tab. Clicking on a Project here should display the Project Path, showing only the Tasks within each Milestone. If a Task is added here, it will now be a part of the Project Path for that Project, and if a Task is added in the Project Path from the Project tile, then it would also display here. Project Path Milestones and Tasks are always in sync and make the same Task information available. Only Projects with Tasks in a Project Path will be available here. Only the staff added to the Project can see the Project Board.';
+                }
+                if($heading == 'Client') {
+                    $heading = 'Contact Tasks';
+                    $note = "Every contact added to the Contact tile can have a Task Board attached to it. If a user adds a Task to a Contact, only that user can see those Tasks here. Contacts without Tasks will not be visible until a Task is added. Any Tasks added or worked on in the Task tile will be synched to the contact and visible in the contact's profile.";
+                }
+                if($heading == 'sales') {
+                    $heading = 'Sales Tasks';
+                    $note = 'Each Sales Lead in the Sales tile has a Task Path automatically assigned. Any Sales Task Board with Tasks on the path will display under this tab. Tasks assigned from the Sales Task Board sub tab within Tasks coincide with Tasks from the Sales tile. Adding from either location will update both Task Boards seamlessly. If a user adds a Task to a Sales Lead, only that user can see those Tasks here. Other staff can go to the Sales Lead Path to see all the Tasks.';
+                }
+                if($heading == 'Summary') {
+                    $heading = 'Summary';
+                }
+                ?>
+                <div class="scale-to-fill"><h1 class="gap-left"><a href="index.php?category=All&tab=Summary"><?= TASK_TILE ?>: </a><?php echo $heading;?></h1></div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
 
 			<div class="clearfix"></div>
 
+            <?php
+            if($note != '') { ?>
+            <div class="notice gap-bottom gap-top popover-examples">
+                <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+                <div class="col-sm-11"><span class="notice-name">NOTE:</span>
+                <?php echo $note; ?></div>
+                <div class="clearfix"></div>
+            </div>
+            <?php } ?>
+
             <!-- Mobile View Start-->
             <div id="accordions" class="sidebar show-on-mob panel-group block-panels col-xs-12 form-horizontal">
-                <div class="double-gap-bottom gap-right"><input class="form-control search_list_mobile" placeholder="Search Tasks" type="text" /></div>
+                <div class="double-gap-bottom gap-right"><input class="form-control search_list_mobile" placeholder="Search" type="text" /></div>
                 <div id="search_results_mobile"></div>
                 <div class="panel panel-default" style="border-top:1px solid #ccc !important;">
                     <div class="panel-heading">
@@ -174,7 +232,7 @@ function popUpClosed() {
                             <div class="panel-heading higher_level_heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" data-parent="#accordions" href="#collapse_private">
-                                        Private Tasks<span class="glyphicon glyphicon-plus"></span>
+                                        Private <?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
                                     </a>
                                 </h4>
                             </div>
@@ -208,7 +266,7 @@ function popUpClosed() {
                             <div class="panel-heading">
                                 <h4 class="panel-title">
                                     <a data-toggle="collapse" data-parent="#accordions" href="#collapse_private">
-                                        Private Tasks<span class="glyphicon glyphicon-plus"></span>
+                                        Private <?= TASK_TILE ?><span class="glyphicon glyphicon-plus"></span>
                                     </a>
                                 </h4>
                             </div>
@@ -273,10 +331,10 @@ function popUpClosed() {
                             $result = mysqli_query($dbc, "SELECT `task_board`.`taskboardid`, `board_name`, `board_security`, IFNULL(`seen_date`,'0000-00-00') `seen` FROM `task_board` LEFT JOIN `taskboard_seen` ON `task_board`.`taskboardid`=`taskboard_seen`.`taskboardid` AND `taskboard_seen`.`contactid`='{$_SESSION['contactid']}' WHERE `board_security`='". $security ."' AND `company_staff_sharing` LIKE '%,". $contactid .",%' AND `deleted`=0");
                             if ( $result->num_rows > 0 ) {
                                 if ( $task_name=='Company Tasks' ) {
-                                    $task_name = 'Shared Tasks';
+                                    $task_name = 'Shared '.TASK_TILE;
                                 }
                                 if ( $task_name=='Client Tasks' ) {
-                                    $task_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' Tasks' : CONTACTS_TILE.' Tasks';
+                                    $task_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' '.TASK_TILE : CONTACTS_TILE.' '.TASK_TILE;
                                 }
                                 $collapse_taskboard = config_safe_str($task_name); ?>
                                 <div class="panel panel-default">
@@ -358,17 +416,18 @@ function popUpClosed() {
             <!--<div class="collapsible hide-titles-mob sidebar tile-sidebar sidebar-override inherit-height double-gap-top">-->
             <div class="tile-sidebar sidebar sidebar-override hide-titles-mob standard-collapsible">
                 <ul id="desktop_accordions" class="panel-group"><?php
-                    echo '<li class="standard-sidebar-searchbox"><input class="form-control search_list" placeholder="Search Tasks" type="text" /></li>';
+                    echo '<li class="standard-sidebar-searchbox"><input class="form-control search_list" placeholder="Search" type="text" /></li>';
                     echo '<li class="sidebar-higher-level highest-level"><a href="?category=All&tab=Summary" class="top-a cursor-hand '.($_GET['tab']=='Summary' ? 'active blue' : '').'">Summary</a></li>';
 
                     if (check_subtab_persmission($dbc, 'tasks', ROLE, 'my') === true) {
                         $result_mytasks = mysqli_query($dbc, "SELECT DISTINCT(`task_board`.`taskboardid`), `board_name`, `board_security` FROM `task_board` WHERE `board_security`='Private' AND `company_staff_sharing` LIKE '%,". $contactid .",%' AND `deleted`=0");
                         if ( $result_mytasks->num_rows > 0 ) {
-                            echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == 'Private' ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#my_tasks" data-parent="#desktop_accordions" href="javascript:void(0);">Private Tasks<span class="arrow"></span></a>';
+                            echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == 'Private' ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#my_tasks" data-parent="#desktop_accordions" href="javascript:void(0);">Private '.TASK_TILE.'<span class="arrow"></span></a>';
                                 echo '<ul id="my_tasks" class="top-ul collapse '.(trim($_GET['tab']) == 'Private' ? 'in' : '').'">';
                                     while ( $row_mytasks=mysqli_fetch_assoc($result_mytasks) ) {
 
-                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row_mytasks['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row_mytasks['taskboardid']}' AND tb.board_security='Private' AND tl.created_by = (". $_SESSION['contactid'] .") AND tl.deleted=0 AND tb.deleted=0"));
+                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row_mytasks['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row_mytasks['taskboardid']}' AND tb.board_security='Private' AND (tl.created_by = ({$_SESSION['contactid']}) OR tl.contactid IN (". $_SESSION['contactid'] .")) AND tl.deleted=0 AND tb.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00')"));
+
                                         $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
                                         echo '<a href="?category='. $row_mytasks['taskboardid'] .'&tab='. $row_mytasks['board_security'] .'">
@@ -377,10 +436,10 @@ function popUpClosed() {
                                 echo '</ul>';
                             echo '</li>';
                         } else {
-                            echo '<li class="sidebar-higher-level highest-level"><a class="cursor-hand '.($_GET['tab']==$tab ? 'active blue' : '').'" href="?category=All&tab=Private">Private Tasks</a></li>';
+                            echo '<li class="sidebar-higher-level highest-level"><a class="cursor-hand '.($_GET['tab']==$tab ? 'active blue' : '').'" href="?category=All&tab=Private">Private '.TASK_TILE.'</a></li>';
                         }
                     } else {
-                        echo '<li>Private Tasks</li>';
+                        echo '<li>Private '.TASK_TILE.'</li>';
                     }
 
                     $get_field_task_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `task_dashboard_tile` FROM `task_dashboard`"));
@@ -402,7 +461,7 @@ function popUpClosed() {
                         $tab = '';
 
                         switch($task_file_path) {
-                            case 'company_tasks': // Shared Task
+                            case 'shared_tasks': // Shared Task
                                 $info = "Click here to see shared tasks.";
                                 $display = ( check_subtab_persmission($dbc, 'tasks_updated', ROLE, 'company') !== false ) ? 1 : 0;
                                 $security = 'Company';
@@ -438,14 +497,16 @@ function popUpClosed() {
 
                         if ( $display==1 ) {
                             if ( $security == 'sales' ) { // Sales Task
-								echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == $tab ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#board_'.$tab.'" data-parent="#desktop_accordions" href="javascript:void(0);">'. SALES_TILE .' Tasks<span class="arrow"></span></a>';
+								echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == $tab ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#board_'.$tab.'" data-parent="#desktop_accordions" href="javascript:void(0);">'. SALES_TILE .' '.TASK_TILE.'<span class="arrow"></span></a>';
 									echo '<ul id="board_'.$tab.'" class="top-ul collapse '.(trim($_GET['tab']) == $tab ? 'in' : '').'">';
 										$result = sort_contacts_query($dbc->query("SELECT `sales`.`salesid`, `contacts`.`first_name`, `contacts`.`last_name`, `bus`.`name`, IFNULL(`taskboard_seen`.`seen_date`,'0000-00-00') `seen` FROM `sales` LEFT JOIN `contacts` ON `sales`.`contactid`=`contacts`.`contactid` LEFT JOIN `contacts` `bus` ON `sales`.`businessid`=`bus`.`contactid` LEFT JOIN `taskboard_seen` ON `taskboard_seen`.`taskboardid`=`sales`.`salesid` AND `taskboard_seen`.`tab`='sales' WHERE `sales`.`deleted`=0"));
 										foreach($result as $row) {
-											$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.salesid='{$row['salesid']}' AND tl.deleted=0"));
+											$get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.salesid='{$row['salesid']}' AND tl.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND task_milestone_timeline = ''"));
 											$task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
-											echo '<a href="?category='. $row['salesid'] .'&tab='.$tab.'"><li class="'.($_GET['category']==$row['salesid'] && $_GET['tab'] == $tab ? 'active' : '').'">'.$row['name'].($row['name'] != '' && $row['first_name'].$row['last_name'] != '' ? ': ' : '').$row['first_name'].' '.$row['last_name'].'<span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
+                                            if($row['name'] != '' || $row['first_name'] != '') {
+											    echo '<a href="?category='. $row['salesid'] .'&tab='.$tab.'"><li class="'.($_GET['category']==$row['salesid'] && $_GET['tab'] == $tab ? 'active' : '').'">'.$row['name'].($row['name'] != '' && $row['first_name'].$row['last_name'] != '' ? ': ' : '').$row['first_name'].' '.$row['last_name'].'<span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
+                                            }
 										}
 									echo '</ul>';
 								echo '</li>';
@@ -453,15 +514,15 @@ function popUpClosed() {
                             } else if ( $security == 'Company' ) { // Shared Task
                                 $result = mysqli_query($dbc, "SELECT `task_board`.`taskboardid`, `board_name`, `board_security`, `company_staff_sharing`, IFNULL(`seen_date`,'0000-00-00') `seen` FROM `task_board` LEFT JOIN `taskboard_seen` ON `task_board`.`taskboardid`=`taskboard_seen`.`taskboardid` AND `taskboard_seen`.`contactid`='{$_SESSION['contactid']}' AND IFNULL(`taskboard_seen`.`tab`,'$tab') = '$tab' WHERE `board_security`='". $security ."' AND `company_staff_sharing` LIKE '%,". $contactid .",%' AND `deleted`=0");
 
-                                if ( $result->num_rows > 0 ) {
+                                // if ( $result->num_rows > 0 ) {
                                     if ( $task_name=='Company Tasks' ) {
-                                        $task_name = 'Shared Tasks';
+                                        $task_name = 'Shared '.TASK_TILE;
                                     }
                                     $shared_task_boards = '';
                                     $shared_task_staff = '';
 
                                     while ( $row=mysqli_fetch_assoc($result) ) {
-                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.task_milestone_timeline<>'' AND tl.deleted=0 AND tb.deleted=0"));
+                                        $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.deleted=0 AND tb.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00') AND tl.task_path >0"));
 
                                         $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
@@ -480,7 +541,7 @@ function popUpClosed() {
 
                                         echo '<ul id="board_'.$tab.'" class="top-ul collapse '.(trim($_GET['tab']) == $tab ? 'in' : '').'">';
 
-                                            echo '<li class="sidebar-higher-level"><a class="'.(trim($_GET['tab'])==$tab && trim($_GET['subtab'])=='board' ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#shared_boards">Task Boards <span class="arrow"></span></a>';
+                                            echo '<li class="sidebar-higher-level"><a class="'.(trim($_GET['tab'])==$tab && trim($_GET['subtab'])=='board' ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#shared_boards">'.TASK_NOUN .' Boards <span class="arrow"></span></a>';
                                                 echo '<ul id="shared_boards" class="'.(trim($_GET['tab'])==$tab && trim($_GET['subtab'])=='board' && $_GET['category']!='' ? 'collapsed active' : 'collapse').'">';
                                                     echo $shared_task_boards;
                                                 echo '</ul>';
@@ -494,10 +555,11 @@ function popUpClosed() {
 
                                         echo '</ul>';
                                     echo '</li>';
-                                }
+                                //}
 
                             } else if($security == 'path') { // Project Tasks
-                                echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == $tab ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#board1_'.$tab.'" data-parent="#desktop_accordions" href="javascript:void(0);">'. $task_name .'<span class="arrow"></span></a>';
+                                echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == $tab ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#board1_'.$tab.'" data-parent="#desktop_accordions" href="javascript:void(0);">'.PROJECT_NOUN. ' '.TASK_TILE.'<span class="arrow"></span></a>';
+
 
                                 echo '<ul id="board1_'.$tab.'" class="top-ul collapse '.(trim($_GET['tab']) == $tab ? 'in' : '').'">';
 
@@ -507,6 +569,10 @@ function popUpClosed() {
 
                                 while ( $row=mysqli_fetch_assoc($result) ) {
                                     $projectid = $row['projectid'];
+
+								    $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl WHERE tl.projectid='$projectid' AND tl.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00')"));
+
+                                    $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
                                     echo '<li class="sidebar-higher-level"><a class="'.(trim($_GET['tab'])==$tab && trim($_GET['edit'])==$projectid ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#shared_boards_'.$projectid.'">'.$row['project_name'].' <span class="arrow"></span></a>';
 
@@ -520,9 +586,9 @@ function popUpClosed() {
                                         echo '<a href="?category='. $projectid .'&tab=path&pathid=I|'.$projectpathid.'&edit='.$projectid.'">';
 
                                         $ex_projectpathid = explode('|',$_GET['pathid']);
-                                        echo '<li data-target="#board923_'.$project_path.'" class="sidebar-lower-level  '.(($ex_projectpathid[1]==$projectpathid) && (trim($_GET['edit'])==$projectid) ? 'active' : 'collapsed').'" style="padding-left: 50px;">'. $main_path;
+                                        echo '<li data-target="#board923_'.$project_path.'" class="sidebar-lower-level  '.(($ex_projectpathid[1]==$projectpathid) && (trim($_GET['edit'])==$projectid) ? 'active' : 'collapsed').'">'. $main_path;
 
-                                        echo '</li></a>';
+                                        echo '<span class="pull-right pad-right">'. $task_count .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
 
                                     }
                                     echo '</ul>';
@@ -536,16 +602,16 @@ function popUpClosed() {
                                 if ( $result->num_rows > 0 ) {
 
                                     if ( $task_name=='Company Tasks' ) {
-                                        $task_name = 'Shared Tasks';
+                                        $task_name = 'Shared '.TASK_TILE;
                                     }
                                     if ( $task_name=='Client Tasks' ) {
-                                        $task_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' Tasks' : CONTACTS_TILE.' Tasks';
+                                        $task_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' '.TASK_TILE : CONTACTS_TILE.' '.TASK_TILE;
                                     }
 
                                     echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.(trim($_GET['tab']) == $tab ? 'active blue' : 'collapsed').' cursor-hand" data-toggle="collapse" data-target="#board_'.$tab.'" data-parent="#desktop_accordions" href="javascript:void(0);">'. $task_name .'<span class="arrow"></span></a>';
                                         echo '<ul id="board_'.$tab.'" class="top-ul collapse '.(trim($_GET['tab']) == $tab ? 'in' : '').'">';
                                             while ( $row=mysqli_fetch_assoc($result) ) {
-                                                $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.task_milestone_timeline<>'' AND tl.deleted=0 AND tb.deleted=0"));
+                                                $get_count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT count(tl.tasklistid) as task_count, SUM(IF(IFNULL(`updated_date`,`created_date`) > '{$row['seen']}',1,0)) as `unseen` FROM tasklist tl JOIN task_board tb ON (tl.task_board=tb.taskboardid) WHERE tl.task_board='{$row['taskboardid']}' AND tb.board_security='$tab' AND tl.deleted=0 AND tb.deleted=0 AND (tl.archived_date IS NULL OR tl.archived_date='0000-00-00')"));
                                                 $task_count = ($get_count['task_count'] > 0) ? $get_count['task_count'] : 0;
 
                                                 echo '<a href="?category='. $row['taskboardid'] .'&tab='.$tab.'"><li class="'.($_GET['category']==$row['taskboardid'] ? 'active' : '').'">'. $row['board_name'] .'<span class="pull-right pad-right">'. $get_count['task_count'] .($_GET['category']!=$row['taskboardid'] && $get_count['unseen'] > 0 ? ' (<span class="text-red no-toggle" title="There are '.$get_count['unseen'].' tasks that have been added or changed since you last viewed this board.">'.$get_count['unseen'].'</span>)' : '').'</span></li></a>';
@@ -554,7 +620,7 @@ function popUpClosed() {
                                     echo '</li>';
                                 }  else {
                                     if ( $task_name=='Client Tasks' ) {
-                                        $task_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' Tasks' : CONTACTS_TILE.' Tasks';
+                                        $task_name = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' '.TASK_TILE : CONTACTS_TILE.' '.TASK_TILE;
                                     }
                                     echo '<li class="sidebar-higher-level highest-level"><a class="top-a '.($_GET['tab']==$tab ? 'cursor-hand active blue' : '').'" href="?category=All&tab='. $tab .'">'. $task_name .'</a></li>';
                                 }
@@ -569,7 +635,7 @@ function popUpClosed() {
 
             <div class="main-content-screen scale-to-fill has-main-screen hide-titles-mob">
                 <div class="loading_overlay" style="display:none;"><div class="loading_wheel"></div></div>
-                <div class="main-screen standard-dashboard-body override-main-screen form-horizontal">
+                <div class="main-screen standard-dashboard-body override-main-screen form-horizontal no-overflow">
 
                     <div class="standard-dashboard-body-title"><?php
                         $url_cat = filter_var($_GET['category'], FILTER_VALIDATE_INT);
@@ -582,16 +648,16 @@ function popUpClosed() {
                             $title = 'Summary';
                             $notes_subtab = 'tasks_summary';
                         } elseif ( $url_tab == 'Private' ) {
-                            $title = 'Private Tasks';
+                            $title = 'Private '.TASK_TILE;
                             $notes_subtab = 'tasks_private';
                         } elseif ( $url_tab == 'Company' ) {
-                            $title = 'Shared Tasks';
+                            $title = 'Shared '.TASK_TILE;
                             $notes_subtab = 'tasks_company';
                         } elseif ( $url_tab == 'path' ) {
-                            $title = (substr(PROJECT_TILE, -1)=='s' && substr(PROJECT_TILE, -2) !='ss') ? rtrim(PROJECT_TILE, 's').' Tasks' : PROJECT_TILE.' Tasks';
+                            $title = (substr(PROJECT_TILE, -1)=='s' && substr(PROJECT_TILE, -2) !='ss') ? rtrim(PROJECT_TILE, 's').' '.TASK_TILE : PROJECT_TILE.' '.TASK_TILE;
                             $notes_subtab = 'tasks_project';
                         } elseif ( $url_tab == 'Client' ) {
-                            $title = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' Tasks' : CONTACTS_TILE.' Tasks';
+                            $title = (substr(CONTACTS_TILE, -1)=='s' && substr(CONTACTS_TILE, -2) !='ss') ? rtrim(CONTACTS_TILE, 's').' '.TASK_TILE : CONTACTS_TILE.' '.TASK_TILE;
                             $notes_subtab = 'tasks_client';
                         } elseif ( $url_tab == 'Reporting' ) {
                             $title = 'Reporting';
@@ -599,18 +665,23 @@ function popUpClosed() {
                         } elseif ( $url_tab == 'Search' ) {
                             $title = 'Search';
                         } else {
-                            $title = 'My Tasks';
+                            $title = 'My '.TASK_TILE;
                         }
 
-                        if ( $url_tab == 'path' ) {
+                        /*if ( $url_tab == 'path' ) {
 
                         } else {
 
                             echo '<div class="row">';
-                                echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
+                                //echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $title .': '. $board_name['board_name']) .'</h3></div>';
+
+                                 echo '<div class="col-sm-6"><h3>'. ($title=='Search' ? $title .': '. $term : $board_name['board_name']) .'</h3></div>';
+
                                 echo '<div class="col-sm-6 text-right">';
                                     if ( $url_tab!='Search' && $url_tab!='Summary' && $url_tab!='Reporting' ) {
-                                        echo '<div class="gap-top gap-right" style="font-size:1.5em;">';
+                                        echo '<div class="gap-top gap-right" style="font-size:1.5em;">'; ?>
+                                          <img class="no-toggle" title="Overall Task Board History" style="margin-top:3px; cursor:pointer; height:1.8em;" onclick="overlayIFrameSlider('<?=WEBSITE_URL?>/Tasks_Updated/task_history.php?board=company&taskboardid=<?=$taskboardid?>','auto',true,true);" src="../img/icons/eyeball.png">
+                                          <?php
                                             if ( $board_name['company_staff_sharing'] ) {
                                                 $c_ex = explode(',', $board_name['company_staff_sharing']);
                                                 $c_unique = array_unique($c_ex);
@@ -626,6 +697,7 @@ function popUpClosed() {
                             echo '</div>';
 
                         }
+                        */
 
                         if ( !empty($notes_subtab) ) {
                             $notes = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT note FROM notes_setting WHERE subtab='$notes_subtab'"));
@@ -644,36 +716,39 @@ function popUpClosed() {
                         } ?>
                     </div><!-- .standard-dashboard-body-title -->
 
-                    <div class="standard-dashboard-body-content"><?php
-                        if ( $url_tab=='Search' ) {
-                            include('tasks_search.php');
-                        } else { ?>
-                            <div class="dashboard-item"><?php
-                                if(!empty($_GET['pathid'])) {
-                                    $projectid = $_GET['edit'];
-                                    $projecttype = $project['projecttype'];
-                                    $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
-                                    $fromTasks = 1;
-                                    $tab_config = array('Tasks');
-                                    $security['edit'] = 1;
-                                    include('../Project/edit_project_path.php');
-                                } else if ( $_GET['category'] != 'All' && empty($url_milestone) ) {
-                                    include('tasks_dashboard.php'); // Private Task,
-                                } elseif ( $url_tab=='Reporting' ) {
-                                    include('tab_reporting.php');
-                                } elseif ( $url_milestone!='' ) {
-                                    include('task_milestones.php');
-                                } elseif ( $url_tab=='Summary' ) { // Summary tab
-                                    include('tab_summary.php');
-                                } elseif ( $url_tab=='Client' ) {
-                                    include('tasks_dashboard.php'); // Contact Tab
-                                } else {
-                                    echo '<h4 class="gap-left">Select or create a Task Board.</h4>';
-                                } ?>
-                                <div class="clearfix"></div>
-                            </div><?php
-                        } ?>
-                    </div><!-- .standard-dashboard-body-content -->
+                    <?php if(!empty($_GET['pathid'])) {
+                        $projectid = $_GET['edit'];
+                        $projecttype = $project['projecttype'];
+                        $project = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `project` WHERE `projectid`='$projectid'"));
+                        $fromTasks = 1;
+                        $tab_config = array('Tasks');
+                        $security['edit'] = 1;
+                        include('../Project/edit_project_path.php');
+                    } else { ?>
+                        <!--<div class="standard-dashboard-body-content"> --><?php
+                            if ( $url_tab=='Search' ) {
+                                include('tasks_search.php');
+                            } else { ?>
+                                <!-- <div class="dashboard-item"> -->
+                                <?php
+                                    if ( $_GET['category'] != 'All' && empty($url_milestone) ) {
+                                        include('tasks_dashboard.php'); // Private Task,
+                                    } elseif ( $url_tab=='Reporting' ) {
+                                        include('tab_reporting.php');
+                                    } elseif ( $url_milestone!='' ) {
+                                        //include('task_milestones.php');
+                                    } elseif ( $url_tab=='Summary' ) { // Summary tab
+                                        include('tab_summary.php');
+                                    } elseif ( $url_tab=='Client' ) {
+                                        include('tasks_dashboard.php'); // Contact Tab
+                                    } else {
+                                        echo '<h4 class="gap-left">Select or create a '.TASK_NOUN .' Board.</h4>';
+                                    } ?>
+                                    <div class="clearfix"></div>
+                                <!--</div> --><?php
+                            } ?>
+                        <!--</div> --><!-- .standard-dashboard-body-content -->
+                    <?php } ?>
 
                 </div><!-- .main-screen -->
             </div><!-- .has-main-screen -->

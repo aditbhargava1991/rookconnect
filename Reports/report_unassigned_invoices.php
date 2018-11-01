@@ -169,7 +169,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 
         if($total_price != $total_insurer['sub_total_insurer_price']+$total_patient['sub_total_patient_price']) {
             $report_data .= '<tr nobr="true">';
-            $report_data .= '<td><a href=\''.WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$row5['invoiceid'].'&patientid='.$row5['patientid'].'&from=report&report_from='.$starttime.'&report_to='.$endtime.'\' >'.$row5['invoiceid'].'</a>';
+            $report_data .= '<td><a href=\''.WEBSITE_URL.'/Invoice/create_invoice.php?invoiceid='.$row5['invoiceid'].'&patientid='.$row5['patientid'].'&from=report&report_from='.$starttime.'&report_to='.$endtime.'\' >'.$row5['invoiceid'].'</a>';
 
             //$report_data .= '<td>'.$row5['invoiceid'].'';
             $name_of_file = '/Invoice/Download/invoice_'.$row5['invoiceid'].'.pdf';
@@ -248,7 +248,7 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 		}
 		if($invoice_row['total_price'] != $services_inventory) {
 			$report_data .= '<tr nobr="true">';
-			$report_data .= '<td><a href=\''.WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$invoice_row['invoiceid'].'&patientid='.$invoice_row['patientid'].'&from=report&report_from='.$starttime.'&report_to='.$endtime.'\' >'.$invoice_row['invoiceid'].'</a>';
+			$report_data .= '<td><a href=\''.WEBSITE_URL.'/Invoice/create_invoice.php?invoiceid='.$invoice_row['invoiceid'].'&patientid='.$invoice_row['patientid'].'&from=report&report_from='.$starttime.'&report_to='.$endtime.'\' >'.$invoice_row['invoiceid'].'</a>';
 
 			$name_of_file = '/Invoice/Download/invoice_'.$invoice_row['invoiceid'].'.pdf';
 			if(file_exists('..'.$name_of_file)) {
@@ -272,3 +272,18 @@ function report_sales_summary($dbc, $starttime, $endtime, $table_style, $table_r
 
     return $report_data;
 }
+?>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>

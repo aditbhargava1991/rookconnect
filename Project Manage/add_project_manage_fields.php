@@ -1067,7 +1067,6 @@ include ('add_workorder_timer.php');
   <label for="site_name" class="col-sm-4 control-label">Staff(Assign To):</label>
   <div class="col-sm-8">
     <select data-placeholder="Choose a Staff Member..." multiple id="assign_to" name="assign_to[]" class="chosen-select-deselect form-control" width="380">
-      <option value=""></option>
       <?php
         $query = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY."");
         echo "<option value='Assign to All'>Assign to All</option>";

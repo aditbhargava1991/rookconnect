@@ -644,7 +644,7 @@ $(document).ready(function() {
 		} else if($(this).hasClass("check_out")) {
 			var id = $(this).attr('id');
 			var arr = id.split('_');
-		    $('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Invoice/add_invoice.php?invoiceid='+arr[0]);
+		    $('#iframe_instead_of_window').attr('src', '<?php echo WEBSITE_URL; ?>/Invoice/create_invoice.php?invoiceid='+arr[0]);
 		    $('.iframe_title').text('');
 		}
 			$('.hide_on_iframe').hide(1000);
@@ -1466,7 +1466,7 @@ if (($edit_type == "series") && $repeats_allowed)
         $rows = sql_row_keyed($sname, 0);
         $invoiceid = $rows['invoiceid'];
 		//echo '<a style="font-weight:bold;" class="iframe_open check_out" id="'.$invoiceid.'"><h3>Check Out</h3></a>';
-        echo '<a href="#"  onclick="window.open(\''.WEBSITE_URL.'/Invoice/add_invoice.php?invoiceid='.$invoiceid.'\', \'newwindow\', \'width=1500, height=1500\'); return false;"><h3>Check Out</h3></a>';
+        echo '<a href="#"  onclick="window.open(\''.WEBSITE_URL.'/Invoice/create_invoice.php?invoiceid='.$invoiceid.'\', \'newwindow\', \'width=1500, height=1500\'); return false;"><h3>Check Out</h3></a>';
     }
     echo '<br><br>';
 

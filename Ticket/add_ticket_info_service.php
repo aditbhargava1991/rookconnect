@@ -1,5 +1,4 @@
 <?php include_once('../include.php');
-
 if(!empty($_GET['reload_table']) || !empty($_GET['reload_hidden_services'])) {
 	ob_clean();
 	$ticketid = $_GET['ticketid'];
@@ -243,9 +242,9 @@ foreach(explode(',',(!empty($_GET['serviceid']) ? $_GET['serviceid'] : mysqli_fe
 					<?php if(strpos($value_config,',Service Type,') !== FALSE) {
 						$service_table_display = (!empty($category) && !empty($service_type)) ? true : false; ?>
 						<div class="form-group">
-							<label class="col-sm-4 control-label">Service Type:</label>
+							<label class="col-sm-4 control-label">Service Tab:</label>
 							<div class="col-sm-8 <?= !$access_services ? 'readonly-block' : '' ?>">
-								<select name="service_type_group" data-placeholder="Select a Service Type" class="chosen-select-deselect form-control" <?= !$access_services ? 'readonly' : '' ?>><option></option>
+								<select name="service_type_group" data-placeholder="Select a Service Tab" class="chosen-select-deselect form-control" <?= !$access_services ? 'readonly' : '' ?>><option></option>
 									<?php $service_categories = $dbc->query("SELECT `category`, `service_type` FROM `services` WHERE `deleted`=0 GROUP BY CONCAT(`category`,`service_type`) ORDER BY `service_type`");
 									while($service_row = $service_categories->fetch_assoc()) { ?>
 										<option data-category="<?= $service_row['category'] ?>" value="<?= $service_row['service_type'] ?>" <?= !empty($category) && $category != $service_row['category'] ? 'style="display:none;"' : '' ?> <?= $category == $service_row['category'] && $service_type == $service_row['service_type'] ? 'selected' : '' ?>><?= $service_row['service_type'] ?></option>
@@ -268,7 +267,7 @@ foreach(explode(',',(!empty($_GET['serviceid']) ? $_GET['serviceid'] : mysqli_fe
 						<?php include('../Ticket/add_ticket_info_service_group.php'); ?>
 					</div>
 					<div class="service_group_hide" <?= !$service_table_display ? '' : 'style="display:none;"' ?>>
-						Please select a Category and Service Type to display Services.
+						Please select a Tab and Service Tab to display Services.
 					</div>
 				</div>
 			</div>

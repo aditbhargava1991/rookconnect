@@ -5,7 +5,8 @@ Client Listing
 include ('../include.php');
 include_once('../tcpdf/tcpdf.php');
 error_reporting(0);
-if(FOLDER_NAME == 'posadvanced') {
+if(!empty($folder)) {
+} else if(FOLDER_NAME == 'posadvanced') {
     checkAuthorised('posadvanced');
 } else {
     checkAuthorised('check_out');
@@ -47,90 +48,85 @@ function waiting_on_collection(sel) {
 		}
 	});
 }
+function view_clinic_master()
+{
+    $('.view_clinic_master').toggleClass('hidden');
+}
 </script>
-</head>
-<body>
-<?php include_once ('../navigation.php');
-?>
 
-<div class="container triple-pad-bottom">
-    <div class="row">
-        <div class="col-md-12">
-        <h2>Insurer Accounts Receivable From Clinic Master</h2>
-        
-        <?php if(config_visible_function($dbc, (FOLDER_NAME == 'posadvanced' ? 'posadvanced' : 'check_out')) == 1) {
-            echo '<a href="field_config_invoice.php" class="mobile-block pull-right "><img style="width: 50px;" title="Tile Settings" src="../img/icons/settings-4.png" class="settings-classic wiggle-me"></a>';
-        } ?>
-		<?php include('tile_tabs.php'); ?>
-        
-        <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-
-            <div class="notice double-gap-bottom popover-examples">
-            <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
-            <div class="col-sm-11"><span class="notice-name">NOTE:</span>
-            Old data that was not transferable from Clinic Master to Clinic Ace.</div>
-            <div class="clearfix"></div>
-            </div>
-
-            <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
-            <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
-
-            <?php
-            if(!empty($_GET['p3'])) {
-                $insurer = $_GET['p3'];
-            }
-            if (isset($_POST['search_email_submit'])) {
-                $insurer = $_POST['insurer'];
-            }
-            if (isset($_POST['search_email_all'])) {
-                $insurer = '';
-            }
-            ?>
-
-            <div class="form-group">
-                <label for="site_name" class="col-sm-4 control-label">Insurer:</label>
-                <div class="col-sm-8" style="width:20%;">
-                    <select data-placeholder="Choose a Insurer..." name="insurer" class="chosen-select-deselect form-control" width="380">
-                        <option value="">Display All</option>
-                        <?php
-                        $query = mysqli_query($dbc,"SELECT insurer_name FROM insurer_account_receivables_cm");
-                        while($row = mysqli_fetch_array($query)) {
-                            if ($insurer == $row['insurer_name']) {
-                                $selected = 'selected="selected"';
-                            } else {
-                                $selected = '';
-                            }
-                            echo "<option ".$selected." value='". $row['insurer_name']."'>".$row['insurer_name'].'</option>';
-                        }
-                        ?>
-                    </select>
-                </div>
-
-            <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button>
-            <button type="submit" name="search_email_all" value="Search" class="btn brand-btn mobile-block">Display Default</button>
-            </div>
-
-            <input type="hidden" name="insurerpdf" value="<?php echo $insurer; ?>">
-
-            <!-- <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button> -->
-            <br><br>
-
-            <?php
-                echo report_receivables($dbc, '', '', '', $insurer);
-            ?>
-
-        </form>
-
-        </div>
-    </div>
+<div class="standard-body-title hide-titles-mob">
+    <h3 class="pull-left">Insurer Accounts Receivable From Clinic Master</h3>
+    <div class="pull-right">
+        <img src="../img/icons/ROOK-3dot-icon.png" class="no-toggle cursor-hand offset-top-15 double-gap-right" title="" width="25" data-original-title="Show/Hide Insurer Accounts Receivable From Clinic Master" onclick="view_clinic_master()"> </div>
+    <div class="clearfix"></div>
 </div>
-<?php include ('../footer.php'); ?>
+
+<div class="standard-body-content padded-desktop ">
+    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal " role="form">
+
+        <div class="notice double-gap-bottom popover-examples view_clinic_master hidden">
+        <div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
+        <div class="col-sm-11"><span class="notice-name">NOTE:</span>
+        Old data that was not transferable from Clinic Master to Clinic Ace.</div>
+        <div class="clearfix"></div>
+        </div>
+
+        <input type="hidden" name="report_type" value="<?php echo $_GET['type']; ?>">
+        <input type="hidden" name="category" value="<?php echo $_GET['category']; ?>">
+
+        <?php
+        if(!empty($_GET['p3'])) {
+            $insurer = $_GET['p3'];
+        }
+        if (isset($_POST['search_email_submit'])) {
+            $insurer = $_POST['insurer'];
+        }
+        if (isset($_POST['search_email_all'])) {
+            $insurer = '';
+        }
+        ?>
+
+        <div class="form-group view_clinic_master hidden">
+            <label for="site_name" class="col-sm-2 control-label">Insurer:</label>
+            <div class="col-sm-7">
+                <select data-placeholder="Choose an Insurer..." name="insurer" class="chosen-select-deselect form-control" width="380">
+                    <option value="">Display All</option>
+                    <?php
+                    $query = mysqli_query($dbc,"SELECT insurer_name FROM insurer_account_receivables_cm");
+                    while($row = mysqli_fetch_array($query)) {
+                        if ($insurer == $row['insurer_name']) {
+                            $selected = 'selected="selected"';
+                        } else {
+                            $selected = '';
+                        }
+                        echo "<option ".$selected." value='". $row['insurer_name']."'>".$row['insurer_name'].'</option>';
+                    }
+                    ?>
+                </select>
+            </div>
+            <div class="col-sm-3 text-right">
+                <button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Search</button>
+                <button type="submit" name="search_email_all" value="Search" class="btn brand-btn mobile-block">Display Default</button>
+            </div>
+        </div>
+
+        <input type="hidden" name="insurerpdf" value="<?php echo $insurer; ?>">
+
+        <!-- <button type="submit" name="printpdf" value="Print Report" class="btn brand-btn pull-right">Print Report</button> -->
+        <br><br>
+
+        <?php
+            echo report_receivables($dbc, '', '', '', $insurer);
+        ?>
+
+    </form>
+</div>
 
 <?php
 function report_receivables($dbc, $table_style, $table_row_style, $grand_total_style, $insurer) {
     //$report_data .= '<span class="pull-right"><input type="text" class="pull-right" name="deposit_number">&nbsp;Deposit / Cheque No.&nbsp;</span><br>';
 
-    $report_data .= '<span class="pull-right">
+    $report_data .= '<span>
      &nbsp;
     Amount Paid &nbsp;<input type="text" class="" required name="amount_paid">&nbsp;&nbsp;Payment Type &nbsp;<select name="paid_type" required class="form-control1" width="380">
         <option value="">Please Select</option>
@@ -141,8 +137,8 @@ function report_receivables($dbc, $table_style, $table_row_style, $grand_total_s
     Number &nbsp;<input type="text" class="" required name="deposit_number">&nbsp;&nbsp;';
     $report_data .= '&nbsp;Paid Date&nbsp;<input type="text" required class="datepicker" name="paid_date"></span>';
 
-    $report_data .= '<table border="1px" class="table table-bordered" style="'.$table_style.'">';
-    $report_data .= '<tr style="'.$table_row_style.'">
+    $report_data .= '<div id="no-more-tables"><br /><br /><table border="1px" class="table table-bordered" style="'.$table_style.'">';
+    $report_data .= '<tr class="hidden-xs hidden-sm" style="'.$table_row_style.'">
     <th>Insurer</th>
     <th>Amount To Bill</th>
     <th>Amount Owing</th>
@@ -167,18 +163,18 @@ function report_receivables($dbc, $table_style, $table_row_style, $grand_total_s
     $amount_paid = 0;
     while($row_report = mysqli_fetch_array($report_service)) {
         $report_data .= '<tr nobr="true">';
-        $report_data .= '<td>'.$row_report['insurer_name'].'</td>';
-        $report_data .= '<td>'.$row_report['amount_to_bill'].'</td>';
-        $report_data .= '<td>'.$row_report['amount_owing'].'</td>';
-        $report_data .= '<td>'.$row_report['amount_credit'].'</td>';
-        $report_data .= '<td>'.$row_report['amount_paid'].'</td>';
-        $report_data .= '<td>'.$row_report['history'].'</td>';
+        $report_data .= '<td data-title="Insurer">'.$row_report['insurer_name'].'</td>';
+        $report_data .= '<td data-title="Amount To Bill">'.$row_report['amount_to_bill'].'</td>';
+        $report_data .= '<td data-title="Amount Owing">'.$row_report['amount_owing'].'</td>';
+        $report_data .= '<td data-title="Amount Credit">'.$row_report['amount_credit'].'</td>';
+        $report_data .= '<td data-title="Amount Paid">'.$row_report['amount_paid'].'</td>';
+        $report_data .= '<td data-title="Paid History">'.$row_report['history'].'</td>';
         //$report_data .= '<td>'.($row_report['amount_credit']-$row_report['amount_owing']).'</td>';
 
         //if($row_report['paid'] == 'Yes') {
         //    $report_data .= '<td>#'.$row_report['deposit_number'].' : '.$row_report['paid_type'].' : '.$row_report['paid_date'].'</td>';
         //} else {
-            $report_data .= '<td><input type="checkbox" class="invoice" name="cm_insurerid[]" value="'.$row_report['cm_insurerid'].'" ></td>';
+            $report_data .= '<td data-title="Pay"><input type="checkbox" class="invoice" name="cm_insurerid[]" value="'.$row_report['cm_insurerid'].'" ></td>';
         //}
 
         //&nbsp;&nbsp;&nbsp;<input type="text" class="pull-right1" name="amount_'.$row_report['cm_insurerid'].'">
@@ -190,9 +186,9 @@ function report_receivables($dbc, $table_style, $table_row_style, $grand_total_s
         $amount_paid += $row_report['amount_paid'];
     }
     $report_data .= '<tr nobr="true">';
-    $report_data .= '<td>Total</td><td>'.number_format($amount_to_bill, 2).'</td><td>'.number_format($amount_owing, 2).'</td><td>'.number_format($amount_credit, 2).'</td><td>'.number_format($amount_paid, 2).'</td><td></td>';
+    $report_data .= '<td>Total</td><td data-title="Amount To Bill">'.number_format($amount_to_bill, 2).'</td><td data-title="Amount Owing">'.number_format($amount_owing, 2).'</td><td data-title="Amount Credit">'.number_format($amount_credit, 2).'</td><td data-title="Amount Paid">'.number_format($amount_paid, 2).'</td><td></td>';
     $report_data .= "</tr>";
-    $report_data .= '</table><br>';
+    $report_data .= '</table><br></div>';
 
     return $report_data;
 }

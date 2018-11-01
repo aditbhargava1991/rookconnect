@@ -192,15 +192,29 @@ if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
             }
         }
     }
+
+
     if(($_GET['category'] ?: 'tasks') == 'tasks') {
         echo "Loading Tasks (at ".(microtime(true) - $time).")\n";
         if(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && tile_visible($dbc, 'tasks')) {
             $tasks = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE (`tasklistid`='$key' OR `heading` LIKE '$key%' OR `task` LIKE '$key%') AND `deleted`=0");
             while(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && $task = mysqli_fetch_assoc($tasks)) {
-                $search_results[] = ['label'=>'Task: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid']];
+                $search_results[] = ['label'=>'Task: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks_Updated/add_task_full_view.php?tasklistid='.$task['tasklistid']];
             }
         }
     }
+
+    if(($_GET['category'] ?: 'demo') == 'demo') {
+        echo "Loading Tasks (at ".(microtime(true) - $time).")\n";
+        if(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && tile_visible($dbc, 'demo')) {
+            $tasks = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE (`tasklistid`='$key' OR `heading` LIKE '$key%' OR `task` LIKE '$key%') AND `deleted`=0");
+            while(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && $task = mysqli_fetch_assoc($tasks)) {
+                $search_results[] = ['label'=>'Demo: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Demo/index.php'];
+            }
+        }
+    }
+
+    /*
     if(($_GET['category'] ?: 'tasks_updated') == 'tasks_updated') {
         echo "Loading Tasks (Updated) (at ".(microtime(true) - $time).")\n";
         if(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && tile_visible($dbc, 'tasks_updated')) {
@@ -210,6 +224,8 @@ if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
             }
         }
     }
+
+    */
 } else {
     // Counter
 	$all_count = [];
@@ -504,7 +520,18 @@ if($_SERVER['HTTP_X_REQUESTED_WITH'] == 'XMLHttpRequest') {
                 if(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && tile_visible($dbc, 'tasks')) {
                     $tasks = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE (`tasklistid`='$key' OR `heading` LIKE '$key%' OR `task` LIKE '$key%') AND `deleted`=0");
                     while(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && $task = mysqli_fetch_assoc($tasks)) {
-                        $search_results[] = ['label'=>'Task 1: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks/add_task.php?tasklistid='.$task['tasklistid']];
+                        $search_results[] = ['label'=>'Task 1: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Tasks_Updated/add_task_full_view.php?tasklistid='.$task['tasklistid']];
+                    }
+                }
+            }
+        }
+        if( $_GET['search_type']=='ALL' || $_GET['search_type']=='DEMO') {
+            if(($_GET['category'] ?: 'demo') == 'demo') {
+                echo "Loading Tasks (at ".(microtime(true) - $time).")\n";
+                if(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && tile_visible($dbc, 'demo')) {
+                    $tasks = mysqli_query($dbc, "SELECT * FROM `tasklist` WHERE (`tasklistid`='$key' OR `heading` LIKE '$key%' OR `task` LIKE '$key%') AND `deleted`=0");
+                    while(($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest' || count($search_results) < ($offset + $rows)) && $task = mysqli_fetch_assoc($tasks)) {
+                        $search_results[] = ['label'=>'Demo: #'.$task['tasklistid'].' '.$task['heading'],'link'=>WEBSITE_URL.'/Demo/index.php'];
                     }
                 }
             }
@@ -530,6 +557,7 @@ if($_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest') { ?>
             <div class="tab pull-left"><a href="search.php?search_query=<?php echo $key ?>&search_type=TICKETS"><button type="button" class="btn brand-btn mobile-block mobile-100 <?= ( $_GET['search_type']=='TICKETS' ? 'active_tab' : '' ) ?>">TICKETS (<?php echo count($ticket_count); ?>)</button></a></div>
             <div class="tab pull-left"><a href="search.php?search_query=<?php echo $key ?>&search_type=CHECKLISTS"><button type="button" class="btn brand-btn mobile-block mobile-100 <?= ( $_GET['search_type']=='CHECKLISTS' ? 'active_tab' : '' ) ?>">CHECKLISTS (<?php echo count($checklist_count); ?>)</button></a></div>
             <div class="tab pull-left"><a href="search.php?search_query=<?php echo $key ?>&search_type=TASKS"><button type="button" class="btn brand-btn mobile-block mobile-100 <?= ( $_GET['search_type']=='TASKS' ? 'active_tab' : '' ) ?>">TASKS (<?php echo count($task_count); ?>)</button></a></div>
+            <div class="tab pull-left"><a href="search.php?search_query=<?php echo $key ?>&search_type=DEMO"><button type="button" class="btn brand-btn mobile-block mobile-100 <?= ( $_GET['search_type']=='DEMO' ? 'active_tab' : '' ) ?>">DEMO (<?php echo count($task_count); ?>)</button></a></div>
 
             <br><br>
             <!--

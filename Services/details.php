@@ -691,14 +691,15 @@
                 </div>
             <?php } ?><!-- #fee -->
 
+            <div class="pull-right gap-top gap-right">
+                <a href="index.php" class="btn brand-btn">Cancel</a>
+                <button type="submit" name="add_service" value="Submit" class="btn brand-btn">Save</button>
+            </div>
+            <div class="clearfix"></div><br />
+
         </div><!-- .standard-body-content -->
     </div><!-- .preview-block-container -->
 
-    <div class="pull-right gap-top gap-right">
-        <a href="index.php" class="btn brand-btn">Cancel</a>
-        <button type="submit" name="add_service" value="Submit" class="btn brand-btn">Save</button>
-    </div>
-
-    <div class="clearfix"></div><br />
+    <div class="clearfix"></div>
 
 </form>

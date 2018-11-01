@@ -53,7 +53,7 @@ function checkedItem(sel) {
 				  <input type="text" name="task_other" id="task_other" class="form-control" />
 				</div>
 				<div class="col-sm-1">
-				  <img class="inline-img" id="add_checklist" title="Add To Checklist" src="../img/icons/ROOK-add-icon.png">
+				  <img class="inline-img" id="add_checklist" title="Add To Checklist" data-history-label="Checklist Item" src="../img/icons/ROOK-add-icon.png">
 				</div>
 			<?php } ?>
 		  </div>

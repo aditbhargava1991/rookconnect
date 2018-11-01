@@ -24,8 +24,8 @@ do { ?>
 					<img class="inline-img pull-left black-color counterclockwise small" onclick="showClient(this);" src="../img/icons/dropdown-arrow.png">
 					<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 					<input type="hidden" name="deleted" data-table="ticket_attached" data-id="<?= $client['id'] ?>" data-id-field="id" data-type="Clients" data-type-field="src_table" value="0">
-					<img class="inline-img pull-right" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
-					<img class="inline-img pull-right" onclick="remMulti(this);" src="../img/remove.png">
+					<img class="inline-img pull-right" data-history-label="<?= $client_accordion_category ?>" onclick="addMulti(this);" src="../img/icons/ROOK-add-icon.png">
+					<img class="inline-img pull-right" data-history-label="<?= $client_accordion_category ?>" onclick="remMulti(this);" src="../img/remove.png">
 				</div>
 				<div class="clearfix"></div>
 			</div>

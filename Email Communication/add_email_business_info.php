@@ -4,7 +4,6 @@ $(document).ready(function() {
 </script>
 
 <div class="col-md-12">
-
     <div class="form-group clearfix completion_date">
         <label for="first_name" class="col-sm-4 control-label text-right">Business<span class="brand-color">*</span>:</label>
         <div class="col-sm-8">
@@ -30,10 +29,10 @@ $(document).ready(function() {
       <div class="col-sm-8">
         <select data-placeholder="Select a Contact..." id="contactid" name="contactid" class="chosen-select-deselect form-control" width="380">
 			<option></option>
-			<?php $contact_query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name, first_name, last_name, email_address, category FROM contacts WHERE businessid='$businessid' AND `deleted`=0 AND `status`>0 AND `category`!='Sites'"),MYSQLI_ASSOC));
+			<?php $contact_query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT contactid, name, first_name, last_name, email_address, category FROM contacts WHERE ('$businessid' IN (`businessid`,'') OR `contactid`='$clientid') AND `deleted`=0 AND `status`>0 AND `category`!='Sites'"),MYSQLI_ASSOC));
 			foreach($contact_query as $row) {
 				$email = get_email($dbc, $row);
-                echo "<option ".($row == $contactid ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).' &lt;'.(empty($email) ? 'No Email Address' : $email).'&gt;</option>';
+                echo "<option ".(($row == $contactid || $row == $clientid) ? 'selected' : '')." value='". $row."'>".get_contact($dbc, $row).' &lt;'.(empty($email) ? 'No Email Address' : $email).'&gt;</option>';
             } ?>
         </select>
       </div>
@@ -53,17 +52,13 @@ $(document).ready(function() {
 			foreach($project_tabs as $item) {
 				$project_vars[] = preg_replace('/[^a-z_]/','',str_replace(' ','_',strtolower($item)));
 			}
-			$project_vars[] = '';
-            $query = mysqli_query($dbc,"SELECT * FROM (SELECT projectid, projecttype, project_name FROM project WHERE businessid='$businessid' UNION SELECT CONCAT('C',`projectid`), 'Client Project', `project_name` FROM `client_project` WHERE `clientid`='$businessid' AND `deleted`=0) PROJECTS order by project_name");
+			$project_query = !empty($projectid) ? "AND businessid='$businessid'" : "";
+            $query = mysqli_query($dbc, "SELECT projectid, projecttype, project_name FROM project WHERE (deleted=0 $project_query) OR `projectid`='$projectid' ORDER BY project_name");
             while($row = mysqli_fetch_array($query)) {
 				if(substr($row['projectid'],0,1)=='C') {
 					echo "<option ".($projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>Client Project: ".$row['project_name'].'</option>';
 				}
-				foreach($project_vars as $key => $type_name) {
-					if($type_name == $row['projecttype']) {
-						echo "<option ".($projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>".$project_tabs[$key].': '.$row['project_name'].'</option>';
-					}
-				}
+                echo "<option ".($projectid == $row['projectid'] ? 'selected' : '')." value='".$row['projectid']."'>".$row['project_name'].'</option>';
             }
           ?>
         </select>

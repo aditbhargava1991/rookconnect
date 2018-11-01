@@ -208,9 +208,11 @@ function equipmentChange() {
 }
 </script>
 
-<a href="" onclick="newEquipmentAssignment(); return false;" class="btn brand-btn pull-right">New Assignment</a>
-
-<h3 id="equip_assign_header"><?= $_GET['equipment_assignmentid'] > 0 ? 'Edit' : 'New' ?> <?= $equipment_category ?> Assignment</h3>
+<h3>
+    <span id="equip_assign_header"><?= $_GET['equipment_assignmentid'] > 0 ? 'Edit' : 'New' ?> <?= $equipment_category ?> Assignment</span>
+    <a href="" onclick="newEquipmentAssignment(); return false;" class="btn brand-btn pull-right">New Assignment</a>
+    <div class="clearfix"></div>
+</h3>
 
 <div class="block-group equip_assign_block" style="height: calc(100% - 4.5em); overflow-y: auto;">
 <?php include('../Calendar/equip_assign_inc.php'); ?>

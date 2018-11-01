@@ -22,7 +22,7 @@ if($_POST['add'] == 'add') {
                 <thead>
                     <tr>
                         <th><?= INVENTORY_NOUN ?> <button class="btn brand-btn pull-right" onclick="$('[name^=inventory_checked]').prop('checked',true); return false;">Select All</button></th>
-                        <?php if(in_array('category',$pick_list_filters)) { ?><th><?= INVENTORY_NOUN ?> Category</th><?php } ?>
+                        <?php if(in_array('category',$pick_list_filters)) { ?><th><?= INVENTORY_NOUN ?> Tab</th><?php } ?>
                         <?php if(in_array('ticket_po',$pick_list_filters)) { ?><th>Purchase Order #</th><?php } ?>
                         <?php if(in_array('po_line',$pick_list_filters)) { ?><th>Line Item #</th><?php } ?>
                         <?php if(in_array('ticket',$pick_list_filters)) { ?><th><?= TICKET_NOUN ?></th><?php } ?>
@@ -40,7 +40,7 @@ if($_POST['add'] == 'add') {
 					<tr>
 						<input type="hidden" name="inventoryid[]" value="<?= $item['inventoryid'] ?>">
 						<td data-title="<?= INVENTORY_NOUN ?>"><label class="form-checkbox full-width"><input type="checkbox" name="inventory_checked[]" value="<?= $item['inventoryid'] ?>"><?= $item['product_name'].' '.$item['name'] ?></label></td>
-						<?php if(in_array('category',$pick_list_filters)) { ?><td data-title="<?= INVENTORY_NOUN ?> Category"><?= $item['category'] ?></td><?php } ?>
+						<?php if(in_array('category',$pick_list_filters)) { ?><td data-title="<?= INVENTORY_NOUN ?> Tab"><?= $item['category'] ?></td><?php } ?>
 						<?php if(in_array('ticket_po',$pick_list_filters)) { ?><td data-title="Purchase Order #"><?= $item['po_number'] ?></td><?php } ?>
 						<?php if(in_array('po_line',$pick_list_filters)) { ?><td data-title="Line Item #"><?= $item['po_line'] ?></td><?php } ?>
 						<?php if(in_array('ticket',$pick_list_filters)) { ?><td data-title="<?= TICKET_NOUN ?>"><?= $item['ticket_label'] ?></td><?php } ?>

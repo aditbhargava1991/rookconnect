@@ -74,6 +74,8 @@ if(!empty($sales_order_types)) { ?>
         }
         if ( !isset($_GET['edit']) && !isset($_GET['view']) ) { ?>
             <div class="pull-right top-dashboard">
+                
+
                 <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-Speedometer.png" height="30" class="pull-right gap-left cursor-hand no-toggle" title="View Dashboards" onclick="$('.dashboard_select').toggle();">
                 <div class="dashboard_select pull-right" style="display: none;">
                     <select class="chosen-select-deselect" onchange="window.location.replace('?dashboard='+this.value);">
@@ -90,7 +92,20 @@ if(!empty($sales_order_types)) { ?>
                 </div>
             </div>
 			<img class="inline-img pull-right btn-horizontal-collapse no-toggle" src="../img/icons/pie-chart.png" title="View Summary">
+            <?php if( $_GET['p']=='preview' && $_GET['sotid']!=''){ ?>
+                <div class="icons_div" data-id="<?= $_GET['sotid'] ?>">
+                    <a href='Add Reminder' onclick='return false;'><img src='<?= WEBSITE_URL?>/img/icons/ROOK-reminder-icon.png' class='no-toggle reminder-icon' title='Schedule Reminder' style='width: 2.5em;margin-right: 1em;'></a>
+                </div>
+            <?php } ?>
 		<?php } ?>
     </div>
     <div class="clearfix"></div>
 </div><!-- .tile-header -->
+<script>
+$(document).ready(function() {
+    $('.icons_div .reminder-icon').off('click').click(function() {
+        var item = $(this).closest('.icons_div');
+        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_reminders.php?tile=sales_order&id='+item.data('id'), 'auto', false, true);
+    });
+})
+</script>

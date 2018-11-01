@@ -148,7 +148,7 @@
             }
 
             if($num_rows_tasks > 0) {
-                echo '<h4 style="font-weight: normal;">Tasks</h4>';
+                echo '<h4 style="font-weight: normal;">'.TASK_TILE.'</h4>';
                 if($daysheet_styling != 'card') {
                     echo '<ul id="past_due_tasks">';
                 }

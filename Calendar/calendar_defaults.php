@@ -105,6 +105,7 @@
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`,`value`) SELECT 'ticket_monthly_start','Sunday' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_monthly_start') num WHERE num.rows=0");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`,`value`) SELECT 'ticket_monthly_days','Sunday,Monday,Tuesday,Wednesday,Thursday,Friday,Saturday' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_monthly_days') num WHERE num.rows=0");
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`,`value`) SELECT 'ticket_use_shift_tickets','1' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_use_shift_tickets') num WHERE num.rows=0");
+	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`,`value`) SELECT 'ticket_sidebar_filters','Region' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='ticket_sidebar_filters') num WHERE num.rows=0");
 
 	//Shift Calendar
 	mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`,`value`) SELECT 'shift_day_start','06:00 am' FROM (SELECT COUNT(*) rows FROM `general_configuration` WHERE `name`='shift_day_start') num WHERE num.rows=0");

@@ -48,7 +48,7 @@ while(($row =  mysqli_fetch_assoc($result_survey))) {
         if($key != '') {
             $f = $fee[$m];
             $af = $admin_fee[$m];
-            $query_insert_invoice = "INSERT INTO `invoice_compensation` (`invoiceid`, `therapistsid`, `serviceid`, `fee`, `admin_fee`, `service_date`) VALUES ('$invoiceid', '$therapistsid', '$key', '$f', '$af', '$service_date')";
+            $query_insert_invoice = "INSERT INTO `invoice_compensation` (`invoiceid`, `contactid`, `item_id`, `item_type`, `fee`, `admin_fee`, `service_date`) VALUES ('$invoiceid', '$therapistsid', '$key', 'services', '$f', '$af', '$service_date')";
             $result_insert_invoice = mysqli_query($dbc, $query_insert_invoice);
             $m++;
         }

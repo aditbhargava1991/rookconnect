@@ -42,14 +42,18 @@ if(isset($_POST['submit'])) {
 $get_manual = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `manuals` WHERE `manualtypeid`='$manual'"));
 $value_config = ','.get_config($dbc, 'hr_fields').','; ?>
 <form name="manual" action="" method="POST">
-	<div class='scale-to-fill has-main-screen'>
+	<div class='scale-to-fill has-main-screen no-pad'>
 		<div class='main-screen form-horizontal'>
-			<h2>
-				<?= $get_manual['category'] != '' ? '<b>'.$get_manual['category'].'</b><br />' : '' ?>
-				<?= $get_manual['third_heading'] != '' ? $get_manual['third_heading_number'].' '.$get_manual['third_heading'] : ($get_manual['sub_heading'] != '' ? $get_manual['sub_heading_number'].' '.$get_manual['sub_heading'] : $get_manual['heading_number'].' '.$get_manual['heading']) ?>
-				<a href="?manualid_pdf=<?= $manual ?>" class="pull-right" target="_blank">Download PDF<img class="inline-img" src="../img/pdf.png"></a><div class="clearfix"></div>
-			</h2>
-			<div class="block-group pad-horiz-2 pad-vertical">
+            <div class="standard-body-title">
+                <h3>
+                    <?= $get_manual['category'] != '' ? '<b>'.$get_manual['category'].'</b><br />' : '' ?>
+                    <?= $get_manual['third_heading'] != '' ? $get_manual['third_heading_number'].' '.$get_manual['third_heading'] : ($get_manual['sub_heading'] != '' ? $get_manual['sub_heading_number'].' '.$get_manual['sub_heading'] : $get_manual['heading_number'].' '.$get_manual['heading']) ?>
+                    <a href="../blank_loading_page.php" class="pull-right"><img src="../img/icons/cancel.png" class="inline-img no-toggle small" title="Cancel"></a>
+                    <a href="?manualid_pdf=<?= $manual ?>" class="pull-right" target="_blank"><img class="inline-img no-toggle small" title="Download PDF" src="../img/pdf.png"></a><div class="clearfix"></div>
+                </h3>
+            </div>
+			<div class="standard-body-content pad-horiz-2 pad-vertical">
+                <div class="clearfix"></div>
 				<div class="pull-right full-width"><?= html_entity_decode(get_config($dbc, "manual_header")) ?></div>
 				<div class="form-group">
 					<div class="col-sm-12">

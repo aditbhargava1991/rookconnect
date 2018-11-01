@@ -1,6 +1,7 @@
 <?php include('../include.php');
 checkAuthorised('optimize'); ?>
 <script>
+var scaleFunction = function() {}
 $(document).ready(function() {
 	$(window).resize(function() {
 		$('.main-screen').css('padding-bottom',0);
@@ -19,6 +20,7 @@ $(document).ready(function() {
 				}
 			}
 		}
+        scaleFunction();
 	}).resize();
 });
 </script>
@@ -45,10 +47,26 @@ if(!file_exists('macros')) {
 	mkdir('macros',0777);
 }
 $macro_list = [];
-foreach(explode('#*#',get_config($dbc, 'upload_macros')) as $macro) {
+$bus_list = [];
+$bus_config = explode('#*#',get_config($dbc, 'upload_macro_businesses'));
+$cur_macro = [];
+$cur_bus = [];
+foreach(explode('#*#',get_config($dbc, 'upload_macros')) as $i => $macro) {
 	$macro = explode('|',$macro);
 	if(!empty($macro[1]) && file_exists('macros/'.$macro[1])) {
 		$macro_list[$macro[0]] = [config_safe_str($macro[1]),$macro[2]];
+        $bus_list[$macro[0]] = explode('|',$bus_config[$i]);
+        if($_GET['macro'] == config_safe_str($macro[1])) {
+            $cur_macro = [config_safe_str($macro[1]),$macro[2]];
+            $cur_bus = explode('|',$bus_config[$i]);
+            foreach(explode(',',get_config($dbc, '%_classification', true, ',')) as $bus_class_list) {
+                foreach($cur_bus as &$bus_opt) {
+                    if(config_safe_str($bus_class_list) == $bus_opt) {
+                        $bus_opt = $bus_class_list;
+                    }
+                }
+            }
+        }
 	}
 } ?>
 <div class="container">

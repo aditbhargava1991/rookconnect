@@ -155,11 +155,17 @@ if($_GET['fill'] == 'selected_staff') {
 	$team_list = implode(',',$_POST['teams']);
 	$region_list = implode(',',$_POST['regions']);
 	$client_list = implode(',',$_POST['clients']);
+	$tickettype_list = implode(',',$_POST['tickettype']);
 	mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_staff`='$staff_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_teams`='$team_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_regions`='$region_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_clients`='$client_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_tickettypes`='$tickettype_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+	if(isset($_POST['equipment'])) {
+		$equipment_list = implode(',',$_POST['equipment']);
+		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_equipment`='$equipment_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+	}
 }
 if($_GET['fill'] == 'selected_contacts') {
 	$contact_list = implode(',',$_POST['contacts']);
@@ -169,6 +175,7 @@ if($_GET['fill'] == 'selected_contacts') {
 	$region_list = implode(',',$_POST['regions']);
 	$location_list = implode(',',$_POST['locations']);
 	$classification_list = implode(',',$_POST['classifications']);
+	$tickettype_list = implode(',',$_POST['tickettype']);
 	if($_POST['category'] == 'client') {
 		mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '".$_SESSION['contactid']."' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
 		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_contacts`='$contact_list' WHERE `contactid`='".$_SESSION['contactid']."'");
@@ -187,9 +194,14 @@ if($_GET['fill'] == 'selected_contacts') {
 	} else {
 		mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '".$_SESSION['contactid']."' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
 		mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_staff`='$contact_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+		if(isset($_POST['equipment'])) {
+			$equipment_list = implode(',',$_POST['equipment']);
+			mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_equipment`='$equipment_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+		}
 	}
 	mysqli_query($dbc, "INSERT INTO `user_settings` (`contactid`) SELECT '".$_SESSION['contactid']."' FROM (SELECT COUNT(*) rows FROM `user_settings` WHERE `contactid`='".$_SESSION['contactid']."') num WHERE num.rows = 0");
 	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_teams`='$team_list' WHERE `contactid`='".$_SESSION['contactid']."'");
+	mysqli_query($dbc, "UPDATE `user_settings` SET `appt_calendar_tickettypes`='$tickettype_list' WHERE `contactid`='".$_SESSION['contactid']."'");
 }
 if($_GET['fill'] == 'selected_projects') {
 	$project_list = implode(',',$_POST['projects']);
@@ -461,7 +473,9 @@ if($_GET['fill'] == 'move_appt') {
 					$contacts = [];
 					$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 					foreach($team_contacts as $team_contact) {
-						$contacts[] = $team_contacts['contactid'];
+						if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+							$contacts[] = $team_contact['contactid'];
+						}
 					}
 				} else {
 					$contacts = [$contact];
@@ -1020,8 +1034,8 @@ if($_GET['fill'] == 'move_appt') {
 						mysqli_query($dbc, $sql);
 					}
 
-					$sql = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`)
-						SELECT `contactid`, `security_level`, `clientid`, '$start_date', '$start_date', `starttime`, '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
+					$sql = "INSERT INTO `contacts_shifts` (`heading`, `contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`)
+						SELECT `heading`, `contactid`, `security_level`, `clientid`, '$start_date', '$start_date', `starttime`, '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
 					if($online) {
 						mysqli_query($dbc, $sql);
 					}
@@ -1039,7 +1053,7 @@ if($_GET['fill'] == 'move_appt') {
 					}
 
 					$end_date = $shift['enddate'];
-					$sql = "INSERT INTO `contacts_shifts` (`contactid`, `security_level` `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `repeat_days`, `notes`, `repeat_type`, `repeat_interval`, `hide_days`) SELECT `contactid`, `security_level`, `clientid`, '$start_date', '$end_date', `starttime`, '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `repeat_days`, `notes`, `repeat_type`, `repeat_interval`, `hide_days` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
+					$sql = "INSERT INTO `contacts_shifts` (`heading`, `contactid`, `security_level` `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `repeat_days`, `notes`, `repeat_type`, `repeat_interval`, `hide_days`) SELECT `heading`, `contactid`, `security_level`, `clientid`, '$start_date', '$end_date', `starttime`, '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `repeat_days`, `notes`, `repeat_type`, `repeat_interval`, `hide_days` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
 					if($online) {
 						mysqli_query($dbc, $sql);
 					}
@@ -1075,7 +1089,7 @@ if($_GET['fill'] == 'move_appt') {
 					mysqli_query($dbc, $sql);
 				}
 
-				$sql = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`) SELECT ".($_POST['mode'] == 'client' ? '`contactid`' : "'$contact'").", `security_level`, ".($_POST['mode'] == 'client' ? "'$contact'" : "`clientid`").", '$start_date', '$start_date', '$start_time', '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
+				$sql = "INSERT INTO `contacts_shifts` (`heading`, `contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`) SELECT `heading`, ".($_POST['mode'] == 'client' ? '`contactid`' : "'$contact'").", `security_level`, ".($_POST['mode'] == 'client' ? "'$contact'" : "`clientid`").", '$start_date', '$start_date', '$start_time', '$end_time', `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
 				if($online) {
 					mysqli_query($dbc, $sql);
 				}
@@ -1540,7 +1554,9 @@ if($_GET['fill'] == 'schedule_unbooked') {
 						$contacts = [];
 						$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 						foreach($team_contacts as $team_contact) {
-							$contacts[] = $team_contacts['contactid'];
+							if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+								$contacts[] = $team_contact['contactid'];
+							}
 						}
 					} else {
 						$contacts = [$contact];
@@ -1954,8 +1970,8 @@ if($_GET['fill'] == 'move_appt_month') {
 				mysqli_query($dbc, $sql);
 			}
 
-			$sql = "INSERT INTO `contacts_shifts` (`contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`)
-				SELECT '$contactid', `security_level`, `clientid`, '$new_date', '$new_date', `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
+			$sql = "INSERT INTO `contacts_shifts` (`heading`, `contactid`, `security_level`, `clientid`, `startdate`, `enddate`, `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes`)
+				SELECT `heading`, '$contactid', `security_level`, `clientid`, '$new_date', '$new_date', `starttime`, `endtime`, `dayoff_type`, `break_starttime`, `break_endtime`, `notes` FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'";
 			if($online) {
 				mysqli_query($dbc, $sql);
 			}
@@ -2038,7 +2054,9 @@ if($_GET['fill'] == 'move_appt_month') {
 				$contacts = [];
 				$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 				foreach($team_contacts as $team_contact) {
-					$contacts[] = $team_contacts['contactid'];
+					if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+						$contacts[] = $team_contact['contactid'];
+					}
 				}
 			} else {
 				$contacts = [$contactid];
@@ -2078,7 +2096,9 @@ if($_GET['fill'] == 'move_appt_month') {
 				$contacts = [];
 				$team_contacts = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `teams_staff` WHERE `teamid` = '$teamid' AND `deleted` = 0"),MYSQLI_ASSOC);
 				foreach($team_contacts as $team_contact) {
-					$contacts[] = $team_contacts['contactid'];
+					if(strtolower(get_contact($dbc, $team_contact['contactid'], 'category')) == 'staff') {
+						$contacts[] = $team_contact['contactid'];
+					}
 				}
 			} else {
 				$contacts = [$contactid];
@@ -2335,37 +2355,120 @@ if($_GET['fill'] == 'delete_shift') {
 } else if($_GET['fill'] == 'get_sortable_tickets') {
 	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
 	$equipment = filter_var($_POST['equipment'],FILTER_SANITIZE_STRING);
-	$tickets = mysqli_query($dbc, "SELECT `ticketid`,`pickup_address`,`pickup_city`,`pickup_postal_code`,`dropoff_address`,`dropoff_city`,`dropoff_postal_code` FROM `tickets` WHERE `to_do_date`='$date' AND `equipmentid` = '$equipment' AND `deleted`=0");
+    $default_status = get_config($dbc, 'ticket_default_status');
+	$address = ['init_address'];
+	$tickets = mysqli_query($dbc, "SELECT `t`.`ticketid`, IF((IFNULL(NULLIF(CONCAT(IFNULL(`sched`.`address`,''),IFNULL(`sched`.`city`,'')),''),CONCAT(IFNULL(`t`.`address`,''),IFNULL(`t`.`city`,''))) NOT IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses') OR `sched`.`type`='warehouse'),'warehouse','') `sched_type`, `sched`.`id`, IFNULL(`sched`.`to_do_date`,`t`.`to_do_date`) `date`, IFNULL(`sched`.`to_do_start_time`,`t`.`to_do_start_time`) `time`, IFNULL(`sched`.`address`,`t`.`pickup_address`) `address`, IFNULL(`sched`.`city`,`t`.`pickup_city`) `city`, IFNULL(`sched`.`province`,'') `province`, IFNULL(`sched`.`postal_code`,`t`.`pickup_postal_code`) `postal_code`, IFNULL(`sched`.`status`,`t`.`status`) `status` FROM `tickets` `t` LEFT JOIN `ticket_schedule` `sched` ON `t`.`ticketid`=`sched`.`ticketid` AND `sched`.`deleted`=0 WHERE IFNULL(NULLIF(`sched`.`equipmentid`,0),`t`.`equipmentid`)='$equipment' AND IFNULL(NULLIF(`sched`.`to_do_date`,'0000-00-00'),`t`.`to_do_date`)='$date' ORDER BY IFNULL(`sched`.`to_do_start_time`,`t`.`to_do_start_time`)");
 	while($ticket = mysqli_fetch_assoc($tickets)) {
-		echo $ticket['ticketid'].'#*#'.$ticket['pickup_address'].' '.$ticket['pickup_city'].' '.$ticket['pickup_postal_code']."#*#".$ticket['dropoff_address'].' '.$ticket['dropoff_city'].' '.$ticket['dropoff_postal_code']."\n";
+		if($ticket['address'].$ticket['city'].$ticket['province'].$ticket['postal_code'] != '' && ($_POST['include_complete'] != false || ($ticket['status'] != $default_status && $ticket['status'] != ''))) {
+			$addresses[] = $ticket['ticketid'].'#*#'.$ticket['id'].'#*#'.trim($ticket['address'].' '.$ticket['city'].' '.$ticket['province'].' '.$ticket['postal_code']);
+		} else {
+			$addresses[0] = $ticket['ticketid'].'#*#'.$ticket['id'].'#*#'.trim($ticket['address'].' '.$ticket['city'].' '.$ticket['province'].' '.$ticket['postal_code']);
+        }
 	}
+	echo implode("\n",$addresses);
 } else if($_GET['fill'] == 'get_ticket_addresses') {
 	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
 	$equipment = filter_var($_POST['equipment'],FILTER_SANITIZE_STRING);
+    $default_status = get_config($dbc, 'ticket_default_status');
 	$address = [];
-	$tickets = mysqli_query($dbc, "SELECT `t`.`ticketid`, IFNULL(`sched`.`to_do_date`,`t`.`to_do_date`) `date`, IFNULL(`sched`.`to_do_start_time`,`t`.`to_do_start_time`) `time`, IFNULL(`sched`.`address`,`t`.`pickup_address`) `address`, IFNULL(`sched`.`city`,`t`.`pickup_city`) `city`, IFNULL(`sched`.`province`,'') `province`, IFNULL(`sched`.`postal_code`,`t`.`pickup_postal_code`) `postal_code` FROM `tickets` `t` LEFT JOIN `ticket_schedule` `sched` ON `t`.`ticketid`=`sched`.`ticketid` AND `sched`.`deleted`=0 WHERE IFNULL(NULLIF(`sched`.`equipmentid`,0),`t`.`equipmentid`)='$equipment' AND IFNULL(NULLIF(`sched`.`to_do_date`,'0000-00-00'),`t`.`to_do_date`)='$date' ORDER BY IFNULL(`sched`.`to_do_start_time`,`t`.`to_do_start_time`) DESC");
+	$tickets = mysqli_query($dbc, "SELECT `t`.`ticketid`, IFNULL(`sched`.`to_do_date`,`t`.`to_do_date`) `date`, IFNULL(`sched`.`to_do_start_time`,`t`.`to_do_start_time`) `time`, IFNULL(`sched`.`address`,`t`.`pickup_address`) `address`, IFNULL(`sched`.`city`,`t`.`pickup_city`) `city`, IFNULL(`sched`.`province`,'') `province`, IFNULL(`sched`.`postal_code`,`t`.`pickup_postal_code`) `postal_code`, IFNULL(`sched`.`status`,`t`.`status`) `status` FROM `tickets` `t` LEFT JOIN `ticket_schedule` `sched` ON `t`.`ticketid`=`sched`.`ticketid` AND `sched`.`deleted`=0 WHERE IFNULL(NULLIF(`sched`.`equipmentid`,0),`t`.`equipmentid`)='$equipment' AND IFNULL(NULLIF(`sched`.`to_do_date`,'0000-00-00'),`t`.`to_do_date`)='$date' ORDER BY IFNULL(`sched`.`to_do_start_time`,`t`.`to_do_start_time`)");
 	while($ticket = mysqli_fetch_assoc($tickets)) {
-		if($ticket['address'].$ticket['city'].$ticket['province'].$ticket['pickup_postal_code'] != '') {
-			$addresses[] = trim($ticket['address'].' '.$ticket['city'].' '.$ticket['province'].' '.$ticket['pickup_postal_code']);
+		if($ticket['address'].$ticket['city'].$ticket['province'].$ticket['postal_code'] != '' && (trim($ticket['address'].' '.$ticket['city'].' '.$ticket['province'].' '.$ticket['postal_code'])) != $prev_address && ($_POST['include_complete'] !== false || ($ticket['status'] != $default_status && $ticket['status'] != ''))) {
+			$prev_address = trim($ticket['address'].' '.$ticket['city'].' '.$ticket['province'].' '.$ticket['postal_code']);
+      $addresses[] = trim($ticket['address'].' '.$ticket['city'].' '.$ticket['province'].' '.$ticket['postal_code']);
 		}
 	}
 	echo implode("\n",$addresses);
 } else if($_GET['fill'] == 'sort_tickets') {
+	$date = filter_var($_POST['date'],FILTER_SANITIZE_STRING);
+	$equipment = filter_var($_POST['equipment'],FILTER_SANITIZE_STRING);
 	$start_address = filter_var($_POST['start_address'],FILTER_SANITIZE_STRING);
 	$end_address = filter_var($_POST['end_address'],FILTER_SANITIZE_STRING);
-	$start_time = get_config($dbc, 'scheduling_day_start');
+    $warehouses = $dbc->query("SELECT `tickets`.`ticketid`, `ticket_schedule`.`id` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` AND `ticket_schedule`.`deleted`=0 WHERE `tickets`.`deleted`=0 AND ((`tickets`.`to_do_date` = '".$date."' OR '".$date."' BETWEEN `tickets`.`to_do_date` AND `tickets`.`to_do_end_date` OR `ticket_schedule`.`to_do_date`='".$date."' OR '".$date."' BETWEEN `ticket_schedule`.`to_do_date` AND IFNULL(`ticket_schedule`.`to_do_end_date`,`ticket_schedule`.`to_do_date`)) AND (IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) IN ('$equipment') AND IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) > 0)) AND (REPLACE(REPLACE(IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))),' ',''),'-','') IN (SELECT REPLACE(REPLACE(CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')),' ',''),'-','') FROM `contacts` WHERE `category`='Warehouses') OR `ticket_schedule`.`type`='warehouse') ORDER BY `ticket_schedule`.`to_do_date`,`ticket_schedule`.`to_do_start_time`");
+    $auto_duration = strtotime(get_config($dbc, 'scheduling_increments').' minutes') - strtotime('0 minutes');
+	$available_increment = get_config($dbc, 'delivery_timeframe_default');
+    if($warehouses->num_rows > 0 && $_POST['from_current'] == false) {
+        $start_time = get_config($dbc, 'ticket_warehouse_start_time');
+        while($warehouse = $warehouses->fetch_assoc()) {
+			$warehouse_hours = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contacts`.`hours_of_operation` FROM `ticket_schedule` LEFT JOIN `contacts` ON IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') = CONCAT(IFNULL(`contacts`.`address`,''),IFNULL(`contacts`.`city`,'')) AND `contacts`.`category`='Warehouses' WHERE `ticket_schedule`.`id` = '".$warehouse['id']."'"))['hours_of_operation'];
+			$day_i = date('w',strtotime($date));
+			$hours = explode('-',explode(',',$warehouse_hours)[$day_i]);
+			$hop_start_time = !empty($hours[0]) ? date('H:i', strtotime($hours[0])) : '';
+			$hop_end_time = !empty($hours[1]) ? date('H:i', strtotime($hours[1])) : '';
+			if(!empty($hop_start_time) && !empty($hop_end_time)) {
+				if(strtotime($start_time) < strtotime($hop_start_time)) {
+					$start_time = date('h:i a',strtotime($hop_start_time));
+				}
+				if(strtotime($start_time) > strtotime($hop_end_time)) {
+					$start_time = date('h:i a',strtotime($hop_end_time));
+				}
+			}
+            if($warehouse['id'] > 0) {
+                $length = get_field_value('est_time','ticket_schedule','id',$warehouse['id']);
+                if(empty($length)) {
+                    $length = get_field_value('cust_time','ticket_schedule','id',$warehouse['id']);
+                }
+                if(empty($length)) {
+                    $length = get_field_value('est_time','tickets','ticketid',$warehouse['ticketid']);
+                }
+                if(empty($length)) {
+                    $length = get_field_value('max_time','tickets','ticketid',$warehouse['ticketid']);
+                }
+                $end_time = date('H:i:s',strtotime($start_time.' + '.(floor($length) * 1).' hour '.floor($length * 60).' minute '.($length % 60).' second'));
+                $dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `sort_status`=1 WHERE `id`='".$warehouse['id']."'");
+            } else {
+                $length = time_time2decimal(get_field_value('est_time','tickets','ticketid',$warehouse['ticketid']));
+                if(empty($length)) {
+                    $length = get_field_value('max_time','tickets','ticketid',$warehouse['ticketid']);
+                }
+                $end_time = date('H:i:s',strtotime($start_time.' + '.(floor($length) * 1).' hour '.floor($length * 60).' minute '.($length % 60).' second'));
+                $dbc->query("UPDATE `tickets` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `sort_status`=1 WHERE `ticketid`='".$warehouse['ticketid']."'");
+            }
+        }
+		$start_time = date('H:i:s',strtotime($start_time) + ($_POST['drive_time'][0] > 0 ? filter_var($_POST['drive_time'][$i+1],FILTER_SANITIZE_STRING) : $auto_duration * ceil((strtotime($length) - strtotime('00:00')) / $auto_duration)));
+    } else if(!empty($_POST['start_of_day'])) {
+        $start_time = date('H:i', strtotime(filter_var($_POST['start_of_day'],FILTER_SANITIZE_STRING)));
+    } else if($_POST['from_current'] == true && $date == date('Y-m-d')) {
+        $start_time = date('H:i', time() + ($_POST['drive_time'][0] > 0 ? filter_var($_POST['drive_time'][$i+1],FILTER_SANITIZE_STRING) : 0));
+    } else {
+        $start_time = get_config($dbc, 'scheduling_day_start');
+    }
 	foreach($_POST['ticket_sort'] as $i => $ticketid) {
 		$ticketid = filter_var($ticketid,FILTER_SANITIZE_STRING);
-		$end_time = date('H:i:s',strtotime($start_time.' + 30 minutes'));
+		$stopid = filter_var($_POST['stop_sort'][$i],FILTER_SANITIZE_STRING);
+        $est_drive = filter_var($_POST['drive_time'][$i+1],FILTER_SANITIZE_STRING);
+        $start_available = $start_time;
+		$end_available = date('H:i',strtotime($start_time.' + '.$available_increment.' hours'));
 		if($online) {
-			mysqli_query($dbc, "UPDATE `tickets` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `pickup_date`=CONCAT(`to_do_date`,' $start_time'), `delivery_start_address`='$start_address', `delivery_end_address`='$end_address' WHERE `ticketid`='$ticketid'");
-			mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
-			mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
-			mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
-			mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+            if($stopid > 0) {
+                $length = get_field_value('est_time','ticket_schedule','id',$stopid);
+                if(empty($length)) {
+                    $length = time_time2decimal(get_field_value('est_time','tickets','ticketid',$ticketid));
+                }
+                if(empty($length)) {
+                    $length = get_field_value('max_time','tickets','ticketid',$ticketid);
+                }
+                $end_time = date('H:i:s',strtotime($start_time) + ($length * 3600));
+                echo "UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `start_available`='$start_available', `end_available`='$end_available', `sort_status`=1 WHERE `ticketid`='$ticketid' AND `id`='$stopid'";
+                mysqli_query($dbc, "UPDATE `ticket_schedule` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `start_available`='$start_available', `end_available`='$end_available', `sort_status`=1 WHERE `ticketid`='$ticketid' AND `id`='$stopid'");
+            } else {
+                $length = time_time2decimal(get_field_value('est_time','tickets','ticketid',$ticketid));
+                if(empty($length)) {
+                    $length = get_field_value('max_time','tickets','ticketid',$ticketid);
+                }
+                $end_time = date('H:i:s',strtotime($start_time) + ($length * 3600));
+                mysqli_query($dbc, "UPDATE `tickets` SET `to_do_start_time`='$start_time', `to_do_end_time`='$end_time', `pickup_date`=CONCAT(`to_do_date`,' $start_time'), `delivery_start_address`='$start_address', `delivery_end_address`='$end_address', `pickup_start_available`='$start_available', `pickup_end_available`='$end_available', `sort_status`=1 WHERE `ticketid`='$ticketid'");
+                mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+                mysqli_query($dbc, "UPDATE `ticket_attached` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+                mysqli_query($dbc, "UPDATE `ticket_schedule` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+                mysqli_query($dbc, "UPDATE `ticket_comment` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
+            }
 		}
-		$start_time = date('H:i:s',strtotime($start_time.' + 1 hour'));
+        // echo $est_drive.'/'.$auto_duration.' ('.$length.'): '.$start_time.' - '.$end_time.'; ';
+		$start_time = date('H:i:s',strtotime($end_time) + ($est_drive > 0 ? $est_drive : $auto_duration * ceil((strtotime($length) - strtotime('00:00')) / $auto_duration)));
 	}
+	$warehouse_end_time = $start_time;
+	$dbc->query("UPDATE `ticket_schedule` SET `to_do_start_time` = '$warehouse_end_time' WHERE `id` IN (SELECT `id` FROM (SELECT `id` FROM `ticket_schedule` `main_table` WHERE `equipmentid`='$equipment' AND `to_do_date`='$date' AND `deleted`=0 AND (`type` = 'warehouse' OR IFNULL(NULLIF(CONCAT(IFNULL(`main_table`.`address`,''),IFNULL(`main_table`.`city`,'')),''),'') IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses')) AND (SELECT COUNT(`id`) FROM `ticket_schedule` WHERE `equipmentid` = '$equipment' AND `to_do_date`='$date' AND `ticketid`=`main_table`.`ticketid` AND `deleted` = 0 AND (`type` = 'warehouse' OR IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses'))) > 1 AND `id` = (SELECT `id` FROM `ticket_schedule` WHERE `equipmentid` = '$equipment' AND `to_do_date`='$date' AND `ticketid`=`main_table`.`ticketid` AND `deleted` = 0 AND (`type` = 'warehouse' OR IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),'') IN (SELECT CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')) FROM `contacts` WHERE `category`='Warehouses')) ORDER BY `id` DESC LIMIT 1)) `warehouse_stops`)");
 }
 if($_GET['fill'] == 'delete_appt') {
 	$bookingid = $_GET['bookingid'];
@@ -2789,9 +2892,15 @@ if($_GET['fill'] == 'export_shifts') {
 	$enabled_fields = ','.$field_config['enabled_fields'].',';
 
 	$csv_headers = ['shiftid','contactid'];
+    if (strpos($enabled_fields, ',security_level,') !== FALSE) {
+    	$csv_headers[] = 'security_level';
+    }
 	if(!empty($field_config['contact_category'])) {
 		$csv_headers[] = 'clientid';
 	}
+    if (strpos($enabled_fields, ',heading,') !== FALSE) {
+    	$csv_headers[] = 'heading';
+    }
 	if (strpos($enabled_fields, ',dates,') !== FALSE) {
 		$csv_headers[] = 'startdate';
 		$csv_headers[] = 'enddate';
@@ -3118,6 +3227,11 @@ if($_GET['fill'] == 'get_ticket_scheduled_time') {
 if($_GET['fill'] == 'update_ticket_scheduled_time') {
 	$ticket_table = $_POST['ticket_table'];
 	$id = $_POST['id'];
+    if($ticket_table == 'ticket_schedule') {
+        $id_field = 'id';
+    } else {
+        $id_field = 'ticketid';
+    }
 
 	$query = [];
 	$history = [];
@@ -3134,17 +3248,19 @@ if($_GET['fill'] == 'update_ticket_scheduled_time') {
 	if(!empty($_POST['to_do_end_time'])) {
 		$to_do_end_time = date('H:i:s', strtotime(date('Y-m-d').' '.$_POST['to_do_end_time']));
 		$query[] = "`to_do_end_time` = '$to_do_end_time'";
-		$history[] = "Sheduled End Time to ".$_POST['to_do_end_time'];
-	}
+		$history[] = "Sheduled End Time to ".$to_do_end_time;
+	} else if(!empty($_POST['to_do_start_time'])) {
+        $to_do_end_time = date('H:i:s', strtotime($to_do_start_time) + strtotime(get_field_value('to_do_end_time',$ticket_table,$id_field,$id)) - strtotime(get_field_value('to_do_start_time',$ticket_table,$id_field,$id)));
+		$query[] = "`to_do_end_time` = '$to_do_end_time'";
+		$history[] = "Sheduled End Time to ".$to_do_end_time;
+    }
 
 	if($id > 0 && !empty($query)) {
 		$query = implode(', ', $query);
 		$history = htmlentities(get_contact($dbc, $_SESSION['contactid']).' updated '.implode(', ',$history).'<br>');
 		if($ticket_table == 'ticket_schedule') {
-			$id_field = 'id';
 			$ticketid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `ticketid` FROM `ticket_schedule` WHERE `id` = '$id'"))['ticketid'];
 		} else {
-			$id_field = 'ticketid';
 			$ticketid = $id;
 		}
 		mysqli_query($dbc, "UPDATE `tickets` SET `is_recurrence` = 0 WHERE `ticketid` = '$ticketid'");
@@ -3218,13 +3334,139 @@ if($_GET['fill'] == 'book_client_ticket') {
 		$contact = implode(',',array_filter(array_unique($contact)));
 	}
 	$contact = ','.$contact.',';
+	$main_siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `main_siteid` FROM `contacts` WHERE `contactid` = '$clientid'"))['main_siteid'];
+	$siteid = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$clientid' AND `deleted` = 0 AND `contactid` = '$main_siteid' UNION SELECT `contactid` FROM `contacts` WHERE `category`='".SITES_CAT."' AND `businessid`='$clientid' AND `deleted` = 0 AND `contactid` != '$main_siteid'"))['contactid'];
 
-	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '$status')");
+	mysqli_query($dbc, "INSERT INTO `tickets` (`ticket_type`, `clientid`, `contactid`, `to_do_date`, `to_do_start_time`, `status`, `siteid`) VALUES ('$ticket_type', '$clientid', '$contact', '$start_date', '$start_time', '$status', '$siteid')");
 	$ticketid = mysqli_insert_id($dbc);
 
 	foreach(array_filter(array_unique(explode(',', $contact))) as $contact_id) {
 		mysqli_query($dbc, "INSERT INTO `ticket_attached` (`ticketid`, `src_table`, `item_id`) VALUES ('$ticketid', 'Staff', '$contact_id')");
 	}
 	echo $ticketid;
+}
+if($_GET['fill'] == 'check_ticket_booking_conflicts') {
+	$shiftid = $_POST['shiftid'];
+	$contact_id = $_POST['contactid'];
+	$startdate = $_POST['startdate'];
+	$enddate = $_POST['enddate'];
+	$repeat_type = $_POST['repeat_type'];
+	$repeat_days = $_POST['repeat_days'];
+	$interval = $_POST['repeat_interval'];
+	if(!empty($shiftid)) {
+		$hide_days = array_filter(explode(',', mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `contacts_shifts` WHERE `shiftid` = '$shiftid'"))['hide_days']));
+	}
+
+	$conflicts = checkTicketBookingConflicts($dbc, $contact_id, $startdate, $enddate, $repeat_type, $repeat_days, $interval, $hide_days);
+	$ticket_conflicts = $conflicts['ticket'];
+	$booking_conflicts = $conflicts['booking'];
+
+	$conflict_message = [];
+	if(!empty($ticket_conflicts)) {
+		$conflict_message[] = "The following ".TICKET_TILE." land on the same days as your Days Off:\n".implode("\n", $ticket_conflicts)."\n";
+	}
+	if(!empty($booking_conflicts)) {
+		$conflict_message[] = "The following Appointments land on the same days as your Days Off:\n".implode("\n", $booking_conflicts)."\n";
+	}
+	$conflict_message = implode("\n", $conflict_message);
+	echo $conflict_message;
+}
+if($_GET['fill'] == 'unassign_ticket_booking_conflicts') {
+	$contact_id = $_POST['contactid'];
+	$startdate = $_POST['startdate'];
+	$enddate = $_POST['enddate'];
+
+	$conflicts = checkTicketBookingConflicts($dbc, $contact_id, $startdate, $enddate, '', '', '', '');
+
+	foreach($conflicts['ticket'] as $ticketid => $ticket_label) {
+		$ticket = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `tickets` WHERE `ticketid` = '$ticketid'"));
+		$internal_qa_contactid = explode(',', $ticket['internal_qa_contactid']);
+		foreach($internal_qa_contactid as $key => $contactid) {
+			if($contact_id == $contactid) {
+				unset($internal_qa_contactid[$key]);
+				$new_internal_qa_contactid = implode(',', $internal_qa_contactid);
+				mysqli_query($dbc, "UPDATE `tickets` SET `internal_qa_contactid` = '$new_internal_qa_contactid' WHERE `ticketid` = '$ticketid'");
+			}
+		}
+		$deliverable_contactid = explode(',', $ticket['deliverable_contactid']);
+		foreach($deliverable_contactid as $key => $contactid) {
+			if($contact_id == $contactid) {
+				unset($deliverable_contactid[$key]);
+				$new_deliverable_contactid = implode(',', $deliverable_contactid);
+				mysqli_query($dbc, "UPDATE `tickets` SET `deliverable_contactid` = '$new_deliverable_contactid' WHERE `ticketid` = '$ticketid'");
+			}
+		}
+		$ticket_contactid = explode(',', $ticket['contactid']);
+		foreach($ticket_contactid as $key => $contactid) {
+			if($contact_id == $contactid) {
+				unset($ticket_contactid[$key]);
+				$new_ticket_contactid = implode(',', $ticket_contactid);
+				mysqli_query($dbc, "UPDATE `tickets` SET `contactid` = '$new_ticket_contactid' WHERE `ticketid` = '$ticketid'");
+			}
+		}
+		mysqli_query($dbc, "UPDATE `ticket_attached` SET `deleted` = 1 WHERE `ticketid` = '$ticketid' AND `src_table` LIKE 'Staff%' AND `item_id` = '$contact_id'");
+	}
+
+	foreach($conflicts['booking'] as $bookingid => $booking_label) {
+		$booking = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `booking` WHERE `bookingid` = '$bookingid'"));
+		$therapistsid = explode('*#*', $booking['therapistsid']);
+		$appoint_date = explode('*#*', $booking['appoint_date']);
+		$end_appoint_date = explode('*#*', $booking['end_appoint_date']);
+		$type = explode('*#*', $booking['type']);
+		$serviceid = explode('*#*', $booking['serviceid']);
+		foreach($therapistsid as $key => $staffid) {
+			if($contact_id == $staffid) {
+				unset($therapistsid[$key]);
+				unset($appoint_date[$key]);
+				unset($end_appoint_date[$key]);
+				unset($type[$key]);
+				unset($serviceid[$key]);
+				$new_therapistsid = implode('*#*', $therapistsid);
+				$new_appoint_date = implode('*#*', $appoint_date);
+				$new_end_appoint_date = implode('*#*', $end_appoint_date);
+				$new_type = implode('*#*', $type);
+				$new_serviceid = implode('*#*', $serviceid);
+				mysqli_query($dbc, "UPDATE `booking` SET `therapistsid` = '$new_ticket_contactid', `appoint_date` = '$new_appoint_date', `end_appoint_date` = '$new_end_appoint_date', `type` = '$new_type', `serviceid` = '$new_serviceid' WHERE `bookingid` = '$bookingid'");
+			}
+		}
+	}
+}
+if($_GET['fill'] == 'delete_logo') {
+	set_config($dbc, $_POST['logo'], '');
+}
+if($_GET['fill'] == 'set_last_active') {
+	$type = $_POST['type'];
+	$contactid = $_POST['contactid'];
+    $last_active = date('Y-m-d H:i:s');
+	if($contactid > 0) {
+	    mysqli_query($dbc, "INSERT INTO `calendar_last_active` (`type`, `contactid`) SELECT '$type', '$contactid' FROM (SELECT COUNT(*) rows FROM `calendar_last_active` WHERE `contactid` = '$contactid' AND `type` = '$type') num WHERE num.rows = 0");
+	    mysqli_query($dbc, "UPDATE `calendar_last_active` SET `last_active` = '$last_active' WHERE `contactid` = '$contactid' AND `type` ='$type'");
+	}
+}
+if($_GET['fill'] == 'get_last_active') {
+	$type = $_POST['type'];
+	$past_15_mins = date('Y-m-d H:i:s', strtotime(date('Y-m-d H:i:s').'- 15 minutes'));
+	$active_users_sql = mysqli_fetch_all(mysqli_query($dbc, "SELECT * FROM `calendar_last_active` WHERE `type` = '$type' AND `last_active` >= '$past_15_mins' ORDER BY `last_active` DESC"),MYSQLI_ASSOC);
+	foreach ($active_users_sql as $active_user_sql) {
+		$active_users[$active_user_sql['contactid']] = (!empty(get_client($dbc, $active_user_sql['contactid'])) ? get_client($dbc, $active_user_sql['contactid']) : get_contact($dbc, $active_user_sql['contactid']));
+	}
+	$active_html = '<span><b>Active Users:</b><br>';
+	foreach ($active_users as $active_userid => $active_user) {
+		$active_html .= profile_id($dbc, $active_userid, false).' '.$active_user.'<br>';
+	}
+	if(empty($active_users)) {
+		$active_html .= 'No Active Users';
+	}
+	$active_html .= '</span>';
+	echo count($active_users).'*#*'.$active_html;
+}
+if($_GET['action'] == 'removeSchedule') {
+    $ticketid = filter_var($_POST['ticketid'],FILTER_SANITIZE_STRING);
+    $stopid = filter_var($_POST['stopid'],FILTER_SANITIZE_STRING);
+    if($stopid > 0) {
+        $dbc->query("UPDATE `ticket_schedule` SET `equipmentid`='0',`contactid`='0' WHERE `ticketid`='$ticketid' AND `id`='$stopid'");
+    } else {
+        $dbc->query("UPDATE `tickets` SET `equipmentid`='0',`contactid`='0' WHERE `ticketid`='$ticketid'");
+    }
 }
 ?>

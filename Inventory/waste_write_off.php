@@ -651,7 +651,7 @@ function numericFilter(txb) {
                     							for ( $i=0; $i<=$count; $i++ ) { ?>
                     								<div class="form-group clearfix" id="services_<?= $i; ?>"><?php
                     									if ( strpos ( $value_config, ',Category,' ) !== FALSE ) { ?>
-                    										<label class="show-on-mob control-label">Category:</label>
+                    										<label class="show-on-mob control-label">Tab:</label>
                     										<div class="col-sm-3 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile type" id="category_<?= $i; ?>">
                     											<select data-placeholder="Select a Category..." id="category_dd_<?= $i; ?>" name="category[]" class="chosen-select-deselect form-control category">
                     												<option value="<?= $category[$i]; ?>"><?= $category[$i]; ?></option><?php
@@ -711,9 +711,9 @@ function numericFilter(txb) {
                     						} else { ?>
                     							<div class="form-group clearfix" id="services_0" width="100%"><?php
                     								if ( strpos ( $value_config, ',Category,' ) !== FALSE ) { ?>
-                    									<label class="show-on-mob control-label">Category:</label>
+                    									<label class="show-on-mob control-label">Tab:</label>
                     									<div class="col-sm-3 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile type" id="category_0">
-                    										<select data-placeholder="Select a Category..." id="category_dd_0" name="category[]" class="chosen-select-deselect form-control category">
+                    										<select data-placeholder="Select a Tab..." id="category_dd_0" name="category[]" class="chosen-select-deselect form-control category">
                     											<option value=""></option><?php
                     											$query = mysqli_query ( $dbc, "SELECT DISTINCT `category` FROM `inventory` ORDER BY `category`" );
                     											while ( $row = mysqli_fetch_array ( $query ) ) { ?>
@@ -782,7 +782,7 @@ function numericFilter(txb) {
                     					<div class="form-group clearfix"><label class="col-sm-1 text-center"><h4>Product(s)</h4></label></div>
                     					<div class="form-group clearfix hide-titles-mob"><?php
                     						if ( strpos ( $value_config, ',prodCategory,' ) !== FALSE ) { ?>
-                    							<label class="col-sm-3 text-center">Category</label><?php
+                    							<label class="col-sm-3 text-center">Tab</label><?php
                     						}
                     						if ( strpos ( $value_config, ',prodProduct Type,' ) !== FALSE ) { ?>
                     							<label class="col-sm-3 text-center">Product Type</label><?php
@@ -802,7 +802,7 @@ function numericFilter(txb) {
                     						<div class="clearfix"></div>
                     						<div class="form-group clearfix" id="prodservices_0"><?php
                     							if ( strpos ( $value_config, ',prodCategory,' ) !== FALSE ) { ?>
-                    								<label class="show-on-mob control-label">Category:</label>
+                    								<label class="show-on-mob control-label">Tab:</label>
                     								<div class="col-sm-3 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile prodtype" id="prodcategory_0">
                     									<select data-placeholder="Select a Category..." id="prodcategory_dd_0" name="prodcategory[]" class="chosen-select-deselect form-control prodcategory">
                     										<option value=""></option><?php
@@ -815,9 +815,9 @@ function numericFilter(txb) {
                     							}
 
                     							if ( strpos ( $value_config, ',prodProduct Type,' ) !== FALSE ) { ?>
-                    								<label class="show-on-mob control-label">Product Type:</label>
+                    								<label class="show-on-mob control-label">Product Tab:</label>
                     								<div class="col-sm-3 <?= !($tile_security['edit'] > 0) ? 'readonly-block' : '' ?> expand-mobile" id="prodpart_0">
-                    									<select data-placeholder="Select a Type..." id="prodpart_dd_0" name="prodpart_no[]" class="chosen-select-deselect form-control prodpart">
+                    									<select data-placeholder="Select a Tab..." id="prodpart_dd_0" name="prodpart_no[]" class="chosen-select-deselect form-control prodpart">
                     										<option value=""></option><?php
                     										$query = mysqli_query ( $dbc, "SELECT `productid`, `product_type` FROM `products` WHERE `deleted`=0 ORDER BY `product_type`" );
                     										while($row = mysqli_fetch_array($query)) {

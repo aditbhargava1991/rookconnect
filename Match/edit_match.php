@@ -6,7 +6,7 @@ include ('../include.php');
 checkAuthorised('match');
 if (isset($_POST['add_match'])) {
 
-    $support_contact_category = $_POST['support_contact_category'];
+    $support_contact_category = implode(',',$_POST['support_contact_category']);
     $support_contact = implode(',', $_POST['support_contact']);
     $staff_contact_category = $_POST['staff_contact_category'];
     $staff_contact = implode(',', $_POST['staff_contact']);
@@ -14,11 +14,12 @@ if (isset($_POST['add_match'])) {
     $follow_up_date = $_POST['follow_up_date'];
     $end_date = $_POST['end_date'];
     $status = $_POST['status'];
+    $tile_list = filter_var(implode('#',$_POST['tile_list']),FILTER_SANITIZE_STRING);
 
     if(empty($_POST['matchid'])) {
         $history = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Added on '.date('Y-m-d H:i:s').'<br>';
 
-        $query_insert_vendor = "INSERT INTO `match_contact` (`support_contact_category`, `support_contact`, `staff_contact_category`, `staff_contact`, `match_date`, `follow_up_date`, `end_date`, `status`, `history`) VALUES ('$support_contact_category', '$support_contact', '$staff_contact_category', '$staff_contact', '$match_date', '$follow_up_date', '$end_date', '$status', '$history')";
+        $query_insert_vendor = "INSERT INTO `match_contact` (`support_contact_category`, `support_contact`, `staff_contact_category`, `staff_contact`, `tile_list`, `match_date`, `follow_up_date`, `end_date`, `status`, `history`) VALUES ('$support_contact_category', '$support_contact', '$staff_contact_category', '$staff_contact', '$tile_list', '$match_date', '$follow_up_date', '$end_date', '$status', '$history')";
 
         $result_insert_vendor = mysqli_query($dbc, $query_insert_vendor);
         $matchid = mysqli_insert_id($dbc);
@@ -33,7 +34,7 @@ if (isset($_POST['add_match'])) {
     } else {
         $matchid = $_POST['matchid'];
         $history = check_history($dbc, $matchid);
-        $query_update_vendor = "UPDATE `match_contact` SET `support_contact_category` = '$support_contact_category', `support_contact` = '$support_contact', `staff_contact_category` = '$staff_contact_category', `staff_contact` = '$staff_contact', `match_date` = '$match_date', `follow_up_date` = '$follow_up_date', `end_date` = '$end_date', `status` = '$status', `history` = CONCAT(IFNULL(history, ''), '$history') WHERE `matchid` = '$matchid'";
+        $query_update_vendor = "UPDATE `match_contact` SET `support_contact_category` = '$support_contact_category', `support_contact` = '$support_contact', `staff_contact_category` = '$staff_contact_category', `staff_contact` = '$staff_contact', `tile_list` = '$tile_list', `match_date` = '$match_date', `follow_up_date` = '$follow_up_date', `end_date` = '$end_date', `status` = '$status', `history` = CONCAT(IFNULL(history, ''), '$history') WHERE `matchid` = '$matchid'";
         $result_update_vendor = mysqli_query($dbc, $query_update_vendor);
 
         if($status == 'Archive') {
@@ -94,12 +95,16 @@ $(document).ready(function() {
         }
     });
 
-    $('select[name="support_contact_category"]').change();
+    $('select[name="support_contact_category[]"]').change();
 });
-$(document).on('change', 'select[name="support_contact_category"]', function() { selectContactCategory(this); });
+$(document).on('change', 'select[name="support_contact_category[]"]', function() { selectContactCategory(this); });
 
 function selectContactCategory(sel) {
-	var stage = sel.value;
+	var stage = [];
+    $(sel).find('option:selected').each(function() {
+        stage.push(this.value);
+    });
+    stage = stage.join(',');
 	var typeId = sel.id;
 	var arr = typeId.split('_');
     var selected_contacts = [];
@@ -148,6 +153,7 @@ function selectContactCategory(sel) {
                 $follow_up_date = '';
                 $end_date = '';
                 $status = '';
+                $tile_list = [];
 
                 if(!empty($_GET['edit'])) {
                     $matchid = $_GET['edit'];
@@ -161,6 +167,7 @@ function selectContactCategory(sel) {
                     $follow_up_date = $get_contact['follow_up_date'];
                     $end_date = $get_contact['end_date'];
                     $status = $get_contact['status'];
+                    $tile_list = array_filter(explode('#',$get_contact['tile_list']));
                     ?>
                     <input type="hidden" id="matchid" name="matchid" value="<?php echo $matchid ?>" />
                 <?php } ?>
@@ -180,25 +187,23 @@ function selectContactCategory(sel) {
                 <div class="form-group clearfix">
                     <label class="col-sm-4 control-label">Contact Category:</label>
                     <div class="col-sm-8">
-                        <select data-placeholder="Select Category..." id="contact_category_0" name="support_contact_category" class="chosen-select-deselect form-control" width="380">
+                        <select data-placeholder="Select Category..." id="contact_category_0" name="support_contact_category[]" multiple class="chosen-select-deselect form-control" width="380">
                             <option value=""></option>
                             <?php
                             $each_tab = array_column(mysqli_fetch_all(mysqli_query($dbc, "SELECT DISTINCT `category` FROM `contacts` WHERE `deleted` = 0 AND `status` = 1 ORDER BY `category`"),MYSQLI_ASSOC),'category');
                             foreach ($each_tab as $cat_tab) {
                                 ?>
-                                <option <?= $support_contact_category == $cat_tab ? 'selected' : '' ?> value="<?= $cat_tab ?>"><?= $cat_tab ?></option>
+                                <option <?= strpos(','.$support_contact_category.',', ','.$cat_tab.',') !== FALSE ? 'selected' : '' ?> value="<?= $cat_tab ?>"><?= $cat_tab ?></option>
                             <?php } ?>
                         </select>
                     </div>
                 </div>
-
                 <div class="form-group clearfix">
                     <label for="fax_number" class="col-sm-4 control-label">Contact:</label>
                     <div class="col-sm-8">
                         <select multiple data-placeholder="Select Contact..." name="support_contact[]" id="contact_0" class="chosen-select-deselect form-control" width="380">
-                            <option value=""></option>
                             <?php if(!empty($support_contact)) {
-                                $query = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` = '$support_contact_category' AND `deleted`=0 AND `status`=1"));
+                                $query = sort_contacts_query(mysqli_query($dbc, "SELECT * FROM `contacts` WHERE `category` IN ('".implode("','",explode(',',$support_contact_category))."') AND `deleted`=0 AND `status`=1"));
                                 foreach($query as $row) {
                                     echo '<option value="'.$row['contactid'].'" '.(in_array($row['contactid'], $support_contact) ? 'selected' : '').'>'.$row['full_name'].'</option>';
                                 }
@@ -239,6 +244,18 @@ function selectContactCategory(sel) {
                         </select>
                     </div>
                 </div>
+                
+                <div class="form-group">
+                    <label class="col-sm-4 control-label">Match Tiles:</label>
+                    <div class="col-sm-8">
+                        <label class="form-checkbox"><input type="checkbox" name="tile_list[]" value="" <?= empty($tile_list) ? 'checked' : '' ?> onclick="if(this.checked) { $('[name^=tile_list]').not(this).removeAttr('checked'); }"> All Tiles</label>
+                        <?php foreach($_SESSION['tile_list'] as $tile_data) {
+                            if(in_array($tile_data['tile'],['posadvanced','check_out','accounts_receivables','project','ticket'])) { ?>
+                                <label class="form-checkbox"><input type="checkbox" name="tile_list[]" value="<?= $tile_data['tile'] ?>" <?= in_array($tile_data['tile'],$tile_list) ? 'checked' : '' ?> onclick="if(this.checked) { $('[name^=tile_list]').first().removeAttr('checked'); }"> <?= $tile_data['key'] ?></label>
+                            <?php } ?>
+                        <?php } ?>
+                    </div>
+                </div>
 
                 <div class="form-group">
                     <div class="col-sm-4">
@@ -268,6 +285,7 @@ function check_history($dbc, $matchid) {
     $follow_up_date = $_POST['follow_up_date'];
     $end_date = $_POST['end_date'];
     $status = $_POST['status'];
+    $tile_list = implode('#',$_POST['tile_list']);
 
     $history = '';
 
@@ -294,6 +312,9 @@ function check_history($dbc, $matchid) {
     }
     if ($match['status'] != $status) {
         $history .= decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Changed Status on '.date('Y-m-d H:i:s').'<br>';
+    }
+    if ($match['tile_list'] != $tile_list) {
+        $history .= decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']).' Changed Match Tiles on '.date('Y-m-d H:i:s').'<br>';
     }
 
     return $history;

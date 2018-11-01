@@ -41,6 +41,9 @@ $edit_config = json_decode($edit_result['field_list'],true);
 		$query_insert_po = "INSERT INTO `field_invoice` (`jobid`, `invoice_date`) VALUES ('$jobid', '$invoice_date')";
 	    $result_insert_po = mysqli_query($dbc, $query_insert_po);
 		$poid = mysqli_insert_id($dbc);
+    $before_change = '';
+    $history = "field_invoice entry has been added. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 		// PDF
         class MYPDF extends TCPDF {
@@ -129,14 +132,23 @@ $edit_config = json_decode($edit_result['field_list'],true);
 			$pdf->Output('download/field_invoice_'.$in_number.'.pdf', 'F');
 			// PDF
 
+      $before_change = capture_before_change($dbc, 'field_work_ticket', 'attach_invoice', 'jobid', $jobid, 'status', 'Approved');
+
 			$query_update_wt = "UPDATE `field_work_ticket` SET `attach_invoice` = '$poid' WHERE `jobid` = '$jobid' AND attach_invoice=0 AND status='Approved'";
 			$result_update_wt = mysqli_query($dbc, $query_update_wt);
+
+      $history = capture_after_change('attach_invoice', $poid);
+	    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
             $f_fsid= rtrim ($fsid, ',');
             $date_of_archival = date('Y-m-d');
 
 			$query_update_wt = "UPDATE `field_foreman_sheet` SET `deleted` = 1, `date_of_archival` = '$date_of_archival' WHERE `fsid` IN ($f_fsid)";
 			$result_update_wt = mysqli_query($dbc, $query_update_wt);
+
+      $before_change = '';
+      $history = "deleted and date_of_archival entry has been updated for fsids -> $f_fsid. <br />";
+      add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
             ?>
 
             <script type="text/javascript" language="Javascript">

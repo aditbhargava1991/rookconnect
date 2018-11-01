@@ -45,8 +45,13 @@ if (isset($_POST['submit'])) {
         $fieldpoid = trim($final_po, ',');
 		$wt_result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT fieldpoid FROM  field_work_ticket  WHERE workticketid = '$workticketid'"));
 
+				$before_change = capture_before_change($dbc, 'field_work_ticket', 'fieldpoid', 'workticketid', $workticketid);
+
         $query_update_site = "UPDATE `field_work_ticket` SET `fieldpoid` = '$fieldpoid' WHERE `workticketid` = '$workticketid'";
         $result_update_site	= mysqli_query($dbc, $query_update_site);
+
+				$history = capture_after_change('fieldpoid', $fieldpoid);
+				add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
         if($attached_fieldpoid != $wt_result['fieldpoid']) {
             $ex_po_db = explode(',', $wt_result['fieldpoid']);
@@ -54,8 +59,16 @@ if (isset($_POST['submit'])) {
                 if (strpos($attached_fieldpoid, $ex_poid) !== false) {
 
                 } else {
+										$before_change = capture_before_change($dbc, 'field_po', 'status', 'fieldpoid', $ex_poid);
+										$before_change .= capture_before_change($dbc, 'field_po', 'attach_workticket', 'fieldpoid', $ex_poid);
+
                     $query_update_po = "UPDATE `field_po` SET `status` = 'To be Billed', `attach_workticket` = 0 WHERE `fieldpoid` = '$ex_poid'";
                     $result_update_po = mysqli_query($dbc, $query_update_po);
+
+										$history = capture_after_change('status', 'To be Billed');
+										$history .= capture_after_change('attach_workticket', 0);
+
+										add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
                 }
             }
         }
@@ -112,8 +125,13 @@ if (isset($_POST['submit'])) {
         $wt_cost1 = $_POST['wt_cost'][$i];
         $wt_per1 = $_POST['wt_per'][$i];
         $wt_total1 = round($wt_cost1 * (1 + ($wt_per1 / 100)), 2);
+
         $query_update_po = "UPDATE `field_po` SET `wt_desc` = '$wt_desc1', `wt_cost` = '$wt_cost1', `wt_per` = '$wt_per1', `wt_total` = '$wt_total1', `status` = 'Billed', `attach_workticket` = 1 WHERE `fieldpoid` = '$fpid'";
         $result_update_po = mysqli_query($dbc, $query_update_po);
+
+				$before_change = '';
+		    $history = "field_po entry has been updated for fieldpoid -> $fpid. <br />";
+		    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
     }
 
 	if((empty($_POST['workticketid'])) && $total_wt_avail == 0) {
@@ -121,8 +139,11 @@ if (isset($_POST['submit'])) {
 
 		$result_insert_wt	= mysqli_query($dbc, $query_insert_wt);
 		$in_number = mysqli_insert_id($dbc);
+		$before_change = '';
+    $history = "field_work_ticket entry has been added. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
-		// fOR PAYROLL
+		// FOR PAYROLL
 		$fs_result = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM  field_foreman_sheet  WHERE fsid = '$fsid'"));
 		$employeeid = $fs_result['contactid'];
 		$total_emp = substr_count($employeeid, ',');
@@ -143,8 +164,12 @@ if (isset($_POST['submit'])) {
                 } else {
                     $sub = 0;
                 }
-				$query_update_payroll = "UPDATE `field_payroll` SET `workticketid`='$in_number', `reg`='$payroll_reg', `ot`='$payroll_ot', `travel`='$payroll_travel', `sub`='$sub' WHERE `fsid`='$fsid' AND `contactid`='$payroll_emp'";
+				$query_update_payroll = "UPDATE `field_payroll` SET `workticketid`='$in_number', `reg`='$payroll_reg', `ot`='$payroll_ot', `travel`='$payroll_travel', `sub`='$sub' WHERE `fsid`='$fsid' AND `contactid`='$payroll_emp' AND `created_date`='$created_date' AND `positionid`='$payroll_pos'";
 				mysqli_query($dbc, $query_update_payroll);
+
+				$before_change = '';
+		    $history = "field_payroll entry has been updated for positionid -> $payroll_pos. <br />";
+		    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 				//$query_insert_payroll = "INSERT INTO `payroll` (`workticketid`, `employeeid`, `positionid`,`reg`, `ot`, `travel`, `sub`,`created_date`) VALUES ('$in_number', '$payroll_emp', '$payroll_pos', '$payroll_reg', '$payroll_ot', '$payroll_travel', '$sub', '$created_date')";
 				//$result_insert_payroll	= mysqli_query($dbc, $query_insert_payroll);
@@ -163,8 +188,16 @@ if (isset($_POST['submit'])) {
 		$result_update_site	= mysqli_query($dbc, $query_update_site);
 		$in_number = $workticketid;
 
+		$before_change = '';
+    $history = "field_work_ticket entry has been updated for workticketid -> $workticketid. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
+
 		$query_update_fs = "UPDATE `field_foreman_sheet` SET `equ_hours` = '$equ_hours' WHERE `fsid` = '$fsid'";
 		$result_update_fs	= mysqli_query($dbc, $query_update_fs);
+
+		$before_change = '';
+    $history = "field_foreman_sheet entry has been updated for fsid -> $fsid. <br />";
+    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 		// fOR PAYROLL
 		$payroll_wtid = $workticketid;
@@ -193,6 +226,10 @@ if (isset($_POST['submit'])) {
                 }
 				$query_update_payroll = "UPDATE `field_payroll` SET `workticketid`='$in_number', `reg`='$payroll_reg', `ot`='$payroll_ot', `travel`='$payroll_travel', `sub`='$sub' WHERE `fsid`='$fsid' AND `contactid`='$payroll_emp'";
 				mysqli_query($dbc, $query_update_payroll);
+
+				$before_change = '';
+		    $history = "field_payroll entry has been updated for contactid -> $payroll_emp. <br />";
+		    add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 				//$query_insert_payroll = "INSERT INTO `payroll` (`workticketid`, `employeeid`, `positionid`,`reg`, `ot`, `travel`, `sub`, `created_date`) VALUES ('$in_number', '$payroll_emp', '$payroll_pos', '$payroll_reg', '$payroll_ot', '$payroll_travel', '$sub', '$created_date')";
 				//$result_insert_payroll	= mysqli_query($dbc, $query_insert_payroll);
 			}
@@ -249,7 +286,7 @@ if (isset($_POST['submit'])) {
     }
 
 	$equip_count_table = $equip_count;
-	
+
 	// PDF
 	$wt_logo = get_config($dbc, 'field_jobs_wt_logo');
 	DEFINE('WT_LOGO', $wt_logo);
@@ -325,7 +362,7 @@ if (isset($_POST['submit'])) {
 	$add_page = 0;
 	// Create Cloned PDF to use for calculating line heights
 	$page_height_pdf = clone($pdf);
-	
+
 	// Calculate the number of rows used by the description
 	$rows_needed = 0;
 	$page_height_pdf->AddPage();
@@ -338,7 +375,7 @@ if (isset($_POST['submit'])) {
 	$current_row_height = $page_height_pdf->getY();
 	$page_height_pdf->deletePage($page_height_pdf->getPage());
 	$rows_needed += floor($current_row_height / $height) - 1;
-	
+
 	$labour_html = '';
 	$labor2_html = '';
 	$equip_html = '';
@@ -347,7 +384,7 @@ if (isset($_POST['submit'])) {
 	$material2_html = '';
 	$other_html = '';
 	$other2_html = '';
-	
+
 	$emp_per_page = 8;
 	if($rows_needed > 18) {
 		$rows_needed -= 18;
@@ -535,7 +572,7 @@ if (isset($_POST['submit'])) {
 					}
 				$row_html .= '<td style="border-right: 1px solid grey; border-top:1px solid grey; text-align:center;">$'.number_format((float)$eq_rate, 2, '.', '').'</td><td style="border-top:1px solid grey; text-align:center;">$'.number_format((float)$eq_amount, 2, '.', '').'</td></tr>';
 				$equip2_html .= $row_html;
-				
+
 				$page_height_pdf->AddPage();
 				$page_height_pdf->writeHTMLCell(100, '', 0, 0, "<table><tr><td>DEFAULT HEIGHT</td></tr></table>", 0, 1, 1, false);
 				$height = $page_height_pdf->getY();
@@ -547,7 +584,7 @@ if (isset($_POST['submit'])) {
 				if($current_row_height > $height) {
 					$equip_per_page2 -= floor($current_row_height / $height) - 1;
 				}
-				
+
 				$equip_total += $eq_amount;
 
 			} else{/**ELSE ADD TO FIRST PAGE*/
@@ -562,7 +599,7 @@ if (isset($_POST['submit'])) {
 					}
 				$row_html .= '<td style="border-right: 1px solid grey; border-top:1px solid grey; text-align:center;">$'.number_format((float)$eq_rate, 2, '.', '').'</td><td style="border-top:1px solid grey; text-align:center;">$'.number_format((float)$eq_amount, 2, '.', '').'</td></tr>';
 				$equip_html .= $row_html;
-				
+
 				$page_height_pdf->AddPage();
 				$page_height_pdf->writeHTMLCell(100, '', 0, 0, "<table><tr><td>DEFAULT HEIGHT</td></tr></table>", 0, 1, 1, false);
 				$height = $page_height_pdf->getY();
@@ -574,7 +611,7 @@ if (isset($_POST['submit'])) {
 				if($current_row_height > $height) {
 					$equip_per_page -= floor($current_row_height / $height) - 1;
 				}
-				
+
 				$equip_total += $eq_amount;
 			}
 		}
@@ -657,7 +694,7 @@ if (isset($_POST['submit'])) {
 			<td  style="border-right: 1px solid grey; border-top:1px solid grey;text-align:center;">$'.number_format((float)$stockmat_amount[$sm_loop], 2, '.', '').'</td>';
 			$row_html .= '</tr>';
 			$material2_html .= $row_html;
-				
+
 			$page_height_pdf->AddPage();
 			$page_height_pdf->writeHTMLCell(100, '', 0, 0, "<table><tr><td>DEFAULT HEIGHT</td></tr></table>", 0, 1, 1, false);
 			$height = $page_height_pdf->getY();
@@ -679,7 +716,7 @@ if (isset($_POST['submit'])) {
 			<td  style="border-right: 1px solid grey; border-top:1px solid grey;text-align:center;">$'.number_format((float)$stockmat_amount[$sm_loop], 2, '.', '').'</td>';
 			$row_html .= '</tr>';
 			$material_html .= $row_html;
-				
+
 			$page_height_pdf->AddPage();
 			$page_height_pdf->writeHTMLCell(100, '', 0, 0, "<table><tr><td>DEFAULT HEIGHT</td></tr></table>", 0, 1, 1, false);
 			$height = $page_height_pdf->getY();
@@ -1121,7 +1158,7 @@ if (isset($_POST['submit'])) {
     if(file_exists('download/'.$basename)) {
         rename('download/'.$basename, 'download/'.$filename);
     }
-    
+
 	$pdf->Output('download/field_work_ticket_'.$in_number.'.pdf', 'F');
 	// PDF
     if($_POST['submit'] == 'Submit1') {
@@ -1135,9 +1172,9 @@ if (isset($_POST['submit'])) {
 		}
 		$message = decryptIt($contact['first_name']).", your Work Ticket is attached to this email in PDF format.";
 		$ticket_file = 'download/field_work_ticket_'.$in_number.'.pdf';
-		
+
 		send_email('', $to, '', '', $subject, $message, $ticket_file);
-        
+
 		/* Old Send Mail System
 		$headers = "From: $from";
 
@@ -1172,6 +1209,10 @@ if (isset($_POST['submit'])) {
 
 	$query_update_wt = "UPDATE `field_work_ticket` SET `crew_total` = '$crew_total', `equip_total` = '$equip_total', `material_total` = '$material_subtotal', `subextra_total` = '$subextra_total',    `sub_total` = '$sub_total_wt', `gst` = '$gst_wt', `total_cost` = '$total_cost' WHERE `workticketid` = '$in_number'";
 	$result_update_wt	= mysqli_query($dbc, $query_update_wt);
+
+	$before_change = '';
+  $history = "field_work_ticket entry has been updated for workticketid -> $in_number. <br />";
+  add_update_history($dbc, 'field_jobs_history', $history, '', $before_change);
 
 	echo '<script type="text/javascript"> window.location.replace("field_work_ticket.php"); </script>';
 

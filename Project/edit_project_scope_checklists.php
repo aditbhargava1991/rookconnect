@@ -239,8 +239,10 @@ function setActions() {
 		<?php } else { ?>
 			<!-- Tasks -->&nbsp;
 			<a href="?edit=<?= $projectid ?>&tab=tasks&status=complete" class="hide-titles-mob <?= $_GET['status'] == 'complete' ? 'active_tab' : '' ?> btn brand-btn pull-right">Completed</a>
-			<a href="?edit=<?= $projectid ?>&tab=tasks&status=assigned" class="hide-titles-mob <?= $_GET['status'] == 'assigned' ? 'active_tab' : '' ?> btn brand-btn pull-right">Incomplete</a></h3>
-		<?php } ?>
+			<a href="?edit=<?= $projectid ?>&tab=tasks&status=assigned" class="hide-titles-mob <?= $_GET['status'] == 'assigned' ? 'active_tab' : '' ?> btn brand-btn pull-right">Incomplete</a><br />&nbsp;
+            <div class="clearfix"></div>
+		<?php } ?></h3>
+    <div class="connectedChecklist">
 	<?php if($_GET['status'] == 'project') {
 		if(!empty($_GET['checklistid'])) {
 			include('../Checklist/edit_checklist.php');
@@ -254,10 +256,12 @@ function setActions() {
 	} else {
 		$milestones = explode('#*#',html_entity_decode(mysqli_fetch_array(mysqli_query($dbc, "SELECT `milestone` FROM `project_path_milestone` WHERE `project_path_milestone`='".$project['project_path']."'"))['milestone']));
 		$tab_filter = '';
+        $task_statuses = explode(',',get_config($dbc, 'task_status'));
+        $status_complete = $task_statuses[count($task_statuses) - 1];
 		if($_GET['status'] == 'complete') {
-			$tab_filter = "AND `status`='Done'";
+			$tab_filter = "AND `status`='$status_complete'";
 		} else if($_GET['status'] == 'assigned') {
-			$tab_filter = "AND `status`!='Done'";
+			$tab_filter = "AND `status`!='$status_complete'";
 		}
 		$sql = "SELECT * FROM `tasklist` WHERE `projectid`='$projectid' AND `deleted`=0 $tab_filter ORDER BY ";
 		foreach($milestones as $milestone) {
@@ -270,53 +274,20 @@ function setActions() {
 		foreach(explode(',',get_config($dbc, 'ticket_colour_flags')) as $i => $colour) {
 			$ticket_flag_names[$colour] = $flag_names[$i];
 		}
-		while($task = mysqli_fetch_array($tasks)) { ?>
-			<div class="dashboard-item form-horizontal" data-id="<?= $task['tasklistid'] ?>" data-id-field="tasklistid" data-table="tasklist" data-colour="<?= $task['flag_colour'] ?>" style="background-color:#<?= $task['flag_colour'] != '' ? $task['flag_colour'] : 'F2F2F2' ?>">
-				<span class="flag-label"><?= $ticket_flag_names[$task['flag_colour']] ?></span>
-				<h3><div class="pull-left"><input type="checkbox" data-id="<?= $task['tasklistid'] ?>" data-id-field="tasklistid" data-table="tasklist" value="Done" name="status" <?= $task['status'] == 'Done' ? 'checked' : '' ?> <?= !($security['edit'] > 0) ? 'readonly disabled' : '' ?>> #<?= $task['tasklistid'] ?></div>
-					<div class="scale-to-fill action-icons small pad-horizontal">
-						<?php if($security['edit'] > 0) { ?>
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-flag-icon.png" class="inline-img flag-icon no-toggle" title="Flag This!">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-alert-icon.png" class="inline-img alert-icon no-toggle" title="Enable Alerts">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-email-icon.png" class="inline-img email-icon no-toggle" title="Send Email">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reminder-icon.png" class="inline-img reminder-icon no-toggle" title="Schedule Reminder">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-attachment-icon.png" class="inline-img attach-icon no-toggle" title="Attach File">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-reply-icon.png" class="inline-img reply-icon no-toggle" title="Add Note">
-							<img src="<?= WEBSITE_URL ?>/img/icons/ROOK-timer-icon.png" class="inline-img time-icon no-toggle" title="Add Time">
-							<img src="<?= WEBSITE_URL ?>/img/icons/trash-icon-red.png" class="inline-img archive-icon no-toggle" title="Archive">
-						<?php } ?>
-					</div>
-					<?php foreach(explode(',',$task['alerts_enabled']) as $assignid) {
-						if($assignid > 0) {
-							echo '<span class="pull-left col-sm-12 small">'.profile_id($dbc, $assignid,false).' Assigned to '.get_contact($dbc, $assignid).'</span>';
-						}
-					} ?>
-					<div class="clearfix"></div></h3>
-				<div class="col-sm-6 form-group">
-					<label class="col-sm-4">Milestone:</label>
-					<div class="col-sm-8 <?= !($security['edit'] > 0) ? 'readonly-block' : '' ?>">
-						<select name="project_milestone" data-table="tasklist" data-id-field="tasklistid" data-id="<?= $task['tasklistid'] ?>" class="chosen-select-deselect">
-							<option></option>
-							<?php foreach($milestones as $milestone) { ?>
-								<option <?= $task['project_milestone'] == $milestone ? 'selected' : '' ?> value="<?= $milestone ?>"><?= $milestone ?></option>
-							<?php } ?>
-						</select>
-					</div>
-				</div>
-				<div class="col-sm-6 form-group">
-					<label class="col-sm-4">Task:</label>
-					<div class="col-sm-8 small task"><?= preg_replace_callback('/\[PROFILE ([0-9]+)\]/',profile_callback,html_entity_decode($task['task'])) ?></div>
-				</div>
-				<div class="col-sm-12">
-					<input type='text' name='reply' value='' data-name='task' class="form-control" style="display:none;">
-					<input type='text' name='work_time' value='' data-table='tasklist' class="form-control timepicker time-field" style="border:0;height:0;margin:0;padding:0;width:0;">
-					<input type='text' name='reminder' value='' class="form-control datepicker" style="border:0;height:0;margin:0;padding:0;width:0;">
-					<iframe style="display:none; width:100%;" src=""></iframe>
-					<input type='file' name='document' value='' data-table="<?= $doc_table ?>" data-folder="<?= $doc_folder ?>" style="display:none;">
-				</div>
-				<div class="clearfix"></div>
-			</div>
-		<?php }
+        if($tasks->num_rows > 0) {
+            while($task = mysqli_fetch_array($tasks)) {
+                $fromTasks = 1;
+                $_GET['taskid'] = $task['tasklistid'];
+                include('scrum_card_load.php');
+            }
+        } else { ?>
+            <li class="dashboard-item new-items " data-id="324" data-table="tasklist" data-name="project_milestone" data-id-field="tasklistid" data-colour="F2F2F2" style="background-color: #F2F2F2;"><span class="flag-label"></span>
+                <h4>No Tasks Found</h4>
+                <div class="clearfix"></div>
+            </li>
+        <?php }
 	} ?>
+    </div>
+    <br />&nbsp;
 	<?php include('next_buttons.php'); ?>
 </div>

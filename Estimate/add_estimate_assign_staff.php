@@ -20,7 +20,6 @@ $(document).ready(function() {
     <label for="first_name" class="col-sm-4 control-label text-right">Staff<span class="brand-color">*</span>:</label>
     <div class="col-sm-8">
         <select multiple name="assign_staffid[]" id="assign_staffid" data-placeholder="Select Staff" class="chosen-select-deselect form-control" width="380">
-            <option value=''></option>
 			<?php foreach(get_teams($dbc, " AND IF(`end_date` = '0000-00-00','9999-12-31',`end_date`) >= '".date('Y-m-d')."'") as $team) {
 				$team_staff = get_team_contactids($dbc, $team['teamid']);
 				if(count($team_staff) > 1) {

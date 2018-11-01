@@ -1,4 +1,4 @@
-<!-- Tasks -->
+<!-- Tasks --><?php include_once('../Sales/config.php'); ?>
 <div class="accordion-block-details padded" id="tasks">
     <div class="accordion-block-details-heading"><h4>Tasks</h4></div>
 

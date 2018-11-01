@@ -5198,7 +5198,10 @@ ul.sidebar .active,
 .tile-sidebar li a:hover, a:hover,
 .dashboard-item label,
 .main-item label,
-.text-blue {
+.text-blue,
+.tile-sidebar .sidebar-higher-level ul li.active span,
+.tile-sidebar .sidebar-higher-level ul li.active a,
+.tile-sidebar .sidebar-higher-level ul li.active a span {
     color:#f04345 !important; }
 
 .ui-state-disabled,
@@ -5208,13 +5211,19 @@ ul.sidebar .active.blue,
 .blue {
     background-color:#f04345 !important; }
     
-.dashboard-container,
-.block-item,
-.block-label,
-.block-button,
+.summary-block,
+.overview-block,
 .main-screen-white,
+.block-label,
+.block-item,
+.block-button,
+.info-block-header,
+.dashboard-container,
+.standard-dashboard-body-content .dashboard-item,
+div.main-screen ul.option-list li,
+.connectedSortable,
 .blue-border {
-    border:1px solid #f04345 !important; }
+    border-color:#f04345 !important; }
     
 .standard-sidebar-searchbox { background-color:#fee78c !important; }
 
@@ -5239,7 +5248,11 @@ ul.collapse .active {color: #f04345 !important;}
   background-color: #f04345 !important;
   color:#fff !important;
 }
-.sidebar-higher-level ul li.active.blue,.sidebar-higher-level ul li.active.blue a,.sidebar-higher-level ul li.active.blue span {
+.sidebar-higher-level ul li.active.blue,
+.sidebar-higher-level ul li.active.blue a,
+.sidebar-higher-level ul li.active.blue span,
+.sidebar-higher-level ul li.sidebar-higher-level a.active,
+.tile-sidebar .sidebar-higher-level ul li.active {
   color:#f04345 !important;
   background-color:#fff !important;
 }
@@ -5267,3 +5280,6 @@ li.sidebar-lower-level.active,li.sidebar-lower-level.active span,li.sidebar-lowe
 }
 .calendar .main-screen .panel .panel-title > a:hover { color:#f04345 !important; }
 .theme-color-border-bottom { border-bottom:2px solid #f04345 !important; }
+
+.ticket_list .block-item.ticket.active a:hover { color:#fff !important; }
+.iframe_overlay { background-color:rgba(0,0,0,0.3) !important; }

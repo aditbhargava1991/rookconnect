@@ -168,6 +168,20 @@ function set_followup(dropdown) {
 }
 $(document).on('change', 'select.set_followup_onchange', function() { set_followup(this); });
 </script>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>
 		<div class="notice double-gap-bottom popover-examples">
 			<div class="col-sm-1 notice-icon"><img src="<?= WEBSITE_URL; ?>/img/info.png" class="wiggle-me" width="25"></div>
 			<div class="col-sm-11"><span class="notice-name">NOTE:</span>

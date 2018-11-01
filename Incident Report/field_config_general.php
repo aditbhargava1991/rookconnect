@@ -7,6 +7,10 @@
 	$inc_rep_saved_tab = filter_var($_POST['inc_rep_saved_tab'],FILTER_SANITIZE_STRING);
 	set_config($dbc, 'inc_rep_saved_tab', $inc_rep_saved_tab);
 
+	//Rows per Page
+	$inc_rep_rows_per_page = filter_var($_POST['inc_rep_rows_per_page'],FILTER_SANITIZE_STRING);
+	set_config($dbc, 'inc_rep_rows_per_page', $inc_rep_rows_per_page);
+
 	//Logo
 	if (!file_exists('download')) {
 		mkdir('download', 0777, true);
@@ -51,9 +55,10 @@
 	} else {
 		mysqli_query($dbc, "INSERT INTO `general_configuration` (`name`, `value`) VALUES ('inc_rep_tile_name', '$inc_rep_tile_name')");
 	}
-	 set_config($dbc, 'incident_report_summary', implode(',',$_POST['incident_report_summary']));
+	set_config($dbc, 'incident_report_tabs', implode(',',$_POST['incident_report_tabs']));
+	set_config($dbc, 'incident_report_summary', implode(',',$_POST['incident_report_summary']));
 	//Tile Settings
-	
+
     echo '<script type="text/javascript"> window.location.replace(""); </script>';
 } ?>
 <input type="hidden" name="full_type" value="<?= $main_type ?>">
@@ -137,6 +142,13 @@
   		<label class="form-checkbox"><input type="checkbox" name="inc_rep_save_journal" value="1" <?= $inc_rep_save_journal == 1 ? 'checked' : '' ?>> Enable</label>
   	</div>
   </div>
+  <div class="form-group">
+  	<?php $inc_rep_rows_per_page = get_config($dbc, 'inc_rep_rows_per_page') > 0 ? get_config($dbc, 'inc_rep_rows_per_page') : 25; ?>
+  	<label class="col-sm-4 control-label">Number of Rows Per Page:<br /><em>This will display the inputted number of rows per page in the <?= INC_REP_TILE ?> Dashboard.</em></label>
+  	<div class="col-sm-8">
+  		<input type="number" name="inc_rep_rows_per_page" value="<?= $inc_rep_rows_per_page ?>" class="form-control" min="0" step="1">
+  	</div>
+  </div>
 </div>
 <hr>
 
@@ -215,12 +227,20 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label for="office_country" class="col-sm-4 control-label">Tab Options</label>
+		<label for="office_country" class="col-sm-4 control-label">Tab Options:</label>
+		<div class="col-sm-8">
+			<?php $tabs = explode(',',get_config($dbc, 'incident_report_tabs')); ?>
+			<label class="form-checkbox"><input type="checkbox" <?= in_array('Summary',$tabs) ? 'checked' : '' ?> name="incident_report_tabs[]" value="Summary"> Summary</label>
+			<label class="form-checkbox"><input type="checkbox" <?= in_array('Admin',$tabs) ? 'checked' : '' ?> name="incident_report_tabs[]" value="Admin"> Admin Approval</label>
+		</div>
+	</div>
+	<div class="form-group">
+		<label for="office_country" class="col-sm-4 control-label">Summary Options:</label>
 		<div class="col-sm-8">
 			<?php $summary = explode(',',get_config($dbc, 'incident_report_summary')); ?>
 			<label class="form-checkbox"><input type="checkbox" <?= in_array('Types',$summary) ? 'checked' : '' ?> name="incident_report_summary[]" value="Types"> Summary by Type</label>
 			<label class="form-checkbox"><input type="checkbox" <?= in_array('Complete',$summary) ? 'checked' : '' ?> name="incident_report_summary[]" value="Complete"> Summary by Completed</label>
-			<label class="form-checkbox"><input type="checkbox" <?= in_array('Admin',$summary) ? 'checked' : '' ?> name="incident_report_summary[]" value="Admin"> Admin Approval</label>
+			<label class="form-checkbox"><input type="checkbox" <?= in_array('Staff Only',$summary) ? 'checked' : '' ?> name="incident_report_summary[]" value="Staff Only"> Staff <?= INC_REP_TILE ?> Only</label>
 		</div>
 	</div>
 </div>

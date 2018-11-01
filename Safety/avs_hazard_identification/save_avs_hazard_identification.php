@@ -25,6 +25,10 @@
         $result_insert_site	= mysqli_query($dbc, $query_insert_site);
         $fieldlevelriskid = mysqli_insert_id($dbc);
 
+        $before_change = '';
+        $history = "Safety upload entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
         $attendance_staff_each = $_POST['attendance_staff'];
         for($i = 0; $i < count($_POST['attendance_staff']); $i++) {
             $query_insert_upload = "INSERT INTO `safety_attendance` (`safetyid`, `fieldlevelriskid`, `assign_staff`) VALUES ('$safetyid', '$fieldlevelriskid', '$attendance_staff_each[$i]')";
@@ -58,10 +62,18 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+        $before_change = '';
+        $history = "Safety attendance entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
         $query_update_employee = "UPDATE `safety_avs_hazard_identification` SET `location` = '$location', `hazard_rating` = '$hazard_rating', `action_timeline` = '$action_timeline', `description` = '$description', `contactid` = '$contactid', `action` = '$action', `action_to` = '$action_to', `est_comp` = '$est_comp', `date_comp` = '$date_comp' WHERE fieldlevelriskid='$fieldlevelriskid'";
         $result_update_employee = mysqli_query($dbc, $query_update_employee);
+
+        $before_change = '';
+        $history = "safety_avs_hazard_identification entry has been updated for fieldlevelriskid $fieldlevelriskid <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
     	$sa = mysqli_query($dbc, "SELECT safetyattid FROM safety_attendance WHERE fieldlevelriskid = '$fieldlevelriskid' AND safetyid='$safetyid' AND done=0");
         while($row_sa = mysqli_fetch_array( $sa )) {
@@ -85,6 +97,10 @@
                 }
             }
         }
+
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE	fieldlevelriskid='$fieldlevelriskid' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {

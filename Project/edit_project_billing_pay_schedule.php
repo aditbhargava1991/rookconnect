@@ -112,7 +112,7 @@ function saveFieldMethod(field) {
 				<img src="../img/remove.png" class="inline-img cursor-hand" onclick="remove_payment(this);">
 				<img src="../img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" onclick="add_payment();">
 				<?php if($payment['invoiceid'] > 0) { ?>
-					<!--<a href="../Invoice/add_invoice.php?invoiceid=<?= $payment['invoiceid'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true);"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img cursor-hand"></a>-->
+					<!--<a href="../Invoice/create_invoice.php?invoiceid=<?= $payment['invoiceid'] ?>" onclick="overlayIFrameSlider(this.href,'auto',true,true);"><img src="../img/icons/ROOK-edit-icon.png" class="inline-img cursor-hand"></a>-->
 				<?php } ?>
 			</span>
 		</div>

@@ -317,9 +317,9 @@ if(!empty($equipmentid)) {
 				<div id="tab_section_equipment" class="tab-section col-sm-12">
 					<h4>Equipment</h4>
 					<div class="form-group">
-						<label for="fax_number"	class="col-sm-4	control-label">Category:</label>
+						<label for="fax_number"	class="col-sm-4	control-label">Tab:</label>
 						<div class="col-sm-8">
-							<select name="category" data-placeholder="Select a Category" class="chosen-select-deselect form-control"><option></option>
+							<select name="category" data-placeholder="Select a Tab" class="chosen-select-deselect form-control"><option></option>
 								<?php $list = mysqli_query($dbc, "SELECT `category` FROM `equipment` WHERE `deleted`=0 $access_query GROUP BY `category`");
 								while($row = mysqli_fetch_array($list)) {
 									echo "<option ".($category == $row['category'] ? 'selected' : '')." value='".$row['category']."'>".$row['category']."</option>";

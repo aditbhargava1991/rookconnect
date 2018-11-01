@@ -83,10 +83,7 @@ function saveIcon() {
 			icon.prop('src','../img/status_incomplete.png').prop('title','Your page has unsaved changes...').tooltip('destroy');
 			initTooltips();
 		} else if(saving_field != null) {
-			if(icon.attr('src').indexOf('status_working') < 0) {
-				icon.prop('src','../img/status_working.gif')
-			}
-			icon.prop('title','Saving Changes...').tooltip('destroy');
+			icon.prop('src','../img/status_working.gif').prop('title','Saving Changes...').tooltip('destroy');
 			initTooltips();
 		} else if(current_fields.length == 0) {
 			setTimeout(function() {
@@ -94,5 +91,12 @@ function saveIcon() {
 				initTooltips();
 			}, 500);
 		}
+        $('tr .statusIcon,.status_group .statusIcon').prop('src','../img/status_complete.png').prop('title','All Changes Saved!').tooltip('destroy');
+        $(saving_field).closest('.status_group').find('.statusIcon').not('tr .statusIcon').prop('src','../img/status_working.gif').prop('title','Saving Changes...').tooltip('destroy');
+        $(saving_field).closest('tr').find('.statusIcon').prop('src','../img/status_working.gif').prop('title','Saving Changes...').tooltip('destroy');
+        current_fields.forEach(function(field) {
+            $(field).closest('.status_group').find('.statusIcon').not('tr .statusIcon').not('[src*=working]').prop('src','../img/status_incomplete.png').prop('title','Your page has unsaved changes...').tooltip('destroy');
+            $(field).closest('tr').find('.statusIcon').not('[src*=working]').prop('src','../img/status_incomplete.png').prop('title','Your page has unsaved changes...').tooltip('destroy');
+        });
 	}
 }

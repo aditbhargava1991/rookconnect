@@ -189,7 +189,7 @@ function removeMilage(img) {
 						<?php if(in_array('double_mileage',$config)) { ?><th>KMx2</th><?php } ?>
 						<?php if(in_array('tickets',$config)) { ?><th><?= TICKET_TILE ?></th><?php } ?>
 						<?php if(in_array('projects',$config)) { ?><th><?= PROJECT_TILE ?></th><?php } ?>
-						<?php if(in_array('tasks',$config)) { ?><th>Tasks</th><?php } ?>
+						<?php if(in_array('tasks',$config)) { ?><th><?= TASK_TILE ?></th><?php } ?>
 						<?php if(in_array('equipment',$config)) { ?><th>Equipment</th><?php } ?>
 						<?php if(in_array('checklist',$config)) { ?><th>Checklists</th><?php } ?>
 						<?php if(in_array('expense',$config)) { ?><th>Expense</th><?php } ?>

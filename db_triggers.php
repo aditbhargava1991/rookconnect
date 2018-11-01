@@ -87,3 +87,17 @@ if(!mysqli_query($dbc, "CREATE TRIGGER `contacts_shifts_last_updated` BEFORE UPD
 	END;")) {
 	echo "Error (contacts_shifts_last_updated): ".mysqli_error($dbc)."<br />\n";
 }
+// 2018-10-23 - Jonathan
+if(!mysqli_query($dbc, "DROP TRIGGER IF EXISTS `ticket_schedule_last_updated`;")) {
+	echo "Error: ".mysqli_error($dbc)."<br />\n";
+}
+if(!mysqli_query($dbc, "CREATE TRIGGER `ticket_schedule_last_updated` BEFORE UPDATE ON `ticket_schedule`
+	FOR EACH ROW
+	BEGIN
+		IF NEW.`status` != OLD.`status` THEN
+			SET NEW.`status_date` = CURRENT_TIMESTAMP();
+		END IF;
+		SET NEW.`last_updated_time` = CURRENT_TIMESTAMP;
+	END;")) {
+	echo "Error (ticket_schedule_last_updated): ".mysqli_error($dbc)."<br />\n";
+}

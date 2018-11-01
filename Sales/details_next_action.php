@@ -1,4 +1,5 @@
 <!-- Next Actions -->
+<?php include_once('../Sales/config.php'); ?>
 <?php $get_config_won_status = get_config($dbc, 'lead_status_won');
 $get_config_lost_status = get_config($dbc, 'lead_status_lost');
 $get_config_retained = get_config($dbc, 'lead_status_retained');
@@ -37,7 +38,7 @@ $lead_convert_to = get_config($dbc, 'lead_convert_to'); ?>
                 $tabs = get_config ( $dbc, 'sales_lead_status' );
                 foreach ( explode ( ',', $tabs ) as $cat_tab ) {
                     if(empty($status)) {
-                        $status = $cat_tab;
+                        $status = !empty(get_config($dbc, 'lead_status_default')) ? get_config($dbc, 'lead_status_default') : $cat_tab;
                     }
                     $selected = ( $status == $cat_tab ) ? 'selected="selected"' : '';
                     echo '<option '. $selected .' value="'. $cat_tab .'">'. $cat_tab .'</option>';

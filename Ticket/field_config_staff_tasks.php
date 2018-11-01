@@ -27,7 +27,7 @@ $rate_security = get_security($dbc, 'rate_cards'); ?>
 		$tasks = $dbc->query("SELECT `task_types`.`id`, `task_types`.`description`, `task_types`.`details`, `rate`.`companyrcid`, `rate`.`cust_price`, `rate`.`uom` FROM `task_types` LEFT JOIN `company_rate_card` `rate` ON `rate`.`tile_name`='Tasks' AND (`task_types`.`id`=`rate`.`item_id` OR (`rate`.`item_id`=0 AND `task_types`.`description`=`rate`.`description` AND `task_types`.`category`=`rate`.`heading`)) AND `rate`.`deleted`=0 WHERE `task_types`.`deleted`=0 AND `task_types`.`category`='$group' ORDER BY `task_types`.`sort`,`task_types`.`id`"); ?>
 		<div class='col-sm-12 task-group'>
 			<div class='form-group'>
-				<label class='col-sm-3 control-label'>Category:</label>
+				<label class='col-sm-3 control-label'>Tab:</label>
 				<div class='col-sm-8'>
 					<input type='text' <?= ((in_array('Ticket Tasks Projects',array_merge($all_config,$value_config)) || in_array('Ticket Tasks Ticket Type',array_merge($all_config,$value_config))) ? 'readonly' : '') ?> name='category' value='<?= $group ?>' class='form-control' onchange='set_task_data();'>
 				</div>
@@ -57,7 +57,7 @@ $rate_security = get_security($dbc, 'rate_cards'); ?>
 			</table>
 		</div>
 	<?php } ?>
-	<button onclick="add_task_group(); return false;" class="btn brand-btn pull-right">Add Category</button>
+	<button onclick="add_task_group(); return false;" class="btn brand-btn pull-right">Add Tab</button>
 	<div class="clearfix"></div>
 	<script>
 	function add_task(btn) {
@@ -70,7 +70,7 @@ $rate_security = get_security($dbc, 'rate_cards'); ?>
 	function add_task_group() {
 		var group = $('.task-group').last();
 		var clone = group.clone();
-		clone.find('.form-group').not(':last').not(':first').remove();
+		clone.find('tr').not(':last').not(':first').remove();
 		clone.find('input').val('').data('id','');
 		group.after(clone);
 		set_task_data();
@@ -85,7 +85,9 @@ $rate_security = get_security($dbc, 'rate_cards'); ?>
 						var id = $(this).find('[name=task]').data('id');
 						var heading = $(this).find('[name=task]').val();
 						var details = $(this).find('[name=details]').val();
-						data.push({'id':id,'category':cat,'task':heading,'details':details});
+                        if(heading != '' && details != '') {
+                            data.push({'id':id,'category':cat,'task':heading,'details':details});
+                        }
 					}
 				});
 			}

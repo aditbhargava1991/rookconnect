@@ -33,14 +33,14 @@ if (isset($_POST['submit'])) {
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_notes',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_notes">Show Notes</label>
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('ticket_activity_created_dates',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="ticket_activity_created_dates">Filter by <?= TICKET_NOUN ?> Created Date</label>
     </div>
-	
+
 	<h4>Day Sheet Report</h4>
     <div class="form-group">
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('daysheet_tickets',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="daysheet_tickets"><?= TICKET_TILE ?></label>
-		<label class="form-checkbox"><input type="checkbox" <?= (in_array('daysheet_tasks',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="daysheet_tasks">Tasks</label>
+		<label class="form-checkbox"><input type="checkbox" <?= (in_array('daysheet_tasks',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="daysheet_tasks"><?= TASK_TILE ?></label>
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('daysheet_checklists',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="daysheet_checklists">Checklists</label>
     </div>
-	
+
 	<h4>Report Filtering Options</h4>
     <div class="form-group">
 		<label class="form-checkbox"><input type="checkbox" <?= (in_array('filter_extra_billing',$report_fields) ? 'checked' : '') ?> name="report_operation_fields[]" value="filter_extra_billing">Extra Billing <?= TICKET_TILE ?></label>

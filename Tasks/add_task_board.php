@@ -261,7 +261,6 @@ $task_tab_back = explode(",",get_config($dbc, 'task_tab'));
                     <label for="fax_number"	class="col-sm-4	control-label">Board Security:</label>
                     <div class="col-sm-8">
                         <select multiple name="company_staff_sharing[]" data-placeholder="Choose a User..." class="chosen-select-deselect form-control" width="380">
-                          <option value=""></option>
                           <?php
                             $query1 = mysqli_query($dbc,"SELECT contactid, first_name, last_name FROM contacts WHERE deleted=0 AND category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." order by first_name");
                             while($row1 = mysqli_fetch_array($query1)) {

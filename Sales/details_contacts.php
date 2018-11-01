@@ -1,8 +1,9 @@
 <?php include_once('../include.php');
-if(empty($salesid)) {
+include_once('../Sales/config.php');
+if(empty($salesid) || empty($lead)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
     if($salesid > 0) {
-        $contactid = $dbc->query("SELECT `contactid` FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc()['contactid'];
+        $lead = $dbc->query("SELECT * FROM `sales` WHERE `salesid`='$salesid'")->fetch_assoc();
     }
 } ?>
 <!-- Sales Lead Contacts -->
@@ -11,7 +12,7 @@ $(document).ready(function() {
     init_page();
 });
 var reload_contacts = function() {
-	$.get('details_contacts.php?id=<?= $salesid ?>', function(response) {
+	$.get('details_contacts.php?id='+$('[name=salesid]').val(), function(response) {
 		$('[id^=contact_]').first().parents('div').first().html(response);
 	});
 }
@@ -31,22 +32,32 @@ var reload_contacts = function() {
             <select data-placeholder="Select Sales Lead(s)..." id="sales_contact" data-table="sales" data-concat="," name="contactid" class="chosen-select-deselect form-control1">
                 <option value=""></option>
                 <option value="New Contact">New Contact</option><?php
-                $query = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE (`businessid`='$businessid' OR `contactid`='$contactid' OR (''='$businessid' AND ''='$contactid' AND `category` IN ('Customers','Contacts','Customer','Contact','Sales Leads','Sales Lead'))) AND `deleted`=0 AND `status`>0"), MYSQLI_ASSOC));
-                foreach($query as $id) {
-                    if ( get_contact($dbc, $id) != '-' ) {
-                        echo '<option '. ($contactid==$id ? "selected" : '') .' value="'. $id .'">'. get_contact($dbc, $id) .'</option>';
+                $dropdown_categories = explode(',',get_config($dbc, 'lead_all_contact_cat'));
+                $dropdown_categories = array_filter(array_merge($dropdown_categories,['Sales Leads','Sales Lead']));
+                $query = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name`, `name` FROM `contacts` WHERE (`businessid`='$businessid' OR `contactid`='$contactid' OR `category` IN ('".implode("','",$dropdown_categories)."')) AND `deleted`=0 AND `status`>0"));
+                foreach($query as $contact) {
+                    if (!empty(trim($contact['full_name'],'- '))) {
+                        echo '<option '. ($contactid==$contact['contactid'] ? "selected" : '') .' value="'. $contact['contactid'] .'">'.$contact['full_name'] .'</option>';
                     }
                 } ?>
             </select>
         </div>
 		<div class="col-xs-12 col-sm-1">
-            <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this staff from sharing this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
-            <img class="inline-img cursor-hand pull-right no-toggle" title="Add another staff to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
-			<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $contactid ?>" class="no-toggle" title="<?= get_contact($dbc, $contactid) ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#contacts_list').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/icons/eyeball.png" class="inline-img"></a>
+            <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this <?= CONTACTS_NOUN ?> from this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
+            <img class="inline-img cursor-hand pull-right no-toggle" title="Add another <?= CONTACTS_NOUN ?> to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
+			<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $contactid ?>" class="no-toggle" title="<?= get_contact($dbc, $contactid) ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#contacts_list').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/person.PNG" class="inline-img"></a>
 		</div>
         <div class="clearfix"></div>
     
-        <div class="accordion-block-details-heading sub_details"><h4><?= get_contact($dbc, $contactid, 'name_company') ?></h4></div>
+        <div class="accordion-block-details-heading sub_details">
+            <?php if(get_contact($dbc, $contactid, 'name_company')!=''){
+            ?>
+            <script type="text/javascript">
+                $('#salesLeadContact-tab-label').html("<?php echo get_contact($dbc, $contactid, 'name_company') ?>");
+            </script>
+            <?php } ?>
+            <h4><?= get_contact($dbc, $contactid, 'name_company') ?></h4>
+        </div>
         
         <div class="row sub_details">
             <div class="col-xs-12 col-sm-11 gap-md-left-15">
@@ -62,6 +73,6 @@ var reload_contacts = function() {
     <hr />
 <?php }
 
-foreach(explode(',', trim($contactid,',')) as $row_contact) {
+foreach(explode(',', trim($lead['contactid'],',')) as $row_contact) {
     contact_fields($row_contact);
 } ?>

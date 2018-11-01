@@ -21,6 +21,20 @@ checkAuthorised();
 <script type="text/javascript">
 $(document).on('change', 'select[name="choose_table"]', function() { location = this.value; });
 </script>
+<script>
+$('document').ready(function() {
+    var tables = $('table');
+
+    tables.map(function(idx, table) {
+        var rows = $(table).find('tbody > tr');
+        rows.map(function(idx, row){
+            if(idx%2 == 0) {
+                $(row).css('background-color', '#e6e6e6');
+            }
+        })
+    })
+})
+</script>
         <form name="form_sites" method="post" action="" class="form-inline" role="form">
         <div style="background-color:rgba(142,142,142,0.50); border-radius:10px; border:1px solid white; padding:10px;" >
             <h2><?php

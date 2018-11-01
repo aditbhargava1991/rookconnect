@@ -59,7 +59,7 @@ if(!empty($_GET['reminderid'])) {
 		<div class="form-group">
 			<label class="col-sm-4 control-label">Staff Receiving Reminder:</label>
 			<div class="col-sm-8">
-				<select name="staff[]" data-placeholder="Select Staff" multiple class="chosen-select-deselect" class="form-control"><option></option>
+				<select name="staff[]" data-placeholder="Select Staff" multiple class="chosen-select-deselect" class="form-control">
 					<option value="select_all_staff">Remind All Staff</option>
 					<?php $staff = sort_contacts_query(mysqli_query($dbc, "SELECT `contactid`, `first_name`, `last_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0 ORDER BY `last_name`, `first_name`"));
 					foreach($staff as $contact) {

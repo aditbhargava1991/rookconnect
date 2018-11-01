@@ -31,7 +31,7 @@ if($history->num_rows > 0) {
     while($row = $history->fetch_assoc()) {
         $table .= '<tr>
             <td data-title="User">'.$row['updated_by'].'</td>
-            <td data-title="Date">'.date('F j, Y H:i',strtotime($row['updated_at'])).'</td>
+            <td data-title="Date">'.convert_timestamp_mysql($dbc, date('F j, Y H:i',strtotime($row['updated_at'])), true).'</td>
             <td data-title="History">'.html_entity_decode($row['description']).'</td>
         </tr>';
     }

@@ -1,6 +1,16 @@
 <?php if($_GET['page'] > 0 && $_GET['id'] > 0) {
 	$template = $dbc->query("SELECT * FROM `ticket_pdf` WHERE `id`='{$_GET['id']}'")->fetch_assoc();
-	$page = explode('#*#',$template['pages'])[$_GET['page'] - 1]; ?>
+	$page = explode('#*#',$template['pages'])[$_GET['page'] - 1];
+	$left_multiply = 2.2;
+	$top_multiply = 2.819;
+	$width_multiply = 2.177;
+	$height_multiply = 2.75;
+	if($template['page_orientation'] == 'L') {
+		$left_multiply = 2.819;
+		$top_multiply = 2.2;
+		$width_multiply = 2.75;
+		$height_multiply = 2.177;
+	} ?>
 	<script>
 	$(document).ready(function() {
 		$('.field_pos [data-id]').resizable({
@@ -9,12 +19,12 @@
 				$.post('ticket_ajax_all.php?action=template_field', {
 					id: $(this).data('id'),
 					field: 'width',
-					value: ($(this).outerWidth() / ($('.field_pos img').innerWidth() - 5) * 100 * 2.177)
+					value: ($(this).outerWidth() / ($('.field_pos img').innerWidth() - 5) * 100 * <?= $width_multiply ?>)
 				});
 				$.post('ticket_ajax_all.php?action=template_field', {
 					id: $(this).data('id'),
 					field: 'height',
-					value: ($(this).outerHeight() / ($('.field_pos').innerHeight() - 3) * 100 * 2.75)
+					value: ($(this).outerHeight() / ($('.field_pos').innerHeight() - 3) * 100 * <?= $height_multiply ?>)
 				});
 			}
 		});
@@ -27,12 +37,12 @@
 				$.post('ticket_ajax_all.php?action=template_field', {
 					id: $(field).data('id'),
 					field: 'x',
-					value: (target.offset.left - $('.field_pos').offset().left) / ($('.field_pos').innerWidth() + 5) * 100 * 2.2
+					value: (target.offset.left - $('.field_pos').offset().left) / ($('.field_pos').innerWidth() + 5) * 100 * <?= $left_multiply ?>
 				});
 				$.post('ticket_ajax_all.php?action=template_field', {
 					id: $(field).data('id'),
 					field: 'y',
-					value: (target.offset.top - $('.field_pos').offset().top) / ($('.field_pos').innerHeight() + 3) * 100 * 2.819
+					value: (target.offset.top - $('.field_pos').offset().top) / ($('.field_pos').innerHeight() + 3) * 100 * <?= $top_multiply ?>
 				});
 			}
 		});
@@ -62,7 +72,7 @@
 		<img src="pdf_contents/<?= $page ?>" style="width: 100%;">
 		<?php $fields = $dbc->query("SELECT * FROM `ticket_pdf_fields` WHERE `page`='{$_GET['page']}' AND `pdf_type`='{$_GET['id']}'");
 		while($field = $fields->fetch_assoc()) { ?>
-			<div data-id="<?= $field['id'] ?>" onclick="getFieldDetails(<?= $field['id'] ?>);" class="cursor-hand" style="border:solid 1px red; background-color: rgb(220,200,200); overflow:hidden; position:absolute; top:calc(3px + <?= $field['y'] / 2.819 ?>%); left:calc(5px + <?= $field['x'] / 2.2 ?>%); width:<?= $field['width'] / 2.177 ?>%; height:<?= $field['height'] / 2.75 ?>%; font-size: 7pt;"><?= $field['field_label'] ?></div>
+			<div data-id="<?= $field['id'] ?>" onclick="getFieldDetails(<?= $field['id'] ?>);" class="cursor-hand" style="border:solid 1px red; background-color: rgb(220,200,200); overflow:hidden; position:absolute; top:calc(3px + <?= $field['y'] / $top_multiply ?>%); left:calc(5px + <?= $field['x'] / $left_multiply ?>%); width:<?= $field['width'] / $width_multiply ?>%; height:<?= $field['height'] / $height_multiply ?>%; font-size: 7pt;"><?= $field['field_label'] ?></div>
 		<?php } ?>
 	</div>
 <?php } else { ?>
@@ -135,6 +145,15 @@
 		<?php } ?>
 	</div>
 	<div class="form-group">
+		<label class="col-sm-4 control-label">Page Orientation:</label>
+		<div class="col-sm-8">
+			<select name="page_orientation" data-table="ticket_pdf" class="chosen-select-deselect form-control">
+				<option value="P" <?= $template['page_orientation'] == 'P' || empty($template['page_orientation']) ? 'selected' : '' ?>>Portrait</option>
+				<option value="L" <?= $template['page_orientation'] == 'L' ? 'selected' : '' ?>>Landscape</option>
+			</select>
+		</div>
+	</div>
+	<div class="form-group">
 		<label class="col-sm-4 control-label">Display Mode:</label>
 		<div class="col-sm-8">
 			<label class="control-checkbox"><input type="radio" data-table="ticket_pdf" name="target" value="slider" <?= $template['target'] == 'slider' ? 'checked' : '' ?>> Slider Window</label>
@@ -142,9 +161,9 @@
 		</div>
 	</div>
 	<div class="form-group">
-		<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Type:</label>
+		<label class="col-sm-4 control-label"><?= TICKET_NOUN ?> Tab:</label>
 		<div class="col-sm-8">
-			<select class="chosen-select-deselect" data-table="ticket_pdf" name="ticket_types" data-placeholder="Select <?= TICKET_NOUN ?> Type"><option />
+			<select class="chosen-select-deselect" data-table="ticket_pdf" name="ticket_types" data-placeholder="Select <?= TICKET_NOUN ?> Tab"><option />
 				<?php foreach($ticket_tabs as $type_name) { ?>
 					<option <?= $type_name == $template['ticket_types'] ? 'selected' : '' ?> value="<?= $type_name ?>"><?= $type_name ?></option>
 				<?php } ?>

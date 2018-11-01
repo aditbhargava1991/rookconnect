@@ -65,6 +65,10 @@
             $result_insert_upload = mysqli_query($dbc, $query_insert_upload);
         }
 
+        $before_change = '';
+        $history = "Safety attendance entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
     } else {
         $fieldlevelriskid = $_POST['fieldlevelriskid'];
         $query_update_employee = "UPDATE `safety_near_miss_report` SET `location` = '$location', `hazard_rating` = '$hazard_rating', `desc` = '$desc', `desc1` = '$desc1', `desc2` = '$desc2', `fields` = '$fields', `action_timeline` = '$action_timeline', `action_timeline` = '$action_timeline', `action_timeline` = '$action_timeline', `action_timeline` = '$action_timeline', `description` = '$description', `contactid` = '$contactid', `action` = '$action', `action_to` = '$action_to', `est_comp` = '$est_comp', `date_comp` = '$date_comp', `analysis_to` = '$analysis_to' WHERE fieldlevelriskid='$fieldlevelriskid'";
@@ -92,6 +96,10 @@
                 }
             }
         }
+
+        $before_change = '';
+        $history = "safety_attendance entry has been updated for safetyattid $assign_staff_id <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
         $get_total_notdone = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT COUNT(safetyattid) AS total_notdone FROM safety_attendance WHERE	fieldlevelriskid='$fieldlevelriskid' AND safetyid='$safetyid' AND done=0"));
         if($get_total_notdone['total_notdone'] == 0) {

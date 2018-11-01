@@ -1,4 +1,5 @@
 <?php include_once('../include.php');
+include_once('../Sales/config.php');
 if(empty($salesid)) {
 	$salesid = filter_var($_GET['id'],FILTER_SANITIZE_STRING);
 } ?>
@@ -29,7 +30,7 @@ var reload_estimates = function() {
     <div class="accordion-block-details-heading"><h4>Estimate</h4></div>
     
     <div class="row">
-        <div class="col-xs-12 col-sm-11 gap-md-left-15"><?php
+        <div class="col-xs-12"><?php
             if ( !empty($salesid) ) {
                 $result = mysqli_query($dbc, "SELECT * FROM `sales_document` WHERE `salesid`='{$salesid}' AND `document_type`='Estimate' AND `deleted`=0 AND `salesid` > 0 ORDER BY `salesdocid` DESC");
                 if ( $result->num_rows > 0 ) {
@@ -57,6 +58,7 @@ var reload_estimates = function() {
                             <input type="hidden" data-table="sales_document" data-id="'.$row['salesdocid'].'" name="deleted">
                             <img class="cursor-hand inline-img pull-right" src="../img/remove.png" onclick="rem_doc(this);">
                             <img class="cursor-hand inline-img pull-right" src="../img/icons/ROOK-add-icon.png" onclick="add_doc(this);">
+                            <img class="cursor-hand inline-img pull-right" src="../img/icons/ROOK-email-icon.png" onclick="email_doc(this);">
                         </td>';
                         echo '</tr>';
                     }
@@ -85,7 +87,8 @@ var reload_estimates = function() {
             if ($get_config['total_id'] > 0) {
                 echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/estimate.php?businessid='.$businessid.'&from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'" id="'.$businessid.'">Click to View/Add Estimate</a>';
             } else {
-                echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/add_estimate.php?from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">Click to Add Estimate</a>';
+                //echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/add_estimate.php?from='.urlencode(WEBSITE_URL.$_SERVER['REQUEST_URI']).'">Click to Add Estimate</a>';
+                echo '<a target="_blank" href="'.WEBSITE_URL.'/Estimate/estimates.php?edit=new">Click to Add Estimate</a>';
             } ?>
         </div>
         <div class="clearfix"></div>

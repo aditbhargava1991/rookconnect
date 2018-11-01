@@ -1,4 +1,5 @@
-<?php $project_list = mysqli_query($dbc_support, "SELECT `tasklist`.`projectid`, 'project' `table` FROM `tasklist` LEFT JOIN `project` ON `tasklist`.`projectid`=`project`.`projectid` WHERE (`project`.`businessid`='$user' OR CONCAT(',',`project`.`clientid`,',') LIKE '%,$user,%') AND `tasklist`.`assign_client`=1 GROUP BY `projectid`");
+<?php include_once('config.php');
+$project_list = mysqli_query($dbc_support, "SELECT `tasklist`.`projectid`, 'project' `table` FROM `tasklist` LEFT JOIN `project` ON `tasklist`.`projectid`=`project`.`projectid` WHERE (`project`.`businessid`='$user' OR CONCAT(',',`project`.`clientid`,',') LIKE '%,$user,%') AND `tasklist`.`assign_client`=1 GROUP BY `projectid`");
 if(mysqli_num_rows($project_list) > 0) {
 	$projects = [];
 	while($project = mysqli_fetch_assoc($project_list)) {

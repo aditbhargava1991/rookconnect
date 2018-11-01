@@ -102,9 +102,9 @@ function saveTypes() {
 		}
 	} ?>
 	<div class="form-group">
-		<label class="control-label col-sm-4"><?= TICKET_NOUN ?> Type:<br /><em>If this is set, this type will be assigned to all <?= TICKET_TILE ?> imported for this template.</em></label>
+		<label class="control-label col-sm-4"><?= TICKET_NOUN ?> Tab:<br /><em>If this is set, this type will be assigned to all <?= TICKET_TILE ?> imported for this template.</em></label>
 		<div class="col-sm-8">
-			<select name="column" data-col="ticket_type" data-placeholder="Select Type..." value="<?= $col ?>" class="chosen-select-deselect"><option />
+			<select name="column" data-col="ticket_type" data-placeholder="Select Tab..." value="<?= $col ?>" class="chosen-select-deselect"><option />
 				<?php foreach($ticket_tabs as $type_name) {
 					$type_id = config_safe_str($type_name); ?>
 					<option <?= $type_id == $col ? 'selected' : '' ?> value="<?= $type_id ?>"><?= $type_name ?></option>

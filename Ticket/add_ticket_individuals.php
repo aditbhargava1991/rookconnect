@@ -28,7 +28,7 @@ function individual_set(select) {
 		<div class="col-sm-1 select_contact">
 			<a href="" onclick="viewProfile(this); return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
 			<?php if ($access_all) { ?>
-				<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+				<a href="" onclick="$(this).closest('.form-group').find('select').val('MANUAL').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $type[0] == 'staff' && $type[1] == 'ALL' ? 'Staff' : $type[1] ?>" src="../img/icons/ROOK-add-icon.png"></a>
 			<?php } ?>
 		</div>
 		<!--<div class="col-sm-8 add_contact" style="display:none;">

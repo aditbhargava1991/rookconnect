@@ -61,6 +61,10 @@
         $safetyid = mysqli_insert_id($dbc);
 
         $url = 'Added';
+
+        $before_change = '';
+        $history = "Safety entry has been added. <br />";
+        add_update_history($dbc, 'safety_history', $history, '', $before_change);
     } else {
         $safetyid = $_POST['safetyid'];
 
@@ -104,8 +108,12 @@
         }
     }
 
+    $before_change = '';
+    $history = "Safety staff entry has been added. <br />";
+    add_update_history($dbc, 'safety_history', $history, '', $before_change);
+
     $last_edited = date('Y-m-d');
-	
+
 	// Save Documents
 	foreach($_FILES['document']['name'] as $i => $filename) {
 		if($filename != '') {
@@ -113,6 +121,7 @@
 			move_uploaded_file($_FILES['document']['tmp_name'][$i],'download/'.$filename);
 			$query_insert_upload = "INSERT INTO `safety_upload` (`safetyid`, `type`, `upload`) VALUES ('$safetyid', 'document', '$filename')";
 			$result_insert_upload = mysqli_query($dbc, $query_insert_upload);
+
 			if($url == 'Updated') {
 				$result_update_manual = mysqli_query($dbc, "UPDATE `safety` SET `last_edited` = '$last_edited' WHERE `safetyid` = '$safetyid'");
 			}
@@ -129,6 +138,7 @@
             }
 		}
 	}
+
 	// Save Videos
 	foreach($_FILES['video']['name'] as $i => $videoname) {
 		if($videoname != '') {
@@ -141,6 +151,10 @@
 			}
 		}
 	}
+
+  $before_change = '';
+  $history = "Safety upload entry has been added. <br />";
+  add_update_history($dbc, 'safety_history', $history, '', $before_change);
 
 	$return_url = 'index.php?tab='.config_safe_str($tab_field == 'Manual' ? 'manuals' : $tab_field).($category != '' ? '&cat_name='.$category : '');
 	if(!empty($_GET['return_url'])) {

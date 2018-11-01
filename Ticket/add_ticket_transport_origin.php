@@ -32,7 +32,7 @@ $warehouse_contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contac
 				</div>
 				<div class="col-sm-1 select-div" style="<?= $origin['vendor'] > 0 || $origin['vendor'] == '' ? '' : 'display:none;' ?>">
 					<a href="" onclick="overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+$(this).closest('.form-group').find('select').val(), '75%', true, true);return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New <?= $contact_category ?> / Company Name" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 				<div class="col-sm-8 manual-div" style="<?= $origin['vendor'] > 0 || $origin['vendor'] == '' ? 'display:none;' : '' ?>">
 					<input type="text" name="vendor" class="form-control" data-one-time="true" data-category="<?= $contact_category ?>" <?= $origin_save ?> value="<?= $origin['vendor'] > 0 ? '' : $origin['vendor'] ?>">
@@ -182,7 +182,7 @@ $warehouse_contact_list = sort_contacts_query(mysqli_query($dbc, "SELECT `contac
 				</div>
 				<div class="col-sm-1 select-div" style="<?= $origin['warehouse_location'] > 0 || $origin['warehouse_location'] == '' ? '' : 'display:none;' ?>">
 					<a href="" onclick="if($(this).closest('.form-group').find('select').val() > 0) { overlayIFrameSlider('../Contacts/contacts_inbox.php?fields=all_fields&edit='+$(this).closest('.form-group').find('select').val(), '75%', true, true) };return false;"><img class="inline-img pull-right no-toggle" src="../img/person.PNG" title="View Profile"></a>
-					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" src="../img/icons/ROOK-add-icon.png"></a>
+					<a href="" onclick="$(this).closest('.form-group').find('select').val('ADD_NEW').change(); return false;"><img class="inline-img pull-right" data-history-label="New Warehouse" src="../img/icons/ROOK-add-icon.png"></a>
 				</div>
 			<?php } ?>
 		</div>
