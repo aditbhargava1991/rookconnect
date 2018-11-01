@@ -247,7 +247,7 @@ function viewTicket(a) {
 
                 <?php } ?>
 
-                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/excel_reporting.php?export=excel&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/POS_XSL.png" style="height:100%; margin:0;" class="no-toggle" title="Excel" /></a>
+                <a target="_blank" href="<?= WEBSITE_URL ?>/Timesheet/excel_reporting.php?export=reporting_excel&search_staff=<?php echo $search_staff; ?>&search_start_date=<?php echo $search_start_date; ?>&search_end_date=<?php echo $search_end_date; ?>&search_position=<?php echo $search_position; ?>&search_project=<?php echo $search_project; ?>&search_ticket=<?php echo $search_ticket; ?>" onclick="displayPDFOptions(this); return false;"><img src="<?php echo WEBSITE_URL; ?>/img/icons/POS_XSL.png" style="height:100%; margin:0;" class="no-toggle" title="Excel" /></a>
 
     			<!--
                 - <a href="<?= WEBSITE_URL ?>/Timesheet/time_cards.php?export=csv" title="CSV"><img src="<?php echo WEBSITE_URL; ?>/img/csv.png" style="height:100%; margin:0;" /></a>
