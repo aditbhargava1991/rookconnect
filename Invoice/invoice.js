@@ -1429,6 +1429,9 @@ function view_tabs() {
 function view_summary() {
     $('.view_summary').toggle();
 }
+function view_search() {
+    $('.search-group').toggleClass('hidden');
+}
 function void_invoice(invoiceid) {
     var ans = confirm('Are you sure you want to void this invoice?');
     if ( ans == true ) {
