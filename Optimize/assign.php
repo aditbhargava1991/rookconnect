@@ -49,7 +49,7 @@ var opt_classification = '<?= $_GET['classification'] ?>';
 var opt_date = '<?= $_GET['date'] ?>';
 var lock_timer = null;
 var ticket_list = [];
-var zoom = 10;
+var zoom = <?= $_GET['zoom'] > 0 ? $_GET['zoom'] : 10 ?>;
 function filterRegions() {
 	opt_region = $('[name=region]').val();
 	$('[name=classification] option[data-region]').each(function() {
@@ -69,21 +69,42 @@ function filterClass() {
 	get_ticket_list();
 }
 function get_ticket_list() {
+    zoom = 'auto';
+    $('.standard-body-title img').show();
+    $('.search_fields').hide();
+    $('.ticket_list').show();
+    $(window).resize();
+    try {
+        calcEquipListWidth();
+        calcTicketListWidth();
+    } catch(err) { }
 	$('.draw_sort').empty();
 	var equip_scroll = $('.equip_list').scrollTop();
-	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
+	$('.equip_list').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);">Loading Equipment...<img src="/img/status_working.gif" class="inline-img"></h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
     get_map_view();
-	$('.ticket_list').html('<h4>Loading <?= TICKET_TILE ?>...</h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
+	$('.ticket_list').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);">Loading <?= TICKET_TILE ?>...<img src="/img/status_working.gif" class="inline-img"></h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 	lockTickets();
 	initOptions();
 }
+scaleFunction = function() {
+    try {
+        calcEquipListWidth();
+        calcTicketListWidth();
+    } catch(err) { }
+    if($('.ticket_list').is('.collapsed')) {
+        $('.map_view').css('width','calc(80% - 1.5em - 10px)');
+    } else {
+        $('.map_view').css('width','calc(80% - '+($('.ticket_list').outerWidth(true)+3)+'px)');
+    }
+}
 function get_map_view() {
+    $(window).resize();
     if(zoom > 16) {
         zoom = 16;
     } else if(zoom < 6) {
         zoom = 6;
     }
-	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?zoom='+zoom+'&x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
+	$('.map_view').css('border-width','2px').css('border-style','solid').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);position:relative;z-index:2;">Loading Map...<img src="/img/status_working.gif" class="inline-img"></h4><img style="position:absolute;top:0;width:'+$('.map_view').width()+'px;height:100%;opacity:0.5;z-index:1;" src="https://maps.googleapis.com/maps/api/staticmap?center=51.477222,0&zoom=12&size='+$('.map_view').width()+'x'+$('.map_view').height()+'&maptype=roadmap&key=<?= EMBED_MAPS_KEY ?>">').load('assign_map_view.php?zoom='+zoom+'&x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 }
 function lockTickets() {
 	clearTimeout(lock_timer);
@@ -108,10 +129,15 @@ function initOptions() {
     $('.ticket[data-table][data-id]').off('mouseenter');
     $('.ticket[data-table][data-id]').mouseenter(function() {
         $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').css('z-index',1);
+        $('.map_view .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+'] img').css('height','60px').css('width','60px').css('margin-top','-40px').css('margin-left','-20px');
+        if($(this).parents('.map_view').length > 0) {
+            $('.ticket_list').scrollTop($('.ticket_list').scrollTop() + $('.ticket_list .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').closest('.block-item').offset().top - $('.ticket_list').offset().top);
+        }
     });
     $('.ticket[data-table][data-id]').off('mouseleave');
     $('.ticket[data-table][data-id]').mouseleave(function() {
         $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').removeClass('active').css('z-index',0);
+        $('.map_view .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+'] img').css('height','20px').css('width','20px').css('margin-top','0').css('margin-left','0');
     });
     try {
 		$('.assign_list_box').sortable('destroy');
@@ -191,10 +217,10 @@ function initDraw() {
 <div class="draw_sort" style="position:absolute;top:0;left:0;z-index:1;overflow:visible;height:0px;width:0px;"></div>
 <div class="main-screen standard-body override-main-screen form-horizontal">
 	<div class="standard-body-title">
-		<h3>Assign <?= TICKET_TILE ?></h3>
+		<h3>Assign <?= TICKET_TILE ?><img src="../img/icons/ROOK-3dot-icon.png" class="inline-img pull-right cursor-hand" onclick="$('.search_fields').toggle(); $(window).resize(); calcEquipListWidth(); calcTicketListWidth();" style="<?= empty($_GET['date']) && empty($_GET['region']) && empty($_GET['classification']) && empty($_GET['location']) ? 'display:none;' : '' ?>"></h3>
 	</div>
 	<div class="standard-body-content pad-top">
-		<div class="col-sm-12">
+		<div class="col-sm-12 search_fields" style="<?= empty($_GET['date']) && empty($_GET['region']) && empty($_GET['classification']) && empty($_GET['location']) ? '' : 'display:none;' ?>">
 			<?php $columns = 1 + (count($allowed_regions) > 0 ? 1 : 0) + (count($allowed_locations) > 0 ? 1 : 0) + (count($contact_classifications) > 0 ? 1 : 0); ?>
 			<?php if(count($allowed_regions) > 0) { ?>
 				<div class="form-group col-sm-<?= 12 / $columns ?> col-xs-12">
@@ -241,9 +267,9 @@ function initDraw() {
 		</div>
 		<div class="clearfix"></div>
 		<div class="assign_list_box" style="height: 20em;position:relative;overflow-x:hidden;overflow-y:hidden;">
-			<div class="equip_list" style="display:inline-block; height:100%; width:20%; float:left; overflow-y:auto;"></div>
-			<div class="map_view" style="display:inline-block; height:100%; width:60%; overflow:hidden;"></div>
-			<div class="ticket_list" style="display:inline-block; height:100%; width:20%; overflow-y:auto; float:right;"></div>
+			<div class="equip_list" style="display:inline-block; height:100%; width:20%; float:left; overflow-y:hidden;"></div>
+			<div class="ticket_list scalable no-icon collapsed" style="display:none; height:100%; overflow-y:hidden; width:0; float:right;"></div>
+			<div class="map_view" style="display:inline-block; height:calc(100% - 2px); width:calc(80% - 1.5em - 6px); overflow:hidden;"></div>
 		</div>
 	</div>
 </div>
