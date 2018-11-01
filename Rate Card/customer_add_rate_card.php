@@ -239,13 +239,15 @@ if (isset($_POST['submit'])) {
         $comp_id = filter_var($_POST['comp_id'][$i],FILTER_SANITIZE_STRING);
         $deleted = filter_var($_POST['comp_deleted'][$i],FILTER_SANITIZE_STRING);
         if($comp_id > 0) {
+            echo "UPDATE `rate_compensation` SET `rate_card`='$ratecardid', `item_type`='$comp_item', `comp_percent`='$comp_rate', `comp_fee`='$comp_fee', `deleted`='$deleted' WHERE `id`='$comp_id'";
             $dbc->query("UPDATE `rate_compensation` SET `rate_card`='$ratecardid', `item_type`='$comp_item', `comp_percent`='$comp_rate', `comp_fee`='$comp_fee', `deleted`='$deleted' WHERE `id`='$comp_id'");
-        } else if(!empty($comp_item) && !empty($comp_rate)) {
-            $dbc->query("INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, comp_fee`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$comp_fee', '$deleted')");
+        } else if(!empty($comp_item) && (!empty($comp_rate) || !empty($comp_fee))) {
+            echo "INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, `comp_fee`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$comp_fee', '$deleted')";
+            $dbc->query("INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, `comp_fee`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$comp_fee', '$deleted')");
         }
     }
 
-    echo '<script type="text/javascript"> window.location.replace("?card=customer&type=customer&category='.config_safe_str(get_contact($dbc, $clientid, 'category')).'"); </script>';
+    // echo '<script type="text/javascript"> window.location.replace("?card=customer&type=customer&category='.config_safe_str(get_contact($dbc, $clientid, 'category')).'"); </script>';
 }
 ?>
 <script>
