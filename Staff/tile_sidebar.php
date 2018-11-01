@@ -55,7 +55,8 @@ function submitButton(subtab) {
 			if(empty($subtab)) {
 				$subtab = $key;
 			}
-			?><a href="" onclick="submitButton('<?= $key ?>'); return false;"><li <?= ($subtab == $key ? 'class="active"' : '') ?>><?= $sidebar_field[1] ?></li></a><?php
+			//onclick="submitButton('<?= $key '); return false;
+			?><a href="javascript:void(0)"><li <?= ($subtab == $key ? 'class="active"' : '') ?>><?= $sidebar_field[1] ?></li></a><?php
 		}
     } ?>
 </ul>
