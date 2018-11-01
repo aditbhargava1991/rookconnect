@@ -154,7 +154,13 @@ while($row = mysqli_fetch_array( $result ))
 				} else {
 					$download_link = 'download/'.$row1['document_link'];
 				}
-				echo '<li><a href="'.$download_link.'" target="_blank">'.$row1['document_link_name'].' : '.$row1['document_link'].'</a></li>';
+
+                $document_link_name = $row1['document_link_name'];
+                if($row1['document_link_name'] == '') {
+                    $document_link_name = $row1['document_link'];
+                }
+				echo '<li><a href="'.$download_link.'" target="_blank">'.$document_link_name.'</a></li>';
+
 				echo '</ul>';
 				if($num_rows1 > 1) {
 				 echo '<hr style=" margin:0; padding:0;margin-bottom:3px;margin-top:3px;box-shadow:1px 1px 1px grey">';
@@ -172,8 +178,14 @@ while($row = mysqli_fetch_array( $result ))
 			$link_no = 1;
 			while($row2 = mysqli_fetch_array($result2)) {
 				echo '<ul style="list-style:none; margin:0; padding:0;">';
-				echo '<li><a target="_blank" href=\''.$row2['document_link'].'\'">'.$row2['document_link_name'] .' : Link '.$link_no.'</a></li>';
-				echo '</ul>';
+                $document_link_name = $row2['document_link_name'];
+                if($row2['document_link_name'] == '') {
+                    $document_link_name = $row2['document_link'];
+				    echo '<li><a target="_blank" href=\''.$row2['document_link'].'\'">Link '.$link_no.'</a></li>';
+                } else {
+				    echo '<li><a href="'.$download_link.'" target="_blank">'.$document_link_name.'</a></li>';
+                }
+                echo '</ul>';
 				if($num_rows2 > 1) {
 				 echo '<hr style=" margin:0; padding:0;margin-bottom:3px;margin-top:3px;box-shadow:1px 1px 1px grey">';
 				}
