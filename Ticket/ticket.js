@@ -13,6 +13,10 @@ var delay_notify = false;
 $(document).ready(function() {
 	// Mark fields manually set as manual
 	$('input').keyup(function() {
+        $(this).off('keyup');
+        if(this.name == 'heading' && $('[name=heading_auto]').val() == 1) {
+            $('[name=heading_auto]').val(0).change();
+        }
 		$(this).data('manual','1');
 	});
 	ticketid = $("#ticketid").val();
@@ -577,7 +581,7 @@ function saveFieldMethod(field) {
 			} else if(field.type == 'checkbox' && !field.checked) {
 				save_value = '';
 			}
-            if((save_value == '' || save_value == undefined) && !(id_num > 0)) {
+            if((save_value == '' || save_value == undefined) && !(id_num > 0) && field.name != 'ticket_type') {
                 doneSaving();
                 return;
             }
@@ -832,7 +836,7 @@ function saveFieldMethod(field) {
 						if(table_name == 'ticket_schedule' && field_name != 'type' && $(field).closest('.tab-section').hasClass('scheduled_stop')) {
 							$(field).closest('.scheduled_stop').find('[name="type"]').change();
 						}
-						$('[name=to_do_date]').change();
+						// $('[name=to_do_date]').change();
 						$('[name=contactid]').first().change();
 						$('[name="status"]').change();
                         doneSaving();
@@ -1726,18 +1730,22 @@ function setInventoryWeight(value, target) {
 		}, 250);
 	}
 }
+var updateTicketLabelTimer = null;
 function updateTicketLabel() {
-	if(updateLabel) {
-		ticketid_list.forEach(function(ticket) {
-			$.ajax({
-				url: 'ticket_ajax_all.php?action=get_ticket_label&ticketid='+ticket,
-				success: function(response) {
-					if(response != '') {
-						$('.ticketid_span').html(response);
-					}
-				}
-			});
-		});
+	if(updateLabel && ticketid > 0 || ticketid == 'multi') {
+        clearTimeout(updateTicketLabelTimer);
+        updateTicketLabelTimer = setTimeout(function() {
+            ticketid_list.forEach(function(ticket) {
+                $.ajax({
+                    url: 'ticket_ajax_all.php?action=get_ticket_label&ticketid='+ticket,
+                    success: function(response) {
+                        if(response != '') {
+                            $('.ticketid_span').html(response);
+                        }
+                    }
+                });
+            });
+        }, 1000);
 	}
 }
 function add_stop() {
@@ -2012,7 +2020,7 @@ function reload_service_checklist() {
 			$('.service_checklist').html(response);
 			initInputs('.service_checklist');
 			initSelectOnChanges();
-			if(typeof calculateTimeEstimate == 'function') {
+			if(response != '' && $('.service_checklist').length > 0 && typeof calculateTimeEstimate == 'function') {
 				calculateTimeEstimate();
 			}
 			reload_hidden_services();
@@ -2028,7 +2036,7 @@ function reload_hidden_services() {
 			$('.hidden_services').html(response);
 			initInputs('.hidden_services');
 			initSelectOnChanges();
-			if(typeof calculateTimeEstimate == 'function') {
+			if(response != '' && $('.hidden_services').length > 0 && typeof calculateTimeEstimate == 'function') {
 				calculateTimeEstimate();
 			}
 		}
@@ -3684,33 +3692,35 @@ function setRestrictedHours(input, start_time = '', end_time = '') {
 				end_time = $(block).find('[name="to_do_start_time"]').data('default-datetimepicker-maxtime');
 			}
 			var to_do_date = $(block).find('[name="to_do_date"]').val();
-			var to_do_start_time = $(block).find('[name="to_do_start_time"]').val();
-			$.ajax({
-				url :'../Ticket/ticket_ajax_all.php?action=get_restricted_hours',
-				method: 'POST',
-				data: {
-					ticketid: ticketid,
-					to_do_date: to_do_date,
-					to_do_start_time: to_do_start_time,
-					start_time: start_time,
-					end_time: end_time
-				},
-				success: function(response) {
-					var response = JSON.parse(response);
-					if(response.start_time == '') {
-						response.start_time = start_time;
-						response.end_time = end_time;
-					}
-					destroyInputs('.stop_scheduled_time');
-					$(block).find('[name="to_do_start_time"]').prop('disabled', false);
-					$(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', response.start_time);
-					$(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', response.end_time);
-					initInputs('.stop_scheduled_time');
-					if(response.to_do_start_time != to_do_start_time && response.to_do_start_time != '') {
-						$(block).find('[name="to_do_start_time"]').val(response.to_do_start_time).change();
-					}
-				}
-			});
+            if(to_do_date != '' && to_do_date != undefined) {
+                var to_do_start_time = $(block).find('[name="to_do_start_time"]').val();
+                $.ajax({
+                    url :'../Ticket/ticket_ajax_all.php?action=get_restricted_hours',
+                    method: 'POST',
+                    data: {
+                        ticketid: ticketid,
+                        to_do_date: to_do_date,
+                        to_do_start_time: to_do_start_time,
+                        start_time: start_time,
+                        end_time: end_time
+                    },
+                    success: function(response) {
+                        var response = JSON.parse(response);
+                        if(response.start_time == '') {
+                            response.start_time = start_time;
+                            response.end_time = end_time;
+                        }
+                        destroyInputs('.stop_scheduled_time');
+                        $(block).find('[name="to_do_start_time"]').prop('disabled', false);
+                        $(block).find('[name="to_do_start_time"]').data('datetimepicker-mintime', response.start_time);
+                        $(block).find('[name="to_do_start_time"]').data('datetimepicker-maxtime', response.end_time);
+                        initInputs('.stop_scheduled_time');
+                        if(response.to_do_start_time != to_do_start_time && response.to_do_start_time != '') {
+                            $(block).find('[name="to_do_start_time"]').val(response.to_do_start_time).change();
+                        }
+                    }
+                });
+            }
 		}
 	}
 }

@@ -24,7 +24,16 @@ if(get_config($dbc, 'optimize_dont_count_warehouse') == 1) {
     $warehouse_query = " AND REPLACE(REPLACE(IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))),' ',''),'-','') NOT IN (SELECT REPLACE(REPLACE(CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')),' ',''),'-','') FROM `contacts` WHERE `category`='Warehouses')";
 }
 if($equipment_list->num_rows > 0) {
-	while($equip = $equipment_list->fetch_assoc()) {
+    <script>
+    $(document).ready(function() {
+        calcEquipListWidth();
+    });
+    function calcEquipListWidth() {
+        $('#equip_list_scroll').height($('.equip_list').height() - $('.equip_list h3').outerHeight(true));
+    }
+    </script>
+    <div style="overflow-y:auto;padding:0 0.5em;" id="equip_list_scroll">
+	<?php while($equip = $equipment_list->fetch_assoc()) {
         $equip_assign = mysqli_fetch_array(mysqli_query($dbc, "SELECT ea.*, e.*, ea.`notes`, ea.`classification` FROM `equipment_assignment` ea LEFT JOIN `equipment` e ON ea.`equipmentid` = e.`equipmentid` WHERE e.`equipmentid` = '".$equip['equipmentid']."' AND ea.`deleted` = 0 AND DATE(`start_date`) <= '$date' AND DATE(ea.`end_date`) >= '$date' AND CONCAT(',',ea.`hide_days`,',') NOT LIKE '%,$date,%' ORDER BY ea.`start_date` DESC, ea.`end_date` ASC, e.`category`, e.`unit_number`"));
         $team_count = 0;
         if(!empty($equip_assign)) {
@@ -56,6 +65,7 @@ if($equipment_list->num_rows > 0) {
             </div>
         <?php }
     }
+    echo '</div>';
 } else {
 	echo '<h4>No Equipment Found</h4>';
 }

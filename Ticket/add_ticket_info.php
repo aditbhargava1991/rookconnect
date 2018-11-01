@@ -171,6 +171,7 @@ function changeDesc(cb) {
 
     //}
 }
+var calculatingTimeEstimate = false;
 function calculateTimeEstimate() {
 	// var total_minutes = 0;
 	// $('[name="service_estimated_hours"]').each(function() {
@@ -186,14 +187,18 @@ function calculateTimeEstimate() {
 	// total_time_estimate = new_hours+':'+new_minutes;
 	// $('.service_total_time_estimate').val(total_time_estimate);
 	var ticketid = $('#ticketid').val();
-	$.ajax({
-		url: '../Ticket/ticket_ajax_all.php?action=get_service_time_estimate',
-		method: 'POST',
-		data: { ticketid: ticketid },
-		success:function(response) {
-			$('.service_total_time_estimate').val(response);
-		}
-	})
+    if(ticketid > 0 && !calculatingTimeEstimate) {
+        calculatingTimeEstimate = true;
+        $.ajax({
+            url: '../Ticket/ticket_ajax_all.php?action=get_service_time_estimate',
+            method: 'POST',
+            data: { ticketid: ticketid },
+            success:function(response) {
+                $('.service_total_time_estimate').val(response);
+                calculatingTimeEstimate = false;
+            }
+        });
+    }
 }
 function limitServiceCategory() {
 	<?php if(strpos($value_config,',Service Limit Service Category,') !== FALSE) { ?>
@@ -860,7 +865,7 @@ if(!empty($_GET['add_service_iframe'])) { ?>
 		<div class="form-group">
 			<label for="first_name" class="col-sm-4 control-label"><!--<span class="text-red">*</span>--> Heading:</label>
 			<div class="col-sm-8">
-				<input name="heading" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?php echo $heading; ?>" class="form-control" onkeyup="if($('[name=heading_auto]').val() == 1) { $('[name=heading_auto]').val(0).change(); }">
+				<input name="heading" type="text" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?php echo $heading; ?>" class="form-control">
 				<input name="heading_auto" type="hidden" data-table="tickets" data-id="<?= $ticketid ?>" data-id-field="ticketid" value="<?= $heading_auto ?>">
 			</div>
 		</div>

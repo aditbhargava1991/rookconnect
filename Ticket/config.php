@@ -103,7 +103,7 @@ if($ticket_stop > 0) {
 $ticket_next_step_timesheet = array_filter(explode(',',get_config($dbc, 'ticket_next_step_timesheet')));
 
 $update_time = get_config($dbc, 'scheduling_calendar_est_time');
-if($update_time == 'auto_sort') { ?>
+if($update_time == 'auto_sort' && $_SERVER['HTTP_X_REQUESTED_WITH'] != 'XMLHttpRequest') { ?>
     <script src="../Calendar/map_sorting.js"></script>
     <script src="https://maps.googleapis.com/maps/api/js?key=<?= DIRECTIONS_KEY ?>"></script>
 <?php }

@@ -1035,109 +1035,79 @@ var businessFilter = function() {}
 var setServiceFilters = function() {}
 var updateLabel = <?= ($_GET['edit'] > 0 && $_GET['new_ticket'] != 'true') || strpos($value_config, ',Hide New Ticketid,') === FALSE ? 'true' : 'false' ?>;
 var defaultStatus = '<?= $default_status ?>';
+var heading = '<?= $get_ticket['heading'] ?>';
 
 var setHeading = function() {
 	if(ticketid > 0) {
+        var new_heading = '';
 	<?php if(strpos($value_config, ','."Heading Business Invoice".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=salesorderid]').length > 0) {
 			var business = $('[name=businessid] option:selected').first().text();
 			var invoice = $('[name=salesorderid]').first().val();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(business+' - '+invoice).change();
-            } else {
-                $('[name=heading]').first().val(business+' - '+invoice).change();
-            }
+            new_heading = business+' - '+invoice;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Bus Invoice Date".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=salesorderid]').length > 0 && $('[name=to_do_date]').length > 0) {
 			var business = $('[name=businessid] option:selected').first().text();
 			var invoice = $('[name=salesorderid]').first().val();
 			var date = $('[name=to_do_date]').first().val();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(invoice+' - '+business+' '+date).change();
-            } else {
-                $('[name=heading]').first().val(invoice+' - '+business+' '+date).change();
-            }
+            new_heading = invoice+' - '+business+' '+date;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Project Invoice Date".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=projectid]').length > 0 && $('[name=salesorderid]').length > 0 && $('[name=to_do_date]').length > 0) {
 			var project = $('[name=projectid] option:selected').first().text();
 			var invoice = $('[name=salesorderid]').first().val();
 			var date = $('[name=to_do_date]').first().val();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(invoice+' - '+project+' '+date).change();
-            } else {
-                $('[name=heading]').first().val(invoice+' - '+project+' '+date).change();
-            }
+            new_heading = invoice+' - '+project+' '+date;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Date".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=to_do_date]').length > 0) {
 			var date = $('[name=to_do_date]').first().val();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(date).change();
-            } else {
-                $('[name=heading]').first().val(date).change();
-            }
+            new_heading = date;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Business Date".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0 && $('[name=to_do_date]').length > 0) {
 			var business = $('[name=businessid] option:selected').first().text();
 			var date = $('[name=to_do_date]').first().val();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(business+' - '+date).change();
-            } else {
-                $('[name=heading]').first().val(business+' - '+date).change();
-            }
+            new_heading = business+' - '+date;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Contact Date".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=clientid]').length > 0 && $('[name=to_do_date]').length > 0) {
 			var contact = $('[name=clientid] option:selected').first().text();
 			var date = $('[name=to_do_date]').first().val();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(contact+' - '+date).change();
-            } else {
-                $('[name=heading]').first().val(contact+' - '+date).change();
-            }
+            new_heading = contact+' - '+date;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Business".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=businessid]').length > 0) {
 			var business = $('[name=businessid] option:selected').first().text();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(business).change();
-            } else {
-                $('[name=heading]').first().val(business).change();
-            }
+            new_heading = business;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Contact".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=clientid]').length > 0) {
 			var contact = $('[name=clientid] option:selected').first().text();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(contact).change();
-            } else {
-                $('[name=heading]').first().val(contact).change();
-            }
+            new_heading = contact;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Milestone Date".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=milestone_timeline]').length > 0 && $('[name=to_do_date]').length > 0) {
 			var milestone = $('[name=milestone_timeline] option:selected').text();
 			var date = $('[name=to_do_date]').first().val();
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(milestone+': '+invoice).change();
-            } else {
-                $('[name=heading]').first().val(milestone+': '+invoice).change();
-            }
+            new_heading = milestone+': '+invoice;
 		}
 	<?php } else if(strpos($value_config, ','."Heading Assigned".',') !== false) { ?>
 		if($('[name=heading_auto]').val() == 1 && $('[name=contactid]').length > 0) {
 			var assigned = $('[name=contactid] option:selected,[name=item_id][data-type=Staff] option:selected').first().text();
-            if($('[name=heading]:visible').length > 0) {
-            if($('[name=heading]:visible').length > 0) {
-                $('[name=heading]:visible').first().val(assigned).change();
-            } else {
-                $('[name=heading]').first().val(assigned).change();
-            }
+            new_heading = assigned;
 		}
 	<?php } ?>
+        if(new_heading != heading) {
+            heading = new_heading;
+            $('[name=heading]').val(heading);
+            if($('[name=heading]:visible').length > 0) {
+                $('[name=heading]:visible').first().change();
+            } else {
+                $('[name=heading]').first().change();
+            }
+        }
 	} else { setTimeout(setHeading, 250); }
 }
 </script>

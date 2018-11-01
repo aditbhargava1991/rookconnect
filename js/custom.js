@@ -177,6 +177,7 @@ $(document).ready(function() {
 						success: function(response) {
 							div.css('width', response);
 							div.toggleClass('collapsed');
+                            $(window).resize();
 						}
 					});
 				}
@@ -185,6 +186,7 @@ $(document).ready(function() {
 					div.css('width', '0');
 					div.toggleClass('collapsed');
 				}
+                $(window).resize();
 			}
 		});
 	}
@@ -808,6 +810,7 @@ function initInputs(container) {
 						success: function(response) {
 							div.css('width', response);
 							div.toggleClass('collapsed');
+                            $(window).resize();
 						}
 					});
 				}
@@ -816,6 +819,7 @@ function initInputs(container) {
 					div.css('width', '0');
 					div.toggleClass('collapsed');
 				}
+                $(window).resize();
 			}
 		});
 	}
