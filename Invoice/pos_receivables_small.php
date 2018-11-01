@@ -164,10 +164,6 @@ $html .= '
                     <td border="1" width="25%" style="text-align:right;">$'.number_format($sub_total,2).'</td>
                 </tr>';
 
-            if ( $pdf_tax != '' ) {
-                $html .= $pdf_tax;
-            }
-
             $get_pos_tax = get_config($dbc, 'invoice_tax');
             if($get_pos_tax != '') {
                 $total_tax_rate = 0;
