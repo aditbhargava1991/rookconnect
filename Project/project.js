@@ -161,7 +161,9 @@ function selectType(type, target, label = '') {
                 }
             });
         }
-        if(type == 'VIEW_ALL') {
+        if(project_list[type] == undefined) {
+            current_list = [];
+        } else if(type == 'VIEW_ALL') {
         	current_list = project_list['VIEW_ALL'].slice();
         } else {
 			current_list = project_list[type].slice();
