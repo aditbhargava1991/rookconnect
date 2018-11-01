@@ -120,7 +120,7 @@ $html = '';
 
 $html .= '<p style="text-align:center;"><img src="'.INVOICE_LOGO.'" width="100" /></p>';
 
-$html = '<br><br><center><div style="margin-top:10px; text-align:center;"><h1>PAYMENT OF ACCOUNTS RECEIVABLE</h1></div></center>';
+$html = '<br><br><center><div style="margin-top:10px; text-align:center;"><h3>PAYMENT OF ACCOUNTS RECEIVABLE</h3></div></center>';
 
 $html .= '<p style="text-align:center;">Payment Date: '. date('Y-m-d') .'<br />Payment Type: '. PAYMENT_TYPE .'</p>';
 //$html .= '<br /><br /><br /><p style="text-align:center;">'. ( (!empty($customer['name'])) ? decryptIt($customer['name']) . '<br />' : '' ) . decryptIt($customer['first_name']) .' '. decryptIt($customer['last_name']) .'<br />'. ( (!empty($customer['mailing_address'])) ? $customer['mailing_address'] . '<br />' : '' ) . ( (!empty($customer['city'])) ? $customer['city'] . '<br />' : '' ) . ( (!empty($customer['postal_code'])) ? $customer['postal_code'] . '<br />' : '' ) . ( (!empty($customer['cell_phone'])) ? decryptIt($customer['cell_phone']) . '<br />' : '' ) . ( (!empty($customer['email_address'])) ? ecryptIt($customer['email_address']) : '' ) . '</p>';
@@ -157,50 +157,31 @@ $html .= '<p style="text-align:center;">Payment Date: '. date('Y-m-d') .'<br />P
 $html .= '
 		<br /><br />
 		<table border="0" cellpadding="2">';
-            if ( $get_invoice['discount'] != 0 ) {
-                $html .= '
-                    <tr>
-                        <td style="text-align:right;" width="75%"><strong>Discount</strong></td>
-                        <td border="1" width="25%" style="text-align:right;">$'. $get_invoice['discount'] .'</td>
-                    </tr>';
-            }
+
 			$html .= '
                 <tr>
-                    <td style="text-align:right;" width="75%"><strong>Sub Total</strong></td>
-                    <td border="1" width="25%" style="text-align:right;">$'. number_format($get_invoice['total_price'], 2) .'</td>
+                    <td style="text-align:right;" width="75%"><strong>Total Due By Customer</strong></td>
+                    <td border="1" width="25%" style="text-align:right;">$'.number_format($sub_total,2).'</td>
                 </tr>';
-            if ( $get_invoice['delivery'] != 0 ) {
-                $html .= '
-                    <tr>
-                        <td style="text-align:right;" width="75%"><strong>Delivery</strong></td>
-                        <td border="1" width="25%" style="text-align:right;">$'. $get_invoice['delivery'] .'</td>
-                    </tr>';
-            }
-            if ( $get_invoice['assembly'] != 0 ) {
-                $html .= '
-                    <tr>
-                        <td style="text-align:right;" width="75%"><strong>Assembly</strong></td>
-                        <td border="1" width="25%" style="text-align:right;">$'. $get_invoice['assembly'] .'</td>
-                    </tr>';
-            }
+
             if ( $pdf_tax != '' ) {
                 $html .= $pdf_tax;
             }
-            $html .= '
+
+			$html .= '
                 <tr>
-                    <td style="text-align:right;" width="75%"><strong>Total</strong></td>
-                    <td border="1" width="25%" style="text-align:right;">$'. number_format($get_invoice['final_price'],2) .'</td>
+                    <td style="text-align:right;" width="75%"><strong>Total Amount Owing</strong></td>
+                    <td border="1" width="25%" style="text-align:right;">$'.number_format($total_amt,2).'</td>
                 </tr>';
-            if ( $get_invoice['deposit_paid'] > 0 ) {
-                $html .='
-                    <tr>
-                        <td style="text-align:right;" width="75%"><strong>Deposit Paid</strong></td>
-                        <td border="1" width="25%" style="text-align:right;">$'. $get_invoice['deposit_paid'] .'</td>
-                    </tr>';
-                $html .='
-                    <tr>
-                        <td style="text-align:right;" width="75%"><strong>Updated Total</strong></td>
-                        <td border="1" width="25%" style="text-align:right;">$'. $get_invoice['updatedtotal'] .'</td>
-                    </tr>';
-            }
+			$html .= '
+                <tr>
+                    <td style="text-align:right;" width="75%"><strong>Payment By</strong></td>
+                    <td border="1" width="25%" style="text-align:right;">'.$payment_type.' (-$'.number_format($total_amt,2).')</td>
+                </tr>';
+			$html .= '
+                <tr>
+                    <td style="text-align:right;" width="75%"><strong>Balance</strong></td>
+                    <td border="1" width="25%" style="text-align:right;">$0.00</td>
+                </tr>';
+
 		$html .= '</table>';
