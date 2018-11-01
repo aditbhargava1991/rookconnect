@@ -66,6 +66,7 @@ if ( !empty($note) ) { ?>
 					<option <?php if($get_style_file == 'dots') { echo "selected"; } ?> value="dots">Dots</option>
 					<option <?php if($get_style_file == 'flowers') { echo "selected"; } ?> value="flowers">Flowers</option>
 					<option <?php if($get_style_file == 'ffm') { echo "selected"; } ?> value="ffm">Fresh Focus Media</option>
+					<option <?php if($get_style_file == 'ffmwhite') { echo "selected"; } ?> value="ffmwhite">FFM White</option>
 					<option <?php if($get_style_file == 'garden') { echo "selected"; } ?>  value="garden">Garden</option>
 					<option <?php if($get_style_file == 'green') { echo "selected"; } ?>  value="green">Green</option>
 					<option <?php if($get_style_file == 'silver') { echo "selected"; } ?> value="silver">Green & Grey</option>
