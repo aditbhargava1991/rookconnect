@@ -168,6 +168,20 @@ $html .= '
                 $html .= $pdf_tax;
             }
 
+            $get_pos_tax = get_config($dbc, 'invoice_tax');
+            if($get_pos_tax != '') {
+                $total_tax_rate = 0;
+                foreach(explode('*#*',$get_pos_tax) as $pos_tax) {
+                    $total_tax_rate += explode('**',$pos_tax)[1];
+                }
+                foreach(explode('*#*',$get_pos_tax) as $pos_tax) {
+                    if($pos_tax != '') {
+                        $pos_tax_name_rate = explode('**',$pos_tax);
+                        $html .= '<tr><td style="text-align:right;" width="75%"><strong>'.$pos_tax_name_rate[0].'  ['.$pos_tax_name_rate[2].']</strong></td><td border="1" width="25%" style="text-align:right;">$'.number_format($tax_amt * $pos_tax_name_rate[1] / $total_tax_rate,2).'</td></tr>';
+                    }
+                }
+            }
+
 			$html .= '
                 <tr>
                     <td style="text-align:right;" width="75%"><strong>Total Amount Owing</strong></td>
