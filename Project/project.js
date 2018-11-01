@@ -143,7 +143,7 @@ function selectType(type, target, label = '') {
 		$('.search-results').addClass('hidden');
 		$('.main-content-screen, #project_accordions').removeClass('hidden');
 		$('.active.blue:not(.sidebar-lower-level)').removeClass('active').removeClass('blue');
-		$('a[href$="type='+type+'"] li').addClass('active blue');
+		$('a[href$="type='+type+'"] li,a[href*="type='+type+'&"] li').addClass('active blue');
 		if(label != '') {
 			target.html('<h3 class="double-pad-left">'+label+'</h3>');
 		} else {
