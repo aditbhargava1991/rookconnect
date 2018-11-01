@@ -41,6 +41,7 @@ $(document).on('change', 'select[name="classification"]', function() { filterCon
 $(document).on('change', 'select[name="businessid"]', function() { businessFilter(); });
 $(document).on('change', 'select[name="clientid[]"]', function() { setBusiness(this); });
 $(document).on('change', 'select[name="siteid"]', function() { setBusiness(this); });
+$(document).on('change', 'select[name="projecttype"]', function() { apply_default_template(); });
 $(document).on('change', 'select[name="path_templates[]"]', function() { return apply_template(); });
 function filterContacts() {
 	$('[name=businessid] option').show();
@@ -141,6 +142,29 @@ function setBusiness(contact) {
 		setTimeout(function() { $('[name=businessid]').change(); }, 1000);
 	}
 }
+
+function apply_default_template() {
+    var default_project_path = $('[name=default_project_path]').val();
+    var set_default_path = $('[name=set_default_path]').val();
+
+    var pid = $('[name=projectid]').val();
+    if(default_project_path == '' || default_project_path == 0) {
+        $.ajax({
+            url: 'projects_ajax.php?action=update_path',
+            method: 'POST',
+            data: {
+                projectid: pid,
+                path_list: set_default_path,
+                path: 'project_path',
+                new_path: set_default_path
+            },
+            success: function(){
+                window.location.replace("projects.php?edit="+pid+"&tab=info");
+            }
+        });
+    }
+}
+
 function apply_template() {
 	if(!($('[name=projectid]').val() > 0)) {
 		$('[name=status]').val('Pending').trigger('change.select2').change();
@@ -167,8 +191,15 @@ function apply_template() {
 </script>
 <?php
 $field_mandatory_config = array_filter(array_unique(array_merge(explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_mandatory_project WHERE type='$projecttype'"))[0]),explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_mandatory_project WHERE type='ALL'"))[0]))));
+$default_project_path = get_project($dbc, $projectid, 'project_path');
+
+$default_path = mysqli_fetch_array(mysqli_query($dbc,"SELECT `project_path_milestone` FROM project_path_milestone WHERE milestone='To Do#*#Doing#*#Done'"));
+$set_default_path = $default_path['project_path_milestone'];
+
 ?>
 <input type="hidden" name="projectid" value="<?= $projectid ?>">
+<input type="hidden" name="default_project_path" value="<?= $default_project_path ?>">
+<input type="hidden" name="set_default_path" value="<?= $set_default_path ?>">
 <div id="head_info">
 	<h3><?= PROJECT_NOUN ?> Information</h3>
 	<?php if (in_array("Information Project Short Name",$value_config)) { ?>
