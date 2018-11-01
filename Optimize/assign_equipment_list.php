@@ -23,7 +23,7 @@ $warehouse_query = '';
 if(get_config($dbc, 'optimize_dont_count_warehouse') == 1) {
     $warehouse_query = " AND REPLACE(REPLACE(IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))),' ',''),'-','') NOT IN (SELECT REPLACE(REPLACE(CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')),' ',''),'-','') FROM `contacts` WHERE `category`='Warehouses')";
 }
-if($equipment_list->num_rows > 0) {
+if($equipment_list->num_rows > 0) { ?>
     <script>
     $(document).ready(function() {
         calcEquipListWidth();

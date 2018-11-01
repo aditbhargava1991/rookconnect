@@ -131,7 +131,7 @@ function initOptions() {
         $('.ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').addClass('active').css('z-index',1);
         $('.map_view .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+'] img').css('height','60px').css('width','60px').css('margin-top','-40px').css('margin-left','-20px');
         if($(this).parents('.map_view').length > 0) {
-            $('.ticket_list').scrollTop($('.ticket_list').scrollTop() + $('.ticket_list .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').closest('.block-item').offset().top - $('.ticket_list').offset().top);
+            $('#ticket_list_scroll').scrollTop($('#ticket_list_scroll').scrollTop() + $('.ticket_list .ticket[data-table='+$(this).data('table')+'][data-id='+$(this).data('id')+']').closest('.block-item').offset().top - $('#ticket_list_scroll').offset().top);
         }
     });
     $('.ticket[data-table][data-id]').off('mouseleave');
