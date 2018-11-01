@@ -69,6 +69,14 @@ function filterClass() {
 	get_ticket_list();
 }
 function get_ticket_list() {
+    $('.standard-body-title img').show();
+    $('.search_fields').hide();
+    $('.ticket_list').show();
+    $(window).resize();
+    try {
+        calcEquipListWidth();
+        calcTicketListWidth();
+    } catch(err) { }
 	$('.draw_sort').empty();
 	var equip_scroll = $('.equip_list').scrollTop();
 	$('.equip_list').html('<h4>Loading Equipment...</h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
@@ -77,13 +85,25 @@ function get_ticket_list() {
 	lockTickets();
 	initOptions();
 }
+scaleFunction = function() {
+    try {
+        calcEquipListWidth();
+        calcTicketListWidth();
+    } catch(err) { }
+    if($('.ticket_list').is('.collapsed')) {
+        $('.map_view').css('width','calc(80% - 1.5em - 10px)');
+    } else {
+        $('.map_view').css('width','calc(80% - '+($('.ticket_list').outerWidth(true)+3)+'px)');
+    }
+}
 function get_map_view() {
+    $(window).resize();
     if(zoom > 16) {
         zoom = 16;
     } else if(zoom < 6) {
         zoom = 6;
     }
-	$('.map_view').html('<h4>Loading Map...</h4>').load('assign_map_view.php?zoom='+zoom+'&x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
+	$('.map_view').css('border-width','2px').css('border-style','solid').html('<h4>Loading Map...</h4>').load('assign_map_view.php?zoom='+zoom+'&x='+$('.map_view').width()+'&y='+$('.map_view').height()+'&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 }
 function lockTickets() {
 	clearTimeout(lock_timer);
@@ -196,10 +216,10 @@ function initDraw() {
 <div class="draw_sort" style="position:absolute;top:0;left:0;z-index:1;overflow:visible;height:0px;width:0px;"></div>
 <div class="main-screen standard-body override-main-screen form-horizontal">
 	<div class="standard-body-title">
-		<h3>Assign <?= TICKET_TILE ?></h3>
+		<h3>Assign <?= TICKET_TILE ?><img src="../img/icons/ROOK-3dot-icon.png" class="inline-img pull-right cursor-hand" onclick="$('.search_fields').toggle(); $(window).resize(); calcEquipListWidth(); calcTicketListWidth();" style="<?= empty($_GET['date']) && empty($_GET['region']) && empty($_GET['classification']) && empty($_GET['location']) ? 'display:none;' : '' ?>"></h3>
 	</div>
 	<div class="standard-body-content pad-top">
-		<div class="col-sm-12">
+		<div class="col-sm-12 search_fields" style="<?= empty($_GET['date']) && empty($_GET['region']) && empty($_GET['classification']) && empty($_GET['location']) ? '' : 'display:none;' ?>">
 			<?php $columns = 1 + (count($allowed_regions) > 0 ? 1 : 0) + (count($allowed_locations) > 0 ? 1 : 0) + (count($contact_classifications) > 0 ? 1 : 0); ?>
 			<?php if(count($allowed_regions) > 0) { ?>
 				<div class="form-group col-sm-<?= 12 / $columns ?> col-xs-12">
@@ -246,9 +266,9 @@ function initDraw() {
 		</div>
 		<div class="clearfix"></div>
 		<div class="assign_list_box" style="height: 20em;position:relative;overflow-x:hidden;overflow-y:hidden;">
-			<div class="equip_list" style="display:inline-block; height:100%; width:20%; float:left; overflow-y:auto;"></div>
-			<div class="map_view" style="display:inline-block; height:100%; width:60%; overflow:hidden;"></div>
-			<div class="ticket_list" style="display:inline-block; height:100%; width:20%; overflow-y:auto; float:right;"></div>
+			<div class="equip_list" style="display:inline-block; height:100%; width:20%; float:left; overflow-y:hidden;"></div>
+			<div class="ticket_list scalable no-icon collapsed" style="display:none; height:100%; overflow-y:hidden; width:0; float:right;"></div>
+			<div class="map_view" style="display:inline-block; height:calc(100% - 2px); width:calc(80% - 1.5em - 6px); overflow:hidden;"></div>
 		</div>
 	</div>
 </div>

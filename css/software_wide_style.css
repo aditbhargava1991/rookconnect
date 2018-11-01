@@ -157,6 +157,14 @@
 	padding-left: calc(0.5em - 5px);
 	width: 25%;
 }
+.scalable.no-icon {
+	border-left: 0px solid black;
+}
+.scalable.no-icon:not(.collapsed):before {
+	background-image: none;
+    margin-left: 0;
+    padding-left: 0;
+}
 .scalable {
 	padding-left: calc(5px + 1em);
 	max-width: 100%;
