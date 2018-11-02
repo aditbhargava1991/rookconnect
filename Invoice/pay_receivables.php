@@ -62,7 +62,7 @@ if (isset($_POST['submit_patient'])) {
 			break;
 		case 5:
             //include('pos_invoice_small.php');
-            include ('pos_receivables_pink.php');
+            include ('pos_receivables_small.php');
 			break;
 		case 'service':
             include ('pos_receivables_service.php');

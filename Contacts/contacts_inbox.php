@@ -48,8 +48,6 @@ if(empty($_GET['settings'])) {
 			$breadcrumbs .= ': <a href="?list='.$_GET['category'].'&status=active">'.$_GET['category'].'</a>';
 		}
 		$breadcrumbs .= ': <a href="?edit=new" class="breadcrumb_contact">New '.(!empty($_GET['category']) ? $_GET['category'] : ($folder_label != 'Contacts' ? $folder_label : CONTACTS_NOUN)).'</a>';
-	} else if(!empty($_GET['list']) && $_GET['list'] != 'summary') {
-		$breadcrumbs .= ': <a href="?list='.$_GET['list'].'&status=active">'.$_GET['list'].'</a>';
 	}
 }
 ?>

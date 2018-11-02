@@ -1153,6 +1153,9 @@ right: 0;
 .offset-right-15 { margin-right:15px; }
 .offset-right-20 { margin-right:20px; }
 
+.offset-top-neg-5 { margin-top:-5px; }
+.offset-top-neg-8 { margin-top:-8px; }
+
 .mobile-offset-top-5, .mobile-offset-top-10, .mobile-offset-top-15, .mobile-offset-top-20, .mobile-offset-top-30 { margin-top:0px; }
 
 .block-top-5 { display:block; margin-top:5px; }
@@ -1923,9 +1926,11 @@ h1 .id-circle { font-size:18px; height:40px; line-height:22px; margin:0 0.5em; w
                 .no-scroll div[class*='col-'] { white-space:normal; }
             .info-block-container { display:inline-block; float:none; height:100%; }
                 .info-block { height:100%; }
-                    .info-block-header { background-color:#b0e1f0; border-bottom:4px solid #43bce3; display: block; height: 65px; padding:5px 10px; }
+                    .info-block-header { background-color:#b0e1f0; border-bottom:4px solid #43bce3; display: block; height:69px; padding:5px 10px; }
                         .info-block-header h3, .info-block-header h4 { color:#333; margin:4px 0 8px 0; }
                         .info-block-small { color:#666; font-size:0.85em; font-weight:bold; }
+                        .info-block-header img:not(.milestone_drag) { height:21px; width:auto; }
+                        .info-block-header img.milestone_drag { height:16px; width:21px; }
                     .info-block-details { background-color:#ececec;  height:100%; overflow-y:auto; }
                         .info-block-details table td { background-color:#fff; }
                         .info-block-detail { background-color:#fff; border-radius:3px; margin-bottom:10px; padding:0.5em; }
@@ -2528,6 +2533,9 @@ ul.guide-index li { font-weight:bold; list-style-type:none; margin-top:20px; mar
 .table-fixed {
 	display: table;
 	table-layout: fixed;
+}
+.table > thead > tr > th, .table > tbody > tr > th  {
+	vertical-align:middle;
 }
 .text-centre-25 {
 	max-width: 25em;
@@ -3573,3 +3581,5 @@ position: relative;
 }
 
 #back_to_top { position:fixed; bottom:80px; right:35px; z-index:1; }
+
+#invoice_div .standard-body-title img { height:29px; width:auto; }

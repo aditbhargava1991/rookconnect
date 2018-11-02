@@ -93,7 +93,6 @@ if(isset($_POST['submit'])) {
                 mysqli_query($dbc, "INSERT INTO `ticket_comment` (`ticketid`, `comment`, `created_by`, `created_date`) VALUES ('$ticketid','".filter_var(htmlentities($note),FILTER_SANITIZE_STRING)."','".$_SESSION['contactid']."','".date('Y-m-d')."')");
 
             }
-
             $ticketid = $_GET['ticketid'];
             $timer = $_GET['timer_value'];
             $start_time = time();
@@ -200,6 +199,5 @@ if(isset($_POST['submit'])) {
             </div>
 
         </form>
-        
     </div>
 </div>

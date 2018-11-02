@@ -21,7 +21,7 @@ var current_list = [];
 var project_type = '<?= isset($_GET['tab']) ? '' : (!empty($_GET['type']) ? $_GET['type'] : $project_type) ?>';
 var current_tile = '<?= $tile ?>';
 var project_tile = '<?= PROJECT_TILE ?>';
-<?php foreach($project_tabs as $type_name => $project_label) {
+<?php foreach(array_merge(['favourite'=>'Favourite'],$project_tabs) as $type_name => $project_label) {
 	if(check_subtab_persmission($dbc, 'project', ROLE, $type_name)) {
 		$match_query = '';
 		if(!empty(MATCH_CONTACTS)) {
@@ -124,12 +124,10 @@ var search_list = ["<?= implode('","',$search_list) ?>"];
 <?php foreach($business_list as $businessid => $business_projects) { ?>
 	project_list['business_<?= $businessid ?>'] = [<?= implode(',',array_unique($business_projects)) ?>];
 <?php } ?>
-<?php ksort($region_list);
-foreach($region_list as $region_name => $region_projects) { ?>
+<?php foreach($region_list as $region_name => $region_projects) { ?>
 	project_list['region_<?= config_safe_str($region_name) ?>'] = [<?= implode(',',array_unique($region_projects)) ?>];
 <?php } ?>
-<?php ksort($class_list);
-foreach($class_list as $class_name => $class_projects) { ?>
+<?php foreach($class_list as $class_name => $class_projects) { ?>
 	project_list['class_<?= config_safe_str($class_name) ?>'] = [<?= implode(',',array_unique($class_projects)) ?>];
 <?php } ?>
 <?php foreach($contact_list as $project_clientid => $contact_projects) { ?>
@@ -197,7 +195,24 @@ $(document).ready(function() {
 </div>
 
 <div id="project_accordions" class="sidebar show-on-mob panel-group block-panels col-xs-12">
-	<?php if(in_array('Types',$project_classify) || in_array('All',$project_classify)) {
+	<?php $favourite_count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `project` WHERE `deleted`=0 AND `status`!='Archive' AND ('$tile' = 'project' OR `projecttype`='$tile') AND `favourite` LIKE '%,".$_SESSION['contactid'].",%'"))[0];
+    if($favourite_count > 0) { ?>
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                <h4 class="panel-title">
+                    <a data-toggle="collapse" data-parent="#project_accordions" href="#collapse_favourite">
+                        Favourite<span class="glyphicon glyphicon-plus"></span><span class="pull-right"><?= $favourite_count ?></span>
+                    </a>
+                </h4>
+            </div>
+
+            <div id="collapse_favourite" class="panel-collapse collapse">
+                <div class="panel-body" data-project-type="favourite">
+                </div>
+            </div>
+        </div>
+    <?php }
+    if(in_array('Types',$project_classify) || in_array('All',$project_classify)) {
 		foreach($project_tabs as $type_name => $project_label) { ?>
 			<?php if($type_name == 'VIEW_ALL') {
 				$count = mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `project` WHERE `deleted`=0 AND `status`!='Archive' AND (`status` != 'Pending' OR '$pending_projects' = 'disable') AND ('$tile' = 'project')"))[0];
@@ -348,105 +363,17 @@ $(document).ready(function() {
 			<a href="?tile_name=<?= $tile ?>&tab=summary" onclick="$('.active.blue').removeClass('active blue'); $(this).find('li').addClass('active blue'); $('#project_admin,#display_screen').hide(); $('#project_summary').show(); return false;"><li class="<?= empty($_GET['tab']) || $_GET['tab'] == 'summary' ? 'active blue' : '' ?>">Summary</li></a>
 			<?php $project_type = '';
 		} ?>
-		<?php if(check_subtab_persmission($dbc, 'project', ROLE, 'administration')) {
-			$admin_groups = $dbc->query("SELECT `id`, `name`,`region`,`classification`,`location`,`customer` FROM `field_config_project_admin` WHERE CONCAT(',',`contactid`,',') LIKE '%".$_SESSION['contactid']."%' AND `deleted`=0");
-			if($admin_groups->num_rows > 0) { ?>
-				<li class="sidebar-higher-level"><a class="cursor-hand <?= isset($_GET['tab']) ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_admin">Administration<span class="arrow"></span></a>
-					<ul id="tab_admin" class="collapse <?= isset($_GET['tab']) ? 'in' : '' ?>">
-						<?php while($admin_group = $admin_groups->fetch_assoc()) {
-							$other_groups = $dbc->query("SELECT GROUP_CONCAT(`region` SEPARATOR ''',''') `regions`, GROUP_CONCAT(`classification` SEPARATOR ''',''') `classifications` FROM `field_config_project_admin` WHERE `id`!='{$admin_group['id']}' AND `deleted`=0")->fetch_assoc(); ?>
-							<h4><?= $admin_group['name'].
-								($admin_group['region'] != '' ? '<br /><em><small>'.$admin_group['region'].'</small></em>' : '').
-								($admin_group['classification'] != '' ? '<br /><em><small>'.$admin_group['classification'].'</small></em>' : '').
-								($admin_group['location'] != '' ? '<br /><em><small>'.$admin_group['location'].'</small></em>' : '').
-								($admin_group['customer'] > 0 ? '<br /><em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h4>
-							<?php $admin_regions = $admin_classes = [''];
-							if($admin_group['region'] == '') {
-								$admin_regions = mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')"));
-							}
-							if($admin_group['classification'] == '') {
-								$admin_classes = mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')"));
-							}
-							foreach($admin_regions as $region_i => $admin_region) {
-								foreach($admin_classes as $class_i => $admin_class) { ?>
-									<?php if($admin_region[0].$admin_class[0] != '') { ?>
-										<li><a class="cursor-hand <?= strpos($_GET['tab'], 'administration_'.$admin_group['id'].'_') !== FALSE && strpos($_GET['tab'], '_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0]))) !== FALSE ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_admin_<?= $admin_group['id'] ?>_<?= $region_i ?>_<?= $class_i ?>"><?= $admin_region[0] != '' ? 'Region: '.$admin_region[0] : '' ?><?= $admin_region[0] != '' && $admin_class[0] != '' ? '<br />' : '' ?><?= $admin_class[0] != '' ? 'Classification: '.$admin_class[0] : '' ?><span class="arrow"></span></a>
-											<ul id="tab_admin_<?= $admin_group['id'] ?>_<?= $region_i ?>_<?= $class_i ?>" class="collapse <?= strpos($_GET['tab'], 'administration_'.$admin_group['id'].'_') !== FALSE && strpos($_GET['tab'], '_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0]))) !== FALSE ? 'in' : '' ?>">
-									<?php } ?>
-									<li class="sidebar-lower-level <?= $_GET['tab'] == 'administration_'.$admin_group['id'].'_approved_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0])) ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=administration_<?= $admin_group['id'] ?>_approved_<?= str_replace('_','',config_safe_str($admin_region[0])) ?>_<?= str_replace('_','',config_safe_str($admin_class[0])) ?>">Approved</a></li>
-									<li class="sidebar-lower-level <?= $_GET['tab'] == 'administration_'.$admin_group['id'].'_revision_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0])) ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=administration_<?= $admin_group['id'] ?>_revision_<?= str_replace('_','',config_safe_str($admin_region[0])) ?>_<?= str_replace('_','',config_safe_str($admin_class[0])) ?>">In Revision</a></li>
-									<li class="sidebar-lower-level <?= $_GET['tab'] == 'administration_'.$admin_group['id'].'_pending_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0])) ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=administration_<?= $admin_group['id'] ?>_pending_<?= str_replace('_','',config_safe_str($admin_region[0])) ?>_<?= str_replace('_','',config_safe_str($admin_class[0])) ?>">Pending</a></li>
-									<?php if($admin_region[0].$admin_class[0] != '') { ?>
-										</ul></li>
-									<?php } ?>
-								<?php }
-							} ?>
-						<?php } ?>
-					</ul>
-				</li>
-			<?php }
-		} ?>
+        <?php if($favourite_count > 0) { ?>
+            <a href="?tile_name=<?= $tile ?>&type=favourite&view_all=ALL" onclick="$(this).find('li').toggleClass('active blue'); $(this).closest('.highest_level').find('.active.blue').not('.view_all').removeClass('active').removeClass('blue'); $('.highest_level').not($(this).closest('.highest_level')).find('.active.blue').removeClass('active').removeClass('blue'); selectType('favourite', undefined, 'Favourite'); return false;"><li class="sidebar-higher-level view_all">Favourite<span class="pull-right"><?= $favourite_count ?></span></li></a>
+        <?php } ?>
 		<?php $sort_fields = array_filter(explode(',',get_config($dbc, 'project_sort_fields'))); ?>
-		<?php if(in_array('Business',$project_classify)) { ?>
-            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Business">Business<span class="arrow"></span></a>
-                <ul class="collapse" id="Business" style="overflow: hidden;">
-			<?php asort($businesses); ?>
-			<?php foreach($businesses as $business) {
-				if(isset($business_list[$business['contactid']])) { ?>
-					<a href="?tile_name=<?= $tile ?>&type=business_<?= $business['contactid'] ?>" onclick="selectType('business_<?= $business['contactid'] ?>', undefined, '<?= $business['name'] == '' ? '(Unknown)' : htmlentities($business['name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'business_'.$business['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $business['name'] == '' ? '(Unknown)' : $business['name'] ?><span class="pull-right"><?= count(array_unique($business_list[$business['contactid']])) ?></span></li></a>
-				<?php } ?>
-			<?php } ?>
-            </ul></li>
-		<?php } ?>
-		<?php if(in_array('Classifications',$project_classify)) { ?>
-            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Classifications">Classifications<span class="arrow"></span></a>
-                <ul class="collapse" id="Classifications" style="overflow: hidden;">
-			<?php asort($class_list); ?>
-			<?php foreach($class_list as $class_name => $class_projects) { ?>
-				<?php $class_string = config_safe_str($class_name); ?>
-				<a href="?tile_name=<?= $tile ?>&type=class_<?= $class_string ?>" onclick="selectType('class_<?= $class_string ?>', undefined, '<?= $class_name == '' ? 'No Classification' : htmlentities($class_name,ENT_QUOTES) ?>'); return false;"><li class="<?= $project_type == 'class_'.$class_string && isset($_GET['classification']) ? 'active blue' : '' ?>"><?= $class_name == '' ? 'No Classification' : $class_name ?><span class="pull-right"><?= count(array_unique($class_projects)) ?></span></li></a>
-			<?php } ?>
-            </ul></li>
-		<?php } ?>
-		<?php if(in_array('Contact',$project_classify)) { ?>
-            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Contact">Contact<span class="arrow"></span></a>
-                <ul class="collapse" id="Contact" style="overflow: hidden;">
-			<?php asort($contacts); ?>
-			<?php foreach($contacts as $contact) {
-				if(isset($contact_list[$contact['contactid']])) { ?>
-					<a href="?tile_name=<?= $tile ?>&type=contact_<?= $contact['contactid'] ?>" onclick="selectType('contact_<?= $contact['contactid'] ?>', undefined, '<?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : htmlentities($contact['first_name'].' '.$contact['last_name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'contact_'.$contact['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : $contact['first_name'].' '.$contact['last_name'] ?><span class="pull-right"><?= count(array_unique($contact_list[$contact['contactid']])) ?></span></li></a>
-				<?php }
-			}
-            echo '</ul></li>';
-		} ?>
-		<?php if(in_array('Lead',$project_classify)) { ?>
-            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Lead">Lead<span class="arrow"></span></a>
-                <ul class="collapse" id="Lead" style="overflow: hidden;">
-			<?php asort($leads); ?>
-			<?php foreach($leads as $contact) {
-				if(isset($lead_list[$contact['contactid']])) { ?>
-					<a href="?tile_name=<?= $tile ?>&type=lead_<?= $contact['contactid'] ?>" onclick="selectType('lead_<?= $contact['contactid'] ?>', undefined, '<?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : htmlentities($contact['first_name'].' '.$contact['last_name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'lead_'.$contact['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : $contact['first_name'].' '.$contact['last_name'] ?><span class="pull-right"><?= count(array_unique($lead_list[$contact['contactid']])) ?></span></li></a>
-				<?php }
-			}
-            echo '</ul></li>';
-		} ?>
-		<?php if(in_array('Regions',$project_classify)) { ?>
-            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Regions">Regions<span class="arrow"></span></a>
-                <ul class="collapse" id="Regions" style="overflow: hidden;">
-			<?php asort($region_list); ?>
-			<?php foreach($region_list as $region_name => $region_projects) { ?>
-				<?php $region_string = config_safe_str($region_name); ?>
-				<a href="?tile_name=<?= $tile ?>&type=region_<?= $region_string ?>" onclick="selectType('region_<?= $region_string ?>', undefined, '<?= $region_name == '' ? 'No Region' : htmlentities($region_name, ENT_QUOTES) ?>'); return false;"><li class="<?= $project_type == 'region_'.$region_string && isset($_GET['region_name']) ? 'active blue' : '' ?>"><?= $region_name == '' ? 'No Region' : $region_name ?><span class="pull-right"><?= count(array_unique($region_projects)) ?></span></li></a>
-			<?php } ?>
-            </ul></li>
-		<?php } ?>
-		<?php
-		if(in_array('Types',$project_classify) || in_array('All',$project_classify)) { ?>
-
+		<?php if(in_array('Types',$project_classify) || in_array('All',$project_classify)) { ?>
             <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#types">Types<span class="arrow"></span></a>
                 <ul class="collapse" id="types" style="overflow: hidden;">
-			<?php asort($project_tabs); ?>
-			<?php foreach($project_tabs as $type_name => $project_label) {
+			<?php if(in_array('Alpha Types',$project_classify)) {
+                asort($project_tabs);
+            }
+            foreach($project_tabs as $type_name => $project_label) {
 
                 $project_tabs_for_color = get_config($dbc, "project_tabs");
                 $project_type_color_for_color = get_config($dbc, "project_type_color");
@@ -518,6 +445,101 @@ $(document).ready(function() {
 			<?php } ?>
             </ul></li>
 		<?php } ?>
+		<?php if(in_array('Regions',$project_classify)) { ?>
+            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Regions">Regions<span class="arrow"></span></a>
+                <ul class="collapse" id="Regions" style="overflow: hidden;">
+			<?php if(in_array('Alpha Regions',$project_classify)) {
+                ksort($region_list);
+            }
+            foreach($region_list as $region_name => $region_projects) { ?>
+				<?php $region_string = config_safe_str($region_name); ?>
+				<a href="?tile_name=<?= $tile ?>&type=region_<?= $region_string ?>" onclick="selectType('region_<?= $region_string ?>', undefined, '<?= $region_name == '' ? 'No Region' : htmlentities($region_name, ENT_QUOTES) ?>'); return false;"><li class="<?= $project_type == 'region_'.$region_string && isset($_GET['region_name']) ? 'active blue' : '' ?>"><?= $region_name == '' ? 'No Region' : $region_name ?><span class="pull-right"><?= count(array_unique($region_projects)) ?></span></li></a>
+			<?php } ?>
+            </ul></li>
+		<?php } ?>
+		<?php if(in_array('Classifications',$project_classify)) { ?>
+            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Classifications">Classifications<span class="arrow"></span></a>
+                <ul class="collapse" id="Classifications" style="overflow: hidden;">
+			<?php if(in_array('Alpha Classifications',$project_classify)) {
+                asort($class_list);
+            }
+            foreach($class_list as $class_name => $class_projects) { ?>
+				<?php $class_string = config_safe_str($class_name); ?>
+				<a href="?tile_name=<?= $tile ?>&type=class_<?= $class_string ?>" onclick="selectType('class_<?= $class_string ?>', undefined, '<?= $class_name == '' ? 'No Classification' : htmlentities($class_name,ENT_QUOTES) ?>'); return false;"><li class="<?= $project_type == 'class_'.$class_string && isset($_GET['classification']) ? 'active blue' : '' ?>"><?= $class_name == '' ? 'No Classification' : $class_name ?><span class="pull-right"><?= count(array_unique($class_projects)) ?></span></li></a>
+			<?php } ?>
+            </ul></li>
+		<?php } ?>
+		<?php if(in_array('Lead',$project_classify)) { ?>
+            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Lead">Lead<span class="arrow"></span></a>
+                <ul class="collapse" id="Lead" style="overflow: hidden;">
+			<?php asort($leads);
+            foreach($leads as $contact) {
+				if(isset($lead_list[$contact['contactid']])) { ?>
+					<a href="?tile_name=<?= $tile ?>&type=lead_<?= $contact['contactid'] ?>" onclick="selectType('lead_<?= $contact['contactid'] ?>', undefined, '<?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : htmlentities($contact['first_name'].' '.$contact['last_name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'lead_'.$contact['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : $contact['first_name'].' '.$contact['last_name'] ?><span class="pull-right"><?= count(array_unique($lead_list[$contact['contactid']])) ?></span></li></a>
+				<?php }
+			}
+            echo '</ul></li>';
+		} ?>
+		<?php if(in_array('Business',$project_classify)) { ?>
+            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Business">Business<span class="arrow"></span></a>
+                <ul class="collapse" id="Business" style="overflow: hidden;">
+			<?php asort($businesses);
+            foreach($businesses as $business) {
+				if(isset($business_list[$business['contactid']])) { ?>
+					<a href="?tile_name=<?= $tile ?>&type=business_<?= $business['contactid'] ?>" onclick="selectType('business_<?= $business['contactid'] ?>', undefined, '<?= $business['name'] == '' ? '(Unknown)' : htmlentities($business['name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'business_'.$business['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $business['name'] == '' ? '(Unknown)' : $business['name'] ?><span class="pull-right"><?= count(array_unique($business_list[$business['contactid']])) ?></span></li></a>
+				<?php } ?>
+			<?php } ?>
+            </ul></li>
+		<?php } ?>
+		<?php if(in_array('Contact',$project_classify)) { ?>
+            <li class="sidebar-higher-level"><a class="collapsed cursor-hand" data-toggle="collapse" data-target="#Contact">Contact<span class="arrow"></span></a>
+                <ul class="collapse" id="Contact" style="overflow: hidden;">
+			<?php asort($contacts);
+            foreach($contacts as $contact) {
+				if(isset($contact_list[$contact['contactid']])) { ?>
+					<a href="?tile_name=<?= $tile ?>&type=contact_<?= $contact['contactid'] ?>" onclick="selectType('contact_<?= $contact['contactid'] ?>', undefined, '<?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : htmlentities($contact['first_name'].' '.$contact['last_name'], ENT_QUOTES) ?>'); return false;"><li class="<?= 'contact_'.$contact['contactid'] == $project_type ? 'active blue' : '' ?>"><?= $contact['first_name'].$contact['last_name'] == '' ? '(Unknown)' : $contact['first_name'].' '.$contact['last_name'] ?><span class="pull-right"><?= count(array_unique($contact_list[$contact['contactid']])) ?></span></li></a>
+				<?php }
+			}
+            echo '</ul></li>';
+		} ?>
+		<?php if(check_subtab_persmission($dbc, 'project', ROLE, 'administration')) {
+			$admin_groups = $dbc->query("SELECT `id`, `name`,`region`,`classification`,`location`,`customer` FROM `field_config_project_admin` WHERE CONCAT(',',`contactid`,',') LIKE '%".$_SESSION['contactid']."%' AND `deleted`=0");
+			if($admin_groups->num_rows > 0) { ?>
+				<li class="sidebar-higher-level"><a class="cursor-hand <?= isset($_GET['tab']) ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_admin">Administration<span class="arrow"></span></a>
+					<ul id="tab_admin" class="collapse <?= isset($_GET['tab']) ? 'in' : '' ?>">
+						<?php while($admin_group = $admin_groups->fetch_assoc()) {
+							$other_groups = $dbc->query("SELECT GROUP_CONCAT(`region` SEPARATOR ''',''') `regions`, GROUP_CONCAT(`classification` SEPARATOR ''',''') `classifications` FROM `field_config_project_admin` WHERE `id`!='{$admin_group['id']}' AND `deleted`=0")->fetch_assoc(); ?>
+							<h4><?= $admin_group['name'].
+								($admin_group['region'] != '' ? '<br /><em><small>'.$admin_group['region'].'</small></em>' : '').
+								($admin_group['classification'] != '' ? '<br /><em><small>'.$admin_group['classification'].'</small></em>' : '').
+								($admin_group['location'] != '' ? '<br /><em><small>'.$admin_group['location'].'</small></em>' : '').
+								($admin_group['customer'] > 0 ? '<br /><em><small>'.get_contact($dbc,$admin_group['customer'],'full_name').'</small></em>' : '') ?></h4>
+							<?php $admin_regions = $admin_classes = [''];
+							if($admin_group['region'] == '') {
+								$admin_regions = mysqli_fetch_all($dbc->query("SELECT IFNULL(`region`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['regions'] != "','" && $other_groups['regions'] != "" ? " AND ((`region` IN ('{$admin_group['region']}','') AND `region` NOT IN ('{$other_groups['regions']}')) OR ('{$admin_group['region']}'='' AND `region` NOT IN ('{$other_groups['regions']}')))" : "")." GROUP BY IFNULL(`region`,'')"));
+							}
+							if($admin_group['classification'] == '') {
+								$admin_classes = mysqli_fetch_all($dbc->query("SELECT IFNULL(`classification`,'') FROM `tickets` WHERE `deleted`=0 ".($other_groups['classifications'] != "','" && $other_groups['classifications'] != "" ? " AND (`classification` IN ('{$admin_group['classification']}','') OR ('{$admin_group['classification']}'='' AND `classification` NOT IN ('{$other_groups['classifications']}')))" : "")." GROUP BY IFNULL(`classification`,'')"));
+							}
+							foreach($admin_regions as $region_i => $admin_region) {
+								foreach($admin_classes as $class_i => $admin_class) { ?>
+									<?php if($admin_region[0].$admin_class[0] != '') { ?>
+										<li><a class="cursor-hand <?= strpos($_GET['tab'], 'administration_'.$admin_group['id'].'_') !== FALSE && strpos($_GET['tab'], '_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0]))) !== FALSE ? 'active blue' : 'collapsed' ?>" data-toggle="collapse" data-target="#tab_admin_<?= $admin_group['id'] ?>_<?= $region_i ?>_<?= $class_i ?>"><?= $admin_region[0] != '' ? 'Region: '.$admin_region[0] : '' ?><?= $admin_region[0] != '' && $admin_class[0] != '' ? '<br />' : '' ?><?= $admin_class[0] != '' ? 'Classification: '.$admin_class[0] : '' ?><span class="arrow"></span></a>
+											<ul id="tab_admin_<?= $admin_group['id'] ?>_<?= $region_i ?>_<?= $class_i ?>" class="collapse <?= strpos($_GET['tab'], 'administration_'.$admin_group['id'].'_') !== FALSE && strpos($_GET['tab'], '_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0]))) !== FALSE ? 'in' : '' ?>">
+									<?php } ?>
+									<li class="sidebar-lower-level <?= $_GET['tab'] == 'administration_'.$admin_group['id'].'_approved_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0])) ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=administration_<?= $admin_group['id'] ?>_approved_<?= str_replace('_','',config_safe_str($admin_region[0])) ?>_<?= str_replace('_','',config_safe_str($admin_class[0])) ?>">Approved</a></li>
+									<li class="sidebar-lower-level <?= $_GET['tab'] == 'administration_'.$admin_group['id'].'_revision_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0])) ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=administration_<?= $admin_group['id'] ?>_revision_<?= str_replace('_','',config_safe_str($admin_region[0])) ?>_<?= str_replace('_','',config_safe_str($admin_class[0])) ?>">In Revision</a></li>
+									<li class="sidebar-lower-level <?= $_GET['tab'] == 'administration_'.$admin_group['id'].'_pending_'.str_replace('_','',config_safe_str($admin_region[0])).'_'.str_replace('_','',config_safe_str($admin_class[0])) ? 'active blue' : '' ?>"><a href="?tile_name=<?= $_GET['tile_name'] ?>&tab=administration_<?= $admin_group['id'] ?>_pending_<?= str_replace('_','',config_safe_str($admin_region[0])) ?>_<?= str_replace('_','',config_safe_str($admin_class[0])) ?>">Pending</a></li>
+									<?php if($admin_region[0].$admin_class[0] != '') { ?>
+										</ul></li>
+									<?php } ?>
+								<?php }
+							} ?>
+						<?php } ?>
+					</ul>
+				</li>
+			<?php }
+		} ?>
     </ul>
 </div>
 

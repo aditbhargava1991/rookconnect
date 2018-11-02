@@ -43,7 +43,7 @@ include_once ('../navigation.php'); ?>
                 <div class="main-screen standard-body default_screen form-horizontal">
                     <div class="standard-body-title">
                         <h3><?= $_GET['inv_mode'] === 'adjust' ? 'Adjust Invoice #'.$invoiceid : 'Create Invoice' ?>
-                            <div class="pull-right small">
+                            <div class="pull-right offset-top-neg-8">
                                 <a data-toggle="collapse" data-parent="#header_divs" href="#header_summary" onclick="setWindowSize();"><img src="<?= WEBSITE_URL ?>/img/icons/pie-chart.png" title="Show <?= CONTACTS_NOUN ?> Summary" class="inline-img override-theme-color-icon no-toggle"></a>
                                 <a href="invoice_main.php"><img class="inline-img no-toggle" title="Cancel Invoice" src="../img/icons/ROOK-trash-icon.png"></a>
                                 <a href="../quick_action_reminders.php?tile=invoice" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="inline-img no-toggle" title="Create Reminder" src="../img/icons/ROOK-reminder-icon.png"></a>

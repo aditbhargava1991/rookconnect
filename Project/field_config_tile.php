@@ -183,6 +183,10 @@ function saveField() {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Business',$project_classify) ? 'checked' : '' ?> name="project_classify" value="Business"> <?= BUSINESS_CAT ?></label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Contact',$project_classify) ? 'checked' : '' ?> name="project_classify" value="Contact"> Contact Name</label>
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Lead',$project_classify) ? 'checked' : '' ?> name="project_classify" value="Lead"> <?= PROJECT_NOUN ?> Lead</label>
+        <h5>Sort Options</h5>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Alpha Types',$project_classify) ? 'checked' : '' ?> name="project_classify" value="Alpha Types"> Alpha Sort <?= PROJECT_NOUN ?> Types</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Alpha Regions',$project_classify) ? 'checked' : '' ?> name="project_classify" value="Alpha Regions"> Alpha Sort Regions</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Alpha Classifications',$project_classify) ? 'checked' : '' ?> name="project_classify" value="Alpha Classifications"> Alpha Sort Classifications</label>
 	</div>
 	<div class="clearfix"></div>
 </div>

@@ -32,9 +32,6 @@ $(document).ready(function() {
 	include_once ('../navigation.php');
 }
 $project_type = filter_var($_GET['type'],FILTER_SANITIZE_STRING);
-if($project_type == '') {
-	$project_type = 'favourite';
-}
 $project_business = filter_var($_GET['businessid'],FILTER_SANITIZE_STRING);
 $project_region = filter_var($_GET['region_name'],FILTER_SANITIZE_STRING);
 $project_class = filter_var($_GET['classification'],FILTER_SANITIZE_STRING);

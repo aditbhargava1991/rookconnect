@@ -14,7 +14,15 @@ if(!empty($_GET['value_config'])) {
     $override_value_config = $_GET['value_config'];
 }
 
-echo get_hours_report($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, 'to_xls', $config['hours_types'], $override_value_config);
+if($_GET['export'] == 'reporting_excel') {
+    echo get_hours_report($dbc, $search_staff, $search_start_date, $search_end_date, $search_position, $search_project, $search_ticket, 'to_xls', $config['hours_types'], $override_value_config);
+    header('Content-type: application/excel');
+    header("Content-Disposition: attachment; filename=timesheet_reporting_".date('d-m-Y').".xls");
 
-header('Content-type: application/excel');
-header("Content-Disposition: attachment; filename=timesheet_reporting_".date('d-m-Y').".xls");
+} else if($_GET['export'] == 'payroll_excel') {
+    echo get_egs_main_hours_report($dbc, $search_staff, $search_start_date, $search_end_date,$report_format = 'to_array','payroll');
+    header('Content-type: application/excel');
+    header("Content-Disposition: attachment; filename=timesheet_payroll_".date('d-m-Y').".xls");
+
+}
+

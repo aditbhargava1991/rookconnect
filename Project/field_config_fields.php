@@ -185,6 +185,12 @@ function remDetail(img) {
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Dates Time Clock Start Date', $all_config) ? 'checked disabled' : (in_array('Dates Time Clock Start Date',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Dates Time Clock Start Date">Time Clock Start Date</label>
 	</div>
 	<div class="clearfix"></div>
+	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_NOUN ?> Path Options<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>
+	<div class="block-group col-sm-8">
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Path ETA', $all_config) ? 'checked disabled' : (in_array('Path ETA',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Path ETA">Milestone ETA</label>
+		<label class="form-checkbox"><input type="checkbox" <?= in_array('Path Time', $all_config) ? 'checked disabled' : (in_array('Path Time',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Path Time">Milestone Total Time</label>
+	</div>
+	<div class="clearfix"></div>
 	<label class="col-sm-4" onclick="$(this).next('div').toggle(); $(this).find('img').toggleClass('counterclockwise');"><?= PROJECT_NOUN ?> Reporting<img class="pull-right black-color inline-img" src="../img/icons/dropdown-arrow.png"></label>
 	<div class="block-group col-sm-8">
 		<label class="form-checkbox"><input type="checkbox" <?= in_array('Reporting Track Time', $all_config) ? 'checked disabled' : (in_array('Reporting Track Time',$field_config) ? 'checked' : '') ?> name="project_fields[]" value="Reporting Track Time">Get To Work / Track Time</label>

@@ -83,7 +83,10 @@ function saveIcon() {
 			icon.prop('src','../img/status_incomplete.png').prop('title','Your page has unsaved changes...').tooltip('destroy');
 			initTooltips();
 		} else if(saving_field != null) {
-			icon.prop('src','../img/status_working.gif').prop('title','Saving Changes...').tooltip('destroy');
+            if(icon.prop('src').indexOf('status_working') < 0) {
+                icon.prop('src','../img/status_working.gif');
+            }
+			icon.prop('title','Saving Changes...').tooltip('destroy');
 			initTooltips();
 		} else if(current_fields.length == 0) {
 			setTimeout(function() {
