@@ -64,6 +64,25 @@ function loadPanel() {
             </div>
         </div>
     </div>
+
+
+    <div class="panel panel-default">
+        <div class="panel-heading mobile_load">
+            <h4 class="panel-title">
+                <a data-toggle="collapse" data-parent="#mobile_tabs" href="#collapse_summary_blocks">
+                    Summary Blocks<span class="glyphicon glyphicon-plus"></span>
+                </a>
+            </h4>
+        </div>
+
+        <div id="collapse_summary_blocks" class="panel-collapse collapse">
+            <div class="panel-body" data-file-name="field_config_tile.php">
+                Loading...
+            </div>
+        </div>
+    </div>
+
+
 </div>
 
 <div class="sidebar standard-collapsible tile-sidebar hide-titles-mob">
@@ -72,6 +91,7 @@ function loadPanel() {
         <a href="?settings=tile"><li <?= $_GET['settings'] == 'tile' ? 'class="active"' : '' ?>>Tile Settings</li></a>
         <a href="?settings=fields"><li <?= $_GET['settings'] == 'fields' ? 'class="active"' : '' ?>><?= TICKET_NOUN ?> Fields</li></a>
         <a href="?settings=status_colors"><li <?= $_GET['settings'] == 'status_colors' ? 'class="active"' : '' ?>>Status Colors</li></a>
+        <a href="?settings=summary_blocks"><li <?= $_GET['settings'] == 'summary_blocks' ? 'class="active"' : '' ?>>Summary Blocks</li></a>
     </ul>
 </div>
 
@@ -81,7 +101,9 @@ function loadPanel() {
             <h3><?= $field_title ?></h3>
         </div>
         <div class="standard-body-content" style="padding: 1em;">
-            <?php if($_GET['settings'] == 'status_colors') {
+            <?php if($_GET['settings'] == 'summary_blocks') {
+                include('field_config_summary_blocks.php');
+            } else if($_GET['settings'] == 'status_colors') {
                 include('field_config_status_colors.php');
             } else if($_GET['settings'] == 'fields') {
                 include('field_config_fields.php');

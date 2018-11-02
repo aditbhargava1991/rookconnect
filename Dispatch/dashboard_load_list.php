@@ -21,7 +21,7 @@ foreach($equip_list as $equipment) {
 	$equip_regions = $equipment['region'].'*#*'.$equip_assign['region_list'];
 	$equip_locations = $equipment['location'].'*#*'.$equip_assign['location_list'];
 	$equip_classifications = $equipment['classification'].'*#*'.$equip_assign['classification_list'];
-	
+
 	$equip_regions = array_filter(array_unique(explode('*#*', $equip_regions)));
 	$equip_locations = array_filter(array_unique(explode('*#*', $equip_locations)));
 	$equip_classifications = array_filter(array_unique(explode('*#*', $equip_classifications)));

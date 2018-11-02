@@ -522,18 +522,24 @@ function load_summary(equipmentid) {
 		title: 'On Time Summary',
 		legend: { position: 'none' }
 	};
-	var ontime_chart = new google.visualization.ColumnChart($('.dispatch-summary-ontime')[0]);
-    ontime_chart.draw(ontime_data, ontime_options);
-    all_chart_data['ontime_chart'] = function() { ontime_chart.draw(ontime_data, ontime_options); };
+
+	if($(".dispatch-summary-ontime")[0]){
+		var ontime_chart = new google.visualization.ColumnChart($('.dispatch-summary-ontime')[0]);
+		ontime_chart.draw(ontime_data, ontime_options);
+		all_chart_data['ontime_chart'] = function() { ontime_chart.draw(ontime_data, ontime_options); };
+	}
 
 	var status_options = {
 		title: 'Status Summary',
 		is3D: true,
 		colors: status_colors
 	};
-	var status_chart = new google.visualization.PieChart($('.dispatch-summary-status')[0]);
-    status_chart.draw(status_data, status_options);
-    all_chart_data['status_chart'] = function() { status_chart.draw(status_data, status_options); };
+
+	if($(".dispatch-summary-status")[0]){
+		var status_chart = new google.visualization.PieChart($('.dispatch-summary-status')[0]);
+		status_chart.draw(status_data, status_options);
+		all_chart_data['status_chart'] = function() { status_chart.draw(status_data, status_options); };
+	}
 }
 function search_filters(field) {
 	if(field.name == 'search_date') {
