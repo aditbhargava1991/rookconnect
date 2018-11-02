@@ -589,7 +589,7 @@ function load_summary(equipmentid) {
 
 	item_row[0]['status_summary'].forEach(function(status) {
 		//status_data.addRow([status['status'], status['count']]);
-		$( "div.dispatch-summary-status-count" ).html('<b>Status List Summary</b><br><br>'+status['status']+' : '+status['count']);
+		$( "div.dispatch-summary-status-count" ).append('<b>Status List Summary</b><br><br>'+status['status']+' : '+status['count']);
 	});
 
 }
