@@ -366,6 +366,9 @@ function saveFieldMethod(field) {
 				$('[data-table=project]').data('id',response);
 				$('[name=projectid]').val(response);
 				$('[name=created_date]').trigger('change');
+                if(name != 'project_lead') {
+                    $('[name=project_lead]').change();
+                }
 				window.history.replaceState('','Software',window.location.href.replace('edit=0','edit='+response));
 				var id = response;
 				$('a').not('.new-btn').each(function() {
