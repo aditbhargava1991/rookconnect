@@ -44,10 +44,23 @@ foreach ($ticket_statuses as $ticket_status) {
         <?php $equipment_view_parent = "#accordion";
         if($summary_tab == 1) {
             $equipment_view_parent = "#collapse_equipment_view"; ?>
-            <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;"><li class="active blue">Summary</li></a>
+            <a id="summary_tab1" href="" onclick="filter_sidebar(this); return false;">
+                <li class="">Summary</li>
+            </a>
+            <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;">
+                <li class="active blue">Truck Overview</li>
+            </a>
             <li class="sidebar-higher-level highest_level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment_view"><?= $equipment_label ?> View<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_equipment_view" style="overflow: hidden;">
         <?php } ?>
+
+        <?php /* $equipment_view_parent = "#accordion";
+        if($summary_tab == 1) {
+            $equipment_view_parent = "#collapse_equipment_view"; ?>
+            <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;"><li class="active blue">Summary</li></a>
+            <li class="sidebar-higher-level highest_level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment_view"><?= $equipment_label ?> View<span class="arrow"></span></a>
+                <ul class="collapse" id="collapse_equipment_view" style="overflow: hidden;">
+        <?php }  */?>
         <?php if(in_array('region',$search_fields) && !$is_customer) { ?>
             <li class="sidebar-higher-level"><a class="cursor-hand collapsed" data-parent="<?= $equipment_view_parent ?>" data-toggle="collapse" data-target="#collapse_region">Region<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_region" style="overflow: hidden;">
