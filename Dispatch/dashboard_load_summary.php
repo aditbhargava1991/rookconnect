@@ -127,9 +127,16 @@ if($equipmentid == 'VISIBLE') {
 	$label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"))['label'];
 }
 
-$summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-ontime"></div></div>';
-$summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-status"></div></div>';
-$summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><b>Star Ratings</b>'.implode('',$summary_result['star_summary']).'</div>';
+$dispatch_summary_block = get_config($dbc, 'dispatch_summary_blocks');
+if(strpos($dispatch_summary_block, 'On Time Summary') !== FALSE) {
+    $summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-ontime"></div></div>';
+}
+if(strpos($dispatch_summary_block, 'Status Summary') !== FALSE) {
+    $summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-status"></div></div>';
+}
+if(strpos($dispatch_summary_block, 'Star Ratings') !== FALSE) {
+    $summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><b>Star Ratings</b>'.implode('',$summary_result['star_summary']).'</div>';
+}
 
 $ontime_summary_arr = [
 	[
