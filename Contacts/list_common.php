@@ -434,7 +434,8 @@ function choose_color(sel) {
 	<?php endif; ?>
 </div>
 <?php } else {
-
+echo '<div class="contact_list"></div>';
+echo '<div class="summary_list">';
 $heading = FOLDER_NAME.'_summary';
 $contacts_summary_config = get_config($dbc, $heading);
 
@@ -581,6 +582,6 @@ if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
 
             }
 */
-
+echo '</div>';
  } ?>
 </div>
