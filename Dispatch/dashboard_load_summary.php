@@ -140,7 +140,12 @@ if(strpos($dispatch_summary_blocks, 'status_summary') !== FALSE) {
 }
 $star_ratings = '';
 if(strpos($dispatch_summary_blocks, 'star_ratings') !== FALSE) {
-    $star_ratings = '<div class="dispatch-summary-block star_ratings" data-equipment="'.$equipmentid.'" '.$border_styling.'><b>Star Ratings</b>'.implode('',$summary_result['star_summary']).'<span class="middle-valign drag_handle-container pull-right"><img class="drag_handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" title="Drag" /></span></div>';
+    $star_ratings = '<div class="dispatch-summary-block star_ratings" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-ratings pull-left"><b>Star Ratings</b>'.implode('',$summary_result['star_summary']).'</div><span class="middle-valign drag_handle-container pull-right"><img class="drag_handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" title="Drag" /></span></div>';
+}
+
+$status_count = '';
+if(strpos($dispatch_summary_blocks, 'status_count') !== FALSE) {
+    $status_count = '<div class="dispatch-summary-block status_count" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-status-count pull-left"></div><span class="middle-valign drag_handle-container pull-right"><img class="drag_handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" title="Drag" /></span></div>';
 }
 
 $dispatch_summary_block = explode(',',$dispatch_summary_blocks);
