@@ -44,7 +44,7 @@ foreach ($ticket_statuses as $ticket_status) {
         <?php $equipment_view_parent = "#accordion";
         if($summary_tab == 1) {
             $equipment_view_parent = "#collapse_equipment_view"; ?>
-            <a id="main_summary_tab" href="" onclick="filter_sidebar(this); return false;">
+            <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;">
                 <li class="">Summary</li>
             </a>
             <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;">
