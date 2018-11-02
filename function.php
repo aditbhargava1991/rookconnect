@@ -621,6 +621,8 @@ function get_config($dbc, $name, $multi = false, $separator = ',') {
 			return 'Attached is your '.POS_ADVANCE_NOUN;
 		} else if($name == 'invoice_email_body') {
 			return '&lt;p&gt;[CUSTOMER]&lt;/p&gt;&lt;p&gt;Attached is your invoice. Thank you for your business!&lt;/p&gt;';
+		} else if($name == 'optimize_stop_types') {
+			return get_config($dbc, 'delivery_types');
 		}
 	}
 
