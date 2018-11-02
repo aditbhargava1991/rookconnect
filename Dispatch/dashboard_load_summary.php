@@ -127,16 +127,28 @@ if($equipmentid == 'VISIBLE') {
 	$label = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT *, CONCAT(' #', `unit_number`) label FROM `equipment` WHERE `equipmentid` = '$equipmentid'"))['label'];
 }
 
-$dispatch_summary_block = get_config($dbc, 'dispatch_summary_blocks');
-if(strpos($dispatch_summary_block, 'On Time Summary') !== FALSE) {
-    $summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-ontime"></div></div>';
+$dispatch_summary_blocks = get_config($dbc, 'dispatch_summary_blocks');
+
+$summary_htmls[] = '<div class="connectedChecklist full-width">';
+$on_time_summary = '';
+if(strpos($dispatch_summary_blocks, 'on_time_summary') !== FALSE) {
+    $on_time_summary = '<div class="dispatch-summary-block on_time_summary" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-ontime pull-left"></div><span class="middle-valign drag_handle-container pull-right"><img class="drag_handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" title="Drag" /></span></div>';
 }
-if(strpos($dispatch_summary_block, 'Status Summary') !== FALSE) {
-    $summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-status"></div></div>';
+$status_summary = '';
+if(strpos($dispatch_summary_blocks, 'status_summary') !== FALSE) {
+    $status_summary = '<div class="dispatch-summary-block status_summary" data-equipment="'.$equipmentid.'" '.$border_styling.'><div class="dispatch-summary-status pull-left"></div><span class="middle-valign drag_handle-container pull-right"><img class="drag_handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" title="Drag" /></span></div>';
 }
-if(strpos($dispatch_summary_block, 'Star Ratings') !== FALSE) {
-    $summary_htmls[] = '<div class="dispatch-summary-block" data-equipment="'.$equipmentid.'" '.$border_styling.'><b>Star Ratings</b>'.implode('',$summary_result['star_summary']).'</div>';
+$star_ratings = '';
+if(strpos($dispatch_summary_blocks, 'star_ratings') !== FALSE) {
+    $star_ratings = '<div class="dispatch-summary-block star_ratings" data-equipment="'.$equipmentid.'" '.$border_styling.'><b>Star Ratings</b>'.implode('',$summary_result['star_summary']).'<span class="middle-valign drag_handle-container pull-right"><img class="drag_handle no-toggle" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="margin:0.25em; height:1.25em; width:1.25em;" title="Drag" /></span></div>';
 }
+
+$dispatch_summary_block = explode(',',$dispatch_summary_blocks);
+foreach($dispatch_summary_block as $each_block) {
+    $summary_htmls[] = $$each_block;
+}
+
+$summary_htmls[] = '</div>';
 
 $ontime_summary_arr = [
 	[
