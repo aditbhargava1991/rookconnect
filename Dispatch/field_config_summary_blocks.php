@@ -27,13 +27,13 @@ function summary_block_change() {
     <div class="form-group summary_block">
         <label class="col-sm-4 control-label">Block Name:</label>
         <div class="col-sm-7">
-            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="On Time Summary" <?= (strpos($dispatch_summary_block, 'On Time Summary') !== FALSE ? 'checked' : '') ?>> On Time Summary</label>
+            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="on_time_summary" <?= (strpos($dispatch_summary_block, 'on_time_summary') !== FALSE ? 'checked' : '') ?>> On Time Summary</label>
 
-            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="Status Summary" <?= (strpos($dispatch_summary_block, 'Status Summary') !== FALSE ? 'checked' : '') ?>> Status Summary</label>
+            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="status_summary" <?= (strpos($dispatch_summary_block, 'status_summary') !== FALSE ? 'checked' : '') ?>> Status Summary</label>
 
-            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="Star Ratings" <?= (strpos($dispatch_summary_block, 'Star Ratings') !== FALSE ? 'checked' : '') ?>> Star Ratings</label>
+            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="star_ratings" <?= (strpos($dispatch_summary_block, 'star_ratings') !== FALSE ? 'checked' : '') ?>> Star Ratings</label>
 
-            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="Status Count" <?= (strpos($dispatch_summary_block, 'Status Count') !== FALSE ? 'checked' : '') ?>> Status Count</label>
+            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="status-count" <?= (strpos($dispatch_summary_block, 'status-count') !== FALSE ? 'checked' : '') ?>> Status Count</label>
 
 
         </div>

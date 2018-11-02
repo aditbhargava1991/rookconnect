@@ -13,7 +13,7 @@ if($_GET['action'] == 'save_config') {
     mysqli_query($dbc, "UPDATE `field_config_ticket_status_color` SET `color` = '$color_code' WHERE `status` = '$status'");
 } else if($_GET['action'] == 'dispatch_blocks') {
 	$summary_blocks = $_GET['summary_blocks'];
-    set_config($dbc, 'dispatch_summary_blocks', $summary_blocks);
+    set_config($dbc, 'dispatch_summary_blocks', ','.$summary_blocks.',');
 } else if($_GET['action'] == 'sort_equipment_latest_updated') {
 	include_once('../Dispatch/config.php');
 	ob_clean();
@@ -39,4 +39,18 @@ if($_GET['action'] == 'save_config') {
 		}
 	}
 	echo json_encode($equip_sort);
+} else if($_GET['action'] == 'summary_block_reorder') {
+	$block_change = $_GET['block_change'];
+	$after_block_change = $_GET['after_block_change'];
+
+    $dispatch_summary_blocks = get_config($dbc, 'dispatch_summary_blocks');
+    $dispatch_summary_blocks =  str_replace(','.$block_change,"",$dispatch_summary_blocks);
+
+    if($after_block_change == 0) {
+        $dispatch_summary_blocks1 = ','.$block_change.$dispatch_summary_blocks;
+    } else {
+        $dispatch_summary_blocks1 =  str_replace($after_block_change.',',$after_block_change.','.$block_change.',',$dispatch_summary_blocks);
+    }
+
+    set_config($dbc, 'dispatch_summary_blocks', $dispatch_summary_blocks1);
 }

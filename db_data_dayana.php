@@ -324,7 +324,7 @@ mysqli_query($dbc, "ALTER TABLE `contacts` ADD `flag_label` VARCHAR(500) NULL AF
 
 mysqli_query($dbc, "ALTER TABLE `equipment` ADD `favorite` INT(1) NOT NULL DEFAULT '0' AFTER `equipment_image`");
 
-set_config($dbc, 'dispatch_summary_blocks', 'On Time Summary,Status Summary,Star Ratings,Status Count');
+set_config($dbc, 'dispatch_summary_blocks', ',on_time_summary,status_summary,star_ratings,');
 
 echo "Dayana's DB Changes Done<br />\n";
 

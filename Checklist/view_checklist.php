@@ -154,9 +154,9 @@ function <?= $diff_function ?>send_reply(checklist) {
 		var type = 'checklist board';
 		checklist_id = checklist_id.substring(5);
 	}
-    
+
     overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_notes.php?tile=checklists&id='+checklist_id, 'auto', false, true);
-    
+
 	/* Function before notes slider
     $('[name=reply_'+checklist_id+']').show().focus();
 	$('[name=reply_'+checklist_id+']').keyup(function(e) {
@@ -619,7 +619,7 @@ if($num_rows > 0) { ?>
                             while($doc = mysqli_fetch_array($documents)) {
                                 echo '<div class="double-gap-top offset-left-5 gap-bottom"><a href="../Checklist/download/'.$doc['document'].'">'.$doc['document'].' (Uploaded by '.get_staff($dbc, $doc['created_by']).' on '.$doc['created_date'].')</a></div>';
                             }
-                            
+
                             echo '<input type="text" name="reply_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control" />';
                             echo '<input type="text" name="checklist_time_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control timepicker" />';
                             echo '<input type="text" name="reminder_'.$row['checklistnameid'].'" style="display:none; margin-top: 2em;" class="form-control datepicker reminder" onfocusout="$(this).hide();" />';

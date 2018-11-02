@@ -1,5 +1,14 @@
 result_list = [];
 $(document).ready(function() {
+    $( ".connectedChecklist" ).sortable({
+		beforeStop: function(e, ui) { ui.helper.removeClass('popped-field'); },
+		connectWith: ".connectedChecklist",
+		delay: 500,
+		handle: ".drag_handle",
+		//items: "li:not(.no-sort)",
+		start: function(e, ui) {ui.helper.addClass('popped-field'); }
+    });
+
 	// Load the Visualization API and the corechart package.
 	google.charts.load('current', {'packages':['corechart']});
 
@@ -483,13 +492,50 @@ function retrieve_summary(img, equipmentid, keep_visible = 0) {
 					}
 				} else {
 					result_list['summary'].push(response);
+
 				}
 				load_summary(equipmentid);
+				drag_blocks();
+
 				loadingOverlayHide();
 			}
 		});
 	}
 }
+
+function drag_blocks() {
+	$( ".connectedChecklist" ).sortable({
+		beforeStop: function(e, ui) { ui.helper.removeClass('popped-field'); },
+		connectWith: ".connectedChecklist",
+		delay: 500,
+		handle: ".drag_handle",
+		//items: "li:not(.no-sort)",
+		start: function(e, ui) {ui.helper.addClass('popped-field'); },
+		update: function( event, ui ) {
+			var block_name = ui.item.attr("class"); //Done
+			var block_change = block_name.split(' ');
+
+			var after_block_name = ui.item.prev().attr('class');
+			if (typeof after_block_name === "undefined") {
+				var after_block_change = 0;
+			} else {
+				var block_change = after_block_name.split(' ');	
+				var after_block_change = block_change[1];
+			}
+
+			//var table_class = ui.item.parent().attr("class");
+			//var status = table_class.split(' ');
+			$.ajax({    //create an ajax request to load_page.php
+				type: "GET",
+				url: "../Dispatch/ajax.php?action=summary_block_reorder&block_change="+block_change[1]+"&after_block_change="+after_block_change,
+				dataType: "html",   //expect html to be returned
+				success: function(response){
+				}
+			});
+		}
+	});
+}
+
 function load_summary(equipmentid) {
 	resize_blocks();
 	var ontime_data = new google.visualization.DataTable();
