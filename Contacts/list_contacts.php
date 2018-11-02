@@ -289,6 +289,8 @@ $lists = array_values($lists);
 if(mysqli_fetch_array(mysqli_query($dbc, "SELECT COUNT(*) FROM `contacts` WHERE `deleted`=0 AND `tile_name`='".FOLDER_NAME."' AND `category` NOT IN ('".implode("','",$lists)."','Staff')"))[0]) {
 	$lists[] = 'Uncategorized';
 }
+$_GET['list'] = empty($_GET['list']) ? 'summary' : $_GET['list'];
+$_GET['status'] = empty($_GET['status']) ? 'summary' : $_GET['status'];
 $category = empty($_GET['list']) ? $lists[0] : filter_var($_GET['list'],FILTER_SANITIZE_STRING);
 $status = (empty($_GET['status']) ? 'active' : $_GET['status']); ?>
 <?php $list = ''; ?>
