@@ -587,9 +587,10 @@ function load_summary(equipmentid) {
 		all_chart_data['status_chart'] = function() { status_chart.draw(status_data, status_options); };
 	}
 
+	$( "div.dispatch-summary-status-count" ).html('<b>Status List Summary</b><br><br>');
 	item_row[0]['status_summary'].forEach(function(status) {
 		//status_data.addRow([status['status'], status['count']]);
-		$( "div.dispatch-summary-status-count" ).append('<b>Status List Summary</b><br><br>'+status['status']+' : '+status['count']);
+		$( "div.dispatch-summary-status-count" ).append('<br>'+status['status']+' : '+status['count']);
 	});
 
 }
