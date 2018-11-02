@@ -549,7 +549,7 @@ function load_summary(equipmentid) {
 
 	var item_row = $.grep(result_list['summary'], function(row) {
 		return row['equipmentid'] == equipmentid;
-	});;
+	});
 	item_row[0]['status_summary'].forEach(function(status) {
 		status_data.addRow([status['status'], status['count']]);
 		status_colors.push(status['color']);
@@ -586,6 +586,12 @@ function load_summary(equipmentid) {
 		status_chart.draw(status_data, status_options);
 		all_chart_data['status_chart'] = function() { status_chart.draw(status_data, status_options); };
 	}
+
+	item_row[0]['status_summary'].forEach(function(status) {
+		//status_data.addRow([status['status'], status['count']]);
+		$( "div.dispatch-summary-status-count" ).html('<b>Status List Summary</b><br><br>'+status['status']+' : '+status['count']);
+	});
+
 }
 function search_filters(field) {
 	if(field.name == 'search_date') {

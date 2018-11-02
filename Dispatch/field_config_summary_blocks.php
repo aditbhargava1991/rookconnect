@@ -33,8 +33,7 @@ function summary_block_change() {
 
             <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="star_ratings" <?= (strpos($dispatch_summary_block, 'star_ratings') !== FALSE ? 'checked' : '') ?>> Star Ratings</label>
 
-            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="status-count" <?= (strpos($dispatch_summary_block, 'status-count') !== FALSE ? 'checked' : '') ?>> Status Count</label>
-
+            <label class="form-checkbox"><input onchange="summary_block_change(this);" type="checkbox" name="dispatch_summary_blocks[]" value="status_count" <?= (strpos($dispatch_summary_block, 'status_count') !== FALSE ? 'checked' : '') ?>> Status List Summary</label>
 
         </div>
     </div>
