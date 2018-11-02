@@ -48,7 +48,7 @@ foreach ($ticket_statuses as $ticket_status) {
                 <li class="">Summary</li>
             </a>
             <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;">
-                <li class="active blue">Truck Overview</li>
+                <li class="">Truck Overview</li>
             </a>
             <li class="sidebar-higher-level highest_level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment_view"><?= $equipment_label ?> View<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_equipment_view" style="overflow: hidden;">
