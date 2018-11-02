@@ -1077,12 +1077,23 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 				$show_sub = ($_GET['tab'] == '' || in_array($_GET['tab'],['path']) || $no_sub_shown || array_key_exists($_GET['project_form_id'], $user_forms));
 				$no_sub_shown = false;
 				if(in_array('Scrum Board',$tab_config) && $_GET['edit'] > 0) {
-					$sub_tabs[] = [PROJECT_NOUN.' Scrum Board','path'];
+                    $status_list = array_unique(array_merge(explode(',',get_config($dbc, 'ticket_status')),explode(',',get_config($dbc, 'task_status'))));
+                    $tab_count = $dbc->query("SELECT COUNT(*) `count` FROM (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND `projectid`='$projectid' AND `status` IN ('".implode("','",$status_list)."') UNION SELECT `tasklistid` FROM `tasklist` WHERE `projectid`='$projectid' AND `status` IN ('".implode("','",$status_list)."') AND `deleted`=0) `items`")->fetch_assoc()['count'];
+                    $sub_tabs[] = [PROJECT_NOUN.' Scrum Board<span class="pull-right">'.$tab_count.'</span>','path'];
 					$next_tab = (!$next_set ? 'path' : $next_tab);
 					$next_set = ($prev_set ? true : false);
 					$prev_set = ($_GET['tab'] == 'path' ? true : $prev_set);
 					$previous_tab = ($prev_set ? $previous_tab : 'path');
 					$_GET['tab'] = ($_GET['tab'] == '' ? $path_tab[1] : $_GET['tab']);
+                    foreach($status_list as $i => $status) {
+                        $tab_count = $dbc->query("SELECT COUNT(*) `count` FROM (SELECT `ticketid` FROM `tickets` WHERE `deleted`=0 AND `projectid`='$projectid' AND `status`='$status' UNION SELECT `tasklistid` FROM `tasklist` WHERE `projectid`='$projectid' AND `deleted`=0 AND `status`='$status') `items`")->fetch_assoc()['count'];
+                        $tab_id = 'path&pathid=scrum|'.config_safe_str($status);
+                        $sub_tabs[] = [$status.'<span class="pull-right">'.$tab_count.'</span>',$tab_id];
+                        if($_GET['tab'].'&pathid='.$_GET['pathid'] == $tab_id) {
+                            $show_sub = true;
+                            $no_sub_shown = false;
+                        }
+                    }
 				}
 				if(in_array('Path',$tab_config) && $_GET['edit'] > 0) {
 					foreach(explode(',',$project['project_path']) as $path_i => $projectpathid) {
@@ -1184,7 +1195,7 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
 						<li class="sidebar-higher-level <?= $show_sub || $_GET['edit'] == 0 ? 'active blue' : 'collapsed' ?>"><?= PROJECT_NOUN ?> Path<span class="arrow"></span></li></a>
 					<ul style="<?= $show_sub || $_GET['edit'] == 0 ? (count($sub_tabs) > 0 ? '' : 'padding-left:0;') : 'display: none;' ?>">
 					<?php foreach($sub_tabs as $path_tab) { ?>
-						<?php $_GET['tab'] = ($_GET['tab'] == '' ? $path_tab[1] : $_GET['tab']); $next_tab = (!$next_set ? $path_tab[1] : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'].'&pathid='.$_GET['pathid'] == $path_tab[1] ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : $path_tab[1]); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=<?= $path_tab[1] ?>"><li class="sidebar-lower-level <?= $_GET['tab'] == $path_tab[1] || $path_tab[1] == $_GET['tab'].'&pathid='.$_GET['pathid'] ? 'active blue' : '' ?>" style="<?= in_array(explode('&',$path_tab[1])[0],['path','path_external_path','scrum_board']) ? '' : 'padding-left: 50px;' ?>"><?= $path_tab[0] ?></li></a>
+						<?php $_GET['tab'] = ($_GET['tab'] == '' ? $path_tab[1] : $_GET['tab']); $next_tab = (!$next_set ? $path_tab[1] : $next_tab); $next_set = ($prev_set ? true : false); $prev_set = ($_GET['tab'].'&pathid='.$_GET['pathid'] == $path_tab[1] ? true : $prev_set); $previous_tab = ($prev_set ? $previous_tab : $path_tab[1]); ?><a href="?edit=<?= $_GET['edit'] ?>&tab=<?= $path_tab[1] ?>"><li class="sidebar-lower-level <?= $path_tab[1] ?> <?= ($path_tab[1] == $_GET['tab'] && empty($_GET['pathid'])) || $path_tab[1] == $_GET['tab'].'&pathid='.$_GET['pathid'] ? 'active blue' : '' ?>" style="<?= in_array(explode('&',$path_tab[1])[0],['path','path_external_path','scrum_board']) && explode('|',explode('&',$path_tab[1])[1])[0] != 'pathid=scrum' ? '' : 'padding-left: 50px;' ?>"><?= $path_tab[0] ?></li></a>
 					<?php }
 					if(count($user_forms) > 0 && $_GET['edit'] > 0) {
 						foreach($user_forms as $project_form_id => $subtab_name) { ?>

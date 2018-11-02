@@ -501,7 +501,7 @@ if($pathid[1] > 0 && $pathid[0] == 'I') {
 	include('edit_project_path_scrum.php');
 } else if($pathid[0] == 'MS') {
 	$pathid = 'MS';
-} else if($pathid[0] == 'SB' || count(array_filter(explode(',',$project['project_path'].','.$project['external']))) == '' || ($_GET['tab'] == 'path' && $pathid[0] == '' && in_array('Scrum Board',$tab_config))) {
+} else if($pathid[0] == 'SB' || $pathid[0] == 'scrum' || count(array_filter(explode(',',$project['project_path'].','.$project['external']))) == '' || ($_GET['tab'] == 'path' && $pathid[0] == '' && in_array('Scrum Board',$tab_config))) {
 	$_GET['tab'] = 'scrum_board';
 	include('edit_project_path_scrum.php');
 } else if($_GET['tab'] == 'path' || empty($_GET['tab'])) {

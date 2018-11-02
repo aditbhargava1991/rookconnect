@@ -12,6 +12,7 @@ $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE 
 <script>
 $(document).ready(function() {
 	setActions();
+    resizeProjectPath();
 	$(window).resize(function() {
 		resizeProjectPath();
 	}).resize();
@@ -56,7 +57,7 @@ function initDragging() {
 }
 </script>
 <h3 class="pad-horizontal action-icons"><span class="pull-left"><?= PROJECT_NOUN ?> Scrum Board</span>
-<?php if(in_array($_GET['tab'],['path','path_external_path','scrum_board']) && $security['edit'] > 0 && $pathid != 'AllSB') { ?>
+<?php if(in_array($_GET['tab'],['path','path_external_path','scrum_board']) && $security['edit'] > 0 && $pathid != 'AllSB' && $pathid[0] != 'scrum') { ?>
 	<div class="col-sm-4 pull-right path_select smaller" style="display:none;"><select class="chosen-select-deselect path_select_onchange" data-placeholder="Select <?= PROJECT_NOUN ?> Path">
 		<option></option>
 		<?php if(in_array('Scrum Board',$tab_config)) { ?><option <?= $_GET['tab'] == 'scrum_board' ? 'selected' : '' ?> value="SB">Scrum Board</option><?php } ?>
@@ -74,7 +75,7 @@ function initDragging() {
 <?php } ?></h3>
 <div class="clearfix"></div>
 <div class="double-scroller"><div></div></div>
-<div class="has-dashboard form-horizontal dashboard-container" style="<?= $pathid == 'AllSB' ? 'overflow-y:hidden;' : '' ?>">
+<div class="has-dashboard form-horizontal dashboard-container" style="<?= $pathid == 'AllSB' || $pathid[0] == 'scrum' ? 'overflow-y:hidden;' : '' ?>">
 	<?php $ticket_status_list = explode(',',get_config($dbc, 'ticket_status'));
 	$task_statuses = explode(',',get_config($dbc, 'task_status'));
 	$add_action = '';
@@ -87,19 +88,21 @@ function initDragging() {
 		$action_title = 'Add Task';
 	}
 	foreach(array_unique(array_merge($ticket_status_list,$task_statuses)) as $i => $status) {
-		$sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND `status`='$status'
-			UNION SELECT 'Task', `tasklistid` FROM `tasklist` WHERE `projectid`='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND `status`='$status'";
-		$milestone_items = mysqli_query($dbc, $sql); ?>
-		<div class="<?= $pathid == 'AllSB' ? 'item-list' : 'dashboard-list' ?>" style="margin-bottom: -10px;">
-			<a href="?edit=<?= $projectid ?>&tab=<?= $tab_id ?>" <?= $pathid == 'AllSB' ? 'onclick="return false;"' : '' ?>><div class="info-block-header"><h4><?= $status ?>
-				<?= $add_action != '' && $security['edit'] > 0 && $pathid != 'AllSB' ? '<a href=""><img class="no-margin black-color inline-img pull-right" src="../img/icons/ROOK-add-icon.png" title="'.$action_title.'" onclick="'.$add_action.'return false;"></a>' : '' ?></h4>
-			<div class="small"><?= mysqli_num_rows($milestone_items) ?></div></div></a>
-			<ul class="<?= $pathid == 'AllSB' ? 'connectedChecklist full-width' : 'dashboard-list' ?>" data-status="<?= $status ?>">
-				<?php while($item = mysqli_fetch_array($milestone_items)) {
-					include('scrum_card_load.php');
-				} ?>
-			</ul>
-		</div>
-	<?php } ?>
+        if($pathid[0] != 'scrum' || $pathid[1] == config_safe_str($status)) {
+            $sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND `status`='$status'
+                UNION SELECT 'Task', `tasklistid` FROM `tasklist` WHERE `projectid`='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND `status`='$status'";
+            $milestone_items = mysqli_query($dbc, $sql); ?>
+            <div class="<?= $pathid == 'AllSB' || $pathid[0] == 'scrum' ? 'item-list' : 'dashboard-list' ?>" style="margin-bottom: -10px;">
+                <a href="?edit=<?= $projectid ?>&tab=path&pathid=scrum|<?= config_safe_str($status) ?>" <?= $pathid == 'AllSB' || $pathid[0] == 'scrum' ? 'onclick="return false;"' : '' ?>><div class="info-block-header"><h4><?= $status ?>
+                    <?= $add_action != '' && $security['edit'] > 0 && $pathid != 'AllSB' && $pathid[0] != 'scrum' ? '<a href=""><img class="no-margin black-color inline-img pull-right" src="../img/icons/ROOK-add-icon.png" title="'.$action_title.'" onclick="'.$add_action.'return false;"></a>' : '' ?></h4>
+                <div class="small"><?= mysqli_num_rows($milestone_items) ?></div></div></a>
+                <ul class="<?= $pathid == 'AllSB' || $pathid[0] == 'scrum' ? 'connectedChecklist full-width' : 'dashboard-list' ?>" data-status="<?= $status ?>">
+                    <?php while($item = mysqli_fetch_array($milestone_items)) {
+                        include('scrum_card_load.php');
+                    } ?>
+                </ul>
+            </div>
+        <?php }
+    } ?>
 </div>
 <div class="clearfix"></div>
