@@ -378,7 +378,8 @@ $(document).ready(function() {
 				<div class="panel-body">
 
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Status".',') !== FALSE) { echo " checked"; } ?> value="Status" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Status
-				<input type="checkbox" <?php if (strpos($equipment_config, ','."Ownership Status".',') !== FALSE) { echo " checked"; } ?> value="Ownership Status" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Ownership Status
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Ownership Status".',') !== FALSE) { echo " checked"; } ?> onclick="if(this.checked) { $('[name^=equipment][value^=Vendor]').removeAttr('checked'); }" value="Ownership Status" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Ownership Status
+				<input type="checkbox" <?php if (strpos($equipment_config, ','."Vendor Ownership".',') !== FALSE) { echo " checked"; } ?> onclick="if(this.checked) { $('[name^=equipment][value^=Ownership]').removeAttr('checked'); }" value="Vendor Ownership" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Vendor Ownership
 				<input type="checkbox" <?php if (strpos($equipment_config, ','."Assigned Status".',') !== FALSE) { echo " checked"; } ?> value="Assigned Status" style="height: 20px; width: 20px;" name="equipment[]">&nbsp;&nbsp;Assigned Status
 
 				</div>
