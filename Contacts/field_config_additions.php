@@ -393,6 +393,11 @@ $(document).on('change', 'select[name="contact_type"]', function() { change_type
                         <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="Sales Lead Details" name="contact_field[]" <?= in_array('Sales Lead Details', $field_config) ? 'checked' : '' ?> onchange="save_options();"> Enable <span class="show-on-mob"> in Profile</span></label></div>
                         <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="sales" <?= $tile_enabled['user_enabled'] == 1 ? 'checked' : '' ?> <?= $tile_enabled['admin_enabled'] == 0 || $admin_access == 0 ? 'disabled' : '' ?> onchange="setTileEnabled(this);"> <?= $tile_enabled['admin_enabled'] == 0 ? 'Contact Support to Enable This Tile' : 'Enable <span class="show-on-mob">d in Software</span>' ?></label></div>
                         <div class="clearfix"></div>
+                        <?php $tile_enabled = tile_enabled($dbc, 'equipment'); ?>
+                        <div class="col-sm-4">Equipment List:</div>
+                        <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="Equipment List Addition" name="contact_field[]" <?= in_array('Equipment List Addition', $field_config) ? 'checked' : '' ?> onchange="save_options();"> Enable <span class="show-on-mob"> in Profile</span></label></div>
+                        <div class="col-sm-4"><label class="form-checkbox"><input type="checkbox" value="equipment" <?= $tile_enabled['user_enabled'] == 1 ? 'checked' : '' ?> <?= $tile_enabled['admin_enabled'] == 0 || $admin_access == 0 ? 'disabled' : '' ?> onchange="setTileEnabled(this);"> <?= $tile_enabled['admin_enabled'] == 0 ? 'Contact Support to Enable This Tile' : 'Enable <span class="show-on-mob">d in Software</span>' ?></label></div>
+                        <div class="clearfix"></div>
                     </div>
                 </div>
             </div>

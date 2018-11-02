@@ -120,5 +120,6 @@
     'Order Lists' => ['order_lists', ['Order Lists Addition']],
     'Vendor Price Lists' => ['vendor_price_lists', ['Vendor Price Lists Addition'/*, 'vpl_import_export'=>'VPL Import/Export', 'vpl_description'=>'VPL Description', 'vpl_unique_identifier'=>'VPL Unique Identifier', 'vpl_product_cost'=>'VPL Product Cost', 'vpl_purchase_info'=>'VPL Purchase Info', 'vpl_shipping_receiving'=>'VPL Shipping Receiving', 'vpl_pricing'=>'VPL Pricing', 'vpl_markup'=>'VPL Markup', 'vpl_stock'=>'VPL Stock', 'vpl_location'=>'VPL Location', 'vpl_dimensions'=>'VPL Dimensions', 'vpl_alerts'=>'VPL Alerts', 'vpl_time_allocation'=>'VPL Time Allocation', 'vpl_admin_fees'=>'VPL Admin Fees', 'vpl_quote'=>'VPL Quote', 'vpl_status'=>'VPL Status', 'vpl_display_on_website'=>'VPL Display On Website', 'vpl_general'=>'VPL General', 'vpl_rental'=>'VPL Rental', 'vpl_day_week_month_year'=>'VPL Day/Week/Month/Year', 'vpl_vehicle'=>'VPL Vehicle', 'vpl_inclusion'=>'VPL Inclusion', 'vpl_amount'=>'VPL Amount'*/]],
     'Purchase Order #s' => ['po_numbers', ['PO Addition']],
+    'Equipment List' => ['equip_list', ['Equipment List Addition']],
     'Calendar Settings' => ['calendar_settings', ['calendar_color'=>'Calendar Color']],
     'Subtab Configuration' => ['subtab_config', ['Visibility Options']]]; ?>

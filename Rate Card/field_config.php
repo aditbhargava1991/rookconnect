@@ -976,6 +976,7 @@ $(document).ready(function(){
 
 								<input type="checkbox" <?php if (strpos($value_config, ','."Equipment Category".',') !== FALSE) { echo " checked"; } ?> value="Equipment Category" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Category&nbsp;&nbsp;
 								<input disabled type="checkbox" <?php if (strpos($value_config, ','."Equipment Unit/Serial Number".',') !== FALSE) { echo " checked"; } ?> value="Equipment Unit/Serial Number" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Unit/Serial Number&nbsp;&nbsp;
+								<input type="checkbox" <?php if (strpos($value_config, ','."Equipment Comp".',') !== FALSE) { echo " checked"; } ?> value="Equipment Comp" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;<?= TICKET_NOUN ?> Compensation&nbsp;&nbsp;
 							</div>
 						</div>
 					</div>
@@ -1074,7 +1075,8 @@ $(document).ready(function(){
 						<div id="collapse_comp" class="panel-collapse collapse">
 							<div class="panel-body">
 
-								<input type="checkbox" <?php if (strpos($value_config, ','."Compensation".',') !== FALSE) { echo " checked"; } ?> value="Compensation" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Compensation
+								<input type="checkbox" <?php if (strpos($value_config, ','."Compensation".',') !== FALSE) { echo " checked"; } ?> value="Compensation" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Individual Compensation
+								<input type="checkbox" <?php if (strpos($value_config, ','."Equip Compensation".',') !== FALSE) { echo " checked"; } ?> value="Equip Compensation" style="height: 20px; width: 20px;" name="config_fields[]">&nbsp;&nbsp;Equipment Compensation
 							</div>
 						</div>
 					</div>

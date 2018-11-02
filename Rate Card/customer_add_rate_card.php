@@ -166,7 +166,7 @@ if (isset($_POST['submit'])) {
     $j=0;
     if(!empty($_POST['equipmentid'])) {
         foreach ($_POST['equipmentid'] as $equipmentid_all) {
-            $equipment .= $equipmentid_all.'#'.$_POST['eqfinalprice'][$j].'**';
+            $equipment .= $equipmentid_all.'#'.$_POST['eqfinalprice'][$j].'#'.$_POST['eqcomp'][$j].'**';
             $total_price += $_POST['eqfinalprice'][$j];
             $j++;
         }
@@ -239,10 +239,8 @@ if (isset($_POST['submit'])) {
         $comp_id = filter_var($_POST['comp_id'][$i],FILTER_SANITIZE_STRING);
         $deleted = filter_var($_POST['comp_deleted'][$i],FILTER_SANITIZE_STRING);
         if($comp_id > 0) {
-            echo "UPDATE `rate_compensation` SET `rate_card`='$ratecardid', `item_type`='$comp_item', `comp_percent`='$comp_rate', `comp_fee`='$comp_fee', `deleted`='$deleted' WHERE `id`='$comp_id'";
             $dbc->query("UPDATE `rate_compensation` SET `rate_card`='$ratecardid', `item_type`='$comp_item', `comp_percent`='$comp_rate', `comp_fee`='$comp_fee', `deleted`='$deleted' WHERE `id`='$comp_id'");
         } else if(!empty($comp_item) && (!empty($comp_rate) || !empty($comp_fee))) {
-            echo "INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, `comp_fee`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$comp_fee', '$deleted')";
             $dbc->query("INSERT INTO `rate_compensation` (`rate_card`, `item_type`, `comp_percent`, `comp_fee`, `deleted`) VALUES ('$ratecardid', '$comp_item', '$comp_rate', '$comp_fee', '$deleted')");
         }
     }
@@ -841,7 +839,7 @@ function deleteRatecard(sel, hide, blank) {
         </div>
         <?php */} ?>
 
-        <?php if (strpos($value_config, ','."Compensation".',') !== FALSE) { ?>
+        <?php if (strpos($value_config, ','."Compensation".',') !== FALSE || strpos($value_config, ','."Equip Compensation".',') !== FALSE) { ?>
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">

@@ -17,6 +17,7 @@ $(document).ready(function() {
         clone.find('#eqhr_0').attr('id', 'eqhr_'+add_new_eq);
         clone.find('#eqhrt_0').attr('id', 'eqhrt_'+add_new_eq);
         clone.find('#eqfdb_0').attr('id', 'eqfdb_'+add_new_eq);
+		clone.find('#eqcomp_0').attr('id', 'eqcomp_'+add_new_eq);
 		clone.find('#eqfinalprice_0').attr('id', 'eqfinalprice_'+add_new_eq);
 		clone.find('#eqquoteprice_0').attr('id', 'eqquoteprice_'+add_new_eq);
         clone.find('#equ_0').attr('id', 'equ_'+add_new_eq);
@@ -108,6 +109,9 @@ $field_config_equipment = ','.$get_field_config_equipment['equipment'].',';
             <?php if (strpos($field_config_equipment, ','."Field Day Cost".',') !== FALSE) { ?>
             <label class="col-sm-1 text-center">Field Day Billable</label>
             <?php } ?>
+            <?php if (strpos($base_field_config, ','."Equipment Comp".',') !== FALSE) { ?>
+                <label class="col-sm-1 text-center"><?= TICKET_NOUN ?> Rate</label>
+            <?php } ?>
             <label class="col-sm-1 text-center">Rate Card Price</label>
         </div>
 
@@ -123,6 +127,7 @@ $field_config_equipment = ','.$get_field_config_equipment['equipment'].',';
                     $each_val = explode('#', $each_equipment[$pid_loop]);
                     $equipmentid = $each_val[0];
                     $ratecardprice = $each_val[1];
+                    $ratecardcomp = $each_val[2];
                 }
 
                 if($equipmentid != '') {
@@ -197,6 +202,11 @@ $field_config_equipment = ','.$get_field_config_equipment['equipment'].',';
                 <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Field Day Billable:</label>
                     <input name="eqfdb[]" value="<?php echo get_equipment_field($dbc, $equipmentid, 'field_day_billable');?>" id="<?php echo 'eqfdb_'.$id_loop; ?>" readonly type="text" class="form-control" />
                 </div>
+                <?php } ?>
+                <?php if (strpos($base_field_config, ','."Equipment Comp".',') !== FALSE) { ?>
+                    <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label"><?= TICKET_NOUN ?> Compensation Rate:</label>
+                        <input name="eqcomp[]" value="<?= $ratecardcomp ?>" id="<?php echo 'eqcomp_'.$id_loop; ?>" type="text" class="form-control" />
+                    </div>
                 <?php } ?>
                 <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Rate Card Price:</label>
                     <input name="eqfinalprice[]" value="<?php echo $ratecardprice;?>" id="<?php echo 'eqfinalprice_'.$id_loop; ?>" type="text" class="form-control" />
@@ -273,6 +283,11 @@ $field_config_equipment = ','.$get_field_config_equipment['equipment'].',';
                 <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Field Day Billable:</label>
                     <input name="eqfdb[]" id="eqfdb_0" readonly type="text" class="form-control" />
                 </div>
+                <?php } ?>
+                <?php if (strpos($base_field_config, ','."Equipment Comp".',') !== FALSE) { ?>
+                    <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label"><?= TICKET_NOUN ?> Compensation Rate:</label>
+                        <input name="eqcomp[]" id="eqcomp_0" type="text" class="form-control" />
+                    </div>
                 <?php } ?>
                 <div class="col-sm-1" ><label for="company_name" class="col-sm-4 show-on-mob control-label">Rate Card Price:</label>
                     <input name="eqfinalprice[]" id="eqfinalprice_0" type="text" class="form-control" />
