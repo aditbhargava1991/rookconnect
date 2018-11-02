@@ -372,7 +372,7 @@ $config['settings']['Choose Fields for Holidays Dashboard']['data'] = array(
 		)
 );
 
-function get_tabs($tab = '', $subtab = '', $custom = array())
+function get_tabs($tab = '', $subtab = '', $navtab = '', $custom = array())
 {
 	global $config;
 	global $dbc;
@@ -388,14 +388,19 @@ function get_tabs($tab = '', $subtab = '', $custom = array())
 			$title_subtab = str_replace ( ['&', '/', ',', ' ', '___', '__'], ['', '_', '', '_', '_', '_'], $title );
             if(is_array($contents)) {
 				$active = '';
-				if($title == $tab) {
+				$new_navtab = str_replace(array(' ', '.php'), array('_', ''), strtolower($title));
+                if($navtab == $new_navtab) {
 					$active = 'active';
 				}
 
 				if($title == 'Holidays') {
-					$url = $contents['Holidays'] . '?navtab=holidays';
-				} else {
-					$url = !empty($contents[$default_tab]) ? $contents[$default_tab] . (strpos($contents[$default_tab], '?')!==false ? '&' : '?') . 'navtab='.str_replace(array(' ', '.php'), array('_', ''), strtolower($title)) : $contents['Custom'];
+					//$url = $contents['Holidays'] . '?navtab=holidays';
+					$url = 'main.php?navtab=holidays';
+				} elseif ($title == 'Pay Period') {
+                    $url = 'main.php?navtab=pay_period';
+                } else {
+                    $filename = pathinfo($contents[$default_tab]);
+                    $url = !empty($contents[$default_tab]) ? str_replace($filename['filename'], 'main', $contents[$default_tab]) . (strpos($contents[$default_tab], '?')!==false ? '&' : '?') . 'navtab='.str_replace(array(' ', '.php'), array('_', ''), strtolower($title)) : $contents['Custom'];
 				}
                 
                 if ( strpos($url, 'navtab=stat_holidays') === true ) {

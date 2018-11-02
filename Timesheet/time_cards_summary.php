@@ -249,7 +249,7 @@ if($layout == '' || $layout == 'multi_line') {
 
 $total_time = 0; ?>
 <div id="no-more-tables">
-	<h2>Time Summary</h2>
+	<h3>Time Summary</h3>
 	<table class="table table-bordered table-striped">
         <thead>
             <tr class="hidden-xs hidden-sm">

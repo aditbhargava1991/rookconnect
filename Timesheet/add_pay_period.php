@@ -1,4 +1,9 @@
 <?php
+/*
+ * Add Pay Period
+ * Included From
+        - tab_pay_period.php
+ */
 include ('../include.php');
 include 'config.php';
 
@@ -6,12 +11,10 @@ $value = $config['settings']['Choose Fields for Pay Period'];
 
 if(isset($_GET['action']) && $_GET['action'] == 'delete') {
     mysqli_query($dbc, "DELETE FROM pay_period WHERE pay_period_id=".$_GET['pay_period_id']);
-
-    echo '<script type="text/javascript"> window.location.replace("pay_period.php"); </script>';
+    echo '<script type="text/javascript"> window.location.replace("main.php?navtab=pay_period"); </script>';
 }
 
 if (isset($_POST['submit'])) {
-
     $inputs = get_post_inputs($value['data']);
     $files = get_post_uploads($value['data']);
     move_files($files);
@@ -32,105 +35,65 @@ if (isset($_POST['submit'])) {
         mkdir('download', 0777, true);
     }
 
-    echo '<script type="text/javascript"> window.location.replace("pay_period.php"); </script>';
-
+    echo '<script type="text/javascript"> window.location.replace("main.php?navtab=pay_period"); </script>';
 }
 ?>
+<style>.control-label { text-align:left !important; }</style>
 </head>
 
 <body>
-<?php include_once ('../navigation.php');
-checkAuthorised('timesheet');
-?>
+<?php checkAuthorised('timesheet'); ?>
+
 <div class="container">
-  <div class="row">
+    <div class="row">
+        <h3 class="inline">Pay Period</h3>
+        <div class="pull-right double-gap-top"><a href=""><img src="../img/icons/ROOK-status-rejected.jpg" alt="Close" title="Close" class="no-toggle" data-placement="bottom" width="25" /></a></div>
+        <div class="clearfix"></div>
+        <hr />
 
-    <h1 class="triple-pad-bottom">Pay Period</h1>
-
-    <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form">
-
-    <?php
-
-        $inputs = get_all_inputs($value['data']);
-
-        foreach($inputs as $input) {
-            $$input = '';
-        }
-
-        if(!empty($_GET['pay_period_id'])) {
-
-            $pay_period_id = $_GET['pay_period_id'];
-            $get_contact = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM pay_period WHERE pay_period_id='$pay_period_id'"));
+        <form id="form1" name="form1" method="post" action="" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
+            $inputs = get_all_inputs($value['data']);
 
             foreach($inputs as $input) {
-                $$input = $get_contact[$input];
+                $$input = '';
             }
 
-        ?>
-        <input type="hidden" id="pay_period_id" name="pay_period_id" value="<?php echo $pay_period_id ?>" />
-        <?php   }      ?>
+            if(!empty($_GET['pay_period_id'])) {
+                $pay_period_id = $_GET['pay_period_id'];
+                $get_contact = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT * FROM pay_period WHERE pay_period_id='$pay_period_id'"));
 
-
-
-<div class="panel-group" id="accordion2">
-<?php
-$k=0;
-if(isset($value['config_field'])) {
-    $get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
-    $value_config = ','.$get_field_config[$value['config_field']].',';
-    foreach($value['data'] as $tab_name => $tabs) {
-    ?>
-    <div class="panel panel-default">
-        <div class="panel-heading">
-            <h4 class="panel-title">
-                <a data-toggle="collapse" data-parent="#accordion2" href="#collapse_field<?php echo $k; ?>" >
-                    <?php echo $tab_name; ?><span class="glyphicon glyphicon-plus"></span>
-                </a>
-            </h4>
-        </div>
-        <div id="collapse_field<?php echo $k; ?>" class="panel-collapse collapse">
-            <div class="panel-body">
-                    <?php
+                foreach($inputs as $input) {
+                    $$input = $get_contact[$input];
+                } ?>
+                
+                <input type="hidden" id="pay_period_id" name="pay_period_id" value="<?php echo $pay_period_id ?>" /><?php
+            } ?>
+            
+            <div class=""><?php
+                if(isset($value['config_field'])) {
+                    $get_field_config = @mysqli_fetch_assoc(mysqli_query($dbc,"SELECT ".$value['config_field']." FROM field_config"));
+                    $value_config = ','.$get_field_config[$value['config_field']].',';
+                    foreach($value['data'] as $tab_name => $tabs) {
                         foreach($tabs as $field) {
                             if (strpos($value_config, ','.$field[2].',') !== FALSE) {
                                 echo get_field($field, @$$field[2], $dbc);
                             }
                         }
-                    ?>
-                </ul>
+                    }
+                } ?>
             </div>
-        </div>
-    </div>
-    <?php
-       $k++;
-    }
-
-}
-
-
-?>
-</div>
-
-        <div class="form-group">
-          <div class="col-sm-4">
-              <p><span class="hp-red pull-right"><em>Required Fields *</em></span></p>
-          </div>
-          <div class="col-sm-8"></div>
-        </div>
-
-        <div class="form-group">
-            <div class="col-sm-4 clearfix">
-                <a href="pay_period.php" class="btn brand-btn pull-right">Back</a>
+            
+            <div class="form-group">
+                <div class="col-xs-6">
+                    <?php if(!empty($_GET['pay_period_id'])) { ?><a href="add_pay_period.php?action=delete&pay_period_id=<?= $pay_period_id ?>" onclick="return confirm('Are you sure you want to delete this Pay Period?')"><img class="no-margin small" src="../img/icons/trash-icon-red.png" alt="Archive Task" width="30"></a><?php } ?>
+                </div>
+                <div class="col-xs-6 text-right">
+                    <a href="main.php?navtab=pay_period" class="btn brand-btn">Cancel</a>
+                    <button type="submit" name="submit" value="submit" class="btn brand-btn">Submit</button>
+                </div>
+                <div class="clearfix"></div>
             </div>
-          <div class="col-sm-8">
-            <button type="submit" name="submit" value="Submit" class="btn brand-btn btn-lg pull-right">Submit</button>
-          </div>
-        </div>
-
+        </form>
         
-
-    </form>
-
-  </div>
-</div>
-<?php include ('../footer.php'); ?>
+    </div><!-- .row -->
+</div><!-- .container -->

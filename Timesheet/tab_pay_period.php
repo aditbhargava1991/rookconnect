@@ -1,15 +1,13 @@
 <?php
-include('../include.php');
-include 'config.php';
+//include('../include.php');
+//include 'config.php';
 $value = $config['settings']['Choose Fields for Pay Period Dashboard'];
 ?>
 
 <form id="form1" name="form1" method="get" enctype="multipart/form-data" class="form-horizontal" role="form"><?php
-    if(vuaed_visible_function_custom($dbc)) {
-        echo '<a href="add_pay_period.php" class="btn brand-btn mobile-block pull-right">Add Pay Period</a>';
+    if(vuaed_visible_function_custom($dbc)) { ?>
+        <a class="btn brand-btn pull-right cursor-hand double-gap-bottom double-gap-top" onclick="overlayIFrameSlider('add_pay_period.php', '50%', false, false); return false;">Add Pay Period</a><?php
     } ?>
-    
-    <br><br><br>
 
     <div id="no-more-tables"><?php    
         $tb_field = $value['config_field'];
@@ -62,10 +60,10 @@ $value = $config['settings']['Choose Fields for Pay Period Dashboard'];
                 }
 
                 echo '<td>';
-                if(vuaed_visible_function_custom($dbc)) {
-                    echo '<a href=\'add_pay_period.php?pay_period_id='.$pay_period_id.'\'>Edit</a> | ';
-                    echo '<a href=\'add_pay_period.php?action=delete&pay_period_id='.$pay_period_id.'\' onclick="return confirm(\'Are you sure?\')">Delete</a>';
-                }
+                    if(vuaed_visible_function_custom($dbc)) { ?>
+                        <a class="cursor-hand" onclick="overlayIFrameSlider('add_pay_period.php?pay_period_id=<?= $pay_period_id ?>', '50%', false, false); return false;">Edit</a> |
+                        <a href="add_pay_period.php?action=delete&pay_period_id=<?= $pay_period_id ?>" onclick="return confirm('Are you sure you want to delete this Pay Period?')">Delete</a><?php
+                    }
                 echo '</td>';
             echo "</tr>";
         }
@@ -73,7 +71,7 @@ $value = $config['settings']['Choose Fields for Pay Period Dashboard'];
         echo '</table>'; ?>
     </div><?php
     
-    if(vuaed_visible_function_custom($dbc)) {
-        echo '<a href="add_pay_period.php" class="btn brand-btn mobile-block pull-right">Add Pay Period</a>';
+    if(vuaed_visible_function_custom($dbc)) { ?>
+        <a class="btn brand-btn pull-right cursor-hand" onclick="overlayIFrameSlider('add_pay_period.php', '50%', false, false); return false;">Add Pay Period</a><?php
     } ?>
 </form>

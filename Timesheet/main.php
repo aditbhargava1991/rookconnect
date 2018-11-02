@@ -16,6 +16,11 @@ $(document).ready(function() {
 			$('.tile-sidebar,.main-screen.standard-body').height(view_height);
 		}).resize();
 	}
+    
+    $('.search_showhide').hide();
+    $('#search_showhide').click(function() {
+        $('.search_showhide').toggle();
+    });
 });
 function loadPanel() {
 	body = $(this).closest('.panel').find('.panel-body');
@@ -109,14 +114,14 @@ function loadPanel() {
             <!-- Desktop Sidebar -->
             <div class="tile-sidebar sidebar hide-titles-mob standard-collapsible">
                 <ul>
-                    <?php echo get_tabs('Time Sheets', $_GET['tab'], array('db' => $dbc, 'field' => $value['config_field'])); ?>
+                    <?php echo get_tabs('', $_GET['tab'], $navtab, array('db' => $dbc, 'field' => $value['config_field'])); ?>
                 </ul>
             </div>
             
             <div class="scale-to-fill has-main-screen hide-titles-mob" style="margin-bottom:-20px;">
                 <div class="main-screen standard-body form-horizontal">
                     <div class="standard-body-title">
-                        <h3><?php
+                        <h3 class="pull-left"><?php
                         if ( !empty($navtab) ) {
                             foreach ( $navtab_list as $navtab_item ) {
                                 $navtab_item_lower = str_replace(' ', '_', strtolower($navtab_item));
@@ -126,14 +131,20 @@ function loadPanel() {
                             }
                         } else {
                             echo $navtab_list[0];
-                        } ?></h3>
+                        } ?></h3><?php
+                        if ( $navtab == 'time_sheets' ) { ?>
+                            <div class="pull-right">
+                                <img id="search_showhide" src="../img/icons/ROOK-3dot-icon.png" alt="Show/Hide Search" title="Show/Hide Search" class="no-toggle cursor-hand offset-top-12 gap-right" width="29" />
+                            </div><?php
+                        } ?>
+                        <div class="clearfix"></div>
                     </div>
 
                     <div class="standard-body-content" style="padding:0.5em;"><?php
                         $default_tab = !empty(get_config($dbc, 'timesheet_default_tab')) ? get_config($dbc, 'timesheet_default_tab') : 'Custom';
                         switch($navtab) {
                             case 'pay_period': include('tab_pay_period.php'); break;
-                            case 'stat_holidays': include('holidays.php'); break;
+                            case 'holidays': include('holidays.php'); break;
                             case 'coordinator_approvals': include('time_card_approvals_coordinator.php?tab='.$default_tab); break;
                             case 'manager_approvals': include('time_card_approvals_manager.php?tab='.$default_tab); break;
                             case 'reporting': include('reporting.php?tab='.$default_tab); break;

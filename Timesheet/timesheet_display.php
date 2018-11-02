@@ -196,7 +196,7 @@ var useProfileSig = function(chk) {
 <?php // Create Table ?>
 
 <input type="hidden" name="current_page" value="<?= $current_page ?>">
-<div id="no-more-tables">
+<div id="no-more-tables" class="double-gap-bottom" style="max-width:100%; overflow-x:scroll;">
     <table class='table table-bordered'>
         <tr class='hidden-xs hidden-sm'>
             <?php $hourly_comp = $dbc->query("SELECT * FROM `company_rate_card` WHERE `deleted`=0 AND `tile_name`='Staff' AND `start_date` <= '$search_start_date' AND IFNULL(NULLIF(`end_date`,'0000-00-00'),'$search_start_date') >= '$search_start_date' AND (`description` IN ('ALL','$search_staff') OR `item_id`='$search_staff') ORDER BY `item_id`='$search_staff' DESC, `description`='$search_staff' DESC, `uom`='Hourly' DESC")->fetch_assoc();

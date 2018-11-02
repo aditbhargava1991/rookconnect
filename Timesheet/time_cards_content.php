@@ -866,7 +866,7 @@ function addSignature(chk) {
 	}
 	include('../Timesheet/pay_period_dates.php'); ?>
 
-    <form id="form1" name="form1" method="get" enctype="multipart/form-data" class="form-horizontal" role="form">
+    <form id="form1" name="form1" method="get" class="gap-top search_showhide" enctype="multipart/form-data" class="form-horizontal" role="form">
 		<input type="hidden" name="tab" value="<?= $_GET['tab'] ?>">
 		<input type="hidden" name="side_content" value="<?= $_GET['side_content'] ?>">
 		<?php if(in_array('search_staff',$value_config) && check_subtab_persmission($dbc, 'timesheet', ROLE, 'search_staff')) { ?>
@@ -960,7 +960,9 @@ function addSignature(chk) {
               </div>
           <?php } ?>
 
-        <div class="form-group">
+        <div class="clearfix"></div>
+        
+        <div class="form-group gap-top">
             <a href="<?= FOLDER_NAME == 'daysheet' ? 'daysheet.php?tab=timesheets&side_content=my_timesheets' : '?tab='.$_GET['tab'] ?>&pay_period=<?= $current_period + 1 ?>&search_site=<?= $search_site ?>&search_project=<?= $search_project ?>&search_ticket=<?= $search_ticket ?>&search_staff=<?= $search_staff ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Next <?= $pay_period_label ?></a>
             <a href="<?= FOLDER_NAME == 'daysheet' ? 'daysheet.php?tab=timesheets&side_content=my_timesheets' : '?tab='.$_GET['tab'] ?>&pay_period=<?= $current_period - 1 ?>&search_site=<?= $search_site ?>&search_project=<?= $search_project ?>&search_ticket=<?= $search_ticket ?>&search_staff=<?= $search_staff ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Prior <?= $pay_period_label ?></a>
             <a href="<?= FOLDER_NAME == 'daysheet' ? 'daysheet.php?tab=timesheets&side_content=my_timesheets' : 'time_cards.php' ?>" name="display_all_inventory" class="btn brand-btn mobile-block pull-right">Display Default</a>
@@ -1042,7 +1044,7 @@ function addSignature(chk) {
 				echo '<button type="submit" value="'.$submit_approval.'" name="submit" class="btn brand-btn mobile-block pull-right">Submit Time Sheet '.$submit_label.'</button>';
 			}
             echo '<button type="submit" value="'.$submit_timesheet.'" name="submit" class="btn brand-btn mobile-block pull-right">Save Time Sheet</button>';
-            echo '<div class="clearfix"></div>';
+            echo '<div class="clearfix gap-bottom"></div>';
         endif;
 
 	if(in_array($layout, ['', 'multi_line', 'position_dropdown', 'ticket_task'])):
