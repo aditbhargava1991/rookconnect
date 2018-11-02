@@ -39,11 +39,14 @@ if($_POST['submit'] == 'send') {
 		$dbc->query("INSERT INTO `email_communicationid_upload` (`email_communicationid`, `document`,`created_date`) VALUES ('$id','$filename',DATE(NOW()))");
 		$attach[] = 'Email Communication/download/'.$filename;
 	}
-	send_email([$email_address => $email_name],$recipients,'','',$subject,html_entity_decode($email_body),implode('#FFM#',$attach));
-}
+	send_email([$email_address => $email_name],array_unique($recipients),'','',$subject,html_entity_decode($email_body),implode('#FFM#',$attach)); ?>
+    <script>
+    window.location.replace('?r=<?= urlencode($_GET['r']) ?>');
+    </script>
+<?php }
 $details = json_decode(decryptIt($_GET['r'])); ?>
 <?php include('navigation.php'); ?>
-<div class="container" style="min-height: calc(100vh - 48px)">
+<div class="container double-gap-bottom" style="min-height: calc(100vh - 48px)">
 	<form class="form-horizontal" action="" method="POST" enctype="multipart/form-data">
 		<?php if($details->ticketid > 0) {
 			$ticketid = filter_var($details->ticketid,FILTER_SANITIZE_STRING);
@@ -81,7 +84,7 @@ $details = json_decode(decryptIt($_GET['r'])); ?>
             }
             function saveTags() {
                 var tags = [];
-                $('[name=tag_group] option:selected').each(function() {
+                $('[name=tagged]').each(function() {
                     tags.push(this.value);
                 });
                 $.post('external_ajax.php', {
@@ -95,21 +98,27 @@ $details = json_decode(decryptIt($_GET['r'])); ?>
                 <h3>Tagged Individuals</h3>
                 <?php $tags = explode(',',$get_ticket['communication_tags']);
                 $contact_list = sort_contacts_query($dbc->query("SELECT `contactid`,`category`,`name`,`last_name`,`first_name`,`email_address` FROM `contacts` WHERE `contactid` IN ('".implode("','",$tags)."') OR (`status` > 0 AND `deleted`=0 AND `contactid` IN ('".implode("','",array_filter(explode(',',$get_ticket['businessid'].','.$get_ticket['clientid'].','.$get_ticket['contactid'].','.$get_ticket['internal_qa_contactid'].','.$get_ticket['deliverable_contactid'])))."'))"));
-                foreach($tags as $tag_contact) { ?>
-                    <div class="form-group" name="tag_group">
-                        <label class="col-sm-4"><?= CONTACTS_NOUN ?>:</label>
-                        <div class="col-sm-7">
-                            <select class="chosen-select-deselect" data-placeholder="Select <?= CONTACTS_NOUN ?>"><option />
-                                <?php foreach($contact_list as $contact) { ?>
-                                    <option <?= $contact['contactid'] == $tag_contact ? 'selected' : '' ?> value="<?= $contact['contactid'] ?>"><?= $contact['full_name'] ?></option>
-                                <?php } ?>
-                            </select>
+                foreach($tags as $tag_contact) {
+                    if(get_contact($dbc, $tag_contact, 'category') == 'Staff') { ?>
+                        <input type="hidden" name="tagged" value="<?= $tag_contact ?>">
+                    <?php } else { ?>
+                        <div class="form-group" name="tag_group">
+                            <input type="hidden" name="tagged" value="<?= $tag_contact ?>">
+                            <label class="col-sm-4"><?= CONTACTS_NOUN ?>:</label>
+                            <div class="col-sm-7">
+                                <!--<select class="chosen-select-deselect" data-placeholder="Select <?= CONTACTS_NOUN ?>"><option />
+                                    <?php foreach($contact_list as $contact) { ?>
+                                        <option <?= $contact['contactid'] == $tag_contact ? 'selected' : '' ?> value="<?= $contact['contactid'] ?>"><?= $contact['full_name'] ?></option>
+                                    <?php } ?>
+                                </select>-->
+                                <?= get_contact($dbc, $tag_contact, 'name_company') ?>
+                            </div>
+                            <div class="col-sm-1">
+                                <img class="pull-right inline-img cursor-hand no-toggle" src="img/remove.png" title="Remove <?= CONTACTS_NOUN ?>" onclick="remRow(this);">
+                                <!--<img class="pull-right inline-img cursor-hand no-toggle" src="img/icons/ROOK-add-icon.png" title="Add <?= CONTACTS_NOUN ?>" onclick="addRow(this);">-->
+                            </div>
                         </div>
-                        <div class="col-sm-1">
-                            <img class="pull-right inline-img cursor-hand no-toggle" src="img/remove.png" title="Remove <?= CONTACTS_NOUN ?>" onclick="remRow(this);">
-                            <img class="pull-right inline-img cursor-hand no-toggle" src="img/icons/ROOK-add-icon.png" title="Add <?= CONTACTS_NOUN ?>" onclick="addRow(this);">
-                        </div>
-                    </div>
+                    <?php } ?>
                 <?php } ?>
 				<?php if(strpos(','.$ticket_options['field_config'].',',',External Response Thread,') !== FALSE) { ?>
 					<h3>Communication Log</h3>
@@ -168,12 +177,13 @@ $details = json_decode(decryptIt($_GET['r'])); ?>
 						</div>
 					</div>
 				<?php } ?>
-                <button class="btn brand-btn pull-right" type="submit" name="submit" value="send">Send Details</button>
+                <button class="btn brand-btn pull-right" type="submit" name="submit" value="send">Submit</button>
                 <button class="btn brand-btn pull-left" type="reset" name="reset" value="reset" onclick="$('select').val('').trigger('change.select2');">Cancel</button>
 			<?php } else { ?>
                 <h3>This <?= TICKET_NOUN ?> has been archived.</h3>
             <?php } ?>
 		<?php } ?>
+        <div class="clearfix"></div>
 	</form>
 </div>
 <?php include('footer.php');

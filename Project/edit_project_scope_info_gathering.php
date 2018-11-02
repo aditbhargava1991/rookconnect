@@ -58,7 +58,7 @@ function addInfoGathering() {
     <button type="submit" name="add_infogathering" class="btn brand-btn pull-right gap-top" onclick="addInfoGathering(); return false;">Add Information Gathering</button>
 <?php } ?>
 <ul>
-<?php $infogatherings = mysqli_query($dbc, "SELECT info.sub_heading, info.category, pdf.fieldlevelriskid, pdf.infogatheringid, pdf.today_date FROM infogathering_pdf pdf LEFT JOIN infogathering info ON pdf.infogatheringid=info.infogatheringid WHERE info.`deleted`=0 AND (pdf.`company`='".get_client($dbc, $project['businessid'])."' OR pdf.`projectid` = '$projectid')");
+<?php $infogatherings = mysqli_query($dbc, "SELECT info.sub_heading, info.category, pdf.fieldlevelriskid, pdf.infogatheringid, pdf.today_date FROM infogathering_pdf pdf LEFT JOIN infogathering info ON pdf.infogatheringid=info.infogatheringid WHERE info.`deleted`=0 AND ((pdf.`company`='".get_client($dbc, $project['businessid'])."' AND pdf.`company` != '') OR pdf.`businessid` = '".$project['businessid']."' OR pdf.`projectid` = '$projectid')");
 $infogathering_count += mysqli_num_rows($infogatherings);
 if($infogathering_count > 0) {
 	while($infogathering = mysqli_fetch_assoc($infogatherings)) { ?>

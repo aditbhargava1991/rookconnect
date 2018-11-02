@@ -7,6 +7,12 @@ $fill = empty($_GET['fill']) ? '' : $_GET['fill'];
 $user_id = $_SESSION['contactid'];
 $user_full_name = get_contact($dbc, $user_id);
 
+if($_GET['fill'] == 'tile_highlight_color') {
+	$tile_id = $_GET['tile_id'];
+	$tilecolor = $_GET['tilecolor'];
+    set_config($dbc,$tile_id, $tilecolor);
+}
+
 if($fill == 'tile_sort') {
 	$current = $_POST['current'];
 	$previous = $_POST['previous'];
@@ -139,7 +145,7 @@ else if($fill == 'notifications') {
 	if($software_default == 1) {
 		mysqli_query($dbc, "INSERT INTO `field_config_email_alerts` (`software_default`) SELECT 1 FROM (SELECT COUNT(*) rows FROM `field_config_email_alerts` WHERE `software_default` = 1) num WHERE num.rows=0");
 		$query_filter = " `software_default` = 1";
-		
+
 		mysqli_query($dbc, "UPDATE `journal_notifications` SET `email_sent` = 1 WHERE `contactid` NOT IN (SELECT `contactid` FROM `field_config_email_alerts` WHERE `contactid` > 0)");
 	} else if($contactid > 0) {
 		mysqli_query($dbc, "INSERT INTO `field_config_email_alerts` (`contactid`) SELECT '$contactid' FROM (SELECT COUNT(*) rows FROM `field_config_email_alerts` WHERE `contactid` = '$contactid') num WHERE num.rows=0");

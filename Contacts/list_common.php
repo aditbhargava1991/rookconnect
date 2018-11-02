@@ -162,6 +162,7 @@ if(ucwords($category) == 'Vendors') {
     $heading = VENDOR_TILE;
 }
 ?>
+
 <div class="standard-dashboard-body-title">
 <h3 class="gap-left"><?php echo $heading; ?>
 <div class="pull-right hide-titles-mob col-sm-8">
@@ -249,6 +250,26 @@ function flag_item_manual(task) {
        overlayIFrameSlider('<?= WEBSITE_URL ?>/quick_action_flags.php?tile=contacts&id='+contactid, 'auto', false, false);
 }
 
+function highlight_item(sel) {
+    var contactid = $(sel).parents('span').data('task');
+    $('#color_'+contactid).click();
+}
+
+function choose_color(sel) {
+	var contactid = $(sel).parents('span').data('task');
+    var contactcolor = sel.value;
+	var contactcolor = contactcolor.replace("#", "");
+
+	$.ajax({    //create an ajax request to load_page.php
+		type: "GET",
+		url: "../Contacts/contacts_ajax.php?action=contact_highlight&contactid="+contactid+'&contactcolor='+contactcolor,
+		dataType: "html",   //expect html to be returned
+		success: function(response){
+			location.reload();
+		}
+	});
+}
+
 </script>
 
 <div class="hide-on-mobile"><?php include('../Contacts/contacts_export.php'); ?></div>
@@ -268,8 +289,12 @@ function flag_item_manual(task) {
 			?>
 			<?php foreach($contact_sort as $id): ?>
 				<?php $row = $contact_list[array_search($id, array_column($contact_list,'contactid'))];
+                $bg_color = '';
+                if($row['flag_label'] == '' && $row['flag_colour'] != '') {
+                    $bg_color = "background-color: #".$row['flag_colour'];
+                }
                 ?>
-				<div class="dashboard-item set-relative">
+				<div class="dashboard-item set-relative" style="<?= $bg_color ?>">
                         <?php if($row['flag_label'] != '') { ?>
                         <span class="block-label flag-label-block" style="font-weight: bold; background-color: <?php echo '#'.$row['flag_colour']; ?>">Flagged: <?= $row['flag_label'] ?></span>
                         <?php } ?>
@@ -377,9 +402,12 @@ function flag_item_manual(task) {
                     $quick_actions = explode(',',get_config($dbc, 'contact_quick_action_icons'));
 
                     echo in_array('flag_manual', $quick_actions) ? '<span title="Flag This!" onclick="flag_item_manual(this); return false;"><img title="Flag This!" src="../img/icons/ROOK-flag-icon.png" class="inline-img no-toggle" onclick="return false;"></span>' : '';
+                    echo in_array('flag', $quick_actions) ? '<span title="Highlight" onclick="highlight_item(this); return false;"><img src="../img/icons/color-wheel.png" class="inline-img no-toggle" title="Highlight" onclick="return false;"></span>' : '';
 
+                    ?>
+                    <input type="color" class="color_picker" onchange="choose_color(this); return false;" id="color_<?=$row['contactid']?>" data-taskid="<?=$row['contactid']?>" name="color_<?=$row['contactid']?>" style="display:none;" />
+                    <?php
                     echo '</span>';
-
                     ?>
 
 					<div class="clearfix"></div>
@@ -406,7 +434,8 @@ function flag_item_manual(task) {
 	<?php endif; ?>
 </div>
 <?php } else {
-
+echo '<div class="contact_list"></div>';
+echo '<div class="summary_list">';
 $heading = FOLDER_NAME.'_summary';
 $contacts_summary_config = get_config($dbc, $heading);
 
@@ -553,6 +582,6 @@ if(strpos($contacts_summary_config,'Per Archived Data') !== false) {
 
             }
 */
-
+echo '</div>';
  } ?>
 </div>

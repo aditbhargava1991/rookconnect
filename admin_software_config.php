@@ -1742,6 +1742,7 @@ checkAuthorised();
 							<option <?php if($get_style_file == 'purp') { echo "selected"; } ?> value="purp">Cotton Candy</option>
 							<option <?php if($get_style_file == 'bgw') { echo "selected"; } ?> value="bgw">Clinic Ace</option>
 							<option <?php if($get_style_file == 'ffm') { echo "selected"; } ?> value="ffm">Fresh Focus Media</option>
+							<option <?php if($get_style_file == 'ffmwhite') { echo "selected"; } ?> value="ffmwhite">FFM White</option>
 							<option <?php if($get_style_file == 'flowers') { echo "selected"; } ?> value="flowers">Flowers</option>
 							<option <?php if($get_style_file == 'silver') { echo "selected"; } ?> value="silver">Green & Grey</option>
 							<option <?php if($get_style_file == 'garden') { echo "selected"; } ?>  value="garden">Garden</option>

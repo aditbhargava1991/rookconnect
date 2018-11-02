@@ -1134,7 +1134,7 @@ function get_hours_report($dbc, $staff, $search_start_date, $search_end_date, $s
 	$total_columns += count(array_diff(array_filter(array_unique($value_config)),['view_ticket','start_time','end_time','planned_hrs','tracked_hrs','total_tracked_time','staff_combine','total_per_day']));
 	$col_width = 100 / $total_columns;
 
-    if($staff == '' || count(array_filter($staff)) == 0) {
+    if($staff == '') {
   		return '<h4>Please select a staff member.</h4>';
     } else {
         $staff_list = [];

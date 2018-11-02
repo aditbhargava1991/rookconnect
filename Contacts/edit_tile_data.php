@@ -2679,4 +2679,20 @@
 	<?php } else {
 		echo 'No Purchase Order #s found.';
 	}
+} else if ($field_option == "Equipment List Addition") {
+    $equip_list = $dbc->query("SELECT * FROM `equipment` WHERE `ownership_status`='$contactid' AND `deleted`=0");
+    if($equip_list->num_rows > 0) { ?>
+		<table class="table table-bordered">
+			<tr>
+				<th>Equipment</th>
+			</tr>
+			<?php while($row = mysqli_fetch_array($equip_list)) { ?>
+				<tr>
+					<td data-title="Equipment"><a href="../Equipment/index.php?edit=<?= $row['equipmentid'] ?>" onclick="overlayIFrameSlider('../Equipment/edit_equipment.php?edit=<?= $row['equipmentid'] ?>&view=readonly&iframe_slider=1','auto',true,true,'auto',true);"><?= implode(': ', array_filter([$row['category'],$row['make'],$row['model'],$row['unit_number'],$row['label']])) ?></a></td>
+				</tr>
+			<?php } ?>
+		</table>
+    <?php } else {
+        echo 'No Equipment Found';
+    }
 } ?>

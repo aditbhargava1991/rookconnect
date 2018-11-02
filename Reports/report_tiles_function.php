@@ -311,22 +311,22 @@ function reports_tiles($dbc) {
                     <h3>
                         <?= $title ?>
                         <?php if ( $_GET['report'] == 'Ticket Activity Report' ) { ?>
-                            <div class="pull-right">
+                            <div class="pull-right offset-top-neg-8">
 
-                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle" title="Print Report" width="25" /></a>
-                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
-                                <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle inline-img" title="Print Report" /></a>
+                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle inline-img cursor-hand offset-left-5" title="Email Report" onclick="email_doc(this);" data-title="<?= $title ?>" />
+                                <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle inline-img" title="Create Reminder" src="../img/icons/ROOK-reminder-icon.png" /></a>
 
-                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
+                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle inline-img cursor-hand offset-left-5" title="Show/Hide Search" />
                             </div>
                         <?php } else if ( $_GET['report'] == 'Ticket Activity Extra Report' ) { ?>
                             <div class="pull-right">
 
-                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle" title="Print Report" width="25" /></a>
-                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle cursor-hand offset-left-5" title="Email Report" width="25" onclick="email_doc(this);" data-title="<?= $title ?>" />
-                                <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle" title="Create Reminder" width="25" src="../img/icons/ROOK-reminder-icon.png" /></a>
+                                <a class="cursor-hand printpdf" onclick="printPDF();"><img src="../img/icons/pdf.png" class="no-toggle inline-img" title="Print Report" /></a>
+                                <img src="../img/icons/ROOK-email-icon.png" id="<?= strtolower(str_replace(' ', '_', $_GET['report'])) ?>" class="no-toggle inline-img cursor-hand offset-left-5" title="Email Report" onclick="email_doc(this);" data-title="<?= $title ?>" />
+                                <a href="../quick_action_reminders.php?tile=reports" onclick="overlayIFrameSlider(this.href,'auto',true,true); return false;"><img class="no-toggle inline-img" title="Create Reminder" src="../img/icons/ROOK-reminder-icon.png" /></a>
 
-                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle cursor-hand offset-left-5" title="Show/Hide Search" width="25" />
+                                <img src="../img/icons/ROOK-3dot-icon.png" class="show_search no-toggle inline-img cursor-hand offset-left-5" title="Show/Hide Search" />
                             </div>
                         <?php } ?>
                     </h3>

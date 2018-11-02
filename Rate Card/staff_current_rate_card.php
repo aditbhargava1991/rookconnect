@@ -78,7 +78,7 @@ function filter_rates() {
 		$offset = 0;
 		$pageNum = 1;
 	}
-	$sql = "SELECT * FROM `company_rate_card` WHERE `deleted` = 0 ORDER BY `description` AND `tile_name` LIKE 'Staff' LIMIT $offset, $rowsPerPage";
+	$sql = "SELECT * FROM `company_rate_card` WHERE `deleted` = 0 AND `tile_name` LIKE 'Staff' ORDER BY `description` LIMIT $offset, $rowsPerPage";
 	$result = mysqli_query($dbc, $sql);
 	
 	if(mysqli_num_rows($result) > 0):
@@ -121,6 +121,8 @@ function filter_rates() {
 					<th>Field Day (Cost)</th><?php endif; ?>
 				<?php if(strpos($db_conf,'field_day_bill') !== false): ?>
 					<th>Field Day (Billable)</th><?php endif; ?>
+				<?php if(strpos($db_conf,'uom') !== false): ?>
+					<th>UoM</th><?php endif; ?>
 				<?php if(strpos($db_conf,'cost') !== false): ?>
 					<th>Cost</th><?php endif; ?>
 				<?php if(strpos($db_conf,'price_admin') !== false): ?>
@@ -175,19 +177,15 @@ function filter_rates() {
             </thead>
 		<?php // Table Rows
 		$staff_sql = "SELECT `contactid`, `last_name`, `first_name` FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0";
-		$staff_result = sort_contacts_array(mysqli_fetch_all(mysqli_query($dbc, $staff_sql),MYSQLI_ASSOC));
-		$staff_list = [];
-		foreach($staff_result as $id) {
-			$staff_list[] = ['id' => $id, 'name' => get_contact($dbc, $id)];
-		}
+		$staff_list = sort_contacts_query(mysqli_query($dbc, $staff_sql));
 		while($row = mysqli_fetch_array($result)) {
 			echo '<tr><input type="hidden" name="rate_id" value="'.$row['rate_id'].'">';
 			if(strpos($db_conf,'card') !== false):
-				$staff_ids = array_filter(explode(',',$row['staff_id']));
-				echo '<td data-title="Staff"><select multiple name="staff_id" class="chosen-select-deselect form-control">';
-				echo '<option></option><option value="ALL_STAFF">Select All Staff</option>';
+				$staff_ids = array_filter(explode(',',$row['item_id'].','.$row['description']));
+				echo '<td data-title="Staff"><select multiple name="description" class="chosen-select-deselect form-control">';
+				echo '<option></option><option '.(in_array('ALL', $staff_ids) ? 'selected' : '').' value="ALL">Select All Staff</option>';
 				foreach($staff_list as $staff) {
-					echo '<option '.(in_array($staff['id'], $staff_ids) ? 'selected' : '').' value="'.$staff['id'].'">'.$staff['name'].'</option>';
+					echo '<option '.(in_array($staff['contactid'], $staff_ids) ? 'selected' : '').' value="'.$staff['contactid'].'">'.$staff['full_name'].'</option>';
 				}
 				echo '</select></td>';
 			endif;
@@ -203,13 +201,13 @@ function filter_rates() {
 			endif;
 			if(strpos($db_conf,'alert_staff') !== false):
 				echo '<td data-title="Alert Staff">';
-				$staff_list = [];
+				$alert_staff_list = [];
 				foreach(explode(',',$row['alert_staff']) as $staffid) {
 					if($staffid > 0) {
-						$staff_list[] = get_contact($dbc, $staffid);
+						$alert_staff_list[] = get_contact($dbc, $staffid);
 					}
 				}
-				echo implode(', ',$staff_list);
+				echo implode(', ',$alert_staff_list);
 				echo '</td>';
 			endif;
 			if(strpos($db_conf,'created_by') !== false):
@@ -244,6 +242,9 @@ function filter_rates() {
 			endif;
 			if(strpos($db_conf,'field_day_bill') !== false):
 				echo '<td data-title="Field Day Rate (Billable Rate)">' . $row['field_day_bill'] . '</td>';
+			endif;
+			if(strpos($db_conf,'uom') !== false):
+				echo '<td data-title="Unit of Measure">' . $row['uom'] . '</td>';
 			endif;
 			if(strpos($db_conf,'cost') !== false):
 				echo '<td data-title="Cost">' . $row['cost'] . '</td>';

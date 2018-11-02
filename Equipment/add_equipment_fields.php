@@ -1250,6 +1250,22 @@ foreach ($classification as $single_classification) { ?>
 </div>
 <?php } ?>
 
+<?php $temp_value = 'Vendor Ownership'; ?>
+<?php if (strpos($value_config, ','."Vendor Ownership".',') !== FALSE) { ?>
+<div class="form-group">
+<label for="travel_task" class="col-sm-4 control-label"><?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? '<span class="text-red">* </span>' : ''); ?>Owner:</label>
+    <div class="col-sm-8">
+        <select id="ownership_status" name="ownership_status" class="chosen-select-deselect <?php echo (strpos($equipment_mandatory_fields, ','.$temp_value.',') !== FALSE ? 'mandatory' : ''); ?> form-control" width="380">
+            <option value=''></option>
+            <?php $vendor_tabs = explode(',',get_config($dbc, 'vendors_tabs'));
+            foreach(sort_contacts_query($dbc->query("SELECT `name`, `first_name`, `last_name`, `contactid` FROM `contacts` WHERE `category` IN ('".implode("','",$vendor_tabs)."') AND `deleted`=0 AND `status` > 0")) as $vendor) { ?>
+                <option <?= $ownership_status == $vendor['contactid'] ? 'selected' : '' ?> value="<?= $vendor['contactid'] ?>"><?= $vendor['full_name'] ?></option>
+            <?php } ?>
+        </select>
+    </div>
+</div>
+<?php } ?>
+
 <?php $temp_value = 'Ownership Status'; ?>
 <?php if (strpos($value_config, ','."Ownership Status".',') !== FALSE) { ?>
 <div class="form-group">

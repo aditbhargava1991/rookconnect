@@ -141,6 +141,7 @@ if (isset($_POST['submit']) && $_POST['submit'] == 'fields') {
 	set_config($dbc, 'holiday_update_date', filter_var($_POST['holiday_update_date']));
 }
 ?>
+<!-- <script type="text/javascript" src="column_order.js"></script> -->
 <style>
 .config_ulli li {
     list-style: none;
@@ -832,6 +833,69 @@ if($_GET['tab'] == 'approvals') {
 				</div>
 			</div>
 		</div>
+
+        <!--
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<h4 class="panel-title">
+					<a data-toggle="collapse" data-parent="#accordion2" href="#collapse_order" >
+						Payroll Fields Sort Order<span class="glyphicon glyphicon-plus"></span>
+					</a>
+				</h4>
+			</div>
+			<div id="collapse_order" class="panel-collapse collapse">
+				<div class="panel-body">
+
+                    <div class="form-group">
+						<label for="site_name" class="col-sm-4 control-label"></label>
+						<div class="col-sm-8">
+                            <?php
+		                    $timesheet_payroll_fields = ','.get_config($dbc, 'timesheet_payroll_fields').',';
+                            $value_config = explode(',',get_field_config($dbc, 'time_cards_total_hrs_layout'));
+                            if(empty(array_filter($value_config))) {
+                                $value_config = ['reg_hrs','overtime_hrs','doubletime_hrs'];
+                            }
+                            if(!empty($override_value_config)) {
+                                $value_config = explode(',',$override_value_config);
+                            }
+
+                            print_r($value_config);
+
+		                    echo '<ul id="tile_sort" class="tileSort connectedChecklist">
+		                        <li class="ui-state-default ui-state-disabled no-sort" style="cursor:pointer; font-size: 2em;">Payroll Fields Sort Order</li>';
+
+                            echo (strpos($timesheet_payroll_fields, ',Expenses Owed,') !== FALSE ? '<li class="ui-state-default" id="expenses_owed"><span style="cursor:pointer; font-size: 1em;">Total Expenses Owed<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('payable_hrs',$value_config) ? '<li class="ui-state-default" id="payable_hrs"><span style="cursor:pointer; font-size: 1em;">Total Payable Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('total_tracked_hrs',$value_config) ? '<li class="ui-state-default" id="total_tracked_hrs"><span style="cursor:pointer; font-size: 1em;">Total Tracked Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('overtime_hrs',$value_config) ? '<li class="ui-state-default" id="overtime_hrs"><span style="cursor:pointer; font-size: 1em;">Total Over Time<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('reg_hrs',$value_config) ? '<li class="ui-state-default" id="reg_hrs"><span style="cursor:pointer; font-size: 1em;">Total Reg. Time<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('start_day_tile_separate',$value_config) ? '<li class="ui-state-default" id="start_day_tile_separate"><span style="cursor:pointer; font-size: 1em;">Total '.$timesheet_start_tile.'<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('doubletime_hrs',$value_config) ? '<li class="ui-state-default" id="doubletime_hrs"><span style="cursor:pointer; font-size: 1em;">Total Double Time<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('direct_hrs',$value_config) ? '<li class="ui-state-default" id="direct_hrs"><span style="cursor:pointer; font-size: 1em;">Total Direct Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('indirect_hrs',$value_config) ? '<li class="ui-state-default" id="indirect_hrs"><span style="cursor:pointer; font-size: 1em;">Total Indirect Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('extra_hrs',$value_config) ? '<li class="ui-state-default" id="extra_hrs"><span style="cursor:pointer; font-size: 1em;">Total Extra Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('relief_hrs',$value_config) ? '<li class="ui-state-default" id="relief_hrs"><span style="cursor:pointer; font-size: 1em;">Total Relief Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('sleep_hrs',$value_config) ? '<li class="ui-state-default" id="sleep_hrs"><span style="cursor:pointer; font-size: 1em;">Total Sleep Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('training_hrs',$value_config) ? '<li class="ui-state-default" id="training_hrs"><span style="cursor:pointer; font-size: 1em;">Total Training Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('sick_hrs',$value_config) ? '<li class="ui-state-default" id="sick_hrs"><span style="cursor:pointer; font-size: 1em;">Total Sick Time Adjustment<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('sick_used',$value_config) ? '<li class="ui-state-default" id="sick_used"><span style="cursor:pointer; font-size: 1em;">Total Sick Hours Taken<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('stat_hrs',$value_config) ? '<li class="ui-state-default" id="stat_hrs"><span style="cursor:pointer; font-size: 1em;">Total Stat Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('stat_used',$value_config) ? '<li class="ui-state-default" id="stat_used"><span style="cursor:pointer; font-size: 1em;">Total Stat Hours Taken<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('vaca_hrs',$value_config) ? '<li class="ui-state-default" id="vaca_hrs"><span style="cursor:pointer; font-size: 1em;">Total Vacation Hours<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('vaca_used',$value_config) ? '<li class="ui-state-default" id="vaca_used"><span style="cursor:pointer; font-size: 1em;">Total Vacation Hours Taken<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '').
+                            (in_array('breaks',$value_config) ? '<li class="ui-state-default" id="breaks"><span style="cursor:pointer; font-size: 1em;">Total Breaks<img class="drag_handle pull-right" src="'.WEBSITE_URL.'/img/icons/drag_handle.png" style="height:30px; width:30px;" /></span></li>' : '');
+
+                            echo '</ul>';
+                            ?>
+						</div>
+                    </div>
+
+				</div>
+			</div>
+		</div>
+        -->
+
+
 	</div>
 
 	<div class="form-group">

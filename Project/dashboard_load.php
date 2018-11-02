@@ -325,6 +325,26 @@ foreach($_POST['projectids'] as $projectid) {
 				</div>
 			<?php } ?>
 
+			<?php if(in_array('Dates Estimate Completion Date',$value_config) && $project['number_of_days'] > 0) { ?>
+				<div class="col-sm-6">
+					<div class="form-group">
+						<label class="col-sm-4">Time Line Countdown:</label>
+						<div class="col-sm-8">
+                        <?php
+                            $number_of_days = $project['number_of_days'];
+                            $number_of_days_start_date = $project['number_of_days_start_date'];
+
+                            $now = time(); // or your date as well
+                            $your_date = strtotime($number_of_days_start_date);
+                            $datediff = $now - $your_date;
+
+                            echo round($datediff / (60 * 60 * 24)).'/'.$number_of_days.' Days';
+                         ?>
+						</div>
+					</div>
+				</div>
+			<?php } ?>
+
 			<div class="clearfix"></div>
 
 		</div>

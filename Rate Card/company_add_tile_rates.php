@@ -147,7 +147,7 @@ $row = mysqli_fetch_array($result); ?>
 					if(strpos($field_config,',sort_order,') !== FALSE) {
 						?><th style="text-align:center;"><span class="popover-examples list-inline tooltip-navigation"><a style="top:0;" class="info_i_sm" data-toggle="tooltip" data-placement="top" title="" data-original-title="Items without a sort order will be sorted alphabetically after the items that have a sort order."><img src="<?= WEBSITE_URL; ?>/img/info.png" width="20"></a></span> Sort Order</th><?php
 					} ?>
-					<th style="text-align:center;">Function</label>
+					<th style="text-align:center; width:7.5em;">Function</label>
 				</tr>
                 </thead>
 

@@ -1,5 +1,18 @@
 <?php error_reporting(0);
 include_once('../include.php');
+if(!isset($security)) {
+	$security = get_security($dbc, $tile);
+	$strict_view = strictview_visible_function($dbc, 'project');
+	if($strict_view > 0) {
+		$security['edit'] = 0;
+		$security['config'] = 0;
+	}
+}
+if(!isset($projectid)) {
+	$projectid = filter_var($_GET['projectid'],FILTER_SANITIZE_STRING);
+	$projecttype = filter_var($_GET['projecttype'],FILTER_SANITIZE_STRING);
+	$value_config = array_filter(array_unique(array_merge(explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project WHERE type='$projecttype'"))[0]),explode(',',mysqli_fetch_array(mysqli_query($dbc,"SELECT `config_fields` FROM field_config_project WHERE type='ALL'"))[0]))));
+}
 $task_statuses = explode(',',get_config($dbc, 'task_status'));
 $status_complete = $task_statuses[count($task_statuses) - 1];
 $status_incomplete = $task_statuses[0];
@@ -501,7 +514,7 @@ if($pathid[1] > 0 && $pathid[0] == 'I') {
 	include('edit_project_path_scrum.php');
 } else if($pathid[0] == 'MS') {
 	$pathid = 'MS';
-} else if($pathid[0] == 'SB' || count(array_filter(explode(',',$project['project_path'].','.$project['external']))) == '' || ($_GET['tab'] == 'path' && $pathid[0] == '' && in_array('Scrum Board',$tab_config))) {
+} else if($pathid[0] == 'SB' || $pathid[0] == 'scrum' || count(array_filter(explode(',',$project['project_path'].','.$project['external']))) == '' || ($_GET['tab'] == 'path' && $pathid[0] == '' && in_array('Scrum Board',$tab_config))) {
 	$_GET['tab'] = 'scrum_board';
 	include('edit_project_path_scrum.php');
 } else if($_GET['tab'] == 'path' || empty($_GET['tab'])) {
@@ -737,10 +750,10 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
 		</div>
 	</div>
 	<div class="standard-body-title">
-		<form action="" method="post"><h3 class="pad-horizontal"><span class="pull-left"><?= $label.(!empty($path_name_edit) ? '<img class="inline-img cursor-hand small no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next(\'span\').show().find(\'input\').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName('.($path_type == 'E' ? "'external_path_name'" : "'project_path_name'").', this.value, '.$path_i.', '.$projectid.'); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="'.$path_name_edit.'" class="form-control"></span>' : '') ?></span>
+		<form action="" method="post"><h3><span class="pull-left"><?= $label.(!empty($path_name_edit) ? '<img class="inline-img cursor-hand no-toggle" src="../img/icons/ROOK-edit-icon.png" onclick="$(this).hide();$(this).next(\'span\').show().find(\'input\').focus();" title="Edit"><span class="col-sm-4 pull-right" style="display:none;"><input onblur="savePathName('.($path_type == 'E' ? "'external_path_name'" : "'project_path_name'").', this.value, '.$path_i.', '.$projectid.'); $(this).parent().hide().prev().show().prev().text(this.value);" type="text" value="'.$path_name_edit.'" class="form-control"></span>' : '') ?></span>
 		<?php if($security['edit'] > 0 && $_GET['pathid'] != 'MS') { ?>
 			<?php if(in_array($_GET['tab'],['path','path_external_path'])) { ?>
-				<img class="inline-img pull-right no-toggle black-color small" src="../img/icons/ROOK-add-icon.png" title="Add / Remove Path" onclick="overlayIFrameSlider('../Project/edit_project_path_select.php?projectid=<?= $projectid ?>','75%',true)">
+				<img class="inline-img pull-right no-toggle black-color" src="../img/icons/ROOK-add-icon.png" title="Add / Remove Path" onclick="overlayIFrameSlider('../Project/edit_project_path_select.php?projectid=<?= $projectid ?>','75%',true)">
 				<div class="col-sm-4 pull-right path_select smaller" style="display:none;"><select class="chosen-select-deselect path_select_onchange" data-placeholder="Select <?= PROJECT_NOUN ?> Path">
 					<option></option>
 					<?php if(in_array('Scrum Board',$tab_config)) { ?><option <?= $_GET['tab'] == 'scrum_board' ? 'selected' : '' ?> value="SB">Scrum Board</option><?php } ?>
@@ -755,9 +768,9 @@ if($_GET['tab'] != 'scrum_board' && !in_array($pathid,['AllSB','SB'])) {
                         <?php }
                     } ?>
 				</select></div>
-				<img class="inline-img pull-right no-toggle black-color small" src="../img/project-path.png" title="Select the <?= PROJECT_NOUN ?> Path" onclick="$('.path_select').show(); $(this).hide();">
+				<img class="inline-img pull-right no-toggle black-color cursor-hand" src="../img/project-path.png" title="Select the <?= PROJECT_NOUN ?> Path" onclick="$('.path_select').show(); $(this).hide();">
 			<?php } ?>
-			<input type="image" src="../img/clear-checklist.png" onclick="clearCompletedProjectTask(this);" name="clear1" title="Clear Completed Tasks" value="<?php echo $projectid; ?>" class="no-toggle inline-img black-color pull-right small" alt="Submit"/>
+			<input type="image" src="../img/clear-checklist.png" onclick="clearCompletedProjectTask(this);" name="clear1" title="Clear Completed Tasks" value="<?php echo $projectid; ?>" class="no-toggle inline-img black-color pull-right cursor-hand" alt="Submit"/>
 		<?php } ?>
         <div class="clearfix"></div>
 		</h3></form>
@@ -844,45 +857,37 @@ $unassigned_sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$pr
                         //echo $count['tasks'];
 
                     } else {
-                        /*
-                        $sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone') UNION
-                            SELECT 'Work Order', `workorderid` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone') UNION
-                            SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND `status` != '".$status_complete."' AND project_milestone IN ('$milestone','$html_milestone') UNION
-                            SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone') UNION
-                            SELECT 'Checklist', `checklistid` FROM `checklist` WHERE `projectid` = '$projectid' AND `projectid` > 0 AND `deleted` = 0 AND `project_milestone` IN ('$milestone','$html_milestone')";
-                        $count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM (SELECT COUNT(*) `tickets` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone')) tickets LEFT JOIN
-                            (SELECT COUNT(*) `workorders` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone')) workorders ON 1=1 LEFT JOIN
-                            (SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone')) tasks ON 1=1 LEFT JOIN
-                            (SELECT COUNT(*) `intake` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN('$milestone','$html_milestone')) intake ON 1=1 LEFT JOIN
-                            (SELECT COUNT(*) `checklists` FROM `checklist` WHERE `projectid`='$projectid' AND `deleted` = 0 AND `projectid` > 0 AND `project_milestone` IN ('$milestone','$html_milestone')) checklist ON 1=1"));
-                            */
-
                         $sql = "SELECT 'Ticket', `ticketid` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone') UNION
                             SELECT 'Work Order', `workorderid` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone') UNION
                             SELECT 'Task', `tasklistid` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone') UNION
                             SELECT 'Intake', `intakeid` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN ('$milestone','$html_milestone') UNION
                             SELECT 'Checklist', `checklistid` FROM `checklist` WHERE `projectid` = '$projectid' AND `projectid` > 0 AND `deleted` = 0 AND `project_milestone` IN ('$milestone','$html_milestone')";
-                        $count = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM (SELECT COUNT(*) `tickets` FROM tickets WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone')) tickets LEFT JOIN
+                        $count = mysqli_fetch_assoc(mysqli_query($dbc,"SELECT `tickets`,`workorders`,`tasks`,`intake`,`checklists`,(IFNULL(`ticket_spent`,0) + IFNULL(`task_time`,0) + IFNULL(`checklist_time`,0)) `time`,(IFNULL(`ticket_est`,0) + IFNULL(`task_est`,0)) `eta` FROM (SELECT COUNT(DISTINCT `tickets`.`ticketid`) `tickets`, SUM(TIME_TO_SEC(`time_list`.`time`)) `ticket_spent`, SUM(TIME_TO_SEC(`time_list`.`est`)) `ticket_est` FROM `tickets` LEFT JOIN (SELECT 0 `est`, `timer` `time`, `ticketid` FROM `ticket_timer` WHERE `deleted`=0 AND `timer_type`='Work' UNION SELECT 0 `est`, `time_length` `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type`='Manual Time' UNION SELECT `time_length` `est`, 0 `time`, `ticketid` FROM `ticket_time_list` WHERE `deleted`=0 AND `time_type` IN ('Completion Estimate','QA Estimate')) `time_list` ON `tickets`.`ticketid`=`time_list`.`ticketid` WHERE projectid='$projectid' AND `deleted`=0 AND `status` != 'Archive' AND milestone_timeline IN ('$milestone','$html_milestone')) tickets LEFT JOIN
                             (SELECT COUNT(*) `workorders` FROM workorder WHERE projectid='$projectid' AND `status` != 'Archive' AND milestone IN ('$milestone','$html_milestone')) workorders ON 1=1 LEFT JOIN
-                            (SELECT COUNT(*) `tasks` FROM tasklist WHERE projectid='$projectid' AND `deleted`=0 AND archived_date IS NULL AND project_milestone IN ('$milestone','$html_milestone')) tasks ON 1=1 LEFT JOIN
+                            (SELECT COUNT(DISTINCT `tasklist`.`tasklistid`) `tasks`, SUM(TIME_TO_SEC(`tasklist`.`estimated_time`)) `task_est`, SUM(`task_time`.`time`) `task_time` FROM `tasklist` LEFT JOIN (SELECT `tasklistid`, SUM(TIME_TO_SEC(`work_time`)) `time` FROM `tasklist_time` GROUP BY `tasklistid`) `task_time` ON `tasklist`.`tasklistid`=`task_time`.`tasklistid` WHERE `projectid`='$projectid' AND `deleted`=0 AND `archived_date` IS NULL AND `project_milestone` IN ('$milestone','$html_milestone')) `tasks` ON 1=1 LEFT JOIN 
                             (SELECT COUNT(*) `intake` FROM intake WHERE projectid='$projectid' AND `deleted`=0 AND project_milestone IN('$milestone','$html_milestone')) intake ON 1=1 LEFT JOIN
-                            (SELECT COUNT(*) `checklists` FROM `checklist` WHERE `projectid`='$projectid' AND `deleted` = 0 AND `projectid` > 0 AND `project_milestone` IN ('$milestone','$html_milestone')) checklist ON 1=1"));
-
+                            (SELECT COUNT(DISTINCT `checklist`.`checklistid`) `checklists`, SUM(TIME_TO_SEC(`checklist_name_time`.`work_time`)) `checklist_time` FROM `checklist` LEFT JOIN `checklist_name` ON `checklist`.`checklistid`=`checklist_name`.`checklistid` AND `checklist_name`.`deleted`=0 LEFT JOIN `checklist_name_time` ON `checklist_name_time`.`checklist_id`=`checklist_name`.`checklistnameid` WHERE `checklist`.`projectid`='$projectid' AND `checklist`.`deleted` = 0 AND `checklist`.`projectid` > 0 AND `checklist`.`project_milestone` IN ('$milestone','$html_milestone')) checklist ON 1=1"));
                     }
 				}
 				$milestone_items = mysqli_query($dbc, $sql); ?>
-				<div class="<?= ($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' ? 'dashboard-list' : '' ?> item_list" style="margin-bottom: -10px;">
+				<div class="<?= ($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' ? 'dashboard-list' : '' ?> item_list">
 					<div class="info-block-header"><h4><div class="pull-left"><?= in_array($_GET['tab'],['path','path_external_path']) && $pathid != 'MS' ? '<a target="_parent" href="?edit='.$projectid.'&tab='.$tab_id.'&pathid='.$_GET['pathid'].'">'.$milestone_row['label'].'</a>' : '<span>'.$milestone_row['label'].'</span>' ?>
 						<?= $milestone != 'Unassigned' && $security['edit'] > 0 && $pathid != 'MS' ? '<img class="small no-gap-top milestone_name cursor-hand inline-img no-toggle" src="../img/icons/ROOK-edit-icon.png" title="Edit">' : '' ?></div>
 						<?= $milestone != 'Unassigned' && in_array($_GET['tab'],['path','path_external_path']) && $security['edit'] > 0 && $pathid != 'MS' ? '<div class="pull-right"><img class="small no-gap-top milestone_drag cursor-hand inline-img pull-right no-toggle" src="../img/icons/drag_handle.png" title="Drag">
-							<img class="small milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
-							<img class="small milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
+							<img class="milestone_rem cursor-hand no-gap-top inline-img pull-right" src="../img/remove.png">
+							<img class="milestone_add cursor-hand no-gap-top inline-img pull-right" src="../img/icons/ROOK-add-icon.png">
 							<input type="hidden" name="sort" value="'.$milestone_row['sort'].'"></div>' : '' ?></h4>
 						<input type="text" name="milestone_name" data-milestone="<?= $milestone ?>" data-id="<?= $milestone_row['id'] ?>" value="<?= $milestone_row['label'] ?>" style="display:none;" class="form-control">
 					<div class="clearfix"></div>
-                    <div class="pull-left"><a target="_parent" href="?edit=<?= $projectid ?>&tab=<?= $tab_id ?>&pathid=<?= $_GET['pathid'] ?>" <?= $pathid == 'MS' ? 'onclick="return false;"' : '' ?>><div class="small"><?= ($count['tickets'] > 0 ? substr(TICKET_NOUN,0,1).': '.$count['tickets'] : ' ').($count['tasks'] > 0 ? ' TASKS: '.$count['tasks'] : ' ').($count['workorders'] > 0 ? ' WO: '.$count['workorders'] : ' ').($count['items'] > 0 ? ' C: '.$count['items'] : ' ').($count['intake'] > 0 ? ' INTAKE: '.$count['intake'] : ' ').($count['checklist'] > 0 ? ' CHECKLIST: '.$count['checklist'] : ' ') ?><span class="pull-right"><?= $timeline != '' ? $timeline : '&nbsp;' ?></span></div><div class="clearfix"></div></a></div>
-                    <div class="pull-right"><img class="small milestone_options cursor-hand no-gap-top inline-img pull-right no-toggle" src="../img/icons/ROOK-3dot-icon.png" title="Show/Hide Options"></div></div>
-					<div class="clearfix"></div>
+                    <div class="pull-left">
+                        <span class="small"><a target="_parent" href="?edit=<?= $projectid ?>&tab=<?= $tab_id ?>&pathid=<?= $_GET['pathid'] ?>" <?= $pathid == 'MS' ? 'onclick="return false;"' : '' ?>>
+                            <?= ($count['tickets'] > 0 ? substr(TICKET_NOUN,0,1).': '.$count['tickets'] : ' ').($count['tasks'] > 0 ? ' TASKS: '.$count['tasks'] : ' ').($count['workorders'] > 0 ? ' WO: '.$count['workorders'] : ' ').($count['items'] > 0 ? ' C: '.$count['items'] : ' ').($count['intake'] > 0 ? ' INTAKE: '.$count['intake'] : ' ').($count['checklist'] > 0 ? ' CHECKLIST: '.$count['checklist'] : ' ').(in_array('Path ETA',$value_config) && $count['eta'] > 0 ? ' ETA: '.time_decimal2time($count['eta'] / 3600) : '').(in_array('Path Time',$value_config) && $count['time'] > 0 ? ' TT: '.time_decimal2time($count['time'] / 3600) : '') ?>
+                        </a></span>
+                        <span class="pad-horizontal"><?= $timeline != '' ? $timeline : '&nbsp;' ?></span>
+                    </div>
+                    <div class="pull-right"><img class="small milestone_options cursor-hand no-gap-top inline-img pull-right no-toggle" src="../img/icons/ROOK-3dot-icon.png" title="Show/Hide Options"></div>
+                    <div class="clearfix"></div>
+                    </div>
                     <ul class="<?= ($_GET['tab'] == 'path' && $_GET['pathid'] != 'MS') || $_GET['tab'] == 'path_external_path' ? 'dashboard-list' : 'connectedChecklist no-margin full-width' ?>" data-milestone="<?= $milestone ?>">
 
 						<?php if($milestone != 'Unassigned' && $security['edit'] > 0) { ?>
