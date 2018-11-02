@@ -637,7 +637,8 @@ function display_active_blocks() {
 }
 function filter_sidebar(a = '') {
 	if($(a).is('#summary_tab')) {
-		//hide_summary();
+		hide_summary();
+		$('#summary_tab').find('li').removeClass('active blue');
 		$(a).find('li').addClass('active blue');
 		retrieve_summary_tab();
 	} else if(a != '') {
