@@ -187,6 +187,7 @@ function saveNote(sel) {
         <?php } ?>
      </div>
 </div>
+
  <!-- All icons -->
  
 <div class="clearfix"></div>
@@ -217,3 +218,21 @@ function saveNote(sel) {
 
 <!-- document -->
 <input type='file' name='document' value='' style="display:none;">
+
+
+<script type="text/javascript">
+    $('.main-screen').scroll(function() {
+        if ($(this).scrollTop() > 70) {
+            $('.standard-body-title').removeClass('title-stickey-header');
+            $('.burger-btn').fadeIn('fast');
+        } else {
+            $('.standard-body-title').removeClass('.title-stickey-header');
+            $('.burger-btn').fadeOut('fast');
+        }
+    });
+
+    $('body').on('click', '.burger-btn', function() {
+        $('.standard-body-title').addClass('title-stickey-header');
+        $('.burger-btn').fadeOut('fast');
+    });
+</script>

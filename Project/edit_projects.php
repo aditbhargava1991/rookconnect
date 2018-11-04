@@ -1924,6 +1924,25 @@ if(!IFRAME_PAGE || $_GET['iframe_slider'] == 1) { ?>
                     <div class="clearfix"></div>
                 </h3>
 			</div>
+			<style type="text/css">
+				.burger-btn {
+					position: absolute;
+					right: 26px;
+					top: 18px;
+					z-index: 5;
+					display: none;
+				}
+
+				.title-stickey-header {
+					position: absolute;
+					top: 0;
+					z-index: 5;
+					width: 100%;
+				}
+			</style>
+			<div class="burger-btn">
+				<img src="../img/icons/ROOK-3dot-icon.png" width="30" class="no-toggle cursor-hand pull-right menu_button offset-right-10" title="More Options">
+			</div>
 		<?php } ?>
 		<div class='standard-dashboard-body-content <?= $body_title != '**NO_TITLE**' ? 'pad-top pad-left pad-right' : '' ?>'>
 			<?php foreach($include_files as $i => $include_file) {
