@@ -149,4 +149,6 @@ if(!empty($auto_refresh)) {
     $auto_refresh = ($auto_refresh['hour'] * 3600) + ($auto_refresh['minute'] * 60);
 }
 $summary_tab = get_config($dbc, 'dispatch_tile_summary_tab');
+$truck_tab = get_config($dbc, 'dispatch_tile_truck_tab');
+$table_tab = get_config($dbc, 'dispatch_tile_table_tab');
 $delivery_timeframe_default = !empty(get_config($dbc, 'delivery_timeframe_default')) ? get_config($dbc, 'delivery_timeframe_default') : 3;
