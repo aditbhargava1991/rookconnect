@@ -226,5 +226,5 @@ if($map_url != '') {
 		</div>
 	<?php }
 } else {
-	echo '<h3>No Unscheduled '.TICKET_TILE.' Found</h3>';
+	echo '<h3 class="text-center" style="margin-top:35%;">No Unscheduled '.TICKET_TILE.' Found</h3>';
 }
