@@ -384,6 +384,10 @@ if($_GET['action'] == 'mark_favourite') {
 		$history .= ($history == '' ? '' : "<br />\n").get_contact($dbc, $_SESSION['contactid'])." set $field to '$value' on ".date('Y-m-d h:i a');
 	}
 	mysqli_query($dbc, "UPDATE `$table` SET `$field`=$value WHERE `$id_field`='$id'");
+    if($field == 'number_of_days' && $value != '') {
+        $today_date = date('Y-m-d');
+        $dbc->query("UPDATE `project` SET `number_of_days_start_date`='$today_date' WHERE `$id_field`='$id'");
+    }
     $user = decryptIt($_SESSION['first_name']).' '.decryptIt($_SESSION['last_name']);
 	add_update_history($dbc,'project_history',$history,'','',$project);
 

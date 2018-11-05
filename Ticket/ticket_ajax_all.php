@@ -89,6 +89,7 @@ if($_GET['fill'] == 'start_timer') {
     $start_time = date('h:i A');
     $query_add_time = "INSERT INTO `ticket_time` (`ticketid`, `start_time`, `contactid`, `src`, `timer_date`) VALUES ('$ticketid', '$start_time', '$contactid', 'A', '$timer_date')";
     $result_add_time = mysqli_query($dbc, $query_add_time);
+
     $ticketid = $_GET['ticketid'];
     $start_time = time();
     $start_timer_time = date('g:i A');
@@ -107,7 +108,7 @@ if($_GET['fill'] == 'start_timer') {
         $query_update_ticket = "UPDATE `ticket_timer` SET `start_timer_time`='0' WHERE `tickettimerid` = '$tickettimerid'";
         $result_update_ticket = mysqli_query($dbc, $query_update_ticket);
     }
-    $query_insert_client_doc = "INSERT INTO `ticket_timer` (`ticketid`, `timer_type`, `start_time`, `created_date`, `created_by`, `start_timer_time`) VALUES ('$ticketid', 'Work', '$start_timer_time', '$created_date', '$created_by', '$start_time')";
+    $query_insert_client_doc = "INSERT INTO `ticket_timer` (`ticketid`, `timer_type`, `start_time`, `created_date`, `created_by`, `start_timer_time`) VALUES ('$ticketid', 'Manual Time', '$start_timer_time', '$created_date', '$created_by', '$start_time')";
     $result_insert_client_doc = mysqli_query($dbc, $query_insert_client_doc);
 } else if($_GET['fill'] == 'stop_timer') {
     $ticketid = filter_var($_GET['ticketid'],FILTER_SANITIZE_STRING);
@@ -126,7 +127,7 @@ if($_GET['fill'] == 'start_timer') {
         $result_update_time = mysqli_query($dbc, $query_update_time);
 
 
-        $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Regular Hrs.', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Task #$taskid')";
+        $query_add_time = "INSERT INTO `time_cards` (`staff`, `date`, `type_of_time`, `total_hrs`, `comment_box`) VALUES ('$contactid', '$timer_date', 'Manual Time', '".((strtotime($timer_value) - strtotime('00:00:00'))/3600)."', 'Time Added on Task #$taskid')";
         $result_add_time = mysqli_query($dbc, $query_add_time);
     }
 
@@ -145,9 +146,10 @@ if($_GET['fill'] == 'ticket_quick_time') {
     $result = mysqli_query($dbc, $query_time);
     insert_day_overview($dbc, $_SESSION['contactid'], 'Ticket', date('Y-m-d'), '', "Updated Ticket #$ticketid - Added Time : ".$_POST['time']);
     echo $query="INSERT INTO ticket_time_list(ticketid,time_type,time_length,created_by)
-            VALUES('$ticketid','Regular Hrs.','$tt','$_SESSION[contactid]')";
+            VALUES('$ticketid','Completion Estimate','$tt','$_SESSION[contactid]')";
     mysqli_query($dbc, $query);
     echo 'Added '.$_POST['time']." - $total_time total";
+
 }
 if($_GET['fill'] == 'ticketreply') {
     $id = $_POST['taskid'];
@@ -3252,5 +3254,3 @@ if($_GET['action'] == 'get_ticket_client') {
     mysqli_query($dbc, "INSERT INTO `field_config_ticket_delivery_restrictions` (`ticket_type`) SELECT '$tab' FROM (SELECT COUNT(*) rows FROM `field_config_ticket_delivery_restrictions` WHERE `ticket_type` = '$tab') num WHERE num.rows=0");
     mysqli_query($dbc, "UPDATE `field_config_ticket_delivery_restrictions` SET `security_level` = '$security_level', `to_do_date_min` = '$to_do_date_min', `to_do_date_max` = '$to_do_date_max', `to_do_start_time_min` = '$to_do_start_time_min', `to_do_start_time_max` = '$to_do_start_time_max' WHERE `ticket_type` = '$tab'");
 }
-
-

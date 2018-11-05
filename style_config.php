@@ -127,6 +127,10 @@ checkAuthorised();
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'ffm') { echo "checked"; } ?> value='ffm'></td>
 			</tr>
 			<tr>
+				<td>FFM White</td>
+				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'ffmwhite') { echo "checked"; } ?> value='ffmwhite'></td>
+			</tr>
+			<tr>
 				<td>Green</td>
 				<td><input type='radio' onclick="handleClick(this);" name='styler' style='width:20px; height:20px;' <?php if($software_config == 'green') { echo "checked"; } ?> value='green'></td>
 			</tr>

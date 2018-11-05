@@ -13,6 +13,7 @@ function set_form_action() {
         $starttime = $_POST['starttime'];
         $endtime = $_POST['endtime'];
         $therapist = $_POST['therapist'];
+        $equipment = $_POST['equipment'];
     }
     $frequency = get_field_value('frequency_type frequency_interval ratecardid', 'rate_card', 'clientid',$therapist);
     $rateid = $frequency['ratecardid'];
@@ -69,11 +70,26 @@ function set_form_action() {
 				</select>
 			</div>
 		</div>
+        <?php if($contact_type == 'vendor') { ?>
+            <div class="form-group col-sm-5">
+                <label class="col-sm-4">Equipment:</label>
+                <div class="col-sm-8">
+                    <select data-placeholder="Select Equipment..." name="equipment" class="chosen-select-deselect form-control">
+                        <option value=""></option>
+                        <?php $equip_list = $dbc->query("SELECT `equipment`.`equipmentid`, `equipment`.`category`, `equipment`.`make`, `equipment`.`model`, `equipment`.`unit_number`, `equipment`.`label`, `equipment`.`ownership_status` FROM `equipment` LEFT JOIN `rate_card` ON `rate_card`.`equipment` LIKE CONCAT(`equipment`.`equipmentid`,'#%') OR `rate_card`.`equipment` LIKE CONCAT('%**',`equipment`.`equipmentid`,'#%') WHERE `equipment`.`deleted`=0 AND (`equipment`.`ownership_status` > 0 OR (`rate_card`.`deleted`=0 AND `rate_card`.`on_off`=1)) GROUP BY `equipment`.`equipmentid`");
+                        while($rowid = $equip_list->fetch_assoc()) {
+                            echo "<option ".($rowid['equipmentid'] == $equipment ? 'selected' : '')." value='".$rowid['equipmentid']."'>".implode(': ',array_filter([$rowid['category'],$rowid['make'],$rowid['model'],$rowid['unit_number'],$rowid['label']]))."</option>";
+                        } ?>
+                    </select>
+                </div>
+            </div>
+        <?php } ?>
 	<button type="submit" name="search_email_submit" value="Search" class="btn brand-btn mobile-block">Submit</button></div></center>
 
 	<input type="hidden" name="starttimepdf" value="<?php echo $starttime; ?>">
 	<input type="hidden" name="endtimepdf" value="<?php echo $endtime; ?>">
 	<input type="hidden" name="therapistpdf" value="<?php echo $therapist; ?>">
+	<input type="hidden" name="equipmentpdf" value="<?php echo $equipment; ?>">
 
 	<div class="pull-right">
 		<?php if (strpos($value_config, ','."Compensation Print Appointment Reports".',') !== FALSE) { ?>
@@ -86,37 +102,13 @@ function set_form_action() {
 	</div>
 	<br><br>
 
-	<?php
-		//echo '<a href="report_compensation.php?compensation=printpdf&starttime='.$starttime.'&endtime='.$endtime.'" class="btn brand-btn pull-right">Print Report</a></h4><br>';
+	<?php $stat_holidays = [];
+    foreach(mysqli_fetch_all(mysqli_query($dbc, "SELECT `date` FROM `holidays` WHERE `paid`=1 AND `deleted`=0")) as $stat_day) {
+        $stat_holidays[] = $stat_day[0];
+    }
+    $stat_holidays = implode(',', $stat_holidays);
 
-		//$contractDateBegin = strtotime($starttime);
-		//$contractDateEnd = strtotime($endtime);
-
-		//$stat_start = '2016-08-02';
-		//$stat_end = '2016-08-31';
-		//$stat_end = '0000-00-00';
-		//$stat_start = '0000-00-00';
-        //
-		//$total_stat_holiday = 0;
-		//$stat_holiday = explode(',',get_config($dbc, 'stat_holiday'));
-		//foreach($stat_holiday as $stat_day){
-		//	$stat_date = strtotime($stat_day);
-		//	if (($stat_date >= $contractDateBegin) && ($stat_date <= $contractDateEnd)) {
-		//		$stat_end = date('Y-m-d', strtotime('-1 day', strtotime($stat_day)));
-		//		$stat_start = date('Y-m-d', strtotime('-63 day', strtotime($stat_day)));
-        //
-		//		$total_stat_holiday++;
-		//	}
-		//}
-		$stat_holidays = [];
-		foreach(mysqli_fetch_all(mysqli_query($dbc, "SELECT `date` FROM `holidays` WHERE `paid`=1 AND `deleted`=0")) as $stat_day) {
-			$stat_holidays[] = $stat_day[0];
-		}
-		$stat_holidays = implode(',', $stat_holidays);
-		//$stat_holidays = get_config($dbc, 'stat_holiday');
-
-		echo report_compensation($dbc, $starttime, $endtime, '', '', '', $therapist, $stat_holidays, $invoicetype);
-	?>
+    echo report_compensation($dbc, $starttime, $endtime, '', '', '', $therapist, $stat_holidays, $invoicetype, $equipment); ?>
 
 	<input type="hidden" name="stat_holidays_pdf" value="<?php echo $stat_holidays; ?>">
 

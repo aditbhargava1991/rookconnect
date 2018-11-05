@@ -137,7 +137,7 @@ if($incident_reports_count > 0) {
         if (strpos($value_config_ir, ','."Date Created".',') !== FALSE) {
             echo '<td data-title="Date Created">' . $row['today_date'] . '</td>';
         }
-        if (strpos($value_config_ir, ','."Locaiton".',') !== FALSE) {
+        if (strpos($value_config_ir, ','."Location".',') !== FALSE) {
             echo '<td data-title="Location">' . $row['location'] . '</td>';
         }
         if (strpos($value_config_ir, ','."PDF".',') !== FALSE) {

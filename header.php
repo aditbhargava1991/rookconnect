@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex">
+<meta name="robots" content="noindex, nofollow, noarchive, noimageindex">
 
 <title>Software</title>
 
@@ -84,6 +84,8 @@ if($software_config == 'swr') {
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_black_orange.css" type="text/css">';
 } else if ($software_config == 'ffm'){
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_ffm.css" type="text/css">';
+} else if ($software_config == 'ffmwhite'){
+    echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_ffm_white.css" type="text/css">';
 } else if ($software_config == 'garden'){
     echo '<link rel="stylesheet" href="'.WEBSITE_URL.'/css/style_garden.css" type="text/css">';
 } else if ($software_config == 'green'){

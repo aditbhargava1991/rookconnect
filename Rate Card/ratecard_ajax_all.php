@@ -422,7 +422,7 @@ if($_GET['fill'] == 'rate_card_desc') {
 		$query = "SELECT `name` id, `name` descript  FROM `positions` ORDER BY `name`";
 	}
 	else if($_GET['type'] == 'Staff') {
-		$query = "SELECT `contactid` id, `first_name`, `last_name`, 'DECRYPT' descript  FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." ORDER BY `last_name`, `first_name`";
+		$query = "SELECT `contactid` id, `first_name`, `last_name`, 'DECRYPT' descript  FROM `contacts` WHERE `category` IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." AND `deleted`=0 AND `status` > 0 ORDER BY `last_name`, `first_name`";
 	}
 	else if($_GET['type'] == 'Equipment') {
 		$query = "SELECT `type` id, `type` descript FROM `equipment` GROUP BY `type` ORDER BY `type`";

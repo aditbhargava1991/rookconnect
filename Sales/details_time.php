@@ -55,7 +55,7 @@ var reload_time = function() {
 <!-- Time Tracking -->
 <div class="accordion-block-details padded" id="time">
     <div class="accordion-block-details-heading"><h4>Time Tracking</h4></div>
-    
+
 	<div id="no-more-tables">
 		<table class="table table-bordered">
 			<tr class="hidden-sm hidden-xs">
@@ -79,15 +79,15 @@ var reload_time = function() {
             </tr>
 		</table>
 	</div>
-	
+
     <div class="row set-row-height">
         <div class="col-xs-12">
-			<a href="" onclick="addTime(); return false;" class="btn brand-btn">Add Time <img class="inline-img no-toggle" src="../img/icons/ROOK-timer-icon.png" title="Add Time"></a>
+			<a href="" onclick="addTime(); return false;" class=""><img class="inline-img no-toggle" src="../img/icons/ROOK-timer-icon.png" title="Add Time"></a>
 			<input type="text" class="timepicker" style="width:0;height:0;border:0;" name="time_add" value="">
-			<a href="" onclick="toggleTimeTracking(); return false;" class="btn brand-btn start_stop"><span>Start</span> Tracking Time <img class="inline-img no-toggle" src="../img/icons/ROOK-timer2-icon.png" title="Track Time"></a>
+			<a href="" onclick="toggleTimeTracking(); return false;" class="start_stop"><img class="inline-img no-toggle" src="../img/icons/ROOK-timer2-icon.png" title="Start Tracking Time"></a>
 			<div class="col-sm-4" style="display:none;"><input type="text" class="form-control timer" name="time_track"></div>
         </div>
         <div class="clearfix double-gap-bottom"></div>
     </div>
-    
+
 </div><!-- .accordion-block-details -->

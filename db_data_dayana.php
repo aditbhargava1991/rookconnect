@@ -324,7 +324,12 @@ mysqli_query($dbc, "ALTER TABLE `contacts` ADD `flag_label` VARCHAR(500) NULL AF
 
 mysqli_query($dbc, "ALTER TABLE `equipment` ADD `favorite` INT(1) NOT NULL DEFAULT '0' AFTER `equipment_image`");
 
+set_config($dbc, 'dispatch_summary_blocks', ',on_time_summary,status_summary,star_ratings,');
 
-    echo "Dayana's DB Changes Done<br />\n";
+mysqli_query($dbc, "ALTER TABLE `project` ADD `number_of_days` INT(10) NOT NULL DEFAULT '0' AFTER `flag_label`");
+
+mysqli_query($dbc, "ALTER TABLE `project` ADD `number_of_days_start_date` DATE NULL AFTER `number_of_days`");
+
+echo "Dayana's DB Changes Done<br />\n";
 
 ?>

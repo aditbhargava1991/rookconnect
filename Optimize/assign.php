@@ -49,7 +49,7 @@ var opt_classification = '<?= $_GET['classification'] ?>';
 var opt_date = '<?= $_GET['date'] ?>';
 var lock_timer = null;
 var ticket_list = [];
-var zoom = <?= $_GET['zoom'] > 0 ? $_GET['zoom'] : 10 ?>;
+var zoom = <?= $_GET['zoom'] > 0 ? $_GET['zoom'] : "'auto'" ?>;
 function filterRegions() {
 	opt_region = $('[name=region]').val();
 	$('[name=classification] option[data-region]').each(function() {
@@ -79,8 +79,8 @@ function get_ticket_list() {
         calcTicketListWidth();
     } catch(err) { }
 	$('.draw_sort').empty();
-	var equip_scroll = $('.equip_list').scrollTop();
-	$('.equip_list').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);">Loading Equipment...<img src="/img/status_working.gif" class="inline-img"></h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list').scrollTop(equip_scroll); });
+	var equip_scroll = $('.equip_list_scroll').scrollTop();
+	$('.equip_list').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);">Loading Equipment...<img src="/img/status_working.gif" class="inline-img"></h4>').load('assign_equipment_list.php?sorticons=true&date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), function() { setTicketSave(); $('.equip_list_scroll').scrollTop(equip_scroll); });
     get_map_view();
 	$('.ticket_list').html('<h4 class="text-center" style="vertical-align:middle;height:100%;padding-top:calc(50% - 0.5em);">Loading <?= TICKET_TILE ?>...<img src="/img/status_working.gif" class="inline-img"></h4>').load('assign_ticket_list.php?date='+encodeURI($('[name=date]').val())+'&region='+encodeURI(opt_region)+'&location='+encodeURI(opt_location)+'&classification='+encodeURI(opt_classification), setTicketSave);
 	lockTickets();

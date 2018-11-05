@@ -36,15 +36,15 @@ checkAuthorised('software_config');
 	<div class="main-screen">
 
             <!-- Tile Header -->
-            <div class="tile-header standard-header">
+            <div class="tile-header standard-header" style="background-color: #<?php echo get_config($dbc, 'color_software_config'); ?>">
                 <div class="scale-to-fill">
                     <h1 class="gap-left"><a href="settings.php" class="default-color">Settings</a></h1>
                 </div>
                 <div class="clearfix"></div>
             </div><!-- .tile-header -->
-		
+
 		<div class="show-on-mob panel-group block-panels col-xs-12 form-horizontal" id="mobile_tabs">
-			
+
 			<div class="panel panel-default">
 				<div class="panel-heading mobile_load">
 					<h4 class="panel-title">
@@ -346,7 +346,7 @@ checkAuthorised('software_config');
 			<?php $enb = get_config($dbc, 'desktop_notification_enabled'); ?>
 			<?php if(ROLE != 'Manager'){ ?><li <?= ($tab == 'desktop_notifications_user' && $enb == '1' ? 'class="active" ' : '') ?>><a href='settings.php?tab=desktop_notifications_user'>Desktop Notifications</a></li><?php } ?>
 		</div>
-		
+
 		<div class="scale-to-fill has-main-screen hide-titles-mob" style="margin-bottom:-20px;">
 			<div class="main-screen standard-body form-horizontal">
 				<div class="standard-body-title">

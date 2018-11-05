@@ -33,7 +33,7 @@ $project = mysqli_fetch_array(mysqli_query($dbc, "SELECT * FROM `project` WHERE 
 				<select name="project_lead" data-placeholder="Select Staff..." data-table="project" data-id="<?= $project['projectid'] ?>" data-id-field="projectid" class="chosen-select-deselect form-control" onchange="if(this.value > 0) { $(this).closest('.form-group').find('.inline-img').show(); }">
 					<option></option>
 					<?php foreach(sort_contacts_query(mysqli_query($dbc, "SELECT contactid, first_name, last_name FROM contacts WHERE (category IN (".STAFF_CATS.") AND ".STAFF_CATS_HIDE_QUERY." ".(empty($lead_cats) ? '' : "AND (`category` IN ('".implode("','",$lead_cats)."') OR `staff_category` IN ('".implode("','",$lead_cats)."'))")." AND deleted=0 AND `status` > 0) OR `contactid`='{$project['project_lead']}'")) as $contact) {
-						echo "<option ".($project['project_lead'] == $contact['contactid'] ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
+						echo "<option ".($project['project_lead'] == $contact['contactid'] || (empty($projectid) && $contact['contactid'] == $_SESSION['contactid']) ? 'selected' : '')." value='". $contact['contactid']."' data-region='".$contact['region']."' data-location='".$contact['con_locations']."' data-classification='".$contact['classification']."'>".$contact['first_name'].' '.$contact['last_name'].'</option>';
 					} ?>
 				</select>
 			</div>

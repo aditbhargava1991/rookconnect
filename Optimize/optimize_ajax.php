@@ -108,3 +108,6 @@ else if($_GET['action'] == 'archive') {
 else if($_GET['action'] == 'tile_settings') {
 	set_config($dbc, 'optimize_dont_count_warehouse', filter_var($_POST['optimize_dont_count_warehouse'],FILTER_SANITIZE_STRING));
 }
+else if($_GET['action'] == 'stop_types') {
+	set_config($dbc, 'optimize_stop_types', $_POST['optimize_stop_types']);
+}

@@ -88,7 +88,7 @@ if($map_url != '') {
 	<img style="margin:auto;" src="<?= $map_url ?>" class="map_img">
     <img class="inline-img cursor-hand no-toggle" title="Zoom In Map" style="position:absolute;top:calc(<?= $_GET['y'] ?>px - 4.5em);left:calc(<?= $_GET['x'] ?>px + 20% - 2.5em);" onclick="if(zoom < 16) { zoom++; get_map_view(); } else { console.log('Maximum Zoom Reached!'); }" src="../img/icons/ROOK-ZoomIn-icon.png">
     <img class="inline-img cursor-hand no-toggle" title="Zoom Out Map" style="position:absolute;top:calc(<?= $_GET['y'] ?>px - 2.5em);left:calc(<?= $_GET['x'] ?>px + 20% - 2.5em);" onclick="if(zoom > 6) { zoom--; get_map_view(); } else { console.log('Minimum Zoom Reached!'); }" src="../img/icons/ROOK-ZoomOut-icon.png">
-    <?php foreach($ticket_pts as $points) { ?>
+	<?php foreach($ticket_pts as $points) { ?>
         <script>
         var y_pos = Math.round(height * <?= isset($zoom_ratios[$zoom]) ? $zoom_ratios[$zoom][0] : $zoom_ratios[10][0] ?> * <?= $ratio > 1 ? $ratio : 1 ?> * (<?= $map_center->lat ?> - <?= $points['lat'] ?>) + height - 20);
         var x_pos = Math.round(width * <?= isset($zoom_ratios[$zoom]) ? $zoom_ratios[$zoom][1] : $zoom_ratios[10][1] ?> * <?= $ratio > 1 ? 1 : $ratio ?> * (<?= $points['lng'] ?> - <?= $map_center->lng ?>) + width - 10);
@@ -227,5 +227,5 @@ if($map_url != '') {
 		</div>
 	<?php }
 } else {
-	echo '<h3>No Unscheduled '.TICKET_TILE.' Found</h3>';
+	echo '<h3 class="text-center" style="margin-top:35%;">No Unscheduled '.TICKET_TILE.' Found</h3>';
 }

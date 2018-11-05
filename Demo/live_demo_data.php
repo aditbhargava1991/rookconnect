@@ -526,11 +526,13 @@ function syncTable(link) {
 				</tr>
 			<?php } ?>
 			<?php
-			$tables_config = mysqli_query($dbc, "SELECT table_name FROM information_schema.tables WHERE table_type = 'base table' AND table_schema='demo_rookconnect_db' AND table_name LIKE '%_config%'");
+			/*$tables_config = mysqli_query($dbc, "SELECT table_name FROM information_schema.tables WHERE table_type = 'base table' AND table_schema='demo_rookconnect_db' AND table_name LIKE '%_config%'");
 			while($resTables = mysqli_fetch_assoc($tables_config)) {
-				$table_config = $resTables['table_name'];
+				$table_config = $resTables['table_name'];*/
+			$tables_config = ['admin_tile_config', 'dashboard_permission_config', 'exercise_config', 'field_config', 'field_config_agendas_meetings', 'field_config_asset', 'field_config_bid', 'field_config_budget', 'field_config_calendar_booking', 'field_config_calendar_security', 'field_config_calllog', 'field_config_charts_pdf_times', 'field_config_checklist', 'field_config_client_project', 'field_config_communication', 'field_config_contact', 'field_config_contacts', 'field_config_contacts__20170517_160755', 'field_config_contacts_security', 'field_config_contacts_shifts', 'field_config_contacts_shifts_pdf', 'field_config_contracts', 'field_config_cost_estimate', 'field_config_custom_charts', 'field_config_custom_charts_lines', 'field_config_custom_charts_settings', 'field_config_custom_documents', 'field_config_email_alerts', 'field_config_equip_assign', 'field_config_equipment', 'field_config_equipment_inspection', 'field_config_estimate', 'field_config_expense', 'field_config_field_jobs', 'field_config_holidays', 'field_config_hr', 'field_config_hr_manuals', 'field_config_incident_report', 'field_config_infogathering', 'field_config_inventory', 'field_config_jobs', 'field_config_manuals', 'field_config_password', 'field_config_patientform', 'field_config_performance_reviews', 'field_config_project', 'field_config_project_admin', 'field_config_project_custom_details', 'field_config_project_form', 'field_config_project_manage', 'field_config_ratecard', 'field_config_safety', 'field_config_security_contact_categories', 'field_config_security_level_theme', 'field_config_services', 'field_config_so', 'field_config_so_contacts', 'field_config_so_pdf', 'field_config_so_security', 'field_config_staff_security', 'field_config_supervisor', 'field_config_teams', 'field_config_ticket_accordion_names', 'field_config_ticket_delivery_color', 'field_config_ticket_fields', 'field_config_ticket_fields_action', 'field_config_ticket_headings', 'field_config_ticket_log', 'field_config_ticket_security', 'field_config_ticket_status_color', 'field_config_treatment_presets', 'field_config_user_forms', 'field_config_vendors', 'field_config_vpl', 'general_configuration', 'subtab_config', 'tile_config'];
+			foreach($tables_config as $table_config) {
 			?>
-				<?php if(tile_enabled($dbc, $table_config)['user_enabled'] > 0) { ?>
+				<?php //if(tile_enabled($dbc, $table_config)['user_enabled'] > 0) { ?>
 					<tr data-table="<?php echo $table_config; ?>">
 						<?php $count_live = $db_all->query("SELECT SUM(IF(`deleted`=0,1,0)) `active`, SUM(IF(`deleted`=0,0,1)) `archived` FROM `".DATABASE_NAME2."`.`".$table_config."`")->fetch_assoc();
 						$count_demo = $db_all->query("SELECT SUM(IF(`deleted`=0,1,0)) `active`, SUM(IF(`deleted`=0,0,1)) `archived` FROM `".DATABASE_NAME."`.`$table_config`")->fetch_assoc();
@@ -540,7 +542,7 @@ function syncTable(link) {
 						<td data-title="Rows in Demo Software"><?= $count_demo['active'] ?> Rows, <?= $count_demo['archived'] ?> Archived</td>
 						<td data-title="Function"><?php if($cols['live_cols'] == $cols['demo_cols']) { ?><a class="cursor-hand" onclick="syncTable(this);">Sync Live data to Demo</a><?php } else { ?>The number of columns in your Live Sofware (<?= $cols['live_cols'] ?>) does not match your Demo Software (<?= $cols['demo_cols'] ?>)<?php } ?></td>
 					</tr>
-				<?php } ?>
+				<?php //} ?>
 			<?php } ?>
 		</table>
 	<?php } ?>

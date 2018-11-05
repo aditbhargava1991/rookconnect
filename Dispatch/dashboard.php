@@ -41,6 +41,19 @@ foreach ($ticket_statuses as $ticket_status) {
 
 <div id="accordion" class="tile-sidebar sidebar sidebar standard-collapsible">
     <ul>
+        <?php /* $equipment_view_parent = "#accordion";
+        if($summary_tab == 1) {
+            $equipment_view_parent = "#collapse_equipment_view"; ?>
+            <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;">
+                <li class="">Summary</li>
+            </a>
+            <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;">
+                <li class="">Truck Overview</li>
+            </a>
+            <li class="sidebar-higher-level highest_level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment_view"><?= $equipment_label ?> View<span class="arrow"></span></a>
+                <ul class="collapse" id="collapse_equipment_view" style="overflow: hidden;">
+        <?php } */ ?>
+
         <?php $equipment_view_parent = "#accordion";
         if($summary_tab == 1) {
             $equipment_view_parent = "#collapse_equipment_view"; ?>

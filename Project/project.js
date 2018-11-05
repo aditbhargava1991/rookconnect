@@ -143,7 +143,7 @@ function selectType(type, target, label = '') {
 		$('.search-results').addClass('hidden');
 		$('.main-content-screen, #project_accordions').removeClass('hidden');
 		$('.active.blue:not(.sidebar-lower-level)').removeClass('active').removeClass('blue');
-		$('a[href$="type='+type+'"] li').addClass('active blue');
+		$('a[href$="type='+type+'"] li,a[href*="type='+type+'&"] li').addClass('active blue');
 		if(label != '') {
 			target.html('<h3 class="double-pad-left">'+label+'</h3>');
 		} else {
@@ -161,7 +161,9 @@ function selectType(type, target, label = '') {
                 }
             });
         }
-        if(type == 'VIEW_ALL') {
+        if(project_list[type] == undefined) {
+            current_list = [];
+        } else if(type == 'VIEW_ALL') {
         	current_list = project_list['VIEW_ALL'].slice();
         } else {
 			current_list = project_list[type].slice();
@@ -366,6 +368,9 @@ function saveFieldMethod(field) {
 				$('[data-table=project]').data('id',response);
 				$('[name=projectid]').val(response);
 				$('[name=created_date]').trigger('change');
+                if(name != 'project_lead') {
+                    $('[name=project_lead]').change();
+                }
 				window.history.replaceState('','Software',window.location.href.replace('edit=0','edit='+response));
 				var id = response;
 				$('a').not('.new-btn').each(function() {

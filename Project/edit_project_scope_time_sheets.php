@@ -33,7 +33,7 @@ $time_sheets = mysqli_query($dbc, "SELECT `time_cards_id`, `staff`, `date`, SUM(
     SUM(`highlight`) HIGHLIGHT, SUM(`manager_highlight`) MANAGER,
     GROUP_CONCAT(`comment_box` SEPARATOR ', ') COMMENTS,
     SUM(`timer_tracked`) TRACKED_HRS,
-    SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS FROM `time_cards` WHERE `staff` IN ({$project['clientid']}) AND `approv`='N' AND `deleted`=0 GROUP BY CONCAT(`staff`,`date`) ORDER BY `date`");
+    SUM(IF(`type_of_time`='Direct Hrs.',`total_hrs`,0)) DIRECT_HRS, SUM(IF(`type_of_time`='Indirect Hrs.',`total_hrs`,0)) INDIRECT_HRS FROM `time_cards` WHERE `projectid`='$projectid' AND `deleted`=0 GROUP BY CONCAT(`staff`,`date`) ORDER BY `date`");
 $time_sheets_count += mysqli_num_rows($time_sheets);
 if($time_sheets_count > 0) { ?>
     <table class="table table-bordered">
