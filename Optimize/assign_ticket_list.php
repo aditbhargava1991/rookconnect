@@ -1,4 +1,5 @@
 <?php include('../include.php');
+$security_access = $dbc->query("SELECT `region_access`, `location_access`, `classification_access` FROM `contacts_security` WHERE `contactid`='".$_SESSION['contactid']."'")->fetch_assoc();
 $region = filter_var(($_GET['region'] != '' ? $_GET['region'] : '%'),FILTER_SANITIZE_STRING);
 $location = filter_var(($_GET['location'] != '' ? $_GET['location'] : '%'),FILTER_SANITIZE_STRING);
 $classification = filter_var(($_GET['classification'] != '' ? $_GET['classification'] : '%'),FILTER_SANITIZE_STRING);
