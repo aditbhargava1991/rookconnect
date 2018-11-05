@@ -1222,26 +1222,27 @@ if($_GET['action'] == 'update_fields') {
             $ticket_status = get_config($dbc, 'ticket_default_status');
         }
         $field_config = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `field_config_ticket_alerts` WHERE `ticket_type` = '".$ticket_type."'"));
-        $ticket_alert = mysqli_fetch_assoc(mysqli_query($dbc, "SELECT * FROM `ticket_alerts` WHERE `ticketid` = '".$ticketid."'"));
-        if($field_config['enabled'] == 1 && $ticket_alert['sent'] != 1 && ($ticket_status == $field_config['status'] || empty($field_config['status']))) {
-            $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
-            $type_label = TICKET_NOUN;
-            foreach($ticket_tabs as $type) {
-                if(config_safe_str($type) == $ticket_type) {
-                    $type_label = $type;
+        if($field_config['enabled'] == 1 && ($ticket_status == $field_config['status'] || empty($field_config['status']))) {
+            mysqli_query($dbc, "INSERT INTO `ticket_alerts` (`ticketid`, `sent`) SELECT '$ticketid', 1 FROM (SELECT COUNT(*) `rows` FROM `ticket_alerts` WHERE `ticketid` = '".$ticketid."') `num` WHERE `num`.`rows`=0");
+            if($dbc->affected_rows > 0) {
+                $ticket_tabs = explode(',',get_config($dbc, 'ticket_tabs'));
+                $type_label = TICKET_NOUN;
+                foreach($ticket_tabs as $type) {
+                    if(config_safe_str($type) == $ticket_type) {
+                        $type_label = $type;
+                    }
+                }
+                $subject = str_replace(['[TICKET]'],[get_ticket_label($dbc, $get_ticket)],$field_config['subject']);
+                $body = str_replace(['[TICKET]'],[get_ticket_label($dbc, $get_ticket)],html_entity_decode($field_config['body']));
+                $body .= "To review this ".TICKET_NOUN.", <a href='".WEBSITE_URL."/Ticket/index.php?edit=".$get_ticket['ticketid']."&tile_name=".$get_ticket['ticket_type']."&from_alert=1'>click here</a>.";
+                foreach(explode(',', $field_config['contactid']) as $staffid) {
+                    if($staffid > 0) {
+                        $email = get_email($dbc, $staffid);
+                        send_email('', $email, '', '', $subject, $body);
+                        mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_type`, `subject`, `src_table`, `src_tableid`) VALUES ('$staffid', '".date('Y-m-d')."', 'TICKET_ALERTS', '$subject', 'ticket_alerts', '$ticketid')");
+                    }
                 }
             }
-            $subject = str_replace(['[TICKET]'],[get_ticket_label($dbc, $get_ticket)],$field_config['subject']);
-            $body = str_replace(['[TICKET]'],[get_ticket_label($dbc, $get_ticket)],html_entity_decode($field_config['body']));
-            $body .= "To review this ".TICKET_NOUN.", <a href='".WEBSITE_URL."/Ticket/index.php?edit=".$get_ticket['ticketid']."&tile_name=".$get_ticket['ticket_type']."&from_alert=1'>click here</a>.";
-            foreach(explode(',', $field_config['contactid']) as $staffid) {
-                if($staffid > 0) {
-                    $email = get_email($dbc, $staffid);
-                    send_email('', $email, '', '', $subject, $body);
-                    mysqli_query($dbc, "INSERT INTO `reminders` (`contactid`, `reminder_date`, `reminder_type`, `subject`, `src_table`, `src_tableid`) VALUES ('$staffid', '".date('Y-m-d')."', 'TICKET_ALERTS', '$subject', 'ticket_alerts', '$ticketid')");
-                }
-            }
-            mysqli_query($dbc, "INSERT INTO `ticket_alerts` (`ticketid`, `sent`) VALUES ('$ticketid', 1)");
         }
     }
 
