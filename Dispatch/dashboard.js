@@ -743,6 +743,7 @@ function table_view(a = '') {
 	$('#summary_tab').find('li').removeClass('active blue');
 	$('.sidebar-higher-level').find('li').removeClass('active blue');
 	$('.sidebar-higher-level').find('ul').removeClass(' in');
+	$('.dispatch-table-list').append('hello');
 }
 
 function summary_select_equipment(a) {

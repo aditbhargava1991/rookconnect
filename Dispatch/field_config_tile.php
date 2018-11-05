@@ -14,6 +14,23 @@ checkAuthorised('dispatch'); ?>
         <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_summary_tab" <?= $dispatch_tile_summary_tab == 1 ? 'checked' : '' ?> value="1"></label>
     </div>
 </div>
+
+<div class="form-group">
+    <label class="col-sm-4 control-label">Enable Truck View Tab:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_truck_tab = get_config($dbc, 'dispatch_tile_truck_tab'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_truck_tab" <?= $dispatch_tile_truck_tab == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+
+<div class="form-group">
+    <label class="col-sm-4 control-label">Enable Table View Tab:</label>
+    <div class="col-sm-8">
+        <?php $dispatch_tile_table_tab = get_config($dbc, 'dispatch_tile_table_tab'); ?>
+        <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_table_tab" <?= $dispatch_tile_table_tab == 1 ? 'checked' : '' ?> value="1"></label>
+    </div>
+</div>
+
 <div class="form-group">
     <label class="col-sm-4 control-label">Equipment Category:</label>
     <div class="col-sm-8">
