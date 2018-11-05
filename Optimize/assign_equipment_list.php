@@ -5,8 +5,6 @@ $classification = filter_var(($_GET['classification'] != '' ? $_GET['classificat
 $date = filter_var(($_GET['date'] != '' ? $_GET['date'] : date('Y-m-d')),FILTER_SANITIZE_STRING);
 $all_equip = $_GET['staff_only'] > 0 ? false : true;
 
-$equipment_list = $dbc->query("SELECT `equipment`.`equipmentid`, CONCAT(`equipment`.`category`,': ',`equipment`.`make`,' ',`equipment`.`model`,' ',`equipment`.`unit_number`) `label`, SUM(IF(`schedule`.`to_do_date`='$date',1,0)) `assigned` FROM `equipment` LEFT JOIN (SELECT IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipmentid`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` WHERE `tickets`.`deleted`=0 $warehouse_query AND IFNULL(`ticket_schedule`.`deleted`,0)=0) `schedule` ON `equipment`.`equipmentid`=`schedule`.`equipmentid` WHERE ".(count($region_filter) > 0 ? '('.implode(' OR ',$region_filter).') AND' : '')." ".(count($location_filter) > 0 ? '('.implode(' OR ',$location_filter).') AND' : '')." ".(count($class_filter) > 0 ? '('.implode(' OR ',$class_filter).') AND' : '')." `equipment`.`deleted`=0 GROUP BY `equipment`.`equipmentid` ORDER BY `equipment`.`make`, `equipment`.`model`, `equipment`.`unit_number`");
-echo '<h3 class="text-center">Equipment'.($equipment_list->num_rows > 0 ? ' <em><small>('.$equipment_list->num_rows.')</small></em>' : '').'</h3>';
 $region_filter = [];
 foreach(array_filter(explode(',',$region)) as $region) {
 	$region_filter[] = "CONCAT('*#*',IFNULL(`equipment`.`region`,''),'*#*') LIKE '%*#*$region*#*%'";
@@ -23,6 +21,20 @@ $warehouse_query = '';
 if(get_config($dbc, 'optimize_dont_count_warehouse') == 1) {
     $warehouse_query = " AND REPLACE(REPLACE(IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))),' ',''),'-','') NOT IN (SELECT REPLACE(REPLACE(CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')),' ',''),'-','') FROM `contacts` WHERE `category`='Warehouses')";
 }
+$stop_query = '';
+$optimize_stop_type_count = get_config($dbc, 'optimize_stop_types');
+$stop_label = TICKET_TILE;
+if(!empty($optimize_stop_type_count)) {
+    $optimize_stop_type_count = explode(',',$optimize_stop_type_count);
+    $stop_query = " AND `ticket_schedule`.`type` IN ('".implode("','",$optimize_stop_type_count)."')";
+    if(count($optimize_stop_type_count) == 1) {
+        $stop_label = $optimize_stop_type_count[0];
+    } else {
+        $stop_label = 'Deliveries';
+    }
+}
+$equipment_list = $dbc->query("SELECT `equipment`.`equipmentid`, CONCAT(`equipment`.`category`,': ',`equipment`.`make`,' ',`equipment`.`model`,' ',`equipment`.`unit_number`) `label`, SUM(IF(`schedule`.`to_do_date`='$date',1,0)) `assigned` FROM `equipment` LEFT JOIN (SELECT IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipmentid`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` WHERE `tickets`.`deleted`=0 $warehouse_query $stop_query AND IFNULL(`ticket_schedule`.`deleted`,0)=0) `schedule` ON `equipment`.`equipmentid`=`schedule`.`equipmentid` WHERE ".(count($region_filter) > 0 ? '('.implode(' OR ',$region_filter).') AND' : '')." ".(count($location_filter) > 0 ? '('.implode(' OR ',$location_filter).') AND' : '')." ".(count($class_filter) > 0 ? '('.implode(' OR ',$class_filter).') AND' : '')." `equipment`.`deleted`=0 GROUP BY `equipment`.`equipmentid` ORDER BY `equipment`.`make`, `equipment`.`model`, `equipment`.`unit_number`");
+echo '<h3 class="text-center">Equipment'.($equipment_list->num_rows > 0 ? ' <em><small>('.$equipment_list->num_rows.')</small></em>' : '').'</h3>';
 if($equipment_list->num_rows > 0) { ?>
     <script>
     $(document).ready(function() {
@@ -58,7 +70,7 @@ if($equipment_list->num_rows > 0) { ?>
             <div data-id="<?= $equip['equipmentid'] ?>" class="block-item equipment">
                 <h4><?= $equip['label'] ?></h4>
                 <?= $team_name ?>
-                <?= $equip['assigned'].' '.TICKET_TILE ?>
+                <?= $equip['assigned'].' '.$stop_label ?>
                 <?php if($_GET['sorticons'] == 'true') { ?>
                     <img src="../img/sort-icon.png" class="pull-right inline-img" onclick="get_addresses('<?= $date ?>', '<?= $equip['equipmentid'] ?>'); return false;">
                 <?php } ?>
