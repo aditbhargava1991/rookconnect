@@ -58,6 +58,7 @@ foreach ($ticket_statuses as $ticket_status) {
         if($summary_tab == 1) {
             $equipment_view_parent = "#collapse_equipment_view"; ?>
             <a id="summary_tab" href="" onclick="filter_sidebar(this); return false;"><li class="active blue">Summary</li></a>
+
             <li class="sidebar-higher-level highest_level"><a class="cursor-hand collapsed" data-parent="#accordion" data-toggle="collapse" data-target="#collapse_equipment_view"><?= $equipment_label ?> View<span class="arrow"></span></a>
                 <ul class="collapse" id="collapse_equipment_view" style="overflow: hidden;">
         <?php } ?>
@@ -118,6 +119,9 @@ foreach ($ticket_statuses as $ticket_status) {
         <?php if($summary_tab == 1) { ?>
                 </ul>
             </li>
+
+        <a id="table_tab" href="table_view.php" onclick="table_view(this); return false;"><li class="">Table View</li></a>
+
         <?php } ?>
     </ul>
 </div>
