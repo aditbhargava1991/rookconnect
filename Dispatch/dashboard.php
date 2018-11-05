@@ -232,7 +232,7 @@ foreach ($ticket_statuses as $ticket_status) {
                 <div class="dispatch-summary-tab-list" <?= $summary_tab != 1 ? 'style="display:none;"' : '' ?>></div>
                 <div class="dispatch-summary-list-none" style="padding: 1em; <?= $summary_tab != 1 ? 'display:none;' : '' ?>">No <?= $equipment_label ?> Found</div>
                 <div class="dispatch-equipment-list" <?= $truck_tab != 1 ? 'style="display:none;"' : '' ?>></div>
-                <div class="dispatch-equipment-list-none" style="padding: 1em; <?= $summary_tab == 1 ? 'display:none;' : '' ?>">No <?= $equipment_label ?> Selected</div>
+                <div class="dispatch-equipment-list-none" style="padding: 1em; <?= $truck_tab != 1 ? 'display:none;' : '' ?>">No <?= $equipment_label ?> Selected</div>
 
                 <div class="dispatch-table-list" <?= $table_tab != 1 ? 'style="display:none;"' : '' ?>></div>
 

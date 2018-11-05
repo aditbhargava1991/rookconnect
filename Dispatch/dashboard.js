@@ -303,6 +303,7 @@ function reload_all_data() {
 	still_loading_item = false;
 	$('.dispatch-summary-tab-list').html('');
 	$('.dispatch-equipment-list').html('');
+	$('.dispatch-table-list').html('');
 	filter_equipment();
 	retrieve_buttons();
 	reload_summary_tab();
@@ -737,15 +738,6 @@ function filter_sidebar(a = '') {
 
 	filter_equipment();
 }
-
-function table_view(a = '') {
-	$('#table_tab').find('li').addClass('active blue');
-	$('#summary_tab').find('li').removeClass('active blue');
-	$('.sidebar-higher-level').find('li').removeClass('active blue');
-	$('.sidebar-higher-level').find('ul').removeClass(' in');
-	$('.dispatch-table-list').append('hello');
-}
-
 function summary_select_equipment(a) {
 	var equipmentid = $(a).closest('.dispatch-summary-tab').data('equipment');
 	if($('a[data-target="#collapse_equipment_view"]').is('.collapsed')) {
@@ -934,4 +926,107 @@ function toggle_ticket_legend(display) {
 	} else {
 		$('.dispatch-status-legend').hide();
 	}
+}
+
+function table_view(a = '') {
+	$('#table_tab').find('li').addClass('active blue');
+	$('#summary_tab').find('li').removeClass('active blue');
+	$('.sidebar-higher-level').find('li').removeClass('active blue');
+	$('.sidebar-higher-level').find('ul').removeClass(' in');
+	$('.dispatch-summary-tab-list').html('');
+	$('.dispatch-table-list').append('hello');
+
+
+	/*var regions = [];
+	var locations = [];
+	var classifications = [];
+
+	$('#collapse_region').find('li.active').each(function() {
+		var anchor = $(this).closest('a');
+		var region = $(anchor).data('region');
+		regions.push(region);
+	});
+
+	$('#collapse_location').find('li.active').each(function() {
+		var anchor = $(this).closest('a');
+		var location = $(anchor).data('location');
+		locations.push(location);
+	});
+
+	$('#collapse_classification').find('li').each(function() {
+		var anchor = $(this).closest('a');
+		$(anchor).show();
+
+		var class_regions = $(anchor).data('region');
+		if(regions.length > 0) {
+			if(class_regions.length > 0) {
+				class_regions.forEach(function(class_region) {
+					if(regions.indexOf(class_region) < 0) {
+						$(anchor).hide();
+						$(anchor).find('li').removeClass('active blue');
+					}
+				});
+			} else {
+				$(anchor).hide();
+				$(anchor).find('li').removeClass('active blue');
+			}
+		}
+		if($(anchor).find('li').hasClass('active blue')) {
+			var classification = $(anchor).data('classification');
+			classifications.push(classification);
+
+		}
+	});
+
+	$('#collapse_equipment').find('li').each(function() {
+		var anchor = $(this).closest('a');
+		$(anchor).show();
+
+		var equip_regions = $(anchor).data('region');
+		var equip_locations = $(anchor).data('location');
+		var equip_classifications = $(anchor).data('classification');
+
+		if(regions.length > 0) {
+			if(equip_regions.length > 0) {
+				equip_regions.forEach(function(equip_region) {
+					if(regions.indexOf(equip_region) < 0) {
+						$(anchor).hide();
+						$(anchor).find('li').removeClass('active blue');
+					}
+				});
+			} else {
+				$(anchor).hide();
+				$(anchor).find('li').removeClass('active blue');
+			}
+		}
+		if(locations.length > 0) {
+			if(equip_locations.length > 0) {
+				equip_locations.forEach(function(equip_location) {
+					if(locations.indexOf(equip_location) < 0) {
+						$(anchor).hide();
+						$(anchor).find('li').removeClass('active blue');
+					}
+				});
+			} else {
+				$(anchor).hide();
+				$(anchor).find('li').removeClass('active blue');
+			}
+		}
+		if(classifications.length > 0) {
+			if(equip_classifications.length > 0) {
+				equip_classifications.forEach(function(equip_classification) {
+					if(classifications.indexOf(equip_classification) < 0) {
+						$(anchor).hide();
+						$(anchor).find('li').removeClass('active blue');
+					}
+				});
+			} else {
+				$(anchor).hide();
+				$(anchor).find('li').removeClass('active blue');
+			}
+		}
+	});
+
+	filter_equipment();
+	*/
 }
