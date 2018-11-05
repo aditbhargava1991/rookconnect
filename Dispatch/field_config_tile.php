@@ -17,7 +17,7 @@ checkAuthorised('dispatch'); ?>
 <div class="form-group">
     <label class="col-sm-4 control-label">Equipment Category:</label>
     <div class="col-sm-8">
-        <?php 
+        <?php
         $equip_categories = get_config($dbc, 'equipment_tabs');
         $equip_categories = explode(',', $equip_categories);
         asort($equip_categories);
@@ -127,6 +127,25 @@ checkAuthorised('dispatch'); ?>
         <?php } ?>
     </div>
 </div>
+
+<div class="form-group">
+    <label class="col-sm-4 control-label">Table View Search Fields:</label>
+    <div class="col-sm-8">
+        <?php $table_label_fields = [
+            'region'=>'Region',
+            'location'=>'Location',
+            'classification'=>'Classification',
+            'business'=>BUSINESS_CAT,
+            'equipment'=>'Equipment',
+            'status'=>'Status',
+        ];
+        $dispatch_tile_table_view_search_fields = explode(',',get_config($dbc, 'dispatch_tile_table_view_search_fields'));
+        foreach($table_label_fields as $table_key => $table_field) { ?>
+            <label class="form-checkbox"><input type="checkbox" name="dispatch_tile_table_view_search_fields[]" value="<?= $table_key ?>" <?= in_array($table_key, $dispatch_tile_table_view_search_fields) ? 'checked' : '' ?>> <?= $table_field ?></label>
+        <?php } ?>
+    </div>
+</div>
+
 <div class="form-group">
     <label class="col-sm-4 control-label">Equipment Fields:</label>
     <div class="col-sm-8">

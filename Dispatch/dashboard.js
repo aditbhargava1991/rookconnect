@@ -737,6 +737,14 @@ function filter_sidebar(a = '') {
 
 	filter_equipment();
 }
+
+function table_view(a = '') {
+	$('#table_tab').find('li').addClass('active blue');
+	$('#summary_tab').find('li').removeClass('active blue');
+	$('.sidebar-higher-level').find('li').removeClass('active blue');
+	$('.sidebar-higher-level').find('ul').removeClass(' in');
+}
+
 function summary_select_equipment(a) {
 	var equipmentid = $(a).closest('.dispatch-summary-tab').data('equipment');
 	if($('a[data-target="#collapse_equipment_view"]').is('.collapsed')) {
