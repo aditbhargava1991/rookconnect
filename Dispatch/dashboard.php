@@ -120,7 +120,7 @@ foreach ($ticket_statuses as $ticket_status) {
                 </ul>
             </li>
 
-        <a id="table_tab" href="dashboard.php?table_view=table_view" onclick="table_view(this); return false;"><li class="">Table View</li></a>
+        <a id="table_tab" href="index.php?table_view=table_view" onclick="table_view(this); return false;"><li class="">Table View</li></a>
 
         <?php } ?>
     </ul>
