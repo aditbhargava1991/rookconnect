@@ -306,8 +306,8 @@ $(document).ready(function() {
 
                 <!-- Sidebar -->
                 <div class="standard-collapsible tile-sidebar tile-sidebar-noleftpad hide-on-mobile" <?= $_GET['iframe_slider'] == 1 || IFRAME_PAGE ? 'style="display:none;"' : '' ?>>
-                    <ul><?php                     
-                        
+                    <ul><?php
+
                         if($salesid!=''){?>
                             <a href="<?php echo WEBSITE_URL.'/Sales/sale.php?p=preview&id='.$salesid;?>"><li class="<?= $_GET['p'] == 'preview' ? 'active' : '' ?>">Summary</li></a>
                         <?php }

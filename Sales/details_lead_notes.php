@@ -16,7 +16,7 @@ var reload_notes = function() {
 </script>
 <div class="accordion-block-details padded" id="leadnotes">
     <div class="accordion-block-details-heading"><h4>Lead Notes</h4></div>
-    
+
     <div class="row">
         <div class="col-xs-12"><?php
             $result = mysqli_query($dbc, "SELECT * FROM `sales_notes` WHERE `salesid`='{$salesid}' AND `salesid` > 0 AND `deleted`=0 ORDER BY `salesnoteid` DESC");
@@ -32,7 +32,7 @@ var reload_notes = function() {
                             <th>Added By</th>
                             <th style="width: 6em;"></th>
                         </tr>';
-                
+
                 while($row = mysqli_fetch_array($result)) {
                     $bg_class = $odd_even % 2 == 0 ? 'row-even-bg' : 'row-odd-bg';
                     echo '<tr class="'.$bg_class.'">';
@@ -50,12 +50,12 @@ var reload_notes = function() {
                     echo '</tr>';
                     $odd_even++;
                 }
-                
+
                 echo '</table><br /><br />';
             } else { ?>
-                <a href="" onclick="add_note(); return false;" class="btn brand-btn">Add Note <img src=""></a>
+                <a href="" onclick="add_note(); return false;" class=""><img class="inline-img theme-color-icon" data-history-label="note" src="../img/icons/ROOK-add-icon.png"></a>
             <?php } ?>
         </div>
     </div>
-    
+
 </div><!-- .accordion-block-details -->

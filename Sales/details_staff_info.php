@@ -39,10 +39,10 @@ if(!empty($limit_staff_cat)) {
                     } ?>
                 </select>
             </div>
-            <div class="col-sm-1">
+            <div class="col-sm-2">
                 <img class="inline-img cursor-hand pull-left no-toggle" title="View this staff's profile" src="../img/person.PNG" onclick="load_profile(this,'Staff/staff_edit.php?view_only=id_card&contactid=');">
-                <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this staff from sharing this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
-                <img class="inline-img cursor-hand pull-right no-toggle" title="Add another staff to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
+                <img class="inline-img cursor-hand no-toggle" title="Add another staff to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
+                <img class="inline-img cursor-hand no-toggle" title="Remove this staff from sharing this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
             </div>
             <div class="clearfix"></div>
         </div>

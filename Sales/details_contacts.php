@@ -27,6 +27,7 @@ var reload_contacts = function() {
     $_GET['edit'] = $contactid;
     $tab_data = $tab_list['Contact Description']; ?>
     <div class="accordion-block-details padded row" id="contact_<?= $contactid ?>">
+				<div class="accordion-block-details-heading" id="salesLeadContact"><h4>Sales Lead Contact</h4></div>
         <div class="col-xs-12 col-sm-4 gap-md-left-15">Sales Lead Contact:</div>
         <div class="col-xs-12 col-sm-5">
             <select data-placeholder="Select Sales Lead(s)..." id="sales_contact" data-table="sales" data-concat="," name="contactid" class="chosen-select-deselect form-control1">
@@ -42,13 +43,13 @@ var reload_contacts = function() {
                 } ?>
             </select>
         </div>
-		<div class="col-xs-12 col-sm-1">
-            <img class="inline-img cursor-hand pull-right no-toggle" title="Remove this <?= CONTACTS_NOUN ?> from this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
-            <img class="inline-img cursor-hand pull-right no-toggle" title="Add another <?= CONTACTS_NOUN ?> to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
+		<div class="col-xs-12 col-sm-2">
 			<a href="../Contacts/contacts_inbox.php?fields=all_fields&edit=<?= $contactid ?>" class="no-toggle" title="<?= get_contact($dbc, $contactid) ?>" onclick="overlayIFrameSlider(this.href.replace(/edit=.*/,'edit='+$('#contacts_list').find('option:selected').first().val()),'auto',true,true); return false;"><img src="../img/person.PNG" class="inline-img"></a>
+			<img class="inline-img cursor-hand no-toggle" title="Remove this <?= CONTACTS_NOUN ?> from this Sales Lead" src="../img/remove.png" onclick="rem_row(this);">
+			<img class="inline-img cursor-hand no-toggle" title="Add another <?= CONTACTS_NOUN ?> to this Sales Lead" src="../img/icons/ROOK-add-icon.png" onclick="add_row(this);">
 		</div>
         <div class="clearfix"></div>
-    
+
         <div class="accordion-block-details-heading sub_details">
             <?php if(get_contact($dbc, $contactid, 'name_company')!=''){
             ?>
@@ -58,7 +59,7 @@ var reload_contacts = function() {
             <?php } ?>
             <h4><?= get_contact($dbc, $contactid, 'name_company') ?></h4>
         </div>
-        
+
         <div class="row sub_details">
             <div class="col-xs-12 col-sm-11 gap-md-left-15">
                 <input type="hidden" name="contactid" value="<?= $contactid ?>">

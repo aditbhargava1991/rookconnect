@@ -117,9 +117,9 @@ $(document).ready(function() {
                         } ?>
                     </select>
                 </div>
-                <div class="col-xs-12 col-sm-1">
-                    <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand pull-right" onclick="rem_row(this);" />
-                    <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand pull-right" onclick="add_row(this);" />
+                <div class="col-xs-12 col-sm-2">
+                    <img src="<?= WEBSITE_URL; ?>/img/icons/ROOK-add-icon.png" class="inline-img cursor-hand" onclick="add_row(this);" />
+                    <img src="<?= WEBSITE_URL; ?>/img/remove.png" class="inline-img cursor-hand" onclick="rem_row(this);" />
                 </div>
                 <div class="clearfix"></div>
             </div><!-- .row -->
