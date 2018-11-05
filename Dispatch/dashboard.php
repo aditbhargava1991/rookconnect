@@ -120,7 +120,7 @@ foreach ($ticket_statuses as $ticket_status) {
                 </ul>
             </li>
 
-        <a id="table_tab" href="table_view.php" onclick="table_view(this); return false;"><li class="">Table View</li></a>
+        <a id="table_tab" href="dashboard.php?table_view=table_view" onclick="table_view(this); return false;"><li class="">Table View</li></a>
 
         <?php } ?>
     </ul>
@@ -221,6 +221,8 @@ foreach ($ticket_statuses as $ticket_status) {
                 } ?>
                 <div class="clearfix"></div>
             </div>
+            <?php
+            if(empty($_GET['table_view'])) { ?>
             <div class="dispatch-body">
                 <div class="dispatch-summary" style="padding: 1em; display: none;">
                     <div class="dispatch-equipment-summary-title"></div>
@@ -233,6 +235,9 @@ foreach ($ticket_statuses as $ticket_status) {
                 <div class="dispatch-equipment-list" <?= $summary_tab == 1 ? 'style="display:none;"' : '' ?>></div>
                 <div class="dispatch-equipment-list-none" style="padding: 1em; <?= $summary_tab == 1 ? 'display:none;' : '' ?>">No <?= $equipment_label ?> Selected</div>
             </div>
+            <?php } else {
+                include('table_view.php');
+             } ?>
         </div>
     </div>
     <div class="loading_overlay" style="display: none;"><div class="loading_wheel"></div></div>
