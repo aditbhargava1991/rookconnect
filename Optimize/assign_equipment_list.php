@@ -22,7 +22,7 @@ $warehouse_query = '';
 if(get_config($dbc, 'optimize_dont_count_warehouse') == 1) {
     $warehouse_query = " AND REPLACE(REPLACE(IFNULL(NULLIF(CONCAT(IFNULL(`ticket_schedule`.`address`,''),IFNULL(`ticket_schedule`.`city`,'')),''),CONCAT(IFNULL(`tickets`.`address`,''),IFNULL(`tickets`.`city`,''))),' ',''),'-','') NOT IN (SELECT REPLACE(REPLACE(CONCAT(IFNULL(`address`,''),IFNULL(`city`,'')),' ',''),'-','') FROM `contacts` WHERE `category`='Warehouses')";
 }
-$equipment_list = $dbc->query("SELECT `equipment`.`equipmentid`, CONCAT(`equipment`.`category`,': ',`equipment`.`make`,' ',`equipment`.`model`,' ',`equipment`.`unit_number`) `label`, SUM(IF(`schedule`.`to_do_date`='$date',1,0)) `assigned` FROM `equipment` LEFT JOIN (SELECT IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipmentid`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` WHERE `tickets`.`deleted`=0 $warehouse_query AND IFNULL(`ticket_schedule`.`deleted`,0)=0) `schedule` ON `equipment`.`equipmentid`=`schedule`.`equipmentid` WHERE ".(count($region_filter) > 0 ? '('.implode(' OR ',$region_filter).') AND' : '')." ".(count($location_filter) > 0 ? '('.implode(' OR ',$location_filter).') AND' : '')." ".(count($class_filter) > 0 ? '('.implode(' OR ',$class_filter).') AND' : '')." `equipment`.`deleted`=0 GROUP BY `equipment`.`equipmentid` ORDER BY `equipment`.`make`, `equipment`.`model`, `equipment`.`unit_number`");
+$equipment_list = $dbc->query("SELECT `equipment`.`equipmentid`, `equipment`.`category`,`equipment`.`make`,`equipment`.`model`,`equipment`.`unit_number`,`equipment`.`label`, SUM(IF(`schedule`.`to_do_date`='$date',1,0)) `assigned` FROM `equipment` LEFT JOIN (SELECT IFNULL(`ticket_schedule`.`equipmentid`,`tickets`.`equipmentid`) `equipmentid`, IFNULL(`ticket_schedule`.`to_do_date`,`tickets`.`to_do_date`) `to_do_date` FROM `tickets` LEFT JOIN `ticket_schedule` ON `tickets`.`ticketid`=`ticket_schedule`.`ticketid` WHERE `tickets`.`deleted`=0 $warehouse_query AND IFNULL(`ticket_schedule`.`deleted`,0)=0) `schedule` ON `equipment`.`equipmentid`=`schedule`.`equipmentid` WHERE ".(count($region_filter) > 0 ? '('.implode(' OR ',$region_filter).') AND' : '')." ".(count($location_filter) > 0 ? '('.implode(' OR ',$location_filter).') AND' : '')." ".(count($class_filter) > 0 ? '('.implode(' OR ',$class_filter).') AND' : '')." `equipment`.`deleted`=0 GROUP BY `equipment`.`equipmentid` ORDER BY `equipment`.`make`, `equipment`.`model`, `equipment`.`unit_number`");
 echo '<h3 class="text-center">Equipment'.($equipment_list->num_rows > 0 ? ' <em><small>('.$equipment_list->num_rows.')</small></em>' : '').'</h3>';
 if($equipment_list->num_rows > 0) { ?>
     <script>
@@ -57,7 +57,7 @@ if($equipment_list->num_rows > 0) { ?>
         }
         if($team_count > 0 || $all_equip) { ?>
             <div data-id="<?= $equip['equipmentid'] ?>" class="block-item equipment">
-                <h4><?= $equip['label'] ?></h4>
+                <h4><?= implode(': ',array_filter([$equip['category'],$equip['make'],$equip['model'],$equip['unit_number'],$equip['label']])) ?></h4>
                 <?= $team_name ?>
                 <?= $equip['assigned'].' '.TICKET_TILE ?>
                 <?php if($_GET['sorticons'] == 'true') { ?>
